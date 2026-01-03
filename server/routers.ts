@@ -189,7 +189,7 @@ export const appRouter = router({
         orderNumber: z.string().optional(),
         description: z.string(),
         orderType: z.enum(["material", "service", "equipment", "other"]).default("material"),
-        status: z.enum(["pending", "approved", "ordered", "in_transit", "delivered", "cancelled"]).default("pending"),
+        status: z.enum(["pending", "ordered", "in_transit", "delivered", "cancelled"]).default("pending"),
         quantity: z.string().optional(),
         unit: z.string().optional(),
         unitPrice: z.string().optional(),
@@ -209,7 +209,7 @@ export const appRouter = router({
     update: protectedProcedure
       .input(z.object({
         id: z.number(),
-        status: z.enum(["pending", "approved", "ordered", "in_transit", "delivered", "cancelled"]).optional(),
+        status: z.enum(["pending", "ordered", "in_transit", "delivered", "cancelled"]).optional(),
         actualDeliveryDate: z.date().optional(),
         notes: z.string().optional(),
       }))
@@ -233,7 +233,7 @@ export const appRouter = router({
         projectId: z.number(),
         title: z.string().min(1),
         description: z.string().optional(),
-        status: z.enum(["backlog", "todo", "in_progress", "review", "done"]).default("todo"),
+        status: z.enum(["todo", "in_progress", "review", "done", "cancelled"]).default("todo"),
         priority: z.enum(["low", "medium", "high", "urgent"]).default("medium"),
         urgency: z.enum(["low", "medium", "high"]).default("medium"),
         importance: z.enum(["low", "medium", "high"]).default("medium"),
@@ -253,7 +253,7 @@ export const appRouter = router({
         id: z.number(),
         title: z.string().optional(),
         description: z.string().optional(),
-        status: z.enum(["backlog", "todo", "in_progress", "review", "done"]).optional(),
+        status: z.enum(["todo", "in_progress", "review", "done", "cancelled"]).optional(),
         priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
         urgency: z.enum(["low", "medium", "high"]).optional(),
         importance: z.enum(["low", "medium", "high"]).optional(),
@@ -341,35 +341,50 @@ export const appRouter = router({
       }),
   }),
 
-  // AI Suggestions
-  aiSuggestions: router({
-    listByProject: protectedProcedure
-      .input(z.object({ projectId: z.number() }))
-      .query(async ({ input }) => {
-        return await db.getAISuggestionsByProject(input.projectId);
-      }),
-    
-    updateStatus: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        status: z.enum(["pending", "accepted", "rejected", "completed"]),
-      }))
-      .mutation(async ({ input, ctx }) => {
-        const { id, status } = input;
-        await db.updateAISuggestion(id, {
-          status,
-          ...(status === "accepted" ? { acceptedById: ctx.user.id, acceptedAt: new Date() } : {}),
-        });
-        return { success: true };
-      }),
-  }),
+  // AI Suggestions - TODO: Implement later
 
   // Emails
   emails: router({
+    list: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await db.getEmailsByUserId(ctx.user.id);
+      }),
+    
     listByProject: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input }) => {
         return await db.getEmailsByProject(input.projectId);
+      }),
+    
+    listByCategory: protectedProcedure
+      .input(z.object({ category: z.enum(["order", "adjudication", "purchase", "communication", "other"]) }))
+      .query(async ({ input, ctx }) => {
+        return await db.getEmailsByCategory(ctx.user.id, input.category);
+      }),
+    
+    search: protectedProcedure
+      .input(z.object({ keyword: z.string() }))
+      .query(async ({ input, ctx }) => {
+        return await db.searchEmails(ctx.user.id, input.keyword);
+      }),
+    
+    stats: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await db.getEmailStatsByCategory(ctx.user.id);
+      }),
+    
+    assignToProject: protectedProcedure
+      .input(z.object({ emailId: z.number(), projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.assignEmailToProject(input.emailId, input.projectId);
+        return { success: true };
+      }),
+    
+    markAsProcessed: protectedProcedure
+      .input(z.object({ emailId: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.markEmailAsProcessed(input.emailId);
+        return { success: true };
       }),
   }),
 });

@@ -97,3 +97,12 @@
 - [ ] Validar integrações externas
 - [ ] Testar responsividade em diferentes dispositivos
 - [ ] Validar performance com grande volume de dados
+
+## Integração Microsoft Outlook
+- [x] Configurar autenticação Microsoft Graph API
+- [x] Implementar sincronização de e-mails do Outlook
+- [x] Criar sistema de classificação automática de e-mails (IA)
+- [x] Desenvolver interface de visualização de e-mails
+- [x] Implementar busca e filtros de e-mails
+- [x] Adicionar atribuição de e-mails a projetos
+- [x] Criar estatísticas de e-mails por categoria

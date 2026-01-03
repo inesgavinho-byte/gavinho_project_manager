@@ -19,12 +19,6 @@ import {
   InsertBudget,
   notifications,
   InsertNotification,
-  aiSuggestions,
-  InsertAISuggestion,
-  reports,
-  InsertReport,
-  supplierTransactions,
-  InsertSupplierTransaction
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -275,27 +269,6 @@ export async function markNotificationAsRead(id: number) {
   await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, id));
 }
 
-// AI Suggestions
-export async function getAISuggestionsByProject(projectId: number) {
-  const db = await getDb();
-  if (!db) return [];
-  return await db.select().from(aiSuggestions)
-    .where(eq(aiSuggestions.projectId, projectId))
-    .orderBy(desc(aiSuggestions.createdAt));
-}
-
-export async function createAISuggestion(suggestion: InsertAISuggestion) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.insert(aiSuggestions).values(suggestion);
-}
-
-export async function updateAISuggestion(id: number, suggestion: Partial<InsertAISuggestion>) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  await db.update(aiSuggestions).set(suggestion).where(eq(aiSuggestions.id, id));
-}
-
 // Dashboard Stats
 export async function getDashboardStats() {
   const db = await getDb();
@@ -318,11 +291,68 @@ export async function getEmailsByProject(projectId: number) {
   if (!db) return [];
   return await db.select().from(emails)
     .where(eq(emails.projectId, projectId))
-    .orderBy(desc(emails.receivedAt));
+    .orderBy(desc(emails.receivedDateTime));
 }
 
 export async function createEmail(email: InsertEmail) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.insert(emails).values(email);
+}
+
+export async function getEmailsByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(emails)
+    .where(eq(emails.userId, userId))
+    .orderBy(desc(emails.receivedDateTime))
+    .limit(100);
+}
+
+export async function getEmailsByCategory(userId: number, category: typeof emails.$inferSelect.category) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(emails)
+    .where(and(eq(emails.userId, userId), eq(emails.category, category)))
+    .orderBy(desc(emails.receivedDateTime));
+}
+
+export async function searchEmails(userId: number, keyword: string) {
+  const db = await getDb();
+  if (!db) return [];
+  const searchPattern = `%${keyword}%`;
+  return await db.select().from(emails)
+    .where(
+      and(
+        eq(emails.userId, userId),
+        sql`(${emails.subject} LIKE ${searchPattern} OR ${emails.bodyPreview} LIKE ${searchPattern})`
+      )
+    )
+    .orderBy(desc(emails.receivedDateTime))
+    .limit(100);
+}
+
+export async function getEmailStatsByCategory(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select({
+    category: emails.category,
+    count: sql<string>`count(*)`
+  }).from(emails)
+    .where(eq(emails.userId, userId))
+    .groupBy(emails.category);
+}
+
+export async function assignEmailToProject(emailId: number, projectId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(emails).set({ projectId, updatedAt: new Date() })
+    .where(eq(emails.id, emailId));
+}
+
+export async function markEmailAsProcessed(emailId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(emails).set({ isProcessed: true, updatedAt: new Date() })
+    .where(eq(emails.id, emailId));
 }

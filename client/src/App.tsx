@@ -13,6 +13,7 @@ import Orders from "./pages/Orders";
 import Tasks from "./pages/Tasks";
 import Budgets from "./pages/Budgets";
 import Reports from "./pages/Reports";
+import Emails from "./pages/Emails";
 
 function Router() {
   return (
@@ -64,6 +65,12 @@ function Router() {
       <Route path="/reports">
         <DashboardLayout>
           <Reports />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/emails">
+        <DashboardLayout>
+          <Emails />
         </DashboardLayout>
       </Route>
       
