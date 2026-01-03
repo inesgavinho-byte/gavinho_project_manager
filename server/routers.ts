@@ -17,6 +17,7 @@ import * as supplierAnalyticsService from "./supplierAnalyticsService";
 import * as predictiveAnalysisService from "./predictiveAnalysisService";
 import * as predictionsDb from "./predictionsDb";
 import * as whatIfSimulationService from "./whatIfSimulationService";
+import * as scenarioSharingService from "./scenarioSharingService";
 import * as whatIfDb from "./whatIfDb";
 
 export const appRouter = router({
@@ -1072,6 +1073,95 @@ export const appRouter = router({
             },
           }))
         );
+      }),
+  }),
+
+  // Scenario Sharing
+  scenarioSharing: router({
+    shareScenario: protectedProcedure
+      .input(
+        z.object({
+          scenarioId: z.number(),
+          sharedWith: z.number(),
+          permission: z.enum(["view", "edit", "admin"]),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return await scenarioSharingService.shareScenario(
+          input.scenarioId,
+          ctx.user.id,
+          input.sharedWith,
+          input.permission
+        );
+      }),
+
+    unshareScenario: protectedProcedure
+      .input(
+        z.object({
+          scenarioId: z.number(),
+          sharedWith: z.number(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await scenarioSharingService.unshareScenario(
+          input.scenarioId,
+          input.sharedWith
+        );
+      }),
+
+    getScenarioShares: protectedProcedure
+      .input(z.object({ scenarioId: z.number() }))
+      .query(async ({ input }) => {
+        return await scenarioSharingService.getScenarioShares(input.scenarioId);
+      }),
+
+    getScenariosSharedWithMe: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await scenarioSharingService.getScenariosSharedWithUser(ctx.user.id);
+      }),
+
+    checkAccess: protectedProcedure
+      .input(z.object({ scenarioId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        return await scenarioSharingService.checkScenarioAccess(
+          input.scenarioId,
+          ctx.user.id
+        );
+      }),
+
+    addComment: protectedProcedure
+      .input(
+        z.object({
+          scenarioId: z.number(),
+          comment: z.string(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return await scenarioSharingService.addScenarioComment(
+          input.scenarioId,
+          ctx.user.id,
+          input.comment
+        );
+      }),
+
+    getComments: protectedProcedure
+      .input(z.object({ scenarioId: z.number() }))
+      .query(async ({ input }) => {
+        return await scenarioSharingService.getScenarioComments(input.scenarioId);
+      }),
+
+    deleteComment: protectedProcedure
+      .input(z.object({ commentId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        return await scenarioSharingService.deleteScenarioComment(
+          input.commentId,
+          ctx.user.id
+        );
+      }),
+
+    getTeamMembers: protectedProcedure
+      .query(async () => {
+        return await scenarioSharingService.getTeamMembers();
       }),
   }),
 });

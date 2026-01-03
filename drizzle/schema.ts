@@ -404,3 +404,33 @@ export const whatIfScenarios = mysqlTable("whatIfScenarios", {
 
 export type WhatIfScenario = typeof whatIfScenarios.$inferSelect;
 export type InsertWhatIfScenario = typeof whatIfScenarios.$inferInsert;
+
+/**
+ * Scenario Shares - Track sharing of what-if scenarios with team members
+ */
+export const scenarioShares = mysqlTable("scenarioShares", {
+  id: int("id").autoincrement().primaryKey(),
+  scenarioId: int("scenarioId").notNull(),
+  sharedBy: int("sharedBy").notNull(), // user ID who shared
+  sharedWith: int("sharedWith").notNull(), // user ID receiving access
+  permission: mysqlEnum("permission", ["view", "edit", "admin"]).notNull().default("view"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ScenarioShare = typeof scenarioShares.$inferSelect;
+export type InsertScenarioShare = typeof scenarioShares.$inferInsert;
+
+/**
+ * Scenario Comments - Collaborative discussions on scenarios
+ */
+export const scenarioComments = mysqlTable("scenarioComments", {
+  id: int("id").autoincrement().primaryKey(),
+  scenarioId: int("scenarioId").notNull(),
+  userId: int("userId").notNull(),
+  comment: text("comment").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ScenarioComment = typeof scenarioComments.$inferSelect;
+export type InsertScenarioComment = typeof scenarioComments.$inferInsert;

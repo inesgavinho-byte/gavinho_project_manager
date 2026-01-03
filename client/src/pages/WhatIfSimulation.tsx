@@ -8,8 +8,10 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, Star, Trash2, Target, AlertCircle, Shield } from "lucide-react";
+import { Loader2, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, Star, Trash2, Target, AlertCircle, Shield, Share2, MessageCircle, Users } from "lucide-react";
 import { toast } from "sonner";
+import ScenarioSharingDialog from "@/components/ScenarioSharingDialog";
+import ScenarioCommentsDialog from "@/components/ScenarioCommentsDialog";
 
 export default function WhatIfSimulation() {
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
@@ -18,6 +20,10 @@ export default function WhatIfSimulation() {
   const [teamSizeAdjustment, setTeamSizeAdjustment] = useState(0);
   const [timelineAdjustment, setTimelineAdjustment] = useState(0);
   const [simulationResult, setSimulationResult] = useState<any>(null);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [selectedScenarioForShare, setSelectedScenarioForShare] = useState<number | null>(null);
+  const [commentsDialogOpen, setCommentsDialogOpen] = useState(false);
+  const [selectedScenarioForComments, setSelectedScenarioForComments] = useState<number | null>(null);
 
   const { data: projects } = trpc.projects.list.useQuery();
   const simulateMutation = trpc.whatIf.simulate.useMutation();
@@ -467,7 +473,30 @@ export default function WhatIfSimulation() {
                         <Button
                           size="icon"
                           variant="ghost"
+                          onClick={() => {
+                            setSelectedScenarioForShare(scenario.id);
+                            setShareDialogOpen(true);
+                          }}
+                          title="Compartilhar"
+                        >
+                          <Share2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => {
+                            setSelectedScenarioForComments(scenario.id);
+                            setCommentsDialogOpen(true);
+                          }}
+                          title="Comentários"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
                           onClick={() => handleToggleFavorite(scenario.id, scenario.isFavorite === 1)}
+                          title="Favorito"
                         >
                           <Star
                             className={`h-4 w-4 ${scenario.isFavorite === 1 ? 'fill-yellow-400 text-yellow-400' : ''}`}
@@ -477,6 +506,7 @@ export default function WhatIfSimulation() {
                           size="icon"
                           variant="ghost"
                           onClick={() => handleDeleteScenario(scenario.id)}
+                          title="Excluir"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -523,6 +553,30 @@ export default function WhatIfSimulation() {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Sharing Dialog */}
+      {selectedScenarioForShare && (
+        <ScenarioSharingDialog
+          open={shareDialogOpen}
+          onOpenChange={setShareDialogOpen}
+          scenarioId={selectedScenarioForShare}
+          scenarioName={
+            savedScenarios?.find((s: any) => s.id === selectedScenarioForShare)?.scenarioName || "Cenário"
+          }
+        />
+      )}
+
+      {/* Comments Dialog */}
+      {selectedScenarioForComments && (
+        <ScenarioCommentsDialog
+          open={commentsDialogOpen}
+          onOpenChange={setCommentsDialogOpen}
+          scenarioId={selectedScenarioForComments}
+          scenarioName={
+            savedScenarios?.find((s: any) => s.id === selectedScenarioForComments)?.scenarioName || "Cenário"
+          }
+        />
+      )}
     </div>
   );
 }

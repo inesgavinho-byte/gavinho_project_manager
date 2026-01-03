@@ -211,3 +211,17 @@
 - [x] Implementar comparação de probabilidades entre cenários
 - [x] Criar recomendações de mitigação baseadas em probabilidade
 - [x] Adicionar testes unitários para integração
+
+## Sistema de Compartilhamento de Cenários What-If
+- [x] Criar tabela de compartilhamentos no schema
+- [x] Adicionar tabela de comentários de cenários
+- [x] Definir níveis de permissão (visualizar, editar, admin)
+- [x] Implementar serviço de compartilhamento de cenários
+- [x] Desenvolver sistema de convites para membros da equipe
+- [x] Criar sistema de comentários e discussões
+- [x] Implementar notificações de compartilhamento
+- [x] Desenvolver interface de gestão de favoritos
+- [x] Criar modal de compartilhamento com seleção de usuários
+- [x] Implementar lista de cenários compartilhados comigo
+- [x] Adicionar histórico de alterações em cenários compartilhados
+- [x] Criar testes unitários para compartilhamento
