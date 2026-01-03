@@ -20,6 +20,8 @@ import * as whatIfSimulationService from "./whatIfSimulationService";
 import * as scenarioSharingService from "./scenarioSharingService";
 import * as activityFeedService from "./activityFeedService";
 import * as whatIfDb from "./whatIfDb";
+import * as mentionService from "./mentionService";
+import * as mentionDb from "./mentionDb";
 
 export const appRouter = router({
   system: systemRouter,
@@ -1223,6 +1225,49 @@ export const appRouter = router({
           input.beforeDate
         );
         return { success: true };
+      }),
+  }),
+
+  // Mentions
+  mentions: router({
+    searchUsers: protectedProcedure
+      .input(z.object({ query: z.string().min(1) }))
+      .query(async ({ input }) => {
+        const allUsers = await db.getAllUsers();
+        return mentionService.searchUsersForMention(allUsers, input.query);
+      }),
+
+    getMentionsForComment: protectedProcedure
+      .input(z.object({ commentId: z.number() }))
+      .query(async ({ input }) => {
+        return await mentionDb.getMentionsForComment(input.commentId);
+      }),
+
+    getUserMentions: protectedProcedure
+      .input(z.object({ 
+        limit: z.number().optional().default(20),
+        offset: z.number().optional().default(0),
+        unreadOnly: z.boolean().optional().default(false),
+      }))
+      .query(async ({ input, ctx }) => {
+        return await mentionDb.getUserMentions(
+          ctx.user.id,
+          input.limit,
+          input.offset,
+          input.unreadOnly
+        );
+      }),
+
+    markMentionAsRead: protectedProcedure
+      .input(z.object({ mentionId: z.number() }))
+      .mutation(async ({ input }) => {
+        await mentionDb.markMentionAsRead(input.mentionId);
+        return { success: true };
+      }),
+
+    getUnreadMentionsCount: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await mentionDb.getUnreadMentionsCount(ctx.user.id);
       }),
   }),
 });

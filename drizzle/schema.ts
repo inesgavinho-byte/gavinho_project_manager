@@ -457,3 +457,22 @@ export const activityFeed = mysqlTable("activityFeed", {
 
 export type ActivityFeed = typeof activityFeed.$inferSelect;
 export type InsertActivityFeed = typeof activityFeed.$inferInsert;
+
+/**
+ * Comment Mentions - Track @mentions in comments
+ */
+export const commentMentions = mysqlTable("commentMentions", {
+  id: int("id").autoincrement().primaryKey(),
+  commentId: int("commentId").notNull(),
+  mentionedUserId: int("mentionedUserId").notNull(), // User who was mentioned
+  mentionedBy: int("mentionedBy").notNull(), // User who created the mention
+  scenarioId: int("scenarioId").notNull(), // For context
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  commentIdx: index("comment_idx").on(table.commentId),
+  mentionedUserIdx: index("mentioned_user_idx").on(table.mentionedUserId),
+}));
+
+export type CommentMention = typeof commentMentions.$inferSelect;
+export type InsertCommentMention = typeof commentMentions.$inferInsert;

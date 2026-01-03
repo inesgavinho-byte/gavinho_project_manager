@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { pt } from "date-fns/locale";
+import { MentionText } from "@/components/MentionInput";
 
 type ActivityType =
   | "scenario_created"
@@ -192,9 +193,23 @@ export default function ActivityFeed() {
 
                           {/* Metadata */}
                           {metadata.comment && (
-                            <p className="text-sm text-muted-foreground mt-1 italic">
-                              "{metadata.comment}"
-                            </p>
+                            <div className="text-sm text-muted-foreground mt-1 italic">
+                              "<MentionText text={metadata.comment} />"
+                            </div>
+                          )}
+
+                          {/* Mention Badge */}
+                          {metadata.isMention && (
+                            <Badge variant="secondary" className="mt-2">
+                              <span className="text-xs">Você foi mencionado</span>
+                            </Badge>
+                          )}
+
+                          {/* Reply Badge */}
+                          {metadata.isReply && (
+                            <Badge variant="secondary" className="mt-2">
+                              <span className="text-xs">Resposta ao seu comentário</span>
+                            </Badge>
                           )}
 
                           {metadata.sharedWith && (

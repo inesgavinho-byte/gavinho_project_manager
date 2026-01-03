@@ -356,3 +356,22 @@ export async function markEmailAsProcessed(emailId: number) {
   await db.update(emails).set({ isProcessed: true, updatedAt: new Date() })
     .where(eq(emails.id, emailId));
 }
+
+// Users
+export async function getAllUsers() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select({
+    id: users.id,
+    name: users.name,
+    email: users.email,
+    role: users.role,
+  }).from(users);
+}
+
+export async function getUserById(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  return result[0] || null;
+}

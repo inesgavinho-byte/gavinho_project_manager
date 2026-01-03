@@ -250,3 +250,13 @@
 - [x] Criar notificações automáticas quando alguém responde
 - [x] Implementar colapsar/expandir threads
 - [x] Adicionar testes unitários para sistema de threads
+
+## Sistema de @Menções em Comentários
+- [x] Criar tabela de menções no schema do banco de dados
+- [x] Implementar serviço de parsing de menções (@username)
+- [x] Criar router tRPC para buscar usuários disponíveis
+- [x] Desenvolver componente de input com autocompletar
+- [x] Implementar destaque visual de menções no texto
+- [x] Criar notificações automáticas para usuários mencionados
+- [x] Adicionar lista de usuários mencionados em cada comentário
+- [x] Implementar testes unitários para sistema de menções

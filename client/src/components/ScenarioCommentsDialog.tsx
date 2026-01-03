@@ -3,6 +3,7 @@ import { trpc } from "@/lib/trpc";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { MentionInput, MentionText } from "@/components/MentionInput";
 import { Loader2, MessageCircle, Trash2, Reply, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -71,7 +72,9 @@ function CommentItem({ comment, level, onReply, onDelete, currentUserId }: Comme
                 </span>
               )}
             </div>
-            <p className="text-sm whitespace-pre-wrap">{comment.comment}</p>
+            <div className="text-sm whitespace-pre-wrap">
+              <MentionText text={comment.comment} />
+            </div>
           </div>
           {comment.userId === currentUserId && (
             <Button
@@ -251,23 +254,20 @@ export default function ScenarioCommentsDialog({
           )}
           
           <div className="flex gap-2">
-            <Textarea
-              id="comment-textarea"
-              placeholder={replyingTo ? "Digite sua resposta..." : "Digite seu comentário..."}
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              className="min-h-[80px] resize-none"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-                  handleAddComment();
-                }
-              }}
-            />
+            <div className="flex-1">
+              <MentionInput
+                value={newComment}
+                onChange={setNewComment}
+                placeholder={replyingTo ? "Digite sua resposta... Use @ para mencionar alguém" : "Digite seu comentário... Use @ para mencionar alguém"}
+                className="min-h-[80px] resize-none"
+                onSubmit={handleAddComment}
+              />
+            </div>
           </div>
           
           <div className="flex justify-between items-center">
             <span className="text-xs text-muted-foreground">
-              Pressione Ctrl+Enter para enviar
+              
             </span>
             <Button
               onClick={handleAddComment}

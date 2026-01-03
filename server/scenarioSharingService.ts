@@ -3,6 +3,9 @@ import { scenarioShares, scenarioComments, users, whatIfScenarios } from "../dri
 import { eq, and, or, isNull, sql } from "drizzle-orm";
 import { notifyOwner } from "./_core/notification";
 import { logActivity } from "./activityFeedService";
+import * as mentionService from "./mentionService";
+import * as mentionDb from "./mentionDb";
+import * as db from "./db";
 
 /**
  * Share a scenario with another user
@@ -229,7 +232,49 @@ export async function addScenarioComment(
       }
     }
 
-    return { success: true, commentId: result[0].insertId };
+    const commentId = result[0].insertId;
+
+    // Process @mentions in the comment
+    const mentions = mentionService.extractMentions(comment);
+    if (mentions.length > 0) {
+      const mentionedUsernames = mentionService.getUniqueMentionedUsernames(mentions);
+      
+      // Get all users to find mentioned ones
+      const allUsers = await db.getAllUsers();
+      const mentionedUsers = allUsers.filter((user: { id: number; name: string | null; email: string | null; role: string }) => {
+        const username = (user.name || user.email || `user${user.id}`)
+          .replace(/\s+/g, "_")
+          .replace(/[^a-zA-Z0-9_-]/g, "");
+        return mentionedUsernames.some(m => m.toLowerCase() === username.toLowerCase());
+      });
+
+      // Create mention records
+      if (mentionedUsers.length > 0) {
+        const mentionRecords = mentionedUsers.map((user: { id: number; name: string | null; email: string | null; role: string }) => ({
+          commentId,
+          mentionedUserId: user.id,
+          mentionedBy: userId,
+          scenarioId,
+        }));
+        
+        await mentionDb.createMentions(mentionRecords);
+
+        // Create activity notifications for mentioned users
+        for (const user of mentionedUsers) {
+          if (user.id !== userId) {
+            await logActivity({
+              userId: user.id,
+              actorId: userId,
+              activityType: "scenario_commented",
+              scenarioId,
+              metadata: { isMention: true, commentId },
+            });
+          }
+        }
+      }
+    }
+
+    return { success: true, commentId };
   } catch (error) {
     console.error("Failed to add comment:", error);
     return { success: false };

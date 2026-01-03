@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS commentMentions (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  commentId INT NOT NULL,\n  mentionedUserId INT NOT NULL,\n  mentionedBy INT NOT NULL,\n  scenarioId INT NOT NULL,\n  isRead BOOLEAN NOT NULL DEFAULT FALSE,\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  INDEX comment_idx (commentId),\n  INDEX mentioned_user_idx (mentionedUserId)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute CREATE TABLE IF NOT EXISTS commentMentions (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  commentId INT NOT NULL,\n  mentionedUserId INT NOT NULL,\n  mentionedBy INT NOT NULL,\n  scenarioId INT NOT NULL,\n  isRead BOOLEAN NOT NULL DEFAULT FALSE,\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  INDEX comment_idx (commentId),\n  INDEX mentioned_user_idx (mentionedUserId)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1655
+}
