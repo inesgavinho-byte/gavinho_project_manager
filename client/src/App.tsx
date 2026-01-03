@@ -15,6 +15,7 @@ import Budgets from "./pages/Budgets";
 import Reports from "./pages/Reports";
 import Emails from "./pages/Emails";
 import AISuggestions from "./pages/AISuggestions";
+import Notifications from "./pages/Notifications";
 
 function Router() {
   return (
@@ -78,6 +79,12 @@ function Router() {
       <Route path="/ai-suggestions">
         <DashboardLayout>
           <AISuggestions />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/notifications">
+        <DashboardLayout>
+          <Notifications />
         </DashboardLayout>
       </Route>
       

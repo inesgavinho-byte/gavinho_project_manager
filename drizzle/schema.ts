@@ -162,22 +162,7 @@ export const quantityMaps = mysqlTable("quantityMaps", {
 export type QuantityMap = typeof quantityMaps.$inferSelect;
 export type InsertQuantityMap = typeof quantityMaps.$inferInsert;
 
-/**
- * Notifications table
- */
-export const notifications = mysqlTable("notifications", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
-  projectId: int("projectId"),
-  type: mysqlEnum("type", ["deadline", "budget_alert", "task_update", "email", "other"]).default("other").notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
-  message: text("message").notNull(),
-  isRead: boolean("isRead").default(false).notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-});
 
-export type Notification = typeof notifications.$inferSelect;
-export type InsertNotification = typeof notifications.$inferInsert;
 
 /**
  * Emails table - stores synchronized Outlook emails
@@ -242,3 +227,46 @@ export const aiSuggestions = mysqlTable("aiSuggestions", {
 
 export type AISuggestion = typeof aiSuggestions.$inferSelect;
 export type InsertAISuggestion = typeof aiSuggestions.$inferInsert;
+
+/**
+ * Notifications table
+ */
+export const notifications = mysqlTable("notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  type: mysqlEnum("type", ["ai_alert", "deadline_warning", "budget_exceeded", "project_delayed", "task_overdue", "order_pending", "system"]).notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "critical"]).default("medium").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  link: varchar("link", { length: 500 }),
+  projectId: int("projectId"),
+  taskId: int("taskId"),
+  isRead: int("isRead").default(0).notNull(), // 0 = unread, 1 = read
+  readAt: timestamp("readAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
+
+/**
+ * Notification preferences table
+ */
+export const notificationPreferences = mysqlTable("notificationPreferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  aiAlerts: int("aiAlerts").default(1).notNull(), // 0 = disabled, 1 = enabled
+  deadlineWarnings: int("deadlineWarnings").default(1).notNull(),
+  budgetAlerts: int("budgetAlerts").default(1).notNull(),
+  projectDelays: int("projectDelays").default(1).notNull(),
+  taskOverdue: int("taskOverdue").default(1).notNull(),
+  orderPending: int("orderPending").default(1).notNull(),
+  systemNotifications: int("systemNotifications").default(1).notNull(),
+  deadlineWarningDays: int("deadlineWarningDays").default(7).notNull(), // Days before deadline to warn
+  budgetThreshold: int("budgetThreshold").default(90).notNull(), // Percentage threshold for budget warnings
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type NotificationPreference = typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;

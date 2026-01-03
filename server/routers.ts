@@ -10,6 +10,8 @@ import { aiAnalysisService } from "./aiAnalysisService";
 import * as aiSuggestionsDb from "./aiSuggestionsDb";
 import { reportService } from "./reportService";
 import { exportService } from "./exportService";
+import * as notificationDb from "./notificationDb";
+import { runNotificationChecks } from "./notificationService";
 
 export const appRouter = router({
   system: systemRouter,
@@ -329,23 +331,7 @@ export const appRouter = router({
       }),
   }),
 
-  // Notifications
-  notifications: router({
-    list: protectedProcedure
-      .input(z.object({ unreadOnly: z.boolean().default(false) }))
-      .query(async ({ input, ctx }) => {
-        return await db.getNotificationsByUser(ctx.user.id, input.unreadOnly);
-      }),
-    
-    markAsRead: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        await db.markNotificationAsRead(input.id);
-        return { success: true };
-      }),
-  }),
-
-  // AI Suggestions - TODO: Implement later
+  // AI Suggestions
 
   // Emails
   emails: router({
@@ -609,6 +595,69 @@ export const appRouter = router({
           data: buffer.toString("base64"),
           filename,
         };
+      }),
+  }),
+
+  // Notifications
+  notifications: router({
+    list: protectedProcedure
+      .input(z.object({ unreadOnly: z.boolean().optional() }).optional())
+      .query(async ({ input, ctx }) => {
+        return await notificationDb.getNotificationsByUser(
+          ctx.user.id,
+          input?.unreadOnly || false
+        );
+      }),
+
+    unreadCount: protectedProcedure.query(async ({ ctx }) => {
+      return await notificationDb.getUnreadCount(ctx.user.id);
+    }),
+
+    markAsRead: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await notificationDb.markAsRead(input.id, ctx.user.id);
+        return { success: true };
+      }),
+
+    markAllAsRead: protectedProcedure.mutation(async ({ ctx }) => {
+      await notificationDb.markAllAsRead(ctx.user.id);
+      return { success: true };
+    }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await notificationDb.deleteNotification(input.id, ctx.user.id);
+        return { success: true };
+      }),
+
+    runChecks: protectedProcedure.mutation(async ({ ctx }) => {
+      await runNotificationChecks(ctx.user.id);
+      return { success: true };
+    }),
+
+    getPreferences: protectedProcedure.query(async ({ ctx }) => {
+      return await notificationDb.getUserPreferences(ctx.user.id);
+    }),
+
+    updatePreferences: protectedProcedure
+      .input(
+        z.object({
+          aiAlerts: z.number().optional(),
+          deadlineWarnings: z.number().optional(),
+          budgetAlerts: z.number().optional(),
+          projectDelays: z.number().optional(),
+          taskOverdue: z.number().optional(),
+          orderPending: z.number().optional(),
+          systemNotifications: z.number().optional(),
+          deadlineWarningDays: z.number().optional(),
+          budgetThreshold: z.number().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        await notificationDb.updateUserPreferences(ctx.user.id, input);
+        return { success: true };
       }),
   }),
 });

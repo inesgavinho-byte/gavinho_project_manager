@@ -130,3 +130,17 @@
 - [x] Adicionar filtros por período e projeto
 - [x] Implementar relatórios personalizáveis
 - [x] Criar testes unitários para relatórios
+
+## Sistema de Notificações em Tempo Real
+- [x] Definir tabela de notificações no schema
+- [x] Criar tabela de preferências de notificação por usuário
+- [x] Implementar serviço de geração automática de notificações
+- [x] Desenvolver monitoramento de alertas críticos de IA
+- [x] Implementar monitoramento de prazos próximos
+- [x] Criar monitoramento de orçamentos excedidos
+- [x] Desenvolver sistema de preferências de notificação
+- [x] Criar interface de visualização de notificações
+- [x] Implementar painel de configuração de preferências
+- [x] Adicionar histórico completo de notificações
+- [x] Implementar marcação de lido/não lido
+- [x] Criar testes unitários para notificações
