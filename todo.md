@@ -118,3 +118,15 @@
 - [x] Implementar dashboard de riscos
 - [x] Adicionar sistema de aceitação/rejeição de sugestões
 - [x] Criar testes unitários para sistema de IA
+
+## Módulo de Relatórios Avançados
+- [x] Definir tipos de relatórios (progresso, orçamento, recursos, timeline)
+- [x] Criar serviço de geração de dados para relatórios
+- [x] Implementar análise de tendências e comparações
+- [x] Desenvolver geração de gráficos com Recharts
+- [x] Implementar exportação para PDF
+- [x] Implementar exportação para Excel
+- [x] Criar interface de visualização de relatórios
+- [x] Adicionar filtros por período e projeto
+- [x] Implementar relatórios personalizáveis
+- [x] Criar testes unitários para relatórios

@@ -8,6 +8,8 @@ import * as db from "./db";
 import { budgets } from "../drizzle/schema";
 import { aiAnalysisService } from "./aiAnalysisService";
 import * as aiSuggestionsDb from "./aiSuggestionsDb";
+import { reportService } from "./reportService";
+import { exportService } from "./exportService";
 
 export const appRouter = router({
   system: systemRouter,
@@ -509,6 +511,104 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         await aiSuggestionsDb.deleteAISuggestion(input.id);
         return { success: true };
+      }),
+  }),
+
+  // Reports
+  reports: router({
+    project: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+
+        const tasks = await db.getTasksByProject(input.projectId);
+        const orders = await db.getOrdersByProject(input.projectId);
+        const budgets = await db.getBudgetsByProject(input.projectId);
+
+        return reportService.generateProjectReport(project, tasks, orders, budgets);
+      }),
+
+    comparison: protectedProcedure.query(async () => {
+      const projects = await db.getAllProjects();
+      const tasksMap = new Map();
+      const budgetsMap = new Map();
+
+      for (const project of projects) {
+        const tasks = await db.getTasksByProject(project.id);
+        const budgets = await db.getBudgetsByProject(project.id);
+        tasksMap.set(project.id, tasks);
+        budgetsMap.set(project.id, budgets);
+      }
+
+      return reportService.generateComparisonReport(projects, tasksMap, budgetsMap);
+    }),
+
+    executive: protectedProcedure.query(async () => {
+      const projects = await db.getAllProjects();
+      const tasksMap = new Map();
+      const budgetsMap = new Map();
+
+      for (const project of projects) {
+        const tasks = await db.getTasksByProject(project.id);
+        const budgets = await db.getBudgetsByProject(project.id);
+        tasksMap.set(project.id, tasks);
+        budgetsMap.set(project.id, budgets);
+      }
+
+      return reportService.generateExecutiveSummary(projects, tasksMap, budgetsMap);
+    }),
+
+    exportExcel: protectedProcedure
+      .input(
+        z.object({
+          type: z.enum(["project", "comparison"]),
+          projectId: z.number().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        let buffer: Buffer;
+        let filename: string;
+
+        if (input.type === "project" && input.projectId) {
+          const project = await db.getProjectById(input.projectId);
+          if (!project) {
+            throw new Error("Project not found");
+          }
+
+          const tasks = await db.getTasksByProject(input.projectId);
+          const orders = await db.getOrdersByProject(input.projectId);
+          const budgets = await db.getBudgetsByProject(input.projectId);
+
+          const report = reportService.generateProjectReport(project, tasks, orders, budgets);
+          buffer = await exportService.exportProjectToExcel(report);
+          filename = exportService.generateFilename("project", project.name) + ".xlsx";
+        } else if (input.type === "comparison") {
+          const projects = await db.getAllProjects();
+          const tasksMap = new Map();
+          const budgetsMap = new Map();
+
+          for (const project of projects) {
+            const tasks = await db.getTasksByProject(project.id);
+            const budgets = await db.getBudgetsByProject(project.id);
+            tasksMap.set(project.id, tasks);
+            budgetsMap.set(project.id, budgets);
+          }
+
+          const report = reportService.generateComparisonReport(projects, tasksMap, budgetsMap);
+          buffer = await exportService.exportComparisonToExcel(report);
+          filename = exportService.generateFilename("comparison") + ".xlsx";
+        } else {
+          throw new Error("Invalid export type");
+        }
+
+        // Return base64 encoded buffer
+        return {
+          data: buffer.toString("base64"),
+          filename,
+        };
       }),
   }),
 });
