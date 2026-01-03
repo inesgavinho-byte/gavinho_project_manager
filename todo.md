@@ -184,3 +184,17 @@
 - [x] Criar interface de visualização de tendências e projeções
 - [x] Implementar alertas de risco alto
 - [ ] Adicionar testes unitários para sistema preditivo
+
+## Sistema de Simulação What-If
+- [x] Criar tabela de cenários de simulação no schema
+- [x] Definir parâmetros ajustáveis (orçamento, equipe, prazos, recursos)
+- [x] Implementar serviço de simulação what-if com IA
+- [x] Desenvolver cálculo de impacto em prazos
+- [x] Criar cálculo de impacto em custos
+- [x] Implementar análise de viabilidade de cenários
+- [x] Desenvolver comparação lado a lado de múltiplos cenários
+- [x] Criar visualizações de impacto (gráficos comparativos)
+- [x] Implementar interface interativa com sliders e inputs
+- [x] Adicionar salvamento de cenários favoritos
+- [x] Criar exportação de análise de cenários
+- [x] Adicionar testes unitários para simulações

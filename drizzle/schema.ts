@@ -359,3 +359,41 @@ export const projectPredictions = mysqlTable("projectPredictions", {
 
 export type ProjectPrediction = typeof projectPredictions.$inferSelect;
 export type InsertProjectPrediction = typeof projectPredictions.$inferInsert;
+
+/**
+ * What-If Scenarios for resource allocation simulation
+ */
+export const whatIfScenarios = mysqlTable("whatIfScenarios", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  scenarioName: varchar("scenarioName", { length: 255 }).notNull(),
+  description: text("description"),
+  
+  // Adjustable parameters
+  budgetAdjustment: decimal("budgetAdjustment", { precision: 15, scale: 2 }), // +/- amount
+  budgetPercentage: int("budgetPercentage"), // percentage change
+  teamSizeAdjustment: int("teamSizeAdjustment"), // +/- team members
+  timelineAdjustment: int("timelineAdjustment"), // +/- days
+  resourceAllocation: text("resourceAllocation"), // JSON: { resource: amount }
+  
+  // Simulation results
+  predictedDuration: int("predictedDuration"), // days
+  predictedCost: decimal("predictedCost", { precision: 15, scale: 2 }),
+  predictedDelayDays: int("predictedDelayDays"),
+  costVariance: decimal("costVariance", { precision: 15, scale: 2 }),
+  feasibilityScore: int("feasibilityScore"), // 0-100
+  riskLevel: mysqlEnum("riskLevel", ["low", "medium", "high", "critical"]).notNull().default("medium"),
+  
+  // Analysis
+  impactSummary: text("impactSummary"),
+  recommendations: text("recommendations"),
+  tradeoffs: text("tradeoffs"), // JSON array
+  
+  // Metadata
+  isFavorite: int("isFavorite").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type WhatIfScenario = typeof whatIfScenarios.$inferSelect;
+export type InsertWhatIfScenario = typeof whatIfScenarios.$inferInsert;

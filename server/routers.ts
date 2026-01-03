@@ -16,6 +16,8 @@ import * as supplierDb from "./supplierDb";
 import * as supplierAnalyticsService from "./supplierAnalyticsService";
 import * as predictiveAnalysisService from "./predictiveAnalysisService";
 import * as predictionsDb from "./predictionsDb";
+import * as whatIfSimulationService from "./whatIfSimulationService";
+import * as whatIfDb from "./whatIfDb";
 
 export const appRouter = router({
   system: systemRouter,
@@ -920,6 +922,147 @@ export const appRouter = router({
         recommendations: p.recommendations ? JSON.parse(p.recommendations) : [],
       }));
     }),
+  }),
+
+  // What-If Simulation
+  whatIf: router({
+    simulate: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.number(),
+          scenarioName: z.string(),
+          description: z.string().optional(),
+          budgetAdjustment: z.number().optional(),
+          budgetPercentage: z.number().optional(),
+          teamSizeAdjustment: z.number().optional(),
+          timelineAdjustment: z.number().optional(),
+          saveScenario: z.boolean().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new Error("Project not found");
+
+        // Build context
+        const startDate = project.startDate ? new Date(project.startDate) : new Date();
+        const endDate = project.endDate ? new Date(project.endDate) : new Date();
+        const currentDuration = Math.max(1, Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
+
+        const context: whatIfSimulationService.ProjectContext = {
+          project,
+          currentBudget: 100000, // TODO: get from budget table
+          currentTeamSize: 5, // TODO: get from team table
+          currentDuration,
+          currentProgress: project.progress || 0,
+          tasksCount: 0, // TODO: get from tasks
+          ordersCount: 0, // TODO: get from orders
+        };
+
+        const parameters: whatIfSimulationService.ScenarioParameters = {
+          budgetAdjustment: input.budgetAdjustment,
+          budgetPercentage: input.budgetPercentage,
+          teamSizeAdjustment: input.teamSizeAdjustment,
+          timelineAdjustment: input.timelineAdjustment,
+        };
+
+        const impact = await whatIfSimulationService.simulateScenario(context, parameters);
+
+        // Save scenario if requested
+        if (input.saveScenario) {
+          await whatIfDb.createScenario({
+            projectId: input.projectId,
+            scenarioName: input.scenarioName,
+            description: input.description,
+            budgetAdjustment: input.budgetAdjustment?.toString(),
+            budgetPercentage: input.budgetPercentage,
+            teamSizeAdjustment: input.teamSizeAdjustment,
+            timelineAdjustment: input.timelineAdjustment,
+            predictedDuration: impact.predictedDuration,
+            predictedCost: impact.predictedCost.toString(),
+            predictedDelayDays: impact.predictedDelayDays,
+            costVariance: impact.costVariance.toString(),
+            feasibilityScore: impact.feasibilityScore,
+            riskLevel: impact.riskLevel,
+            impactSummary: impact.impactSummary,
+            recommendations: JSON.stringify(impact.recommendations),
+            tradeoffs: JSON.stringify(impact.tradeoffs),
+          });
+        }
+
+        return impact;
+      }),
+
+    getScenarios: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const scenarios = await whatIfDb.getProjectScenarios(input.projectId);
+        return scenarios.map(s => ({
+          ...s,
+          recommendations: s.recommendations ? JSON.parse(s.recommendations) : [],
+          tradeoffs: s.tradeoffs ? JSON.parse(s.tradeoffs) : [],
+        }));
+      }),
+
+    toggleFavorite: protectedProcedure
+      .input(z.object({ id: z.number(), isFavorite: z.boolean() }))
+      .mutation(async ({ input }) => {
+        await whatIfDb.toggleFavorite(input.id, input.isFavorite);
+        return { success: true };
+      }),
+
+    deleteScenario: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await whatIfDb.deleteScenario(input.id);
+        return { success: true };
+      }),
+
+    compare: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.number(),
+          scenarios: z.array(
+            z.object({
+              name: z.string(),
+              budgetAdjustment: z.number().optional(),
+              budgetPercentage: z.number().optional(),
+              teamSizeAdjustment: z.number().optional(),
+              timelineAdjustment: z.number().optional(),
+            })
+          ),
+        })
+      )
+      .query(async ({ input }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new Error("Project not found");
+
+        const startDate = project.startDate ? new Date(project.startDate) : new Date();
+        const endDate = project.endDate ? new Date(project.endDate) : new Date();
+        const currentDuration = Math.max(1, Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
+
+        const context: whatIfSimulationService.ProjectContext = {
+          project,
+          currentBudget: 100000,
+          currentTeamSize: 5,
+          currentDuration,
+          currentProgress: project.progress || 0,
+          tasksCount: 0,
+          ordersCount: 0,
+        };
+
+        return await whatIfSimulationService.compareScenarios(
+          context,
+          input.scenarios.map(s => ({
+            name: s.name,
+            parameters: {
+              budgetAdjustment: s.budgetAdjustment,
+              budgetPercentage: s.budgetPercentage,
+              teamSizeAdjustment: s.teamSizeAdjustment,
+              timelineAdjustment: s.timelineAdjustment,
+            },
+          }))
+        );
+      }),
   }),
 });
 
