@@ -1,0 +1,23 @@
+CREATE TABLE IF NOT EXISTS projectPredictions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  projectId INT NOT NULL,
+  predictionType ENUM('delay', 'cost', 'risk') NOT NULL,
+  predictedDelayDays INT,
+  delayProbability INT,
+  predictedCompletionDate TIMESTAMP,
+  predictedFinalCost DECIMAL(15, 2),
+  costOverrunProbability INT,
+  estimatedCostVariance DECIMAL(15, 2),
+  riskLevel ENUM('low', 'medium', 'high', 'critical') NOT NULL DEFAULT 'medium',
+  riskFactors TEXT,
+  confidence INT,
+  recommendations TEXT,
+  suggestedActions TEXT,
+  basedOnHistoricalProjects INT,
+  analysisDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX project_idx (projectId),
+  INDEX type_idx (predictionType),
+  INDEX risk_idx (riskLevel)
+);

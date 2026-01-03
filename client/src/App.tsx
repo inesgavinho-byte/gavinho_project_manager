@@ -16,6 +16,7 @@ import Reports from "./pages/Reports";
 import Emails from "./pages/Emails";
 import AISuggestions from "./pages/AISuggestions";
 import Notifications from "./pages/Notifications";
+import Predictions from "./pages/Predictions";
 
 function Router() {
   return (
@@ -85,6 +86,12 @@ function Router() {
       <Route path="/notifications">
         <DashboardLayout>
           <Notifications />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/predictions">
+        <DashboardLayout>
+          <Predictions />
         </DashboardLayout>
       </Route>
       

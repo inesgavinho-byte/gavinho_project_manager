@@ -170,3 +170,17 @@
 - [x] Implementar comparação entre fornecedores
 - [x] Adicionar filtros e busca avançada
 - [x] Criar testes unitários para dashboard de fornecedores
+
+## Sistema de Análise Preditiva com IA
+- [x] Criar tabela de predições no schema
+- [x] Implementar serviço de análise preditiva com OpenAI
+- [x] Desenvolver algoritmo de previsão de atrasos baseado em histórico
+- [x] Criar sistema de estimativa de custos finais
+- [x] Implementar análise de padrões históricos de projetos similares
+- [x] Desenvolver sistema de recomendações de ajustes no cronograma
+- [x] Criar cálculo de probabilidade de atraso
+- [x] Implementar análise de fatores de risco (orçamento, recursos, complexidade)
+- [x] Desenvolver dashboard de predições com visualizações
+- [x] Criar interface de visualização de tendências e projeções
+- [x] Implementar alertas de risco alto
+- [ ] Adicionar testes unitários para sistema preditivo

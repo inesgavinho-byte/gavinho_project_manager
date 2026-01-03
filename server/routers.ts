@@ -14,6 +14,8 @@ import * as notificationDb from "./notificationDb";
 import { runNotificationChecks } from "./notificationService";
 import * as supplierDb from "./supplierDb";
 import * as supplierAnalyticsService from "./supplierAnalyticsService";
+import * as predictiveAnalysisService from "./predictiveAnalysisService";
+import * as predictionsDb from "./predictionsDb";
 
 export const appRouter = router({
   system: systemRouter,
@@ -811,6 +813,113 @@ export const appRouter = router({
         await notificationDb.updateUserPreferences(ctx.user.id, input);
         return { success: true };
       }),
+  }),
+
+  // Predictive Analysis
+  predictions: router({
+    analyzeProject: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) throw new Error("Project not found");
+
+        // Gather project context
+        const tasks: any[] = []; // TODO: implement getProjectTasks
+        const orders: any[] = []; // TODO: implement getProjectOrders
+        const budget: any = null; // TODO: implement getProjectBudget
+
+        const totalBudget = budget ? parseFloat(budget.totalBudget.toString()) : 100000;
+        const usedBudget = budget ? parseFloat(budget.usedBudget.toString()) : project.progress ? (totalBudget * project.progress / 100) : 0;
+
+        const now = new Date();
+        const startDate = project.startDate ? new Date(project.startDate) : now;
+        const endDate = project.endDate ? new Date(project.endDate) : now;
+        const daysElapsed = Math.max(0, Math.floor((now.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
+        const daysRemaining = Math.max(0, Math.floor((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+
+        const context: predictiveAnalysisService.ProjectAnalysisContext = {
+          project,
+          currentProgress: project.progress || 0,
+          daysElapsed,
+          daysRemaining,
+          budgetUsed: usedBudget,
+          budgetRemaining: totalBudget - usedBudget,
+          tasksCompleted: tasks.filter((t: any) => t.status === "completed").length,
+          tasksTotal: tasks.length,
+          ordersCompleted: orders.filter((o: any) => o.status === "delivered").length,
+          ordersTotal: orders.length,
+          averageTaskCompletionTime: 5,
+        };
+
+        // Run predictions
+        const delayPrediction = await predictiveAnalysisService.predictProjectDelay(context);
+        const costPrediction = await predictiveAnalysisService.predictFinalCost(context);
+        const riskAnalysis = await predictiveAnalysisService.analyzeProjectRisks(context);
+
+        // Save predictions to database
+        await predictionsDb.createPrediction({
+          projectId: input.projectId,
+          predictionType: "delay",
+          predictedDelayDays: delayPrediction.predictedDelayDays,
+          delayProbability: delayPrediction.delayProbability,
+          predictedCompletionDate: delayPrediction.predictedCompletionDate,
+          riskLevel: delayPrediction.riskLevel,
+          riskFactors: JSON.stringify(delayPrediction.riskFactors),
+          confidence: delayPrediction.confidence,
+          recommendations: JSON.stringify(delayPrediction.recommendations),
+          analysisDate: now,
+        });
+
+        await predictionsDb.createPrediction({
+          projectId: input.projectId,
+          predictionType: "cost",
+          predictedFinalCost: costPrediction.predictedFinalCost.toString(),
+          costOverrunProbability: costPrediction.costOverrunProbability,
+          estimatedCostVariance: costPrediction.estimatedCostVariance.toString(),
+          riskLevel: costPrediction.riskLevel,
+          riskFactors: JSON.stringify(costPrediction.riskFactors),
+          confidence: costPrediction.confidence,
+          recommendations: JSON.stringify(costPrediction.recommendations),
+          analysisDate: now,
+        });
+
+        await predictionsDb.createPrediction({
+          projectId: input.projectId,
+          predictionType: "risk",
+          riskLevel: riskAnalysis.overallRiskLevel,
+          riskFactors: JSON.stringify(riskAnalysis.criticalRisks),
+          confidence: riskAnalysis.confidence,
+          recommendations: JSON.stringify(riskAnalysis.mitigationStrategies),
+          analysisDate: now,
+        });
+
+        return {
+          delay: delayPrediction,
+          cost: costPrediction,
+          risk: riskAnalysis,
+        };
+      }),
+
+    getProjectPredictions: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const predictions = await predictionsDb.getProjectPredictions(input.projectId);
+        return predictions.map(p => ({
+          ...p,
+          riskFactors: p.riskFactors ? JSON.parse(p.riskFactors) : [],
+          recommendations: p.recommendations ? JSON.parse(p.recommendations) : [],
+          suggestedActions: p.suggestedActions ? JSON.parse(p.suggestedActions) : [],
+        }));
+      }),
+
+    getCriticalPredictions: protectedProcedure.query(async () => {
+      const predictions = await predictionsDb.getCriticalPredictions();
+      return predictions.map(p => ({
+        ...p,
+        riskFactors: p.riskFactors ? JSON.parse(p.riskFactors) : [],
+        recommendations: p.recommendations ? JSON.parse(p.recommendations) : [],
+      }));
+    }),
   }),
 });
 

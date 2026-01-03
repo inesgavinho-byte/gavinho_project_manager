@@ -318,3 +318,44 @@ export const supplierEvaluations = mysqlTable("supplierEvaluations", {
 
 export type SupplierEvaluation = typeof supplierEvaluations.$inferSelect;
 export type InsertSupplierEvaluation = typeof supplierEvaluations.$inferInsert;
+
+/**
+ * Project predictions table - AI-powered predictions for delays and costs
+ */
+export const projectPredictions = mysqlTable("projectPredictions", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  predictionType: mysqlEnum("predictionType", ["delay", "cost", "risk"]).notNull(),
+  
+  // Delay predictions
+  predictedDelayDays: int("predictedDelayDays"),
+  delayProbability: int("delayProbability"), // 0-100%
+  predictedCompletionDate: timestamp("predictedCompletionDate"),
+  
+  // Cost predictions
+  predictedFinalCost: decimal("predictedFinalCost", { precision: 15, scale: 2 }),
+  costOverrunProbability: int("costOverrunProbability"), // 0-100%
+  estimatedCostVariance: decimal("estimatedCostVariance", { precision: 15, scale: 2 }),
+  
+  // Risk analysis
+  riskLevel: mysqlEnum("riskLevel", ["low", "medium", "high", "critical"]).default("medium").notNull(),
+  riskFactors: text("riskFactors"), // JSON array of risk factors
+  confidence: int("confidence"), // 0-100% confidence in prediction
+  
+  // Recommendations
+  recommendations: text("recommendations"), // JSON array of recommendations
+  suggestedActions: text("suggestedActions"), // JSON array of actions
+  
+  // Metadata
+  basedOnHistoricalProjects: int("basedOnHistoricalProjects"), // Number of similar projects analyzed
+  analysisDate: timestamp("analysisDate").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdx: index("project_idx").on(table.projectId),
+  typeIdx: index("type_idx").on(table.predictionType),
+  riskIdx: index("risk_idx").on(table.riskLevel),
+}));
+
+export type ProjectPrediction = typeof projectPredictions.$inferSelect;
+export type InsertProjectPrediction = typeof projectPredictions.$inferInsert;
