@@ -270,3 +270,51 @@ export const notificationPreferences = mysqlTable("notificationPreferences", {
 
 export type NotificationPreference = typeof notificationPreferences.$inferSelect;
 export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
+
+/**
+ * Supplier transactions table - tracks all transactions with suppliers
+ */
+export const supplierTransactions = mysqlTable("supplierTransactions", {
+  id: int("id").autoincrement().primaryKey(),
+  supplierId: int("supplierId").notNull(),
+  projectId: int("projectId"),
+  orderId: int("orderId"),
+  type: mysqlEnum("type", ["purchase", "payment", "refund", "credit"]).notNull(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("EUR").notNull(),
+  description: text("description"),
+  transactionDate: timestamp("transactionDate").notNull(),
+  dueDate: timestamp("dueDate"),
+  paidDate: timestamp("paidDate"),
+  status: mysqlEnum("status", ["pending", "completed", "cancelled"]).default("pending").notNull(),
+  createdById: int("createdById").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SupplierTransaction = typeof supplierTransactions.$inferSelect;
+export type InsertSupplierTransaction = typeof supplierTransactions.$inferInsert;
+
+/**
+ * Supplier evaluations table - tracks performance ratings
+ */
+export const supplierEvaluations = mysqlTable("supplierEvaluations", {
+  id: int("id").autoincrement().primaryKey(),
+  supplierId: int("supplierId").notNull(),
+  projectId: int("projectId"),
+  orderId: int("orderId"),
+  qualityRating: int("qualityRating").notNull(), // 1-5
+  deliveryRating: int("deliveryRating").notNull(), // 1-5 (punctuality)
+  communicationRating: int("communicationRating").notNull(), // 1-5
+  priceRating: int("priceRating").notNull(), // 1-5 (value for money)
+  overallRating: int("overallRating").notNull(), // 1-5 (calculated average)
+  comments: text("comments"),
+  wouldRecommend: boolean("wouldRecommend").default(true).notNull(),
+  evaluatedById: int("evaluatedById").notNull(),
+  evaluatedAt: timestamp("evaluatedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SupplierEvaluation = typeof supplierEvaluations.$inferSelect;
+export type InsertSupplierEvaluation = typeof supplierEvaluations.$inferInsert;

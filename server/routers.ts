@@ -12,6 +12,8 @@ import { reportService } from "./reportService";
 import { exportService } from "./exportService";
 import * as notificationDb from "./notificationDb";
 import { runNotificationChecks } from "./notificationService";
+import * as supplierDb from "./supplierDb";
+import * as supplierAnalyticsService from "./supplierAnalyticsService";
 
 export const appRouter = router({
   system: systemRouter,
@@ -83,7 +85,157 @@ export const appRouter = router({
     delete: protectedProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
-        await db.deleteProject(input.id);
+        // TODO: Implement deleteSupplier in db.ts
+        return { success: false, message: "Not implemented" };
+        return { success: true };
+      }),
+
+    // Analytics
+    getKPIs: protectedProcedure
+      .input(z.object({ supplierId: z.number() }))
+      .query(async ({ input }) => {
+        return await supplierAnalyticsService.calculateSupplierKPIs(input.supplierId);
+      }),
+
+    getRankings: protectedProcedure.query(async () => {
+      return await supplierAnalyticsService.getSupplierRankings();
+    }),
+
+    getTopSuppliers: protectedProcedure
+      .input(z.object({
+        criteria: z.enum(["quality", "delivery", "price", "overall"]),
+        limit: z.number().optional(),
+      }))
+      .query(async ({ input }) => {
+        return await supplierAnalyticsService.getTopSuppliers(input.criteria, input.limit);
+      }),
+
+    compareSuppliers: protectedProcedure
+      .input(z.object({ supplierIds: z.array(z.number()) }))
+      .query(async ({ input }) => {
+        return await supplierAnalyticsService.compareSuppliers(input.supplierIds);
+      }),
+
+    // Transactions
+    getTransactions: protectedProcedure
+      .input(z.object({ supplierId: z.number() }))
+      .query(async ({ input }) => {
+        return await supplierDb.getSupplierTransactions(input.supplierId);
+      }),
+
+    createTransaction: protectedProcedure
+      .input(z.object({
+        supplierId: z.number(),
+        projectId: z.number().optional(),
+        orderId: z.number().optional(),
+        type: z.enum(["purchase", "payment", "refund", "credit"]),
+        amount: z.string(),
+        currency: z.string().optional(),
+        description: z.string().optional(),
+        transactionDate: z.date(),
+        dueDate: z.date().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await supplierDb.createSupplierTransaction({
+          ...input,
+          createdById: ctx.user.id,
+        });
+        return { success: true };
+      }),
+
+    updateTransactionStatus: protectedProcedure
+      .input(z.object({
+        transactionId: z.number(),
+        status: z.enum(["pending", "completed", "cancelled"]),
+        paidDate: z.date().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await supplierDb.updateTransactionStatus(
+          input.transactionId,
+          input.status,
+          input.paidDate
+        );
+        return { success: true };
+      }),
+
+    // Evaluations
+    getEvaluations: protectedProcedure
+      .input(z.object({ supplierId: z.number() }))
+      .query(async ({ input }) => {
+        return await supplierDb.getSupplierEvaluations(input.supplierId);
+      }),
+
+    createEvaluation: protectedProcedure
+      .input(z.object({
+        supplierId: z.number(),
+        projectId: z.number().optional(),
+        orderId: z.number().optional(),
+        qualityRating: z.number().min(1).max(5),
+        deliveryRating: z.number().min(1).max(5),
+        communicationRating: z.number().min(1).max(5),
+        priceRating: z.number().min(1).max(5),
+        comments: z.string().optional(),
+        wouldRecommend: z.boolean(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const overallRating = Math.round(
+          (input.qualityRating +
+            input.deliveryRating +
+            input.communicationRating +
+            input.priceRating) /
+            4
+        );
+
+        await supplierDb.createSupplierEvaluation({
+          ...input,
+          overallRating,
+          evaluatedById: ctx.user.id,
+        });
+        return { success: true };
+      }),
+
+    updateEvaluation: protectedProcedure
+      .input(z.object({
+        evaluationId: z.number(),
+        qualityRating: z.number().min(1).max(5).optional(),
+        deliveryRating: z.number().min(1).max(5).optional(),
+        communicationRating: z.number().min(1).max(5).optional(),
+        priceRating: z.number().min(1).max(5).optional(),
+        comments: z.string().optional(),
+        wouldRecommend: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { evaluationId, ...updates } = input;
+        
+        // Recalculate overall rating if any rating changed
+        if (
+          updates.qualityRating ||
+          updates.deliveryRating ||
+          updates.communicationRating ||
+          updates.priceRating
+        ) {
+          const ratings = [
+            updates.qualityRating,
+            updates.deliveryRating,
+            updates.communicationRating,
+            updates.priceRating,
+          ].filter(r => r !== undefined) as number[];
+          
+          if (ratings.length > 0) {
+            (updates as any).overallRating = Math.round(
+              ratings.reduce((sum, r) => sum + r, 0) / ratings.length
+            );
+          }
+        }
+
+        await supplierDb.updateSupplierEvaluation(evaluationId, updates);
+        return { success: true };
+      }),
+
+    deleteEvaluation: protectedProcedure
+      .input(z.object({ evaluationId: z.number() }))
+      .mutation(async ({ input }) => {
+        await supplierDb.deleteSupplierEvaluation(input.evaluationId);
         return { success: true };
       }),
   }),

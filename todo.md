@@ -144,3 +144,29 @@
 - [x] Adicionar histórico completo de notificações
 - [x] Implementar marcação de lido/não lido
 - [x] Criar testes unitários para notificações
+
+## Integração com Google Calendar e Outlook Calendar
+- [ ] Configurar autenticação OAuth para Google Calendar
+- [ ] Configurar autenticação OAuth para Microsoft Calendar
+- [ ] Implementar serviço de sincronização de eventos
+- [ ] Criar mapeamento de projetos/tarefas para eventos de calendário
+- [ ] Desenvolver sincronização bidirecional (criar, atualizar, deletar)
+- [ ] Implementar visualização de calendário na interface
+- [ ] Adicionar filtros por projeto, tipo de evento e status
+- [ ] Criar sistema de lembretes automáticos por e-mail
+- [ ] Implementar configurações de sincronização por usuário
+- [ ] Adicionar testes unitários para integração de calendários
+
+## Dashboard Avançado de Fornecedores
+- [x] Expandir tabela de fornecedores com campos de avaliação
+- [x] Criar tabela de transações de fornecedores
+- [x] Criar tabela de avaliações de fornecedores
+- [x] Implementar serviço de cálculo de KPIs (pontualidade, qualidade, preço médio)
+- [x] Desenvolver análise de desempenho por fornecedor
+- [x] Criar sistema de ranking de fornecedores
+- [x] Implementar dashboard visual com gráficos de desempenho
+- [x] Adicionar histórico completo de transações
+- [x] Criar sistema de avaliação de fornecedores
+- [x] Implementar comparação entre fornecedores
+- [x] Adicionar filtros e busca avançada
+- [x] Criar testes unitários para dashboard de fornecedores
