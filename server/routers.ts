@@ -965,7 +965,8 @@ export const appRouter = router({
           timelineAdjustment: input.timelineAdjustment,
         };
 
-        const impact = await whatIfSimulationService.simulateScenario(context, parameters);
+        // Use enhanced simulation with predictive analysis
+        const impact = await whatIfSimulationService.simulateScenarioWithPrediction(context, parameters);
 
         // Save scenario if requested
         if (input.saveScenario) {
@@ -986,6 +987,12 @@ export const appRouter = router({
             impactSummary: impact.impactSummary,
             recommendations: JSON.stringify(impact.recommendations),
             tradeoffs: JSON.stringify(impact.tradeoffs),
+            // Add predictive analysis fields
+            successProbability: impact.successProbability,
+            criticalFactors: JSON.stringify(impact.criticalFactors),
+            riskFactors: JSON.stringify(impact.riskFactors),
+            mitigationStrategies: JSON.stringify(impact.mitigationStrategies),
+            confidenceLevel: impact.confidenceLevel,
           });
         }
 
@@ -1000,6 +1007,9 @@ export const appRouter = router({
           ...s,
           recommendations: s.recommendations ? JSON.parse(s.recommendations) : [],
           tradeoffs: s.tradeoffs ? JSON.parse(s.tradeoffs) : [],
+          criticalFactors: s.criticalFactors ? JSON.parse(s.criticalFactors) : [],
+          riskFactors: s.riskFactors ? JSON.parse(s.riskFactors) : [],
+          mitigationStrategies: s.mitigationStrategies ? JSON.parse(s.mitigationStrategies) : [],
         }));
       }),
 

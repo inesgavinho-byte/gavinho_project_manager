@@ -389,6 +389,13 @@ export const whatIfScenarios = mysqlTable("whatIfScenarios", {
   recommendations: text("recommendations"),
   tradeoffs: text("tradeoffs"), // JSON array
   
+  // Predictive Analysis Integration
+  successProbability: int("successProbability"), // 0-100 percentage
+  criticalFactors: text("criticalFactors"), // JSON array of critical success factors
+  riskFactors: text("riskFactors"), // JSON array of identified risks
+  mitigationStrategies: text("mitigationStrategies"), // JSON array of mitigation recommendations
+  confidenceLevel: mysqlEnum("confidenceLevel", ["low", "medium", "high"]).default("medium"),
+  
   // Metadata
   isFavorite: int("isFavorite").default(0).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

@@ -360,3 +360,238 @@ export async function findOptimalScenario(
 
   return bestScenario;
 }
+
+/**
+ * Calculate success probability using predictive analysis
+ */
+async function calculateSuccessProbability(
+  project: Project,
+  predictedDuration: number,
+  predictedCost: number,
+  feasibilityScore: number,
+  riskLevel: string
+): Promise<number> {
+  // Base probability from feasibility score
+  let probability = feasibilityScore;
+
+  // Adjust based on risk level
+  const riskAdjustments = {
+    low: 10,
+    medium: 0,
+    high: -15,
+    critical: -30,
+  };
+  probability += riskAdjustments[riskLevel as keyof typeof riskAdjustments] || 0;
+
+  // Adjust based on project priority (urgent projects have more pressure)
+  if (project.priority === "urgent") {
+    probability -= 10;
+  } else if (project.priority === "low") {
+    probability += 5;
+  }
+
+  // Ensure probability is within 0-100 range
+  return Math.max(0, Math.min(100, Math.round(probability)));
+}
+
+/**
+ * Identify critical success factors for the scenario
+ */
+function identifyCriticalFactors(
+  budgetPercentage: number,
+  teamSizeAdjustment: number,
+  timelineAdjustment: number,
+  feasibilityScore: number
+): string[] {
+  const factors: string[] = [];
+
+  if (Math.abs(budgetPercentage) > 20) {
+    factors.push(
+      budgetPercentage > 0
+        ? "Gestão eficiente do orçamento adicional"
+        : "Controle rigoroso de custos com orçamento reduzido"
+    );
+  }
+
+  if (teamSizeAdjustment > 2) {
+    factors.push("Integração eficaz de novos membros da equipe");
+    factors.push("Comunicação clara e coordenação entre equipe expandida");
+  } else if (teamSizeAdjustment < -1) {
+    factors.push("Redistribuição de tarefas entre equipe reduzida");
+    factors.push("Priorização rigorosa de atividades críticas");
+  }
+
+  if (timelineAdjustment < -7) {
+    factors.push("Execução acelerada sem comprometer qualidade");
+    factors.push("Eliminação de gargalos e otimização de processos");
+  } else if (timelineAdjustment > 14) {
+    factors.push("Manutenção do foco e produtividade em prazo estendido");
+  }
+
+  if (feasibilityScore < 70) {
+    factors.push("Monitoramento contínuo de riscos e desvios");
+    factors.push("Plano de contingência robusto");
+  }
+
+  // Always include these universal factors
+  factors.push("Comunicação eficaz com stakeholders");
+  factors.push("Gestão proativa de riscos");
+
+  return factors.slice(0, 6); // Return top 6 factors
+}
+
+/**
+ * Analyze risk factors for the scenario
+ */
+function analyzeRiskFactors(
+  project: Project,
+  predictedDelayDays: number,
+  costVariance: number,
+  riskLevel: string
+): string[] {
+  const risks: string[] = [];
+
+  if (predictedDelayDays > 7) {
+    risks.push(`Risco de atraso de ${predictedDelayDays} dias impactando entregas subsequentes`);
+  }
+
+  if (costVariance > 0) {
+    const budget = parseFloat(project.budget?.toString() || "0");
+    const percentageOver = budget > 0 ? (costVariance / budget) * 100 : 0;
+    if (percentageOver > 10) {
+      risks.push(`Estouro de orçamento de ${percentageOver.toFixed(1)}% pode comprometer viabilidade`);
+    }
+  }
+
+  if (riskLevel === "high" || riskLevel === "critical") {
+    risks.push("Nível de risco elevado requer atenção imediata da gestão");
+  }
+
+  if (project.priority === "urgent") {
+    risks.push("Prioridade urgente aumenta pressão e risco de erros");
+  }
+
+  // Add scenario-specific risks
+  risks.push("Dependências entre tarefas podem causar efeito cascata");
+  risks.push("Disponibilidade de recursos externos pode variar");
+  risks.push("Mudanças de escopo podem impactar estimativas");
+
+  return risks.slice(0, 5); // Return top 5 risks
+}
+
+/**
+ * Generate mitigation strategies based on risks
+ */
+function generateMitigationStrategies(
+  riskLevel: string,
+  riskFactors: string[],
+  successProbability: number
+): string[] {
+  const strategies: string[] = [];
+
+  if (riskLevel === "critical" || riskLevel === "high") {
+    strategies.push("Estabelecer reuniões diárias de acompanhamento para identificar problemas precocemente");
+    strategies.push("Criar buffer de tempo e orçamento para contingências");
+    strategies.push("Designar responsável dedicado para gestão de riscos");
+  }
+
+  if (successProbability < 60) {
+    strategies.push("Revisar e simplificar escopo para aumentar viabilidade");
+    strategies.push("Buscar aprovação para recursos adicionais ou extensão de prazo");
+  }
+
+  // Universal strategies
+  strategies.push("Implementar checkpoints semanais para validação de progresso");
+  strategies.push("Manter comunicação transparente com stakeholders sobre riscos");
+  strategies.push("Documentar lições aprendidas para projetos futuros");
+  strategies.push("Estabelecer critérios claros de sucesso e aceitação");
+
+  return strategies.slice(0, 6); // Return top 6 strategies
+}
+
+/**
+ * Calculate confidence level for the prediction
+ */
+function calculateConfidenceLevel(
+  successProbability: number,
+  feasibilityScore: number,
+  riskLevel: string
+): "low" | "medium" | "high" {
+  // High confidence: high success probability, high feasibility, low risk
+  if (successProbability >= 75 && feasibilityScore >= 80 && riskLevel === "low") {
+    return "high";
+  }
+
+  // Low confidence: low success probability, low feasibility, or critical risk
+  if (successProbability < 50 || feasibilityScore < 60 || riskLevel === "critical") {
+    return "low";
+  }
+
+  // Medium confidence: everything else
+  return "medium";
+}
+
+/**
+ * Enhanced simulate scenario with predictive analysis
+ */
+export async function simulateScenarioWithPrediction(
+  context: ProjectContext,
+  parameters: ScenarioParameters
+): Promise<ScenarioImpact & {
+  successProbability: number;
+  criticalFactors: string[];
+  riskFactors: string[];
+  mitigationStrategies: string[];
+  confidenceLevel: "low" | "medium" | "high";
+}> {
+  // Get base simulation results
+  const baseResult = await simulateScenario(context, parameters);
+
+  // Calculate success probability
+  const successProbability = await calculateSuccessProbability(
+    context.project,
+    baseResult.predictedDuration,
+    baseResult.predictedCost,
+    baseResult.feasibilityScore,
+    baseResult.riskLevel
+  );
+
+  // Identify critical success factors
+  const criticalFactors = identifyCriticalFactors(
+    parameters.budgetPercentage || 0,
+    parameters.teamSizeAdjustment || 0,
+    parameters.timelineAdjustment || 0,
+    baseResult.feasibilityScore
+  );
+
+  // Analyze risk factors
+  const riskFactors = analyzeRiskFactors(
+    context.project,
+    baseResult.predictedDelayDays,
+    baseResult.costVariance,
+    baseResult.riskLevel
+  );
+
+  // Generate mitigation strategies
+  const mitigationStrategies = generateMitigationStrategies(
+    baseResult.riskLevel,
+    riskFactors,
+    successProbability
+  );
+
+  // Calculate confidence level
+  const confidenceLevel = calculateConfidenceLevel(
+    successProbability,
+    baseResult.feasibilityScore,
+    baseResult.riskLevel
+  );
+
+  return {
+    ...baseResult,
+    successProbability,
+    criticalFactors,
+    riskFactors,
+    mitigationStrategies,
+    confidenceLevel,
+  };
+}

@@ -8,7 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, Star, Trash2 } from "lucide-react";
+import { Loader2, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, Star, Trash2, Target, AlertCircle, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 export default function WhatIfSimulation() {
@@ -243,11 +243,38 @@ export default function WhatIfSimulation() {
 
           {/* Simulation Results */}
           {simulationResult && (
-            <div className="grid gap-6 md:grid-cols-2">
-              {/* Impact Summary */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+            <div className="space-y-6">
+              {/* Success Probability Banner */}
+              {simulationResult.successProbability !== undefined && (
+                <Card className={`border-2 ${
+                  simulationResult.successProbability >= 75 ? 'border-green-500 bg-green-50' :
+                  simulationResult.successProbability >= 50 ? 'border-yellow-500 bg-yellow-50' :
+                  'border-red-500 bg-red-50'
+                }`}>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold">Probabilidade de Sucesso</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Nível de confiança: <span className="font-medium">{simulationResult.confidenceLevel === 'high' ? 'Alto' : simulationResult.confidenceLevel === 'medium' ? 'Médio' : 'Baixo'}</span>
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-5xl font-bold">{simulationResult.successProbability}%</div>
+                        <Badge className={getRiskColor(simulationResult.riskLevel)} variant="outline">
+                          {getRiskLabel(simulationResult.riskLevel)}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* Impact Summary */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
                     <TrendingUp className="h-5 w-5" />
                     Resumo do Impacto
                   </CardTitle>
@@ -344,6 +371,73 @@ export default function WhatIfSimulation() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Critical Success Factors */}
+              {simulationResult.criticalFactors && simulationResult.criticalFactors.length > 0 && (
+                <Card className="md:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5" />
+                      Fatores Críticos de Sucesso
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="grid gap-2 md:grid-cols-2">
+                      {simulationResult.criticalFactors.map((factor: string, index: number) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+                          <span>{factor}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Risk Factors */}
+              {simulationResult.riskFactors && simulationResult.riskFactors.length > 0 && (
+                <Card className="md:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5" />
+                      Fatores de Risco
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {simulationResult.riskFactors.map((risk: string, index: number) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <AlertTriangle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                          <span>{risk}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Mitigation Strategies */}
+              {simulationResult.mitigationStrategies && simulationResult.mitigationStrategies.length > 0 && (
+                <Card className="md:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Shield className="h-5 w-5" />
+                      Estratégias de Mitigação
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="grid gap-2 md:grid-cols-2">
+                      {simulationResult.mitigationStrategies.map((strategy: string, index: number) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <Shield className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                          <span>{strategy}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+              </div>
             </div>
           )}
         </TabsContent>

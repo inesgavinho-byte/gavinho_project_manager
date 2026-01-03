@@ -155,7 +155,7 @@
 - [ ] Adicionar filtros por projeto, tipo de evento e status
 - [ ] Criar sistema de lembretes automáticos por e-mail
 - [ ] Implementar configurações de sincronização por usuário
-- [ ] Adicionar testes unitários para integração de calendários
+- [x] Adicionar testes unitários para integração de calendários
 
 ## Dashboard Avançado de Fornecedores
 - [x] Expandir tabela de fornecedores com campos de avaliação
@@ -198,3 +198,16 @@
 - [x] Adicionar salvamento de cenários favoritos
 - [x] Criar exportação de análise de cenários
 - [x] Adicionar testes unitários para simulações
+
+## Integração de Análise Preditiva com What-If
+- [x] Expandir schema de cenários com probabilidade de sucesso
+- [x] Adicionar campos de fatores críticos e análise de risco
+- [x] Implementar cálculo de probabilidade de sucesso com IA
+- [x] Desenvolver análise de fatores críticos por cenário
+- [x] Criar sistema de pontuação de risco integrado
+- [x] Integrar predições aos resultados de simulação
+- [x] Atualizar interface com visualização de probabilidades
+- [x] Adicionar gráficos de distribuição de risco
+- [x] Implementar comparação de probabilidades entre cenários
+- [x] Criar recomendações de mitigação baseadas em probabilidade
+- [x] Adicionar testes unitários para integração
