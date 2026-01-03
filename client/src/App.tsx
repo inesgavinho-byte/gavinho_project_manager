@@ -18,6 +18,7 @@ import AISuggestions from "./pages/AISuggestions";
 import Notifications from "./pages/Notifications";
 import Predictions from "./pages/Predictions";
 import WhatIfSimulation from "./pages/WhatIfSimulation";
+import ActivityFeed from "./pages/ActivityFeed";
 
 function Router() {
   return (
@@ -99,6 +100,12 @@ function Router() {
       <Route path="/what-if">
         <DashboardLayout>
           <WhatIfSimulation />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/activity-feed">
+        <DashboardLayout>
+          <ActivityFeed />
         </DashboardLayout>
       </Route>
       

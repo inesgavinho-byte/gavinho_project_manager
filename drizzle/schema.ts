@@ -434,3 +434,24 @@ export const scenarioComments = mysqlTable("scenarioComments", {
 
 export type ScenarioComment = typeof scenarioComments.$inferSelect;
 export type InsertScenarioComment = typeof scenarioComments.$inferInsert;
+
+export const activityFeed = mysqlTable("activityFeed", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  actorId: int("actorId").notNull(), // Quem realizou a ação
+  activityType: mysqlEnum("activityType", [
+    "scenario_created",
+    "scenario_updated",
+    "scenario_shared",
+    "scenario_commented",
+    "scenario_favorited",
+    "scenario_deleted"
+  ]).notNull(),
+  scenarioId: int("scenarioId"),
+  projectId: int("projectId"),
+  metadata: text("metadata"), // JSON com detalhes adicionais
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ActivityFeed = typeof activityFeed.$inferSelect;
+export type InsertActivityFeed = typeof activityFeed.$inferInsert;

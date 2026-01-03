@@ -225,3 +225,16 @@
 - [x] Implementar lista de cenários compartilhados comigo
 - [x] Adicionar histórico de alterações em cenários compartilhados
 - [x] Criar testes unitários para compartilhamento
+
+## Feed de Atividades Recentes
+- [x] Criar tabela de atividades no schema
+- [x] Definir tipos de atividades (comentário, compartilhamento, edição, criação)
+- [x] Implementar serviço de rastreamento automático de atividades
+- [x] Desenvolver sistema de agregação de atividades por usuário
+- [x] Criar sistema de filtragem por tipo e data
+- [x] Implementar timeline visual de atividades
+- [x] Adicionar integração com notificações
+- [x] Desenvolver interface de feed com cards de atividades
+- [x] Implementar paginação e carregamento incremental
+- [x] Adicionar links diretos para cenários mencionados
+- [x] Criar testes unitários para feed de atividades

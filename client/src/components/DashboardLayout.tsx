@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, FolderKanban, Package, ListTodo, DollarSign, FileText, Mail, Brain, Bell, TrendingUp, Lightbulb } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, FolderKanban, Package, ListTodo, DollarSign, FileText, Mail, Brain, Bell, TrendingUp, Lightbulb, Activity } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -38,6 +38,7 @@ const menuItems = [
   { icon: Brain, label: "Sugestões de IA", path: "/ai-suggestions" },
   { icon: TrendingUp, label: "Análise Preditiva", path: "/predictions" },
   { icon: Lightbulb, label: "Simulação What-If", path: "/what-if" },
+  { icon: Activity, label: "Atividades", path: "/activity-feed" },
   { icon: Bell, label: "Notificações", path: "/notifications" },
   { icon: FileText, label: "Relatórios", path: "/reports" },
 ];

@@ -18,6 +18,7 @@ import * as predictiveAnalysisService from "./predictiveAnalysisService";
 import * as predictionsDb from "./predictionsDb";
 import * as whatIfSimulationService from "./whatIfSimulationService";
 import * as scenarioSharingService from "./scenarioSharingService";
+import * as activityFeedService from "./activityFeedService";
 import * as whatIfDb from "./whatIfDb";
 
 export const appRouter = router({
@@ -1162,6 +1163,52 @@ export const appRouter = router({
     getTeamMembers: protectedProcedure
       .query(async () => {
         return await scenarioSharingService.getTeamMembers();
+      }),
+  }),
+
+  // Activity Feed
+  activityFeed: router({
+    getActivities: protectedProcedure
+      .input(
+        z.object({
+          limit: z.number().optional().default(50),
+          offset: z.number().optional().default(0),
+          activityTypes: z.array(z.enum([
+            "scenario_created",
+            "scenario_updated",
+            "scenario_shared",
+            "scenario_commented",
+            "scenario_favorited",
+            "scenario_deleted"
+          ])).optional(),
+        })
+      )
+      .query(async ({ input, ctx }) => {
+        return await activityFeedService.getUserActivities(
+          ctx.user.id,
+          input.limit,
+          input.offset,
+          input.activityTypes
+        );
+      }),
+
+    getUnreadCount: protectedProcedure
+      .input(z.object({ since: z.date().optional() }))
+      .query(async ({ input, ctx }) => {
+        return await activityFeedService.getUnreadActivityCount(
+          ctx.user.id,
+          input.since
+        );
+      }),
+
+    markAsRead: protectedProcedure
+      .input(z.object({ beforeDate: z.date() }))
+      .mutation(async ({ input, ctx }) => {
+        await activityFeedService.markActivitiesAsRead(
+          ctx.user.id,
+          input.beforeDate
+        );
+        return { success: true };
       }),
   }),
 });
