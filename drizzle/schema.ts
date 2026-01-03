@@ -212,3 +212,33 @@ export const emails = mysqlTable("emails", {
 
 export type Email = typeof emails.$inferSelect;
 export type InsertEmail = typeof emails.$inferInsert;
+
+/**
+ * AI Suggestions table - stores intelligent recommendations
+ */
+export const aiSuggestions = mysqlTable("aiSuggestions", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  type: mysqlEnum("type", ["risk_alert", "resource_optimization", "next_action", "budget_warning", "deadline_alert", "efficiency_tip"]).notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "critical"]).default("medium").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  reasoning: text("reasoning"),
+  suggestedAction: text("suggestedAction"),
+  impact: mysqlEnum("impact", ["low", "medium", "high"]).default("medium"),
+  confidence: decimal("confidence", { precision: 3, scale: 2 }),
+  status: mysqlEnum("status", ["pending", "accepted", "rejected", "completed"]).default("pending").notNull(),
+  acceptedById: int("acceptedById"),
+  acceptedAt: timestamp("acceptedAt"),
+  completedAt: timestamp("completedAt"),
+  metadata: text("metadata"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  statusIdx: index("status_idx").on(table.status),
+  typeIdx: index("type_idx").on(table.type),
+}));
+
+export type AISuggestion = typeof aiSuggestions.$inferSelect;
+export type InsertAISuggestion = typeof aiSuggestions.$inferInsert;

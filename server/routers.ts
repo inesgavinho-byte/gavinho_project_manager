@@ -6,6 +6,8 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { budgets } from "../drizzle/schema";
+import { aiAnalysisService } from "./aiAnalysisService";
+import * as aiSuggestionsDb from "./aiSuggestionsDb";
 
 export const appRouter = router({
   system: systemRouter,
@@ -384,6 +386,128 @@ export const appRouter = router({
       .input(z.object({ emailId: z.number() }))
       .mutation(async ({ input }) => {
         await db.markEmailAsProcessed(input.emailId);
+        return { success: true };
+      }),
+  }),
+
+  // AI Suggestions
+  aiSuggestions: router({
+    list: protectedProcedure
+      .input(z.object({ projectId: z.number().optional() }).optional())
+      .query(async ({ input }) => {
+        if (input?.projectId) {
+          return await aiSuggestionsDb.getAISuggestionsByProject(input.projectId);
+        }
+        return await aiSuggestionsDb.getPendingAISuggestions();
+      }),
+
+    pending: protectedProcedure
+      .input(z.object({ projectId: z.number().optional() }).optional())
+      .query(async ({ input }) => {
+        return await aiSuggestionsDb.getPendingAISuggestions(input?.projectId);
+      }),
+
+    critical: protectedProcedure.query(async () => {
+      return await aiSuggestionsDb.getCriticalSuggestions();
+    }),
+
+    byType: protectedProcedure
+      .input(z.object({ 
+        type: z.enum(["risk_alert", "resource_optimization", "next_action", "budget_warning", "deadline_alert", "efficiency_tip"]),
+        projectId: z.number().optional()
+      }))
+      .query(async ({ input }) => {
+        return await aiSuggestionsDb.getAISuggestionsByType(input.type, input.projectId);
+      }),
+
+    stats: protectedProcedure
+      .input(z.object({ projectId: z.number().optional() }).optional())
+      .query(async ({ input }) => {
+        return await aiSuggestionsDb.getAISuggestionStats(input?.projectId);
+      }),
+
+    analyze: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        const project = await db.getProjectById(input.projectId);
+        if (!project) {
+          throw new Error("Project not found");
+        }
+
+        const tasks = await db.getTasksByProject(input.projectId);
+        const orders = await db.getOrdersByProject(input.projectId);
+        const budgets = await db.getBudgetsByProject(input.projectId);
+        const emails = await db.getEmailsByProject(input.projectId);
+
+        // Risk analysis
+        const riskAnalysis = await aiAnalysisService.analyzeProjectRisk(project, tasks, orders, budgets);
+        
+        if (riskAnalysis.riskLevel === "high" || riskAnalysis.riskLevel === "critical") {
+          await aiSuggestionsDb.createAISuggestion({
+            projectId: input.projectId,
+            type: "risk_alert",
+            priority: riskAnalysis.riskLevel === "critical" ? "critical" : "high",
+            title: `Alerta de Risco: ${riskAnalysis.riskLevel === "critical" ? "Crítico" : "Alto"}`,
+            description: riskAnalysis.riskFactors.join("; "),
+            reasoning: `Análise identificou nível de risco ${riskAnalysis.riskLevel}`,
+            suggestedAction: riskAnalysis.recommendations.join("; "),
+            impact: "high",
+            confidence: riskAnalysis.confidence.toString(),
+            status: "pending",
+          });
+        }
+
+        // Resource optimization
+        const resourceOptimizations = await aiAnalysisService.generateResourceOptimization(project, tasks, orders);
+        for (const opt of resourceOptimizations) {
+          await aiSuggestionsDb.createAISuggestion({
+            projectId: input.projectId,
+            type: "resource_optimization",
+            priority: opt.impact === "high" ? "high" : "medium",
+            title: opt.title,
+            description: opt.description,
+            reasoning: opt.reasoning,
+            suggestedAction: opt.suggestedAction,
+            impact: opt.impact,
+            confidence: opt.confidence.toString(),
+            status: "pending",
+          });
+        }
+
+        // Next actions
+        const nextActions = await aiAnalysisService.generateNextActions(project, tasks, orders, emails);
+        for (const action of nextActions) {
+          await aiSuggestionsDb.createAISuggestion({
+            projectId: input.projectId,
+            type: "next_action",
+            priority: action.priority,
+            title: action.title,
+            description: action.description,
+            reasoning: action.reasoning,
+            suggestedAction: action.suggestedAction,
+            impact: "medium",
+            confidence: action.confidence.toString(),
+            status: "pending",
+          });
+        }
+
+        return { success: true, message: "Análise concluída" };
+      }),
+
+    updateStatus: protectedProcedure
+      .input(z.object({ 
+        id: z.number(),
+        status: z.enum(["pending", "accepted", "rejected", "completed"])
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await aiSuggestionsDb.updateAISuggestionStatus(input.id, input.status, ctx.user.id);
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await aiSuggestionsDb.deleteAISuggestion(input.id);
         return { success: true };
       }),
   }),

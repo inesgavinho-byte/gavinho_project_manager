@@ -106,3 +106,15 @@
 - [x] Implementar busca e filtros de e-mails
 - [x] Adicionar atribuição de e-mails a projetos
 - [x] Criar estatísticas de e-mails por categoria
+## Sistema de Sugestões de IA
+- [x] Definir tabela de sugestões de IA no schema
+- [x] Criar serviço de análise de IA com OpenAI
+- [x] Implementar identificação de projetos em risco
+- [x] Desenvolver análise de gargalos e atrasos
+- [x] Criar sistema de otimização de alocação de recursos
+- [x] Implementar sugestões de próximas ações
+- [x] Desenvolver análise de padrões históricos
+- [x] Criar interface de visualização de sugestões
+- [x] Implementar dashboard de riscos
+- [x] Adicionar sistema de aceitação/rejeição de sugestões
+- [x] Criar testes unitários para sistema de IA
