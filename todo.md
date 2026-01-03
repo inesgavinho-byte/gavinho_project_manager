@@ -238,3 +238,15 @@
 - [x] Implementar paginação e carregamento incremental
 - [x] Adicionar links diretos para cenários mencionados
 - [x] Criar testes unitários para feed de atividades
+
+## Sistema de Threads de Discussão
+- [x] Expandir schema de comentários com parentCommentId para threads
+- [x] Adicionar campo de contagem de respostas
+- [x] Implementar serviço de gerenciamento de threads aninhadas
+- [x] Desenvolver carregamento recursivo de threads
+- [x] Criar interface de visualização hierárquica de comentários
+- [x] Implementar botão "Responder" em cada comentário
+- [x] Adicionar indicadores visuais de nível de aninhamento
+- [x] Criar notificações automáticas quando alguém responde
+- [x] Implementar colapsar/expandir threads
+- [x] Adicionar testes unitários para sistema de threads

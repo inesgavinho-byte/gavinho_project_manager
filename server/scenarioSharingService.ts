@@ -1,7 +1,8 @@
 import { getDb } from "./db";
 import { scenarioShares, scenarioComments, users, whatIfScenarios } from "../drizzle/schema";
-import { eq, and, or } from "drizzle-orm";
+import { eq, and, or, isNull, sql } from "drizzle-orm";
 import { notifyOwner } from "./_core/notification";
+import { logActivity } from "./activityFeedService";
 
 /**
  * Share a scenario with another user
@@ -183,12 +184,13 @@ export async function checkScenarioAccess(
 }
 
 /**
- * Add comment to scenario
+ * Add comment to scenario (supports threads)
  */
 export async function addScenarioComment(
   scenarioId: number,
   userId: number,
-  comment: string
+  comment: string,
+  parentCommentId?: number
 ): Promise<{ success: boolean; commentId?: number }> {
   const db = await getDb();
   if (!db) return { success: false };
@@ -198,7 +200,34 @@ export async function addScenarioComment(
       scenarioId,
       userId,
       comment,
+      parentCommentId: parentCommentId || null,
     });
+
+    // Incrementar contador de respostas do comentário pai
+    if (parentCommentId) {
+      await db
+        .update(scenarioComments)
+        .set({ replyCount: sql`${scenarioComments.replyCount} + 1` })
+        .where(eq(scenarioComments.id, parentCommentId));
+      
+      // Buscar autor do comentário pai para notificar
+      const parentComment = await db
+        .select({ userId: scenarioComments.userId, scenarioId: scenarioComments.scenarioId })
+        .from(scenarioComments)
+        .where(eq(scenarioComments.id, parentCommentId))
+        .limit(1);
+      
+      if (parentComment.length > 0 && parentComment[0]!.userId !== userId) {
+        // Notificar autor do comentário pai sobre a resposta
+        await logActivity({
+          userId: parentComment[0]!.userId,
+          actorId: userId,
+          activityType: "scenario_commented",
+          scenarioId: parentComment[0]!.scenarioId,
+          metadata: { isReply: true, parentCommentId },
+        });
+      }
+    }
 
     return { success: true, commentId: result[0].insertId };
   } catch (error) {
@@ -208,7 +237,7 @@ export async function addScenarioComment(
 }
 
 /**
- * Get all comments for a scenario
+ * Get all top-level comments for a scenario (no parent)
  */
 export async function getScenarioComments(scenarioId: number) {
   const db = await getDb();
@@ -219,6 +248,8 @@ export async function getScenarioComments(scenarioId: number) {
       .select({
         id: scenarioComments.id,
         comment: scenarioComments.comment,
+        parentCommentId: scenarioComments.parentCommentId,
+        replyCount: scenarioComments.replyCount,
         createdAt: scenarioComments.createdAt,
         updatedAt: scenarioComments.updatedAt,
         userId: scenarioComments.userId,
@@ -227,13 +258,91 @@ export async function getScenarioComments(scenarioId: number) {
       })
       .from(scenarioComments)
       .leftJoin(users, eq(scenarioComments.userId, users.id))
-      .where(eq(scenarioComments.scenarioId, scenarioId))
+      .where(
+        and(
+          eq(scenarioComments.scenarioId, scenarioId),
+          isNull(scenarioComments.parentCommentId)
+        )
+      )
       .orderBy(scenarioComments.createdAt);
 
     return comments;
   } catch (error) {
     console.error("Failed to get comments:", error);
     return [];
+  }
+}
+
+/**
+ * Get replies to a specific comment
+ */
+export async function getCommentReplies(parentCommentId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  try {
+    const replies = await db
+      .select({
+        id: scenarioComments.id,
+        comment: scenarioComments.comment,
+        parentCommentId: scenarioComments.parentCommentId,
+        replyCount: scenarioComments.replyCount,
+        createdAt: scenarioComments.createdAt,
+        updatedAt: scenarioComments.updatedAt,
+        userId: scenarioComments.userId,
+        userName: users.name,
+        userEmail: users.email,
+      })
+      .from(scenarioComments)
+      .leftJoin(users, eq(scenarioComments.userId, users.id))
+      .where(eq(scenarioComments.parentCommentId, parentCommentId))
+      .orderBy(scenarioComments.createdAt);
+
+    return replies;
+  } catch (error) {
+    console.error("Failed to get replies:", error);
+    return [];
+  }
+}
+
+/**
+ * Get full comment thread (comment + all nested replies)
+ */
+export async function getCommentThread(commentId: number): Promise<any> {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    // Get the comment
+    const comment = await db
+      .select({
+        id: scenarioComments.id,
+        comment: scenarioComments.comment,
+        parentCommentId: scenarioComments.parentCommentId,
+        replyCount: scenarioComments.replyCount,
+        createdAt: scenarioComments.createdAt,
+        updatedAt: scenarioComments.updatedAt,
+        userId: scenarioComments.userId,
+        userName: users.name,
+        userEmail: users.email,
+      })
+      .from(scenarioComments)
+      .leftJoin(users, eq(scenarioComments.userId, users.id))
+      .where(eq(scenarioComments.id, commentId))
+      .limit(1);
+
+    if (comment.length === 0) return null;
+
+    // Get all replies
+    const replies = await getCommentReplies(commentId);
+
+    return {
+      ...comment[0],
+      replies,
+    };
+  } catch (error) {
+    console.error("Failed to get comment thread:", error);
+    return null;
   }
 }
 

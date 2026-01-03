@@ -428,6 +428,8 @@ export const scenarioComments = mysqlTable("scenarioComments", {
   scenarioId: int("scenarioId").notNull(),
   userId: int("userId").notNull(),
   comment: text("comment").notNull(),
+  parentCommentId: int("parentCommentId"), // Para threads de discussão
+  replyCount: int("replyCount").default(0).notNull(), // Contador de respostas
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -1,0 +1,2 @@
+ALTER TABLE scenarioComments ADD COLUMN parentCommentId INT DEFAULT NULL;
+ALTER TABLE scenarioComments ADD COLUMN replyCount INT DEFAULT 0 NOT NULL;

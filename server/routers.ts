@@ -1135,13 +1135,15 @@ export const appRouter = router({
         z.object({
           scenarioId: z.number(),
           comment: z.string(),
+          parentCommentId: z.number().optional(),
         })
       )
       .mutation(async ({ input, ctx }) => {
         return await scenarioSharingService.addScenarioComment(
           input.scenarioId,
           ctx.user.id,
-          input.comment
+          input.comment,
+          input.parentCommentId
         );
       }),
 
@@ -1149,6 +1151,18 @@ export const appRouter = router({
       .input(z.object({ scenarioId: z.number() }))
       .query(async ({ input }) => {
         return await scenarioSharingService.getScenarioComments(input.scenarioId);
+      }),
+
+    getCommentReplies: protectedProcedure
+      .input(z.object({ commentId: z.number() }))
+      .query(async ({ input }) => {
+        return await scenarioSharingService.getCommentReplies(input.commentId);
+      }),
+
+    getCommentThread: protectedProcedure
+      .input(z.object({ commentId: z.number() }))
+      .query(async ({ input }) => {
+        return await scenarioSharingService.getCommentThread(input.commentId);
       }),
 
     deleteComment: protectedProcedure
