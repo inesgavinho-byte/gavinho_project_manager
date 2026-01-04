@@ -260,3 +260,13 @@
 - [x] Criar notificações automáticas para usuários mencionados
 - [x] Adicionar lista de usuários mencionados em cada comentário
 - [x] Implementar testes unitários para sistema de menções
+
+## Página de Visualização de Menções
+- [x] Criar página Mentions.tsx com lista de menções recebidas
+- [x] Implementar filtros de lidas/não lidas
+- [x] Adicionar informações contextuais (autor, comentário, cenário)
+- [x] Implementar ação de marcar como lido
+- [x] Adicionar navegação para o cenário mencionado
+- [x] Adicionar rota no App.tsx
+- [x] Adicionar link na navegação do DashboardLayout
+- [x] Adicionar badge de contagem de menções não lidas no menu

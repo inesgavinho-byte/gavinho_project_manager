@@ -21,8 +21,10 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, FolderKanban, Package, ListTodo, DollarSign, FileText, Mail, Brain, Bell, TrendingUp, Lightbulb, Activity } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, FolderKanban, Package, ListTodo, DollarSign, FileText, Mail, Brain, Bell, TrendingUp, Lightbulb, Activity, AtSign } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
+import { Badge } from "./ui/badge";
+import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
@@ -39,6 +41,7 @@ const menuItems = [
   { icon: TrendingUp, label: "Análise Preditiva", path: "/predictions" },
   { icon: Lightbulb, label: "Simulação What-If", path: "/what-if" },
   { icon: Activity, label: "Atividades", path: "/activity-feed" },
+  { icon: AtSign, label: "Menções", path: "/mentions" },
   { icon: Bell, label: "Notificações", path: "/notifications" },
   { icon: FileText, label: "Relatórios", path: "/reports" },
 ];
@@ -125,6 +128,9 @@ function DashboardLayoutContent({
   const sidebarRef = useRef<HTMLDivElement>(null);
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
+  
+  // Get unread mentions count
+  const { data: unreadMentionsCount } = trpc.mentions.getUnreadMentionsCount.useQuery();
 
   useEffect(() => {
     if (isCollapsed) {
@@ -204,7 +210,12 @@ function DashboardLayoutContent({
                       <item.icon
                         className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
                       />
-                      <span>{item.label}</span>
+                      <span className="flex-1">{item.label}</span>
+                      {item.path === "/mentions" && unreadMentionsCount !== undefined && unreadMentionsCount > 0 && (
+                        <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs">
+                          {unreadMentionsCount > 99 ? "99+" : unreadMentionsCount}
+                        </Badge>
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );

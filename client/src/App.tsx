@@ -19,6 +19,7 @@ import Notifications from "./pages/Notifications";
 import Predictions from "./pages/Predictions";
 import WhatIfSimulation from "./pages/WhatIfSimulation";
 import ActivityFeed from "./pages/ActivityFeed";
+import Mentions from "./pages/Mentions";
 
 function Router() {
   return (
@@ -106,6 +107,12 @@ function Router() {
       <Route path="/activity-feed">
         <DashboardLayout>
           <ActivityFeed />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/mentions">
+        <DashboardLayout>
+          <Mentions />
         </DashboardLayout>
       </Route>
       
