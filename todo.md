@@ -322,7 +322,7 @@
 - [x] Criar página ProjectDetails.tsx com tabs
 - [x] Implementar tab Overview (briefing, objetivos, KPIs)
 - [x] Implementar tab Timeline com fases e milestones
-- [ ] Implementar tab Equipa com membros e funções
+- [x] Implementar tab Equipa com membros e funções
 - [ ] Implementar tab Documentos com upload
 - [ ] Implementar tab Galeria com imagens
 - [ ] Implementar tab Financeiro com orçamento vs real
@@ -330,3 +330,14 @@
 - [x] Adicionar rota no App.tsx
 - [ ] Adicionar link no DashboardLayout
 - [ ] Testar CRUD completo
+
+
+## Tab Equipa - Implementação
+- [x] Criar interface de gestão de equipa com cards de membros
+- [x] Implementar formulário de adicionar membro com seleção de função
+- [x] Adicionar funções predefinidas (Arquiteto, Engenheiro, Gestor, Empreiteiro, Designer, Consultor)
+- [x] Implementar remoção de membros
+- [x] Criar visualização de responsabilidades por fase
+- [x] Adicionar filtros por função
+- [x] Aplicar design GAVINHO
+- [x] Testar CRUD completo de equipa

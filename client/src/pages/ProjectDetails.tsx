@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -18,16 +19,64 @@ import {
   Clock,
   CheckCircle2,
   Circle,
-  AlertCircle
+  AlertCircle,
+  Plus,
+  Trash2,
+  Mail,
+  Phone,
+  Briefcase
 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function ProjectDetails() {
   const [, params] = useRoute("/projects/:id");
   const projectId = params?.id ? parseInt(params.id) : 0;
 
+  const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
+  const [newMember, setNewMember] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    role: "engineer" as const,
+  });
+
   const { data: statsData, isLoading } = trpc.projects.getStats.useQuery({ id: projectId });
   const { data: phases } = trpc.projects.phases.list.useQuery({ projectId });
   const { data: milestones } = trpc.projects.milestones.list.useQuery({ projectId });
+  const { data: teamMembers, refetch: refetchTeam } = trpc.projects.team.list.useQuery({ projectId });
+
+  const addTeamMember = trpc.projects.team.add.useMutation({
+    onSuccess: () => {
+      toast.success("Membro adicionado com sucesso!");
+      setIsAddMemberOpen(false);
+      setNewMember({ name: "", email: "", phone: "", role: "engineer" });
+      refetchTeam();
+    },
+    onError: (error) => {
+      toast.error("Erro ao adicionar membro: " + error.message);
+    },
+  });
+
+  const removeTeamMember = trpc.projects.team.remove.useMutation({
+    onSuccess: () => {
+      toast.success("Membro removido com sucesso!");
+      refetchTeam();
+    },
+    onError: (error) => {
+      toast.error("Erro ao remover membro: " + error.message);
+    },
+  });
+
+  const handleAddMember = () => {
+    if (!newMember.name || !newMember.email) {
+      toast.error("Nome e email são obrigatórios");
+      return;
+    }
+    addTeamMember.mutate({ projectId, ...newMember });
+  };
 
   const project = statsData?.project;
   const stats = statsData?.stats;
@@ -381,12 +430,278 @@ export default function ProjectDetails() {
               </div>
             )}
           </Card>
+
+          {/* Responsibilities by Phase */}
+          {phases && phases.length > 0 && teamMembers && teamMembers.length > 0 && (
+            <Card className="p-6 border-[#C3BAAF]/20 bg-white">
+              <h3 className="font-serif text-2xl text-[#5F5C59] mb-6">Responsabilidades por Fase</h3>
+              <div className="space-y-6">
+                {phases.map((phase) => {
+                  // Group team members by role for this phase
+                  const membersByRole = teamMembers.reduce((acc, member) => {
+                    if (!acc[member.role]) {
+                      acc[member.role] = [];
+                    }
+                    acc[member.role].push(member);
+                    return acc;
+                  }, {} as Record<string, typeof teamMembers>);
+
+                  const getRoleLabel = (role: string) => {
+                    const labels: Record<string, string> = {
+                      architect: "Arquitetos",
+                      engineer: "Engenheiros",
+                      project_manager: "Gestores de Projeto",
+                      contractor: "Empreiteiros",
+                      designer: "Designers",
+                      consultant: "Consultores",
+                    };
+                    return labels[role] || role;
+                  };
+
+                  const getRoleColor = (role: string) => {
+                    const colors: Record<string, string> = {
+                      architect: "bg-purple-50 text-purple-700 border-purple-200",
+                      engineer: "bg-blue-50 text-blue-700 border-blue-200",
+                      project_manager: "bg-[#C9A882]/10 text-[#C9A882] border-[#C9A882]/20",
+                      contractor: "bg-orange-50 text-orange-700 border-orange-200",
+                      designer: "bg-pink-50 text-pink-700 border-pink-200",
+                      consultant: "bg-emerald-50 text-emerald-700 border-emerald-200",
+                    };
+                    return colors[role] || "bg-gray-50 text-gray-700 border-gray-200";
+                  };
+
+                  return (
+                    <div key={phase.id} className="border border-[#C3BAAF]/20 rounded-lg p-5">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h4 className="font-medium text-lg text-[#5F5C59] mb-1">{phase.name}</h4>
+                          <div className="flex items-center gap-4 text-sm text-[#5F5C59]/60">
+                            {phase.startDate && (
+                              <span>Início: {new Date(phase.startDate).toLocaleDateString('pt-PT')}</span>
+                            )}
+                            {phase.endDate && (
+                              <span>Fim: {new Date(phase.endDate).toLocaleDateString('pt-PT')}</span>
+                            )}
+                            <Badge className={`${getStatusColor(phase.status)} border`}>
+                              {getStatusLabel(phase.status)}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-[#5F5C59]/60 mb-1">Progresso</p>
+                          <p className="text-2xl font-serif text-[#5F5C59]">{phase.progress}%</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                        {Object.entries(membersByRole).map(([role, members]) => (
+                          <div key={role} className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Briefcase className="w-4 h-4 text-[#C9A882]" />
+                              <span className="text-sm font-medium text-[#5F5C59]">
+                                {getRoleLabel(role)}
+                              </span>
+                            </div>
+                            <div className="space-y-1">
+                              {members.map((member) => (
+                                <div
+                                  key={member.id}
+                                  className="flex items-center gap-2 p-2 rounded border border-[#C3BAAF]/10 bg-[#EEEAE5]/30"
+                                >
+                                  <div className="w-8 h-8 rounded-full bg-[#C9A882]/20 flex items-center justify-center">
+                                    <span className="text-xs font-medium text-[#C9A882]">
+                                      {member.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                                    </span>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm text-[#5F5C59] truncate">{member.name}</p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
         </TabsContent>
 
-        {/* Other tabs placeholders */}
-        <TabsContent value="team">
-          <Card className="p-12 text-center border-[#C3BAAF]/20 bg-white">
-            <p className="text-[#5F5C59]/60">Tab Equipa em desenvolvimento...</p>
+        {/* Other tabs placeholders */}<TabsContent value="team" className="space-y-6">
+          <Card className="p-6 border-[#C3BAAF]/20 bg-white">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-serif text-2xl text-[#5F5C59]">Equipa do Projeto</h3>
+              <Dialog open={isAddMemberOpen} onOpenChange={setIsAddMemberOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Adicionar Membro
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle className="font-serif text-2xl text-[#5F5C59]">Adicionar Membro à Equipa</DialogTitle>
+                    <DialogDescription className="text-[#5F5C59]/60">
+                      Preencha os dados do novo membro da equipa
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-[#5F5C59]">Nome *</Label>
+                      <Input
+                        id="name"
+                        value={newMember.name}
+                        onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
+                        placeholder="Nome completo"
+                        className="border-[#C3BAAF]/20 focus:border-[#C9A882]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-[#5F5C59]">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={newMember.email}
+                        onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
+                        placeholder="email@exemplo.com"
+                        className="border-[#C3BAAF]/20 focus:border-[#C9A882]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-[#5F5C59]">Telefone</Label>
+                      <Input
+                        id="phone"
+                        value={newMember.phone}
+                        onChange={(e) => setNewMember({ ...newMember, phone: e.target.value })}
+                        placeholder="+351 912 345 678"
+                        className="border-[#C3BAAF]/20 focus:border-[#C9A882]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="role" className="text-[#5F5C59]">Função *</Label>
+                      <Select value={newMember.role} onValueChange={(value: any) => setNewMember({ ...newMember, role: value })}>
+                        <SelectTrigger className="border-[#C3BAAF]/20 focus:border-[#C9A882]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="architect">Arquiteto</SelectItem>
+                          <SelectItem value="engineer">Engenheiro</SelectItem>
+                          <SelectItem value="project_manager">Gestor de Projeto</SelectItem>
+                          <SelectItem value="contractor">Empreiteiro</SelectItem>
+                          <SelectItem value="designer">Designer</SelectItem>
+                          <SelectItem value="consultant">Consultor</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsAddMemberOpen(false)}
+                      className="border-[#C3BAAF]/20"
+                    >
+                      Cancelar
+                    </Button>
+                    <Button
+                      onClick={handleAddMember}
+                      disabled={addTeamMember.isPending}
+                      className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white"
+                    >
+                      {addTeamMember.isPending ? "A adicionar..." : "Adicionar"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {teamMembers && teamMembers.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {teamMembers.map((member) => {
+                  const getRoleLabel = (role: string) => {
+                    const labels: Record<string, string> = {
+                      architect: "Arquiteto",
+                      engineer: "Engenheiro",
+                      project_manager: "Gestor de Projeto",
+                      contractor: "Empreiteiro",
+                      designer: "Designer",
+                      consultant: "Consultor",
+                    };
+                    return labels[role] || role;
+                  };
+
+                  const getRoleColor = (role: string) => {
+                    const colors: Record<string, string> = {
+                      architect: "bg-purple-50 text-purple-700 border-purple-200",
+                      engineer: "bg-blue-50 text-blue-700 border-blue-200",
+                      project_manager: "bg-[#C9A882]/10 text-[#C9A882] border-[#C9A882]/20",
+                      contractor: "bg-orange-50 text-orange-700 border-orange-200",
+                      designer: "bg-pink-50 text-pink-700 border-pink-200",
+                      consultant: "bg-emerald-50 text-emerald-700 border-emerald-200",
+                    };
+                    return colors[role] || "bg-gray-50 text-gray-700 border-gray-200";
+                  };
+
+                  return (
+                    <Card key={member.id} className="p-4 border-[#C3BAAF]/20 bg-white hover:border-[#C9A882]/40 transition-colors">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-[#5F5C59] mb-1">{member.name}</h4>
+                          <Badge className={`${getRoleColor(member.role)} border text-xs`}>
+                            {getRoleLabel(member.role)}
+                          </Badge>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm(`Tem certeza que deseja remover ${member.name} da equipa?`)) {
+                              removeTeamMember.mutate({ memberId: member.id });
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-[#5F5C59]/60">
+                          <Mail className="w-4 h-4" />
+                          <span className="truncate">{member.email}</span>
+                        </div>
+                        {member.phone && (
+                          <div className="flex items-center gap-2 text-sm text-[#5F5C59]/60">
+                            <Phone className="w-4 h-4" />
+                            <span>{member.phone}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 text-sm text-[#5F5C59]/60">
+                          <Briefcase className="w-4 h-4" />
+                          <span>Adicionado em {new Date(member.joinedAt).toLocaleDateString('pt-PT')}</span>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-[#EEEAE5] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-8 h-8 text-[#C9A882]" />
+                </div>
+                <h4 className="font-serif text-xl text-[#5F5C59] mb-2">Nenhum membro na equipa</h4>
+                <p className="text-[#5F5C59]/60 mb-4">Comece por adicionar membros à equipa do projeto</p>
+                <Button
+                  onClick={() => setIsAddMemberOpen(true)}
+                  className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar Primeiro Membro
+                </Button>
+              </div>
+            )}
           </Card>
         </TabsContent>
 
