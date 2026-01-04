@@ -270,3 +270,10 @@
 - [x] Adicionar rota no App.tsx
 - [x] Adicionar link na navegação do DashboardLayout
 - [x] Adicionar badge de contagem de menções não lidas no menu
+
+## Ação em Massa para Marcar Menções como Lidas
+- [x] Adicionar endpoint tRPC markAllMentionsAsRead
+- [x] Adicionar botão "Marcar todas como lidas" na página de Menções
+- [x] Implementar confirmação antes de executar ação em massa
+- [x] Adicionar feedback visual (toast) após marcar todas
+- [x] Atualizar contadores e lista após ação

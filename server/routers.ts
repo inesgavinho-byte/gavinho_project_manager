@@ -1269,6 +1269,12 @@ export const appRouter = router({
       .query(async ({ ctx }) => {
         return await mentionDb.getUnreadMentionsCount(ctx.user.id);
       }),
+
+    markAllMentionsAsRead: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        await mentionDb.markAllMentionsAsRead(ctx.user.id);
+        return { success: true };
+      }),
   }),
 });
 

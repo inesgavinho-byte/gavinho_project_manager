@@ -39,8 +39,26 @@ export default function Mentions() {
     },
   });
 
+  const markAllAsReadMutation = trpc.mentions.markAllMentionsAsRead.useMutation({
+    onSuccess: () => {
+      refetch();
+      toast.success("Todas as menções foram marcadas como lidas");
+    },
+    onError: () => {
+      toast.error("Erro ao marcar menções como lidas");
+    },
+  });
+
   const handleMarkAsRead = (mentionId: number) => {
     markAsReadMutation.mutate({ mentionId });
+  };
+
+  const handleMarkAllAsRead = () => {
+    if (!unreadCount || unreadCount === 0) return;
+    
+    if (confirm(`Tem certeza que deseja marcar todas as ${unreadCount} menções como lidas?`)) {
+      markAllAsReadMutation.mutate();
+    }
   };
 
   const handleNavigateToScenario = (scenarioId: number, mentionId: number) => {
@@ -69,11 +87,33 @@ export default function Mentions() {
             Veja todos os comentários onde você foi mencionado
           </p>
         </div>
-        {unreadCount !== undefined && unreadCount > 0 && (
-          <Badge variant="destructive" className="text-lg px-4 py-2">
-            {unreadCount} não {unreadCount === 1 ? "lida" : "lidas"}
-          </Badge>
-        )}
+        <div className="flex items-center gap-3">
+          {unreadCount !== undefined && unreadCount > 0 && (
+            <>
+              <Badge variant="destructive" className="text-lg px-4 py-2">
+                {unreadCount} não {unreadCount === 1 ? "lida" : "lidas"}
+              </Badge>
+              <Button
+                onClick={handleMarkAllAsRead}
+                disabled={markAllAsReadMutation.isPending}
+                variant="outline"
+                size="default"
+              >
+                {markAllAsReadMutation.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Marcando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Marcar todas como lidas
+                  </>
+                )}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
