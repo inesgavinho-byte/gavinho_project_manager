@@ -373,3 +373,17 @@
 - [x] Adicionar legendas e datas às imagens
 - [x] Aplicar design GAVINHO com hover effects
 - [x] Testar upload múltiplo e lightbox
+
+
+## Modal Novo Projeto - Implementação
+- [x] Criar componente NewProjectModal.tsx
+- [x] Adicionar formulário com todos os campos (nome, cliente, localização, datas, orçamento, prioridade, status, descrição)
+- [x] Implementar validação de campos obrigatórios
+- [x] Adicionar validação de datas (fim > início)
+- [x] Adicionar validação de orçamento (valor positivo)
+- [x] Integrar com API tRPC projects.create
+- [x] Implementar redirecionamento automático para ficha do projeto
+- [x] Adicionar loading states e toast notifications
+- [x] Substituir botão "+ Novo Projeto" no Dashboard e Projects
+- [x] Aplicar design GAVINHO
+- [x] Testar fluxo completo de criação

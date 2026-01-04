@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { BarChart3, FolderKanban, AlertCircle, CheckCircle2, Clock, PauseCircle, Plus } from "lucide-react";
 import { Link } from "wouter";
+import NewProjectModal from "@/components/NewProjectModal";
 
 export default function Dashboard() {
   const { data: stats, isLoading: statsLoading } = trpc.dashboard.stats.useQuery();
@@ -54,12 +55,7 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold text-foreground">Dashboard Executivo</h1>
           <p className="text-muted-foreground mt-1">Visão geral dos projetos e atividades</p>
         </div>
-        <Link href="/projects">
-          <Button size="lg" className="gap-2">
-            <Plus className="h-5 w-5" />
-            Novo Projeto
-          </Button>
-        </Link>
+        <NewProjectModal />
       </div>
 
       {/* Stats Cards */}

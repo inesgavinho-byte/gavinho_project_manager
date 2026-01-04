@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Calendar, MapPin, TrendingUp, FolderOpen } from "lucide-react";
+import NewProjectModal from "@/components/NewProjectModal";
 
 export default function Projects() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -86,12 +87,7 @@ export default function Projects() {
           <h1 className="font-serif text-4xl text-[#5F5C59] mb-2">Projetos</h1>
           <p className="text-[#5F5C59]/60">Gestão completa de projetos de design & build</p>
         </div>
-        <Link href="/projects/new">
-          <Button className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white">
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Projeto
-          </Button>
-        </Link>
+        <NewProjectModal />
       </div>
 
       {/* Filters */}
