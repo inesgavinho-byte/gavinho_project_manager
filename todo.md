@@ -387,3 +387,10 @@
 - [x] Substituir botão "+ Novo Projeto" no Dashboard e Projects
 - [x] Aplicar design GAVINHO
 - [x] Testar fluxo completo de criação
+
+
+## Seed de Projetos GAVINHO Reais
+- [x] Criar script seed-gavinho-projects.mjs com 15 projetos reais
+- [x] Adicionar informações realistas (clientes, localizações, datas, orçamentos)
+- [x] Executar script para popular banco de dados
+- [x] Verificar dados no dashboard
