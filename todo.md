@@ -295,3 +295,9 @@
 - [x] Encontrar query que usa isRead = 0 ao invés de false
 - [x] Corrigir para usar boolean corretamente
 - [x] Testar query de notificações não lidas
+
+## Correção de Incompatibilidade Boolean/TINYINT
+- [x] Verificar tipo real da coluna isRead no banco (TINYINT vs BOOLEAN)
+- [x] Reverter queries para usar 0/1 ao invés de false/true
+- [x] Atualizar schema Drizzle para usar int ao invés de boolean
+- [x] Testar query de notificações não lidas

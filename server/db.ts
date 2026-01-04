@@ -248,7 +248,7 @@ export async function getNotificationsByUser(userId: number, unreadOnly: boolean
   
   if (unreadOnly) {
     return await db.select().from(notifications)
-      .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)))
+      .where(and(eq(notifications.userId, userId), eq(notifications.isRead, 0)))
       .orderBy(desc(notifications.createdAt));
   }
   
@@ -266,7 +266,7 @@ export async function createNotification(notification: InsertNotification) {
 export async function markNotificationAsRead(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(notifications).set({ isRead: true, readAt: new Date() }).where(eq(notifications.id, id));
+  await db.update(notifications).set({ isRead: 1, readAt: new Date() }).where(eq(notifications.id, id));
 }
 
 // Dashboard Stats
