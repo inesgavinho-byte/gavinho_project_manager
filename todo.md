@@ -290,3 +290,8 @@
 - [x] Criar tabela notifications no banco de dados
 - [x] Verificar schema da tabela no drizzle/schema.ts
 - [x] Testar query de notificações não lidas
+
+## Correção de Tipo Boolean em Notifications
+- [x] Encontrar query que usa isRead = 0 ao invés de false
+- [x] Corrigir para usar boolean corretamente
+- [x] Testar query de notificações não lidas
