@@ -1,0 +1,9 @@
+{
+  "query": "CREATE INDEX idx_projects_status ON projects(status);\nCREATE INDEX idx_projects_type ON projects(projectType);\nCREATE INDEX idx_projects_team_lead ON projects(teamLead);\nCREATE INDEX idx_projects_client ON projects(clientId);\nCREATE INDEX idx_projects_archived ON projects(isArchived);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute CREATE INDEX idx_projects_status ON projects(status);\nCREATE INDEX idx_projects_type ON projects(projectType);\nCREATE INDEX idx_projects_team_lead ON projects(teamLead);\nCREATE INDEX idx_projects_client ON projects(clientId);\nCREATE INDEX idx_projects_archived ON projects(isArchived);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 2963
+}

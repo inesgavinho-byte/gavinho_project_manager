@@ -301,3 +301,15 @@
 - [x] Reverter queries para usar 0/1 ao invés de false/true
 - [x] Atualizar schema Drizzle para usar int ao invés de boolean
 - [x] Testar query de notificações não lidas
+
+## Módulo de Projetos - Fase 1
+- [x] Criar schema do banco de dados (projects, project_phases, project_milestones)
+- [x] Aplicar migrations no banco de dados
+- [ ] Criar backend APIs (tRPC) para CRUD de projetos
+- [ ] Criar backend APIs para gestão de fases e milestones
+- [ ] Criar página de lista de projetos com filtros
+- [ ] Criar ficha completa do projeto com todas as informações
+- [ ] Criar componente de timeline visual (Gantt simplificado)
+- [ ] Criar componente de gestão de fases configuráveis
+- [ ] Adicionar galeria de imagens do projeto
+- [ ] Testar funcionalidade completa
