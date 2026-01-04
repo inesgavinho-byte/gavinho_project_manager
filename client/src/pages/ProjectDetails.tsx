@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -25,12 +27,19 @@ import {
   Trash2,
   Mail,
   Phone,
-  Briefcase
+  Briefcase,
+  Upload,
+  Download,
+  Eye,
+  Filter,
+  X
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ProjectDocuments from "@/components/ProjectDocuments";
+import ProjectGallery from "@/components/ProjectGallery";
 
 export default function ProjectDetails() {
   const [, params] = useRoute("/projects/:id");
@@ -44,10 +53,23 @@ export default function ProjectDetails() {
     role: "engineer" as const,
   });
 
+  // Documents state
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [previewDoc, setPreviewDoc] = useState<any>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
+
+  // Gallery state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [selectedPhase, setSelectedPhase] = useState<string>("all");
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+
   const { data: statsData, isLoading } = trpc.projects.getStats.useQuery({ id: projectId });
   const { data: phases } = trpc.projects.phases.list.useQuery({ projectId });
   const { data: milestones } = trpc.projects.milestones.list.useQuery({ projectId });
   const { data: teamMembers, refetch: refetchTeam } = trpc.projects.team.list.useQuery({ projectId });
+  const { data: documents, refetch: refetchDocuments } = trpc.projects.documents.list.useQuery({ projectId });
+  const { data: gallery, refetch: refetchGallery } = trpc.projects.gallery.list.useQuery({ projectId });
 
   const addTeamMember = trpc.projects.team.add.useMutation({
     onSuccess: () => {
@@ -756,15 +778,11 @@ export default function ProjectDetails() {
         </TabsContent>
 
         <TabsContent value="documents">
-          <Card className="p-12 text-center border-[#C3BAAF]/20 bg-white">
-            <p className="text-[#5F5C59]/60">Tab Documentos em desenvolvimento...</p>
-          </Card>
+          <ProjectDocuments projectId={projectId} />
         </TabsContent>
 
         <TabsContent value="gallery">
-          <Card className="p-12 text-center border-[#C3BAAF]/20 bg-white">
-            <p className="text-[#5F5C59]/60">Tab Galeria em desenvolvimento...</p>
-          </Card>
+          <ProjectGallery projectId={projectId} phases={phases || []} />
         </TabsContent>
 
         <TabsContent value="financial">

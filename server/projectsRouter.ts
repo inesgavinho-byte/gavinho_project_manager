@@ -270,7 +270,7 @@ export const projectsRouter = router({
         fileData: z.string(), // base64
         fileType: z.string(),
         fileSize: z.number(),
-        category: z.enum(["contract", "drawing", "specification", "photo", "report", "other"]).default("other"),
+        category: z.enum(["contract", "plan", "license", "invoice", "other"]).default("other"),
       }))
       .mutation(async ({ input, ctx }) => {
         // Decode base64 and upload to S3
@@ -313,31 +313,39 @@ export const projectsRouter = router({
     upload: protectedProcedure
       .input(z.object({
         projectId: z.number(),
-        title: z.string().optional(),
-        description: z.string().optional(),
-        imageData: z.string(), // base64
-        category: z.string().optional(),
-        takenAt: z.date().optional(),
+        caption: z.string().optional(),
+        phaseId: z.number().nullable().optional(),
+        images: z.array(z.object({
+          data: z.string(), // base64
+          type: z.string(),
+          size: z.number(),
+        })),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Decode base64 and upload to S3
-        const buffer = Buffer.from(input.imageData, 'base64');
-        const imageKey = `projects/${input.projectId}/gallery/${Date.now()}.jpg`;
-        const { url } = await storagePut(imageKey, buffer, 'image/jpeg');
+        const uploadedImages = [];
 
-        const imageId = await projectsDb.addGalleryImage({
-          projectId: input.projectId,
-          title: input.title,
-          description: input.description,
-          imageUrl: url,
-          imageKey,
-          category: input.category,
-          takenAt: input.takenAt,
-          uploadedById: ctx.user.id,
-          order: 0,
-        });
+        for (const img of input.images) {
+          // Decode base64 and upload to S3
+          const buffer = Buffer.from(img.data, 'base64');
+          const imageKey = `projects/${input.projectId}/gallery/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+          const { url } = await storagePut(imageKey, buffer, img.type);
 
-        return { id: imageId, url };
+          const imageId = await projectsDb.addGalleryImage({
+            projectId: input.projectId,
+            phaseId: input.phaseId || undefined,
+            title: input.caption,
+            description: input.caption,
+            imageUrl: url,
+            imageKey,
+            takenAt: new Date(),
+            uploadedById: ctx.user.id,
+            order: 0,
+          });
+
+          uploadedImages.push({ id: imageId, url });
+        }
+
+        return { images: uploadedImages };
       }),
 
     update: protectedProcedure

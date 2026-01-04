@@ -126,7 +126,7 @@ export const projectDocuments = mysqlTable("projectDocuments", {
   fileKey: varchar("fileKey", { length: 500 }).notNull(),
   fileType: varchar("fileType", { length: 100 }), // e.g., "application/pdf", "image/jpeg"
   fileSize: int("fileSize"), // in bytes
-  category: mysqlEnum("category", ["contract", "drawing", "specification", "photo", "report", "other"]).default("other").notNull(),
+  category: mysqlEnum("category", ["contract", "plan", "license", "invoice", "drawing", "specification", "photo", "report", "other"]).default("other").notNull(),
   uploadedById: int("uploadedById").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -144,6 +144,7 @@ export type InsertProjectDocument = typeof projectDocuments.$inferInsert;
 export const projectGallery = mysqlTable("projectGallery", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
+  phaseId: int("phaseId"),
   title: varchar("title", { length: 255 }),
   description: text("description"),
   imageUrl: text("imageUrl").notNull(),

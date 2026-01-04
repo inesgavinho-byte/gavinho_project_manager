@@ -322,10 +322,8 @@
 - [x] Criar página ProjectDetails.tsx com tabs
 - [x] Implementar tab Overview (briefing, objetivos, KPIs)
 - [x] Implementar tab Timeline com fases e milestones
-- [x] Implementar tab Equipa com membros e funções
-- [ ] Implementar tab Documentos com upload
-- [ ] Implementar tab Galeria com imagens
-- [ ] Implementar tab Financeiro com orçamento vs real
+- [x] Implementar tab Equipa com membros e fun- [x] Implementar tab Documentos com upload de PDFs
+- [x] Implementar tab Galeria com upload de imagensentar tab Financeiro com orçamento vs real
 - [ ] Criar componente ProjectTimeline.tsx (Gantt visual)
 - [x] Adicionar rota no App.tsx
 - [ ] Adicionar link no DashboardLayout
@@ -352,3 +350,26 @@
 - [x] Implementar lógica de reordenação no frontend
 - [x] Adicionar feedback visual durante arrasto
 - [x] Testar funcionalidade completa
+
+
+## Tab Documentos - Implementação
+- [x] Criar interface de upload de documentos com drag & drop
+- [x] Implementar upload para S3 via storagePut
+- [x] Adicionar categorias (Contratos, Plantas, Licenças, Faturas)
+- [x] Criar preview inline de PDFs com iframe
+- [x] Implementar download de documentos
+- [x] Adicionar filtros por categoria e data
+- [x] Criar lista de documentos com cards elegantes
+- [x] Aplicar design GAVINHO
+- [x] Testar upload e download completo
+
+## Tab Galeria - Implementação
+- [x] Instalar biblioteca react-image-lightbox ou similar
+- [x] Criar interface de upload múltiplo de imagens
+- [x] Implementar upload para S3 via storagePut
+- [x] Organizar imagens por fase do projeto
+- [x] Criar grid responsivo com lazy loading
+- [x] Implementar lightbox para visualização ampliada
+- [x] Adicionar legendas e datas às imagens
+- [x] Aplicar design GAVINHO com hover effects
+- [x] Testar upload múltiplo e lightbox
