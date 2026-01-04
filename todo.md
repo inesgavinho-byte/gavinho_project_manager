@@ -411,3 +411,13 @@
 - [x] Atualizar fases do projeto com prazos corretos (8 fases, 470 dias úteis)
 - [x] Adicionar marcos detalhados por fase (29 marcos totais)
 - [x] Verificar atualização no Tab Timeline
+
+
+## Popular Documentos do Projeto MYRIAD
+- [x] Criar script seed-myriad-documents.mjs
+- [x] Adicionar documentos da Fase 1 - Estudo Prévio (7 documentos: moodboards, layouts, 4 renders 3D)
+- [x] Adicionar documentos da Fase 2 - Projeto Base (10 documentos: plantas, desenhos técnicos, 5 renders 3D)
+- [x] Adicionar documentos da Fase 3.1 - Obra Acabamentos (9 documentos: mapas, cadernos de encargos, pormenorização)
+- [x] Adicionar documentos da Fase 3.2 - Decoração e Mobiliário (7 documentos: FF&E, renders promocionais)
+- [x] Adicionar documentos da Fase 3.3 - Bom Para Construção (6 documentos: compatibilização, modelo BIM)
+- [x] Executar script e verificar Tab Documentos (39 documentos totais)
