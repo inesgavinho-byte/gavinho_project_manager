@@ -48,6 +48,119 @@ export type Project = typeof projects.$inferSelect;
 export type InsertProject = typeof projects.$inferInsert;
 
 /**
+ * Project Phases table - configurable phases for each project
+ */
+export const projectPhases = mysqlTable("projectPhases", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  order: int("order").notNull(),
+  startDate: timestamp("startDate"),
+  endDate: timestamp("endDate"),
+  status: mysqlEnum("status", ["not_started", "in_progress", "completed", "on_hold"]).default("not_started").notNull(),
+  progress: int("progress").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+}));
+
+export type ProjectPhase = typeof projectPhases.$inferSelect;
+export type InsertProjectPhase = typeof projectPhases.$inferInsert;
+
+/**
+ * Project Milestones table - important milestones for each project
+ */
+export const projectMilestones = mysqlTable("projectMilestones", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  phaseId: int("phaseId"),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  dueDate: timestamp("dueDate").notNull(),
+  completedDate: timestamp("completedDate"),
+  status: mysqlEnum("status", ["pending", "completed", "overdue"]).default("pending").notNull(),
+  isKeyMilestone: int("isKeyMilestone").default(0).notNull(), // 0 = no, 1 = yes
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  phaseIdIdx: index("phaseId_idx").on(table.phaseId),
+}));
+
+export type ProjectMilestone = typeof projectMilestones.$inferSelect;
+export type InsertProjectMilestone = typeof projectMilestones.$inferInsert;
+
+/**
+ * Project Team table - team members assigned to projects
+ */
+export const projectTeam = mysqlTable("projectTeam", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  userId: int("userId").notNull(),
+  role: varchar("role", { length: 100 }).notNull(), // e.g., "Architect", "Project Manager", "Designer"
+  responsibilities: text("responsibilities"),
+  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+  leftAt: timestamp("leftAt"),
+  isActive: int("isActive").default(1).notNull(), // 0 = no, 1 = yes
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  userIdIdx: index("userId_idx").on(table.userId),
+}));
+
+export type ProjectTeamMember = typeof projectTeam.$inferSelect;
+export type InsertProjectTeamMember = typeof projectTeam.$inferInsert;
+
+/**
+ * Project Documents table - documents attached to projects
+ */
+export const projectDocuments = mysqlTable("projectDocuments", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  fileUrl: text("fileUrl").notNull(),
+  fileKey: varchar("fileKey", { length: 500 }).notNull(),
+  fileType: varchar("fileType", { length: 100 }), // e.g., "application/pdf", "image/jpeg"
+  fileSize: int("fileSize"), // in bytes
+  category: mysqlEnum("category", ["contract", "drawing", "specification", "photo", "report", "other"]).default("other").notNull(),
+  uploadedById: int("uploadedById").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  categoryIdx: index("category_idx").on(table.category),
+}));
+
+export type ProjectDocument = typeof projectDocuments.$inferSelect;
+export type InsertProjectDocument = typeof projectDocuments.$inferInsert;
+
+/**
+ * Project Gallery table - photo gallery for projects
+ */
+export const projectGallery = mysqlTable("projectGallery", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  title: varchar("title", { length: 255 }),
+  description: text("description"),
+  imageUrl: text("imageUrl").notNull(),
+  imageKey: varchar("imageKey", { length: 500 }).notNull(),
+  thumbnailUrl: text("thumbnailUrl"),
+  category: varchar("category", { length: 100 }), // e.g., "Before", "During", "After", "Detail"
+  takenAt: timestamp("takenAt"),
+  uploadedById: int("uploadedById").notNull(),
+  order: int("order").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+}));
+
+export type ProjectGalleryImage = typeof projectGallery.$inferSelect;
+export type InsertProjectGalleryImage = typeof projectGallery.$inferInsert;
+
+/**
  * Suppliers table
  */
 export const suppliers = mysqlTable("suppliers", {

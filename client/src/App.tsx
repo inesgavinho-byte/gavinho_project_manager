@@ -7,7 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import DashboardLayout from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
-import ProjectDetail from "./pages/ProjectDetail";
+import ProjectDetails from "./pages/ProjectDetails";
 import Suppliers from "./pages/Suppliers";
 import Orders from "./pages/Orders";
 import Tasks from "./pages/Tasks";
@@ -37,11 +37,9 @@ function Router() {
       </Route>
       
       <Route path="/projects/:id">
-        {params => (
-          <DashboardLayout>
-            <ProjectDetail projectId={parseInt(params.id)} />
-          </DashboardLayout>
-        )}
+        <DashboardLayout>
+          <ProjectDetails />
+        </DashboardLayout>
       </Route>
       
       <Route path="/suppliers">

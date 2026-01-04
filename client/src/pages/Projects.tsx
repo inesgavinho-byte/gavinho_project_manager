@@ -1,254 +1,242 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search } from "lucide-react";
-import { Link } from "wouter";
-import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Search, Calendar, MapPin, TrendingUp, FolderOpen } from "lucide-react";
 
 export default function Projects() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    clientName: "",
-    location: "",
-    status: "planning" as const,
-    priority: "medium" as const,
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [priorityFilter, setPriorityFilter] = useState<string>("all");
+
+  const { data: projects, isLoading } = trpc.projects.list.useQuery();
+
+  // Filter projects
+  const filteredProjects = projects?.filter((project) => {
+    const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         project.clientName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         project.location?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || project.status === statusFilter;
+    const matchesPriority = priorityFilter === "all" || project.priority === priorityFilter;
+    return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  const { data: projects, isLoading, refetch } = trpc.projects.list.useQuery();
-  const createProject = trpc.projects.create.useMutation({
-    onSuccess: () => {
-      toast.success("Projeto criado com sucesso!");
-      setIsDialogOpen(false);
-      setFormData({
-        name: "",
-        description: "",
-        clientName: "",
-        location: "",
-        status: "planning",
-        priority: "medium",
-      });
-      refetch();
-    },
-    onError: (error) => {
-      toast.error("Erro ao criar projeto: " + error.message);
-    },
-  });
-
-  const filteredProjects = projects?.filter((project) =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.clientName?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createProject.mutate(formData);
-  };
-
-  const getStatusClass = (status: string) => {
-    const classes: Record<string, string> = {
-      planning: "status-planning",
-      in_progress: "status-in-progress",
-      on_hold: "status-on-hold",
-      completed: "status-completed",
-      cancelled: "status-cancelled",
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      planning: "bg-[#C9A882]/10 text-[#C9A882] border-[#C9A882]/20",
+      in_progress: "bg-[#C3BAAF]/10 text-[#5F5C59] border-[#C3BAAF]/20",
+      on_hold: "bg-amber-50 text-amber-700 border-amber-200",
+      completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      cancelled: "bg-red-50 text-red-700 border-red-200",
     };
-    return classes[status] || "";
+    return colors[status] || "bg-gray-50 text-gray-700 border-gray-200";
   };
 
-  const getPriorityClass = (priority: string) => {
-    const classes: Record<string, string> = {
-      low: "priority-low",
-      medium: "priority-medium",
-      high: "priority-high",
-      urgent: "priority-urgent",
+  const getPriorityColor = (priority: string) => {
+    const colors: Record<string, string> = {
+      low: "bg-blue-50 text-blue-700 border-blue-200",
+      medium: "bg-[#C9A882]/10 text-[#C9A882] border-[#C9A882]/20",
+      high: "bg-orange-50 text-orange-700 border-orange-200",
+      urgent: "bg-red-50 text-red-700 border-red-200",
     };
-    return classes[priority] || "";
+    return colors[priority] || "bg-gray-50 text-gray-700 border-gray-200";
   };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      planning: "Planeamento",
+      in_progress: "Em Andamento",
+      on_hold: "Em Espera",
+      completed: "Concluído",
+      cancelled: "Cancelado",
+    };
+    return labels[status] || status;
+  };
+
+  const getPriorityLabel = (priority: string) => {
+    const labels: Record<string, string> = {
+      low: "Baixa",
+      medium: "Média",
+      high: "Alta",
+      urgent: "Urgente",
+    };
+    return labels[priority] || priority;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center space-y-3">
+          <div className="w-8 h-8 border-2 border-[#C9A882] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-sm text-[#5F5C59]/60">A carregar projetos...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Projetos</h1>
-          <p className="text-muted-foreground mt-1">Gerencie todos os projetos de construção</p>
+          <h1 className="font-serif text-4xl text-[#5F5C59] mb-2">Projetos</h1>
+          <p className="text-[#5F5C59]/60">Gestão completa de projetos de design & build</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="lg" className="gap-2">
-              <Plus className="h-5 w-5" />
-              Novo Projeto
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[600px]">
-            <form onSubmit={handleSubmit}>
-              <DialogHeader>
-                <DialogTitle>Criar Novo Projeto</DialogTitle>
-                <DialogDescription>
-                  Preencha os dados do novo projeto de construção
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Nome do Projeto *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Ex: Edifício Residencial Centro"
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="clientName">Cliente</Label>
-                  <Input
-                    id="clientName"
-                    value={formData.clientName}
-                    onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                    placeholder="Nome do cliente"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="location">Localização</Label>
-                  <Input
-                    id="location"
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    placeholder="Endereço ou localização"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="description">Descrição</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Descrição detalhada do projeto"
-                    rows={3}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="status">Status</Label>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(value: any) => setFormData({ ...formData, status: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="planning">Planejamento</SelectItem>
-                        <SelectItem value="in_progress">Em Andamento</SelectItem>
-                        <SelectItem value="on_hold">Pausado</SelectItem>
-                        <SelectItem value="completed">Concluído</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="priority">Prioridade</Label>
-                    <Select
-                      value={formData.priority}
-                      onValueChange={(value: any) => setFormData({ ...formData, priority: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Baixa</SelectItem>
-                        <SelectItem value="medium">Média</SelectItem>
-                        <SelectItem value="high">Alta</SelectItem>
-                        <SelectItem value="urgent">Urgente</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={createProject.isPending}>
-                  {createProject.isPending ? "Criando..." : "Criar Projeto"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Link href="/projects/new">
+          <Button className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white">
+            <Plus className="w-4 h-4 mr-2" />
+            Novo Projeto
+          </Button>
+        </Link>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Buscar projetos..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+      {/* Filters */}
+      <Card className="p-6 bg-white border-[#C3BAAF]/20">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="md:col-span-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5F5C59]/40" />
+              <Input
+                placeholder="Procurar por nome, cliente ou localização..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 border-[#C3BAAF]/20 focus:border-[#C9A882]"
+              />
+            </div>
+          </div>
+          
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="border-[#C3BAAF]/20 focus:border-[#C9A882]">
+              <SelectValue placeholder="Estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os estados</SelectItem>
+              <SelectItem value="planning">Planeamento</SelectItem>
+              <SelectItem value="in_progress">Em Andamento</SelectItem>
+              <SelectItem value="on_hold">Em Espera</SelectItem>
+              <SelectItem value="completed">Concluído</SelectItem>
+              <SelectItem value="cancelled">Cancelado</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+            <SelectTrigger className="border-[#C3BAAF]/20 focus:border-[#C9A882]">
+              <SelectValue placeholder="Prioridade" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas as prioridades</SelectItem>
+              <SelectItem value="low">Baixa</SelectItem>
+              <SelectItem value="medium">Média</SelectItem>
+              <SelectItem value="high">Alta</SelectItem>
+              <SelectItem value="urgent">Urgente</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </Card>
 
       {/* Projects Grid */}
-      {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">Carregando projetos...</div>
-      ) : filteredProjects.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          {searchTerm ? "Nenhum projeto encontrado" : "Nenhum projeto cadastrado"}
-        </div>
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {filteredProjects && filteredProjects.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProjects.map((project) => (
             <Link key={project.id} href={`/projects/${project.id}`}>
-              <Card className="card-shadow hover:card-shadow-lg transition-all cursor-pointer h-full">
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg">{project.name}</CardTitle>
-                    <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${getPriorityClass(project.priority)}`}>
-                      {project.priority}
-                    </span>
+              <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer border-[#C3BAAF]/20 hover:border-[#C9A882]/40 bg-white group">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="font-serif text-xl text-[#5F5C59] mb-1 group-hover:text-[#C9A882] transition-colors">
+                      {project.name}
+                    </h3>
+                    {project.clientName && (
+                      <p className="text-sm text-[#5F5C59]/60">{project.clientName}</p>
+                    )}
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {project.clientName && (
-                    <p className="text-sm text-muted-foreground">
-                      <span className="font-medium">Cliente:</span> {project.clientName}
-                    </p>
-                  )}
+                  <Badge className={`${getPriorityColor(project.priority)} border`}>
+                    {getPriorityLabel(project.priority)}
+                  </Badge>
+                </div>
+
+                {/* Description */}
+                {project.description && (
+                  <p className="text-sm text-[#5F5C59]/70 mb-4 line-clamp-2">
+                    {project.description}
+                  </p>
+                )}
+
+                {/* Info */}
+                <div className="space-y-2 mb-4">
                   {project.location && (
-                    <p className="text-sm text-muted-foreground">
-                      <span className="font-medium">Local:</span> {project.location}
-                    </p>
+                    <div className="flex items-center gap-2 text-sm text-[#5F5C59]/60">
+                      <MapPin className="w-4 h-4" />
+                      <span>{project.location}</span>
+                    </div>
                   )}
-                  <div className="flex items-center justify-between pt-2">
-                    <span className={`text-xs px-3 py-1 rounded-full ${getStatusClass(project.status)}`}>
-                      {project.status === "planning" && "Planejamento"}
-                      {project.status === "in_progress" && "Em Andamento"}
-                      {project.status === "on_hold" && "Pausado"}
-                      {project.status === "completed" && "Concluído"}
-                      {project.status === "cancelled" && "Cancelado"}
-                    </span>
-                    <span className="text-sm font-medium">{project.progress}%</span>
+                  {project.startDate && (
+                    <div className="flex items-center gap-2 text-sm text-[#5F5C59]/60">
+                      <Calendar className="w-4 h-4" />
+                      <span>
+                        {new Date(project.startDate).toLocaleDateString('pt-PT')}
+                        {project.endDate && ` - ${new Date(project.endDate).toLocaleDateString('pt-PT')}`}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Progress */}
+                <div className="mb-4">
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-[#5F5C59]/60">Progresso</span>
+                    <span className="font-medium text-[#5F5C59]">{project.progress}%</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2">
+                  <div className="h-2 bg-[#EEEAE5] rounded-full overflow-hidden">
                     <div
-                      className="bg-primary h-2 rounded-full transition-all"
+                      className="h-full bg-[#C9A882] transition-all duration-300"
                       style={{ width: `${project.progress}%` }}
                     />
                   </div>
-                </CardContent>
+                </div>
+
+                {/* Footer */}
+                <div className="flex items-center justify-between pt-4 border-t border-[#C3BAAF]/10">
+                  <Badge className={`${getStatusColor(project.status)} border`}>
+                    {getStatusLabel(project.status)}
+                  </Badge>
+                  {project.budget && (
+                    <div className="flex items-center gap-1 text-sm text-[#5F5C59]/60">
+                      <TrendingUp className="w-4 h-4" />
+                      <span>€{parseFloat(project.budget).toLocaleString('pt-PT')}</span>
+                    </div>
+                  )}
+                </div>
               </Card>
             </Link>
           ))}
         </div>
+      ) : (
+        <Card className="p-12 text-center border-[#C3BAAF]/20 bg-white">
+          <div className="max-w-md mx-auto space-y-4">
+            <div className="w-16 h-16 bg-[#EEEAE5] rounded-full flex items-center justify-center mx-auto">
+              <FolderOpen className="w-8 h-8 text-[#C9A882]" />
+            </div>
+            <h3 className="font-serif text-2xl text-[#5F5C59]">Nenhum projeto encontrado</h3>
+            <p className="text-[#5F5C59]/60">
+              {searchQuery || statusFilter !== "all" || priorityFilter !== "all"
+                ? "Tente ajustar os filtros de pesquisa."
+                : "Comece por criar o seu primeiro projeto."}
+            </p>
+            {!searchQuery && statusFilter === "all" && priorityFilter === "all" && (
+              <Link href="/projects/new">
+                <Button className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white mt-4">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Criar Primeiro Projeto
+                </Button>
+              </Link>
+            )}
+          </div>
+        </Card>
       )}
     </div>
   );

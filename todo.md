@@ -313,3 +313,20 @@
 - [ ] Criar componente de gestão de fases configuráveis
 - [ ] Adicionar galeria de imagens do projeto
 - [ ] Testar funcionalidade completa
+
+## Ficha Completa de Projeto
+- [x] Atualizar schema Drizzle com definições de projects, phases e milestones
+- [x] Criar server/projectsDb.ts com funções de acesso ao banco
+- [x] Criar backend APIs (tRPC) para CRUD de projetos
+- [x] Criar página Projects.tsx com lista e filtros
+- [x] Criar página ProjectDetails.tsx com tabs
+- [x] Implementar tab Overview (briefing, objetivos, KPIs)
+- [x] Implementar tab Timeline com fases e milestones
+- [ ] Implementar tab Equipa com membros e funções
+- [ ] Implementar tab Documentos com upload
+- [ ] Implementar tab Galeria com imagens
+- [ ] Implementar tab Financeiro com orçamento vs real
+- [ ] Criar componente ProjectTimeline.tsx (Gantt visual)
+- [x] Adicionar rota no App.tsx
+- [ ] Adicionar link no DashboardLayout
+- [ ] Testar CRUD completo
