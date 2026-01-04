@@ -40,6 +40,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ProjectDocuments from "@/components/ProjectDocuments";
 import ProjectGallery from "@/components/ProjectGallery";
+import { DeliveryCenter } from "@/components/DeliveryCenter";
 
 export default function ProjectDetails() {
   const [, params] = useRoute("/projects/:id");
@@ -612,12 +613,7 @@ export default function ProjectDetails() {
 
             {/* Sub-tab: Central de Entregas */}
             <TabsContent value="delivery-center" className="space-y-6">
-              <Card className="p-6 border-[#C3BAAF]/20 bg-white">
-                <h3 className="font-serif text-2xl text-[#5F5C59] mb-6">Central de Entregas</h3>
-                <div className="text-center py-12 text-[#5F5C59]/60">
-                  Gestão centralizada de entregas (em desenvolvimento)
-                </div>
-              </Card>
+              <DeliveryCenter projectId={projectId} phases={phases || []} />
             </TabsContent>
           </Tabs>
         </TabsContent>

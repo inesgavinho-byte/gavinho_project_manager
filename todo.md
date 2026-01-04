@@ -433,3 +433,18 @@
 - [x] Manter tab "Financeiro" (placeholder)
 - [x] Atualizar navegação e ordem dos tabs
 - [x] Testar navegação completa
+
+
+## Central de Entregas - Implementação
+- [x] Criar tabela projectDeliveries no schema
+- [x] Criar tabela deliveryApprovals para histórico de aprovações
+- [x] Implementar APIs tRPC para CRUD de entregas
+- [x] Implementar APIs tRPC para aprovações/rejeições
+- [x] Criar componente DeliveryTimeline com visualização de próximas entregas
+- [x] Implementar upload de documentos de entrega
+- [x] Criar sistema de notificações automáticas (3 dias antes)
+- [x] Implementar filtros por status, fase e tipo
+- [x] Criar dashboard de métricas (no prazo, atrasadas, aprovadas)
+- [x] Adicionar histórico de aprovações/rejeições com comentários
+- [x] Aplicar design GAVINHO
+- [x] Testar fluxo completo de entrega e aprovação

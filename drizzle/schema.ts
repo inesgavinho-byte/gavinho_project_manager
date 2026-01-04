@@ -592,3 +592,52 @@ export const commentMentions = mysqlTable("commentMentions", {
 export type CommentMention = typeof commentMentions.$inferSelect;
 export type InsertCommentMention = typeof commentMentions.$inferInsert;
 
+/**
+ * Project Deliveries - Track deliverables and their deadlines
+ */
+export const projectDeliveries = mysqlTable("projectDeliveries", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  phaseId: int("phaseId"), // Optional: link to specific phase
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  type: mysqlEnum("type", ["document", "drawing", "render", "model", "report", "specification", "other"]).default("document").notNull(),
+  dueDate: timestamp("dueDate").notNull(),
+  status: mysqlEnum("status", ["pending", "in_review", "approved", "rejected", "delivered"]).default("pending").notNull(),
+  fileUrl: text("fileUrl"), // URL to uploaded delivery file
+  fileKey: varchar("fileKey", { length: 500 }), // S3 key
+  fileSize: int("fileSize"), // in bytes
+  uploadedAt: timestamp("uploadedAt"),
+  uploadedById: int("uploadedById"),
+  assignedToId: int("assignedToId"), // Team member responsible
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  notificationSent: int("notificationSent").default(0).notNull(), // 0 = not sent, 1 = sent
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  phaseIdIdx: index("phaseId_idx").on(table.phaseId),
+  statusIdx: index("status_idx").on(table.status),
+  dueDateIdx: index("dueDate_idx").on(table.dueDate),
+}));
+
+export type ProjectDelivery = typeof projectDeliveries.$inferSelect;
+export type InsertProjectDelivery = typeof projectDeliveries.$inferInsert;
+
+/**
+ * Delivery Approvals - Track approval/rejection history
+ */
+export const deliveryApprovals = mysqlTable("deliveryApprovals", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  reviewerId: int("reviewerId").notNull(), // User who reviewed
+  status: mysqlEnum("status", ["approved", "rejected", "revision_requested"]).notNull(),
+  comments: text("comments"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  reviewerIdIdx: index("reviewerId_idx").on(table.reviewerId),
+}));
+
+export type DeliveryApproval = typeof deliveryApprovals.$inferSelect;
+export type InsertDeliveryApproval = typeof deliveryApprovals.$inferInsert;

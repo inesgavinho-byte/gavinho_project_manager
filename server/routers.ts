@@ -23,6 +23,7 @@ import * as whatIfDb from "./whatIfDb";
 import * as mentionService from "./mentionService";
 import * as mentionDb from "./mentionDb";
 import { projectsRouter } from "./projectsRouter";
+import { deliveriesRouter } from "./deliveriesRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -39,6 +40,9 @@ export const appRouter = router({
 
   // Projects - Full router with phases, milestones, team, documents, gallery
   projects: projectsRouter,
+
+  // Deliveries - Central de Entregas
+  deliveries: deliveriesRouter,
     
 
   // Dashboard
