@@ -402,3 +402,12 @@
 - [x] Adicionar subfases/marcos realistas para cada fase
 - [x] Executar script para popular fases nos 17 projetos
 - [x] Verificar Timeline com fases no frontend
+
+
+## Atualização Projeto GA00469_MYRIAD com Dados Reais
+- [x] Extrair fases, entregáveis e prazos do PDF 469_MYRIAD_ESCOPO
+- [x] Documentar condições de pagamento (8 fases de pagamento)
+- [x] Criar script update-myriad-project.mjs com dados reais
+- [x] Atualizar fases do projeto com prazos corretos (8 fases, 470 dias úteis)
+- [x] Adicionar marcos detalhados por fase (29 marcos totais)
+- [x] Verificar atualização no Tab Timeline
