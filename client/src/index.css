@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* GAVINHO Typography - Cormorant Garamond for headings */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -43,84 +46,182 @@
 }
 
 :root {
-  /* Elegant professional palette - Deep navy and warm gold */
-  --primary: oklch(0.35 0.08 264);
-  --primary-foreground: oklch(0.98 0.002 264);
-  --sidebar-primary: oklch(0.35 0.08 264);
-  --sidebar-primary-foreground: oklch(0.98 0.002 264);
-  --chart-1: oklch(0.60 0.12 240);
-  --chart-2: oklch(0.55 0.10 200);
-  --chart-3: oklch(0.70 0.12 85);
-  --chart-4: oklch(0.60 0.15 145);
-  --chart-5: oklch(0.55 0.22 25);
-  --radius: 0.65rem;
-  --background: oklch(0.98 0.002 264);
-  --foreground: oklch(0.20 0.015 264);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.20 0.015 264);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.20 0.015 264);
-  --secondary: oklch(0.70 0.12 85);
-  --secondary-foreground: oklch(0.20 0.015 264);
-  --muted: oklch(0.96 0.005 264);
-  --muted-foreground: oklch(0.45 0.015 264);
-  --accent: oklch(0.55 0.10 200);
-  --accent-foreground: oklch(0.98 0.002 264);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.98 0.002 264);
-  --border: oklch(0.90 0.005 264);
-  --input: oklch(0.90 0.005 264);
-  --ring: oklch(0.35 0.08 264);
-  --sidebar: oklch(0.98 0.002 264);
-  --sidebar-foreground: oklch(0.20 0.015 264);
-  --sidebar-accent: oklch(0.96 0.005 264);
-  --sidebar-accent-foreground: oklch(0.20 0.015 264);
-  --sidebar-border: oklch(0.90 0.005 264);
-  --sidebar-ring: oklch(0.35 0.08 264);
+  /* GAVINHO Brand Colors - Minimalista, Editorial, Premium
+   * Inspirado em Kinfolk e Cereal Magazine
+   * Princípio: Clareza sobre decoração, função sobre forma
+   */
+  
+  /* Primary: Brown #5F5C59 - Sofisticado, confiável */
+  --primary: oklch(0.40 0.01 60);
+  --primary-foreground: oklch(0.98 0.002 60);
+  
+  /* Secondary: Blush #C3BAAF - Elegante, suave */
+  --secondary: oklch(0.78 0.015 50);
+  --secondary-foreground: oklch(0.25 0.01 60);
+  
+  /* Background: Sandy Beach #EEEAE5 - Calmo, acolhedor */
+  --background: oklch(0.93 0.008 60);
+  --foreground: oklch(0.25 0.01 60);
+  
+  /* Accent: Warning/Gold #C9A882 - Premium, destaque */
+  --accent: oklch(0.73 0.05 70);
+  --accent-foreground: oklch(0.25 0.01 60);
+  
+  /* Cards: Branco puro para contraste editorial */
+  --card: oklch(0.99 0.002 60);
+  --card-foreground: oklch(0.25 0.01 60);
+  
+  /* Popover: Branco com leve warmth */
+  --popover: oklch(0.99 0.002 60);
+  --popover-foreground: oklch(0.25 0.01 60);
+  
+  /* Muted: Tons suaves para elementos secundários */
+  --muted: oklch(0.88 0.01 60);
+  --muted-foreground: oklch(0.50 0.01 60);
+  
+  /* Destructive: Vermelho suave, editorial */
+  --destructive: oklch(0.55 0.15 25);
+  --destructive-foreground: oklch(0.98 0.002 60);
+  
+  /* Borders: Sutis, minimalistas */
+  --border: oklch(0.85 0.01 60);
+  --input: oklch(0.85 0.01 60);
+  --ring: oklch(0.40 0.01 60);
+  
+  /* Sidebar: Sandy Beach com Brown para texto */
+  --sidebar: oklch(0.93 0.008 60);
+  --sidebar-foreground: oklch(0.25 0.01 60);
+  --sidebar-primary: oklch(0.40 0.01 60);
+  --sidebar-primary-foreground: oklch(0.98 0.002 60);
+  --sidebar-accent: oklch(0.88 0.01 60);
+  --sidebar-accent-foreground: oklch(0.25 0.01 60);
+  --sidebar-border: oklch(0.85 0.01 60);
+  --sidebar-ring: oklch(0.40 0.01 60);
+  
+  /* Charts: Paleta harmoniosa com cores GAVINHO */
+  --chart-1: oklch(0.73 0.05 70);  /* Gold */
+  --chart-2: oklch(0.78 0.015 50); /* Blush */
+  --chart-3: oklch(0.40 0.01 60);  /* Brown */
+  --chart-4: oklch(0.88 0.01 60);  /* Light Muted */
+  --chart-5: oklch(0.60 0.03 65);  /* Medium Warm */
+  
+  /* Radius: Suave, não muito arredondado - editorial */
+  --radius: 0.375rem; /* 6px - mais minimalista */
+  
+  /* Typography: Inter para UI */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
 }
 
 .dark {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-500);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.85 0.005 65);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.85 0.005 65);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.85 0.005 65);
-  --secondary: oklch(0.24 0.006 286.033);
-  --secondary-foreground: oklch(0.7 0.005 65);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground:  oklch(0.92 0.005 65);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.488 0.243 264.376);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.85 0.005 65);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground:  oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.488 0.243 264.376);
+  /* Dark mode mantém a elegância GAVINHO */
+  --primary: oklch(0.78 0.015 50); /* Blush mais claro */
+  --primary-foreground: oklch(0.15 0.01 60);
+  --sidebar-primary: oklch(0.78 0.015 50);
+  --sidebar-primary-foreground: oklch(0.15 0.01 60);
+  
+  --background: oklch(0.15 0.01 60); /* Brown escuro */
+  --foreground: oklch(0.93 0.008 60); /* Sandy Beach claro */
+  
+  --card: oklch(0.20 0.01 60);
+  --card-foreground: oklch(0.93 0.008 60);
+  
+  --popover: oklch(0.20 0.01 60);
+  --popover-foreground: oklch(0.93 0.008 60);
+  
+  --secondary: oklch(0.30 0.01 60);
+  --secondary-foreground: oklch(0.93 0.008 60);
+  
+  --muted: oklch(0.25 0.01 60);
+  --muted-foreground: oklch(0.70 0.01 60);
+  
+  --accent: oklch(0.73 0.05 70); /* Gold mantém */
+  --accent-foreground: oklch(0.15 0.01 60);
+  
+  --destructive: oklch(0.60 0.15 25);
+  --destructive-foreground: oklch(0.98 0.002 60);
+  
+  --border: oklch(0.30 0.01 60);
+  --input: oklch(0.30 0.01 60);
+  --ring: oklch(0.78 0.015 50);
+  
+  --chart-1: oklch(0.73 0.05 70);
+  --chart-2: oklch(0.78 0.015 50);
+  --chart-3: oklch(0.60 0.03 65);
+  --chart-4: oklch(0.50 0.02 60);
+  --chart-5: oklch(0.40 0.01 60);
+  
+  --sidebar: oklch(0.20 0.01 60);
+  --sidebar-foreground: oklch(0.93 0.008 60);
+  --sidebar-accent: oklch(0.25 0.01 60);
+  --sidebar-accent-foreground: oklch(0.93 0.008 60);
+  --sidebar-border: oklch(0.30 0.01 60);
+  --sidebar-ring: oklch(0.78 0.015 50);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-feature-settings: "kern" 1, "liga" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+  
+  /* Tipografia GAVINHO - Cormorant Garamond para títulos */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  
+  h1 {
+    @apply text-4xl md:text-5xl;
+    font-weight: 400;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl;
+    font-weight: 400;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl;
+    font-weight: 500;
+  }
+  
+  h4 {
+    @apply text-xl md:text-2xl;
+    font-weight: 500;
+  }
+  
+  h5 {
+    @apply text-lg md:text-xl;
+    font-weight: 600;
+  }
+  
+  h6 {
+    @apply text-base md:text-lg;
+    font-weight: 600;
+  }
+  
+  /* Parágrafos com espaçamento editorial */
+  p {
+    @apply leading-relaxed;
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+  
+  /* Links minimalistas */
+  a {
+    @apply transition-colors duration-200;
+  }
+  
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),
@@ -137,23 +238,14 @@
 @layer components {
   /**
    * Custom container utility that centers content and adds responsive padding.
-   *
-   * This overrides Tailwind's default container behavior to:
-   * - Auto-center content (mx-auto)
-   * - Add responsive horizontal padding
-   * - Set max-width for large screens
-   *
-   * Usage: <div className="container">...</div>
-   *
-   * For custom widths, use max-w-* utilities directly:
-   * <div className="max-w-6xl mx-auto px-4">...</div>
+   * Estilo GAVINHO: Espaçamento generoso, respiração editorial
    */
   .container {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1rem; /* 16px - mobile padding */
-    padding-right: 1rem;
+    padding-left: 1.5rem; /* 24px - mais generoso */
+    padding-right: 1.5rem;
   }
 
   .flex {
@@ -163,65 +255,132 @@
 
   @media (min-width: 640px) {
     .container {
-      padding-left: 1.5rem; /* 24px - tablet padding */
-      padding-right: 1.5rem;
+      padding-left: 2rem; /* 32px */
+      padding-right: 2rem;
     }
   }
 
   @media (min-width: 1024px) {
     .container {
-      padding-left: 2rem; /* 32px - desktop padding */
-      padding-right: 2rem;
-      max-width: 1280px; /* Standard content width */
+      padding-left: 3rem; /* 48px - muito espaçoso */
+      padding-right: 3rem;
+      max-width: 1280px;
     }
+  }
+  
+  /* GAVINHO Card Style - Minimalista, sombras sutis */
+  .gavinho-card {
+    @apply bg-card rounded-lg border border-border/50 p-6;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+    transition: all 0.2s ease;
+  }
+  
+  .gavinho-card:hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.03);
+    transform: translateY(-1px);
+  }
+  
+  /* GAVINHO Section - Espaçamento editorial */
+  .gavinho-section {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+  
+  /* GAVINHO Divider - Sutil, elegante */
+  .gavinho-divider {
+    @apply border-t border-border/30 my-8;
   }
 }
 
 @layer utilities {
-  /* Elegant card shadows */
-  .card-shadow {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+  /* GAVINHO Shadows - Sutis, minimalistas */
+  .shadow-gavinho-sm {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.03);
   }
   
-  .card-shadow-lg {
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  .shadow-gavinho {
+    box-shadow: 0 2px 4px 0 rgb(0 0 0 / 0.04), 0 1px 2px 0 rgb(0 0 0 / 0.02);
   }
   
-  /* Status badges */
+  .shadow-gavinho-lg {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.03);
+  }
+  
+  /* Status badges - GAVINHO Style */
   .status-planning {
-    @apply bg-blue-100 text-blue-800 border border-blue-200;
+    @apply bg-secondary/20 text-secondary-foreground border border-secondary/30;
   }
   
   .status-in-progress {
-    @apply bg-amber-100 text-amber-800 border border-amber-200;
+    @apply bg-accent/20 text-accent-foreground border border-accent/30;
   }
   
   .status-completed {
-    @apply bg-green-100 text-green-800 border border-green-200;
+    @apply bg-primary/10 text-primary border border-primary/20;
   }
   
   .status-on-hold {
-    @apply bg-gray-100 text-gray-800 border border-gray-200;
+    @apply bg-muted text-muted-foreground border border-border;
   }
   
   .status-cancelled {
-    @apply bg-red-100 text-red-800 border border-red-200;
+    @apply bg-destructive/10 text-destructive border border-destructive/20;
   }
   
-  /* Priority badges */
+  /* Priority badges - GAVINHO Style */
   .priority-low {
-    @apply bg-slate-100 text-slate-700 border border-slate-200;
+    @apply bg-muted text-muted-foreground border border-border;
   }
   
   .priority-medium {
-    @apply bg-blue-100 text-blue-700 border border-blue-200;
+    @apply bg-secondary/20 text-secondary-foreground border border-secondary/30;
   }
   
   .priority-high {
-    @apply bg-orange-100 text-orange-700 border border-orange-200;
+    @apply bg-accent/20 text-accent-foreground border border-accent/30;
   }
   
   .priority-urgent {
-    @apply bg-red-100 text-red-700 border border-red-200;
+    @apply bg-destructive/15 text-destructive border border-destructive/25;
+  }
+  
+  /* Alert badges - GAVINHO Style */
+  .alert-critical {
+    @apply bg-destructive/15 text-destructive border border-destructive/25;
+  }
+  
+  .alert-high {
+    @apply bg-accent/20 text-accent-foreground border border-accent/30;
+  }
+  
+  .alert-medium {
+    @apply bg-secondary/20 text-secondary-foreground border border-secondary/30;
+  }
+  
+  .alert-low {
+    @apply bg-muted text-muted-foreground border border-border;
+  }
+  
+  /* Typography utilities */
+  .font-serif {
+    font-family: var(--font-serif);
+  }
+  
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+  
+  /* Editorial spacing */
+  .prose-gavinho {
+    @apply leading-relaxed;
+  }
+  
+  .prose-gavinho p {
+    @apply mb-4;
+  }
+  
+  .prose-gavinho h1,
+  .prose-gavinho h2,
+  .prose-gavinho h3 {
+    @apply mb-4 mt-8 first:mt-0;
   }
 }

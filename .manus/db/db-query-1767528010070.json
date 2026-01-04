@@ -1,0 +1,28 @@
+{
+  "query": "SELECT \n  pd.code AS codigo_documento,\n  pd.title AS titulo,\n  pd.document_type AS tipo,\n  dr.revision_number AS revisao_atual,\n  dr.approved_at AS data_aprovacao,\n  DATEDIFF(CURDATE(), dr.approved_at) AS dias_desde_aprovacao,\n  CASE \n    WHEN DATEDIFF(CURDATE(), dr.approved_at) > 180 THEN 'CRÍTICO'\n    WHEN DATEDIFF(CURDATE(), dr.approved_at) > 90 THEN 'ALTO'\n    WHEN DATEDIFF(CURDATE(), dr.approved_at) > 60 THEN 'MÉDIO'\n    ELSE 'BAIXO'\n  END AS nivel_urgencia\nFROM project_documents pd\nINNER JOIN document_revisions dr ON pd.current_revision_id = dr.id\nWHERE dr.status = 'approved'\n  AND DATEDIFF(CURDATE(), dr.approved_at) > 30\n  AND pd.status = 'active'\nORDER BY dias_desde_aprovacao DESC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute SELECT \n  pd.code AS codigo_documento,\n  pd.title AS titulo,\n  pd.document_type AS tipo,\n  dr.revision_number AS revisao_atual,\n  dr.approved_at AS data_aprovacao,\n  DATEDIFF(CURDATE(), dr.approved_at) AS dias_desde_aprovacao,\n  CASE \n    WHEN DATEDIFF(CURDATE(), dr.approved_at) > 180 THEN 'CRÍTICO'\n    WHEN DATEDIFF(CURDATE(), dr.approved_at) > 90 THEN 'ALTO'\n    WHEN DATEDIFF(CURDATE(), dr.approved_at) > 60 THEN 'MÉDIO'\n    ELSE 'BAIXO'\n  END AS nivel_urgencia\nFROM project_documents pd\nINNER JOIN document_revisions dr ON pd.current_revision_id = dr.id\nWHERE dr.status = 'approved'\n  AND DATEDIFF(CURDATE(), dr.approved_at) > 30\n  AND pd.status = 'active'\nORDER BY dias_desde_aprovacao DESC;",
+  "rows": [
+    {
+      "codigo_documento": "ARQ-PB-02",
+      "titulo": "Planta Baixa Pavimento Superior",
+      "tipo": "architectural",
+      "revisao_atual": "A",
+      "data_aprovacao": "2025-11-17 11:00:00",
+      "dias_desde_aprovacao": "48",
+      "nivel_urgencia": "BAIXO"
+    },
+    {
+      "codigo_documento": "ARQ-FAC-01",
+      "titulo": "Fachada Principal",
+      "tipo": "architectural",
+      "revisao_atual": "A",
+      "data_aprovacao": "2025-11-19 10:30:00",
+      "dias_desde_aprovacao": "46",
+      "nivel_urgencia": "BAIXO"
+    }
+  ],
+  "messages": [],
+  "stdout": "codigo_documento\ttitulo\ttipo\trevisao_atual\tdata_aprovacao\tdias_desde_aprovacao\tnivel_urgencia\nARQ-PB-02\tPlanta Baixa Pavimento Superior\tarchitectural\tA\t2025-11-17 11:00:00\t48\tBAIXO\nARQ-FAC-01\tFachada Principal\tarchitectural\tA\t2025-11-19 10:30:00\t46\tBAIXO\n",
+  "stderr": "",
+  "execution_time_ms": 449
+}

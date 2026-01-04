@@ -1,0 +1,14 @@
+{
+  "query": "SELECT \n  CASE \n    WHEN DATEDIFF(CURDATE(), dr.approved_at) > 180 THEN 'CRÍTICO'\n    WHEN DATEDIFF(CURDATE(), dr.approved_at) > 90 THEN 'ALTO'\n    WHEN DATEDIFF(CURDATE(), dr.approved_at) > 60 THEN 'MÉDIO'\n    ELSE 'BAIXO'\n  END AS nivel_urgencia,\n  COUNT(*) AS quantidade\nFROM project_documents pd\nINNER JOIN document_revisions dr ON pd.current_revision_id = dr.id\nWHERE dr.status = 'approved'\n  AND DATEDIFF(CURDATE(), dr.approved_at) > 30\n  AND pd.status = 'active'\nGROUP BY nivel_urgencia\nORDER BY \n  CASE nivel_urgencia\n    WHEN 'CRÍTICO' THEN 1\n    WHEN 'ALTO' THEN 2\n    WHEN 'MÉDIO' THEN 3\n    WHEN 'BAIXO' THEN 4\n  END;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute SELECT \n  CASE \n    WHEN DATEDIFF(CURDATE(), dr.approved_at) > 180 THEN 'CRÍTICO'\n    WHEN DATEDIFF(CURDATE(), dr.approved_at) > 90 THEN 'ALTO'\n    WHEN DATEDIFF(CURDATE(), dr.approved_at) > 60 THEN 'MÉDIO'\n    ELSE 'BAIXO'\n  END AS nivel_urgencia,\n  COUNT(*) AS quantidade\nFROM project_documents pd\nINNER JOIN document_revisions dr ON pd.current_revision_id = dr.id\nWHERE dr.status = 'approved'\n  AND DATEDIFF(CURDATE(), dr.approved_at) > 30\n  AND pd.status = 'active'\nGROUP BY nivel_urgencia\nORDER BY \n  CASE nivel_urgencia\n    WHEN 'CRÍTICO' THEN 1\n    WHEN 'ALTO' THEN 2\n    WHEN 'MÉDIO' THEN 3\n    WHEN 'BAIXO' THEN 4\n  END;",
+  "rows": [
+    {
+      "nivel_urgencia": "BAIXO",
+      "quantidade": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "nivel_urgencia\tquantidade\nBAIXO\t2\n",
+  "stderr": "",
+  "execution_time_ms": 396
+}

@@ -72,14 +72,15 @@ export default function DashboardLayout({
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
-          <div className="flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-center">
-              Sign in to continue
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center gap-12 p-8 max-w-md w-full">
+          <div className="flex flex-col items-center gap-8">
+            <h1 className="font-serif text-4xl font-light tracking-tight text-center text-foreground">
+              GAVINHO
             </h1>
-            <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Access to this dashboard requires authentication. Continue to launch the login flow.
+            <div className="w-16 h-px bg-accent"></div>
+            <p className="text-base text-muted-foreground text-center max-w-sm leading-relaxed">
+              Design & Build Platform
             </p>
           </div>
           <Button
@@ -87,7 +88,7 @@ export default function DashboardLayout({
               window.location.href = getLoginUrl();
             }}
             size="lg"
-            className="w-full shadow-lg hover:shadow-xl transition-all"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-gavinho hover:shadow-gavinho-lg transition-all"
           >
             Sign in
           </Button>
@@ -176,19 +177,19 @@ function DashboardLayoutContent({
           className="border-r-0"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-16 justify-center">
-            <div className="flex items-center gap-3 px-2 transition-all w-full">
+          <SidebarHeader className="h-20 justify-center border-b border-sidebar-border/50">
+            <div className="flex items-center gap-3 px-4 transition-all w-full">
               <button
                 onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
+                className="h-8 w-8 flex items-center justify-center hover:bg-sidebar-accent rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring shrink-0"
                 aria-label="Toggle navigation"
               >
-                <PanelLeft className="h-4 w-4 text-muted-foreground" />
+                <PanelLeft className="h-4 w-4 text-sidebar-foreground/60" />
               </button>
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-semibold tracking-tight truncate">
-                    Navigation
+                  <span className="font-serif text-xl font-light tracking-wide truncate text-sidebar-foreground">
+                    GAVINHO
                   </span>
                 </div>
               ) : null}

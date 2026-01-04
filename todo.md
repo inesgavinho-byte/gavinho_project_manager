@@ -277,3 +277,11 @@
 - [x] Implementar confirmação antes de executar ação em massa
 - [x] Adicionar feedback visual (toast) após marcar todas
 - [x] Atualizar contadores e lista após ação
+
+## Identidade Visual GAVINHO
+- [x] Atualizar paleta de cores no index.css (Sandy Beach, Blush, Brown, Gold)
+- [x] Adicionar tipografia Cormorant Garamond para títulos
+- [x] Ajustar componentes para estilo minimalista/editorial
+- [x] Atualizar DashboardLayout com novo design
+- [ ] Atualizar cards de alertas e menções
+- [ ] Testar responsividade em mobile
