@@ -101,6 +101,7 @@ export const projectTeam = mysqlTable("projectTeam", {
   userId: int("userId").notNull(),
   role: varchar("role", { length: 100 }).notNull(), // e.g., "Architect", "Project Manager", "Designer"
   responsibilities: text("responsibilities"),
+  displayOrder: int("displayOrder").default(0).notNull(), // Order for drag & drop
   joinedAt: timestamp("joinedAt").defaultNow().notNull(),
   leftAt: timestamp("leftAt"),
   isActive: int("isActive").default(1).notNull(), // 0 = no, 1 = yes

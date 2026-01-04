@@ -341,3 +341,14 @@
 - [x] Adicionar filtros por função
 - [x] Aplicar design GAVINHO
 - [x] Testar CRUD completo de equipa
+
+
+## Drag & Drop para Reordenar Membros da Equipa
+- [x] Adicionar campo displayOrder à tabela projectTeam
+- [x] Instalar biblioteca @hello-pangea/dnd (fork mantido do react-beautiful-dnd)
+- [x] Implementar DragDropContext no Tab Equipa
+- [x] Adicionar Droppable e Draggable aos cards de membros
+- [x] Criar API tRPC para atualizar ordem dos membros
+- [x] Implementar lógica de reordenação no frontend
+- [x] Adicionar feedback visual durante arrasto
+- [x] Testar funcionalidade completa

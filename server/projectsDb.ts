@@ -160,6 +160,7 @@ export async function getProjectTeam(projectId: number) {
       userId: projectTeam.userId,
       role: projectTeam.role,
       responsibilities: projectTeam.responsibilities,
+      displayOrder: projectTeam.displayOrder,
       joinedAt: projectTeam.joinedAt,
       leftAt: projectTeam.leftAt,
       isActive: projectTeam.isActive,
@@ -173,7 +174,7 @@ export async function getProjectTeam(projectId: number) {
       eq(projectTeam.projectId, projectId),
       eq(projectTeam.isActive, 1)
     ))
-    .orderBy(projectTeam.joinedAt);
+    .orderBy(projectTeam.displayOrder, projectTeam.joinedAt);
 }
 
 export async function getTeamMemberById(memberId: number) {
@@ -200,6 +201,18 @@ export async function removeTeamMember(memberId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(projectTeam).set({ isActive: 0, leftAt: new Date() }).where(eq(projectTeam.id, memberId));
+}
+
+export async function reorderTeamMembers(updates: Array<{ memberId: number; displayOrder: number }>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Update each member's display order
+  for (const update of updates) {
+    await db.update(projectTeam)
+      .set({ displayOrder: update.displayOrder })
+      .where(eq(projectTeam.id, update.memberId));
+  }
 }
 
 // ============= PROJECT DOCUMENTS =============

@@ -230,6 +230,18 @@ export const projectsRouter = router({
         await projectsDb.removeTeamMember(input.id);
         return { success: true };
       }),
+
+    reorder: protectedProcedure
+      .input(z.object({
+        updates: z.array(z.object({
+          memberId: z.number(),
+          displayOrder: z.number(),
+        })),
+      }))
+      .mutation(async ({ input }) => {
+        await projectsDb.reorderTeamMembers(input.updates);
+        return { success: true };
+      }),
   }),
 
   // ============= DOCUMENTS =============

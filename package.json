@@ -16,6 +16,7 @@
     "@aws-sdk/client-s3": "^3.693.0",
     "@aws-sdk/s3-request-presigner": "^3.693.0",
     "@azure/msal-node": "^3.8.4",
+    "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^5.2.2",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@radix-ui/react-accordion": "^1.2.12",

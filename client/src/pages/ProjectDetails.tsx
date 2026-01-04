@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -76,6 +77,33 @@ export default function ProjectDetails() {
       return;
     }
     addTeamMember.mutate({ projectId, ...newMember });
+  };
+
+  const reorderTeamMembers = trpc.projects.team.reorder.useMutation({
+    onSuccess: () => {
+      refetchTeam();
+    },
+    onError: (error) => {
+      toast.error("Erro ao reordenar membros: " + error.message);
+      refetchTeam(); // Revert to server state
+    },
+  });
+
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination || !teamMembers) return;
+
+    const items = Array.from(teamMembers);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Update display order for all affected members
+    const updates = items.map((member, index) => ({
+      memberId: member.id,
+      displayOrder: index,
+    }));
+
+    // Persist order to backend
+    reorderTeamMembers.mutate({ updates });
   };
 
   const project = statsData?.project;
@@ -618,8 +646,15 @@ export default function ProjectDetails() {
             </div>
 
             {teamMembers && teamMembers.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {teamMembers.map((member) => {
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="team-members">
+                  {(provided) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                    >
+                      {teamMembers.map((member, index) => {
                   const getRoleLabel = (role: string) => {
                     const labels: Record<string, string> = {
                       architect: "Arquiteto",
@@ -645,7 +680,16 @@ export default function ProjectDetails() {
                   };
 
                   return (
-                    <Card key={member.id} className="p-4 border-[#C3BAAF]/20 bg-white hover:border-[#C9A882]/40 transition-colors">
+                    <Draggable key={member.id} draggableId={member.id.toString()} index={index}>
+                      {(provided, snapshot) => (
+                        <Card
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={`p-4 border-[#C3BAAF]/20 bg-white hover:border-[#C9A882]/40 transition-all ${
+                            snapshot.isDragging ? 'shadow-lg rotate-2 scale-105' : ''
+                          }`}
+                        >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
                           <h4 className="font-medium text-[#5F5C59] mb-1">{member.name}</h4>
@@ -681,11 +725,17 @@ export default function ProjectDetails() {
                           <Briefcase className="w-4 h-4" />
                           <span>Adicionado em {new Date(member.joinedAt).toLocaleDateString('pt-PT')}</span>
                         </div>
-                      </div>
-                    </Card>
+                          </div>
+                        </Card>
+                      )}
+                    </Draggable>
                   );
                 })}
-              </div>
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
             ) : (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-[#EEEAE5] rounded-full flex items-center justify-center mx-auto mb-4">
