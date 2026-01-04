@@ -286,11 +286,11 @@ export default function ProjectDetails() {
         <TabsList className="bg-white border border-[#C3BAAF]/20">
           <TabsTrigger value="overview" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <LayoutDashboard className="w-4 h-4 mr-2" />
-            Overview
+            Dashboard
           </TabsTrigger>
           <TabsTrigger value="timeline" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <Clock className="w-4 h-4 mr-2" />
-            Timeline
+            Fases & Entregas
           </TabsTrigger>
           <TabsTrigger value="team" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <Users className="w-4 h-4 mr-2" />
@@ -298,11 +298,15 @@ export default function ProjectDetails() {
           </TabsTrigger>
           <TabsTrigger value="documents" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <FileText className="w-4 h-4 mr-2" />
-            Documentos
+            Design Review
           </TabsTrigger>
           <TabsTrigger value="gallery" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <ImageIcon className="w-4 h-4 mr-2" />
-            Galeria
+            Briefing
+          </TabsTrigger>
+          <TabsTrigger value="archiviz" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
+            <ImageIcon className="w-4 h-4 mr-2" />
+            Archiviz
           </TabsTrigger>
           <TabsTrigger value="financial" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <Euro className="w-4 h-4 mr-2" />
@@ -376,7 +380,23 @@ export default function ProjectDetails() {
         </TabsContent>
 
         {/* Timeline Tab */}
+        {/* Timeline Tab with Sub-tabs */}
         <TabsContent value="timeline" className="space-y-6">
+          <Tabs defaultValue="phases" className="space-y-6">
+            <TabsList className="bg-[#EEEAE5]/50 border border-[#C3BAAF]/20">
+              <TabsTrigger value="phases" className="data-[state=active]:bg-white data-[state=active]:text-[#5F5C59]">
+                Fases
+              </TabsTrigger>
+              <TabsTrigger value="deliverables" className="data-[state=active]:bg-white data-[state=active]:text-[#5F5C59]">
+                Entregáveis
+              </TabsTrigger>
+              <TabsTrigger value="delivery-center" className="data-[state=active]:bg-white data-[state=active]:text-[#5F5C59]">
+                Central de Entregas
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Sub-tab: Fases */}
+            <TabsContent value="phases" className="space-y-6">
           {/* Phases */}
           <Card className="p-6 border-[#C3BAAF]/20 bg-white">
             <div className="flex items-center justify-between mb-6">
@@ -578,9 +598,32 @@ export default function ProjectDetails() {
               </div>
             </Card>
           )}
+            </TabsContent>
+
+            {/* Sub-tab: Entregáveis */}
+            <TabsContent value="deliverables" className="space-y-6">
+              <Card className="p-6 border-[#C3BAAF]/20 bg-white">
+                <h3 className="font-serif text-2xl text-[#5F5C59] mb-6">Entregáveis do Projeto</h3>
+                <div className="text-center py-12 text-[#5F5C59]/60">
+                  Lista de entregáveis por fase (em desenvolvimento)
+                </div>
+              </Card>
+            </TabsContent>
+
+            {/* Sub-tab: Central de Entregas */}
+            <TabsContent value="delivery-center" className="space-y-6">
+              <Card className="p-6 border-[#C3BAAF]/20 bg-white">
+                <h3 className="font-serif text-2xl text-[#5F5C59] mb-6">Central de Entregas</h3>
+                <div className="text-center py-12 text-[#5F5C59]/60">
+                  Gestão centralizada de entregas (em desenvolvimento)
+                </div>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
-        {/* Other tabs placeholders */}<TabsContent value="team" className="space-y-6">
+        {/* Other tabs placeholders */}
+        <TabsContent value="team" className="space-y-6">
           <Card className="p-6 border-[#C3BAAF]/20 bg-white">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-serif text-2xl text-[#5F5C59]">Equipa do Projeto</h3>
@@ -781,10 +824,46 @@ export default function ProjectDetails() {
           <ProjectDocuments projectId={projectId} />
         </TabsContent>
 
-        <TabsContent value="gallery">
-          <ProjectGallery projectId={projectId} phases={phases || []} />
+        {/* Briefing Tab with Sub-tabs */}
+        <TabsContent value="gallery" className="space-y-6">
+          <Tabs defaultValue="gallery-sub" className="space-y-6">
+            <TabsList className="bg-[#EEEAE5]/50 border border-[#C3BAAF]/20">
+              <TabsTrigger value="gallery-sub" className="data-[state=active]:bg-white data-[state=active]:text-[#5F5C59]">
+                Galeria
+              </TabsTrigger>
+              <TabsTrigger value="conceptual-memory" className="data-[state=active]:bg-white data-[state=active]:text-[#5F5C59]">
+                Memória Conceptual
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Sub-tab: Galeria */}
+            <TabsContent value="gallery-sub">
+              <ProjectGallery projectId={projectId} phases={phases || []} />
+            </TabsContent>
+
+            {/* Sub-tab: Memória Conceptual */}
+            <TabsContent value="conceptual-memory" className="space-y-6">
+              <Card className="p-6 border-[#C3BAAF]/20 bg-white">
+                <h3 className="font-serif text-2xl text-[#5F5C59] mb-6">Memória Conceptual</h3>
+                <div className="text-center py-12 text-[#5F5C59]/60">
+                  Documentação do conceito e inspirações do projeto (em desenvolvimento)
+                </div>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
+        {/* Archiviz Tab */}
+        <TabsContent value="archiviz" className="space-y-6">
+          <Card className="p-6 border-[#C3BAAF]/20 bg-white">
+            <h3 className="font-serif text-2xl text-[#5F5C59] mb-6">Archiviz</h3>
+            <div className="text-center py-12 text-[#5F5C59]/60">
+              Renders 3D e visualizações arquitetónicas (em desenvolvimento)
+            </div>
+          </Card>
+        </TabsContent>
+
+        {/* Financial Tab */}
         <TabsContent value="financial">
           <Card className="p-12 text-center border-[#C3BAAF]/20 bg-white">
             <p className="text-[#5F5C59]/60">Tab Financeiro em desenvolvimento...</p>

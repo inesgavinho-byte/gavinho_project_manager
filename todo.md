@@ -421,3 +421,15 @@
 - [x] Adicionar documentos da Fase 3.2 - Decoração e Mobiliário (7 documentos: FF&E, renders promocionais)
 - [x] Adicionar documentos da Fase 3.3 - Bom Para Construção (6 documentos: compatibilização, modelo BIM)
 - [x] Executar script e verificar Tab Documentos (39 documentos totais)
+
+
+## Reestruturação de Tabs da Ficha de Projeto
+- [x] Renomear "Overview" para "Dashboard"
+- [x] Renomear "Timeline" para "Fases & Entregas" e criar 3 sub-tabs (Fases, Entregáveis, Central de Entregas)
+- [x] Renomear "Documentos" para "Design Review"
+- [x] Renomear "Galeria" para "Briefing" e criar 2 sub-tabs (Galeria, Memória Conceptual)
+- [x] Criar tab "Archiviz" (novo)
+- [x] Manter tab "Equipa" como está
+- [x] Manter tab "Financeiro" (placeholder)
+- [x] Atualizar navegação e ordem dos tabs
+- [x] Testar navegação completa
