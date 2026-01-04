@@ -394,3 +394,11 @@
 - [x] Adicionar informações realistas (clientes, localizações, datas, orçamentos)
 - [x] Executar script para popular banco de dados
 - [x] Verificar dados no dashboard
+
+
+## Seed de Fases GAVINHO Reais
+- [x] Analisar PDF com checklist de fases de projeto tipo
+- [x] Criar script seed-gavinho-phases.mjs com 3 fases principais
+- [x] Adicionar subfases/marcos realistas para cada fase
+- [x] Executar script para popular fases nos 17 projetos
+- [x] Verificar Timeline com fases no frontend
