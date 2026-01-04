@@ -241,7 +241,7 @@ export const notifications = mysqlTable("notifications", {
   link: varchar("link", { length: 500 }),
   projectId: int("projectId"),
   taskId: int("taskId"),
-  isRead: int("isRead").default(0).notNull(), // 0 = unread, 1 = read
+  isRead: boolean("isRead").default(false).notNull(),
   readAt: timestamp("readAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
@@ -476,3 +476,4 @@ export const commentMentions = mysqlTable("commentMentions", {
 
 export type CommentMention = typeof commentMentions.$inferSelect;
 export type InsertCommentMention = typeof commentMentions.$inferInsert;
+

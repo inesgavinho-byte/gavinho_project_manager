@@ -285,3 +285,8 @@
 - [x] Atualizar DashboardLayout com novo design
 - [ ] Atualizar cards de alertas e menções
 - [ ] Testar responsividade em mobile
+
+## Correção de Erro - Tabela Notifications
+- [x] Criar tabela notifications no banco de dados
+- [x] Verificar schema da tabela no drizzle/schema.ts
+- [x] Testar query de notificações não lidas
