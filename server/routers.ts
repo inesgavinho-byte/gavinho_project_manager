@@ -25,6 +25,7 @@ import * as mentionDb from "./mentionDb";
 import { projectsRouter } from "./projectsRouter";
 import { deliveriesRouter } from "./deliveriesRouter";
 import { constructionsRouter } from "./constructionsRouter";
+import { archvizRouter } from "./archvizRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -47,6 +48,9 @@ export const appRouter = router({
 
   // Constructions - Obras (GB) e MQT
   constructions: constructionsRouter,
+
+  // ArchViz - Visualizações 3D / Renders
+  archviz: archvizRouter,
     
 
   // Dashboard

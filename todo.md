@@ -608,3 +608,31 @@
 - [ ] Testar soft delete de obra
 - [ ] Testar restauração de obra da lixeira
 - [ ] Verificar que obra restaurada volta para lista principal
+
+## Módulo ArchViz (Visualizações 3D / Renders)
+- [ ] Criar tabela archvizCompartments (compartimentos/ambientes)
+- [ ] Criar tabela archvizRenders (renders com versionamento)
+- [ ] Criar tabela archvizComments (comentários por render)
+- [ ] Implementar upload de renders para S3
+- [ ] Criar sistema de organização hierárquica (compartimentos > sub-compartimentos)
+- [ ] Implementar versionamento automático de renders
+- [ ] Adicionar sistema de favoritos
+- [ ] Implementar download de renders
+- [ ] Criar sistema de comentários por render
+- [ ] Desenvolver galeria visual com thumbnails
+- [ ] Adicionar contador de imagens por compartimento
+- [ ] Implementar expand/collapse de compartimentos
+- [ ] Criar tab ArchViz na página de detalhes da obra
+- [ ] Adicionar modal de visualização fullscreen
+- [ ] Implementar comparação lado a lado de versões
+
+## ArchViz - Funcionalidades Essenciais
+- [ ] Adicionar campo status ao schema archvizRenders (pending, approved_dc, approved_client)
+- [ ] Atualizar mutation updateRender para suportar mudança de status
+- [ ] Atualizar mutation updateRender para suportar mudança de compartimento
+- [ ] Criar componente ArchVizUpload com drag & drop
+- [ ] Implementar upload múltiplo de imagens
+- [ ] Criar modal de edição de render (nome, descrição, compartimento, status)
+- [ ] Implementar galeria com cards destacados para aprovados (fundo escuro)
+- [ ] Adicionar badges de status nos cards (Pendente, Aprovada DC, Aprovada DC + Cliente)
+- [ ] Integrar todos os componentes no tab ArchViz do ConstructionDetails

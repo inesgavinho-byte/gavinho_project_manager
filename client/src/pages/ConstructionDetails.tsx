@@ -231,6 +231,7 @@ export default function ConstructionDetails() {
             <TabsTrigger value="suppliers">Fornecedores</TabsTrigger>
             <TabsTrigger value="costs">Custos</TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
+            <TabsTrigger value="archviz">ArchViz</TabsTrigger>
           </TabsList>
 
           {/* Dashboard Tab */}
@@ -678,6 +679,16 @@ export default function ConstructionDetails() {
           <TabsContent value="timeline">
             <Card className="p-6" style={{ backgroundColor: "white", borderColor: "#C3BAAF" }}>
               <p style={{ color: "#5F5C59" }}>Timeline de execução em desenvolvimento...</p>
+            </Card>
+          </TabsContent>
+
+          {/* ArchViz Tab */}
+          <TabsContent value="archviz" className="space-y-6">
+            <Card className="p-6" style={{ backgroundColor: "white", borderColor: "#C3BAAF" }}>
+              <h2 className="text-2xl font-bold mb-6" style={{ color: "#5F5C59" }}>
+                Visualizações 3D / Renders
+              </h2>
+              <p style={{ color: "#5F5C59" }}>Módulo ArchViz em desenvolvimento...</p>
             </Card>
           </TabsContent>
         </Tabs>

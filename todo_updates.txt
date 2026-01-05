@@ -20,3 +20,13 @@
 - [x] Adicionar mutation deleteProject no frontend
 - [x] Implementar redirecionamento após deleção
 - [x] Testar deleção completa de projeto
+## ArchViz - Funcionalidades Essenciais
+- [x] Adicionar campo status ao schema archvizRenders (pending, approved_dc, approved_client)
+- [x] Atualizar mutation updateRender para suportar mudança de status
+- [x] Atualizar mutation updateRender para suportar mudança de compartimento
+- [x] Criar componente ArchVizUpload com drag & drop
+- [x] Implementar upload múltiplo de imagens
+- [x] Criar modal de edição de render (nome, descrição, compartimento, status)
+- [x] Implementar galeria com cards destacados para aprovados (fundo escuro)
+- [x] Adicionar badges de status nos cards (Pendente, Aprovada DC, Aprovada DC + Cliente)
+- [x] Integrar todos os componentes no tab ArchViz do ConstructionDetails

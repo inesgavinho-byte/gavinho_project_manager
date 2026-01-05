@@ -752,3 +752,71 @@ export const mqtItemHistory = mysqlTable("mqtItemHistory", {
 
 export type MqtItemHistory = typeof mqtItemHistory.$inferSelect;
 export type InsertMqtItemHistory = typeof mqtItemHistory.$inferInsert;
+
+
+/**
+ * ArchViz Compartments - Organize renders by compartments/rooms
+ */
+export const archvizCompartments = mysqlTable("archvizCompartments", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  parentId: int("parentId"), // For hierarchical organization (sub-compartments)
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  order: int("order").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  parentIdIdx: index("parentId_idx").on(table.parentId),
+}));
+
+export type ArchvizCompartment = typeof archvizCompartments.$inferSelect;
+export type InsertArchvizCompartment = typeof archvizCompartments.$inferInsert;
+
+/**
+ * ArchViz Renders - Store 3D renders with versioning
+ */
+export const archvizRenders = mysqlTable("archvizRenders", {
+  id: int("id").autoincrement().primaryKey(),
+  compartmentId: int("compartmentId").notNull(),
+  constructionId: int("constructionId").notNull(),
+  version: int("version").notNull(), // Auto-increment per compartment
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  fileUrl: text("fileUrl").notNull(), // S3 URL
+  fileKey: text("fileKey").notNull(), // S3 key for deletion
+  thumbnailUrl: text("thumbnailUrl"), // Thumbnail URL
+  mimeType: varchar("mimeType", { length: 100 }),
+  fileSize: int("fileSize"), // In bytes
+  isFavorite: boolean("isFavorite").default(false).notNull(),
+  status: mysqlEnum("status", ["pending", "approved_dc", "approved_client"]).default("pending").notNull(),
+  uploadedById: int("uploadedById").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  compartmentIdIdx: index("compartmentId_idx").on(table.compartmentId),
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  uploadedByIdIdx: index("uploadedById_idx").on(table.uploadedById),
+}));
+
+export type ArchvizRender = typeof archvizRenders.$inferSelect;
+export type InsertArchvizRender = typeof archvizRenders.$inferInsert;
+
+/**
+ * ArchViz Comments - Comments on renders
+ */
+export const archvizComments = mysqlTable("archvizComments", {
+  id: int("id").autoincrement().primaryKey(),
+  renderId: int("renderId").notNull(),
+  userId: int("userId").notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  renderIdIdx: index("renderId_idx").on(table.renderId),
+  userIdIdx: index("userId_idx").on(table.userId),
+}));
+
+export type ArchvizComment = typeof archvizComments.$inferSelect;
+export type InsertArchvizComment = typeof archvizComments.$inferInsert;
