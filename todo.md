@@ -645,3 +645,14 @@
 - [ ] Adicionar botão "Comparar" na galeria
 - [ ] Mostrar detalhes comparativos (data, status, descrição) de ambas as versões
 - [ ] Implementar navegação entre pares de comparação
+
+## ArchViz - Sistema de Filtros
+- [x] Adicionar filtro por status (Pendente/Aprovada DC/Aprovada DC + Cliente)
+- [x] Adicionar filtro por compartimento (dropdown com todos os compartimentos)
+- [x] Adicionar filtro por período de upload (Última semana/Último mês/Últimos 3 meses/Todos)
+- [x] Adicionar toggle de favoritos
+- [x] Adicionar barra de pesquisa por nome/descrição
+- [x] Implementar lógica de filtros combinados
+- [x] Adicionar contador de resultados ("A mostrar X de Y renders")
+- [x] Adicionar botão "Limpar Filtros"
+- [x] Criar interface elegante com design GAVINHO

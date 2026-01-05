@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLocation } from "wouter";
 import { MqtItemHistoryModal } from "@/components/MqtItemHistoryModal";
+import { ArchVizGallery } from "@/components/archviz/ArchVizGallery";
 
 export default function ConstructionDetails() {
   const [, params] = useRoute("/constructions/:id");
@@ -684,12 +685,7 @@ export default function ConstructionDetails() {
 
           {/* ArchViz Tab */}
           <TabsContent value="archviz" className="space-y-6">
-            <Card className="p-6" style={{ backgroundColor: "white", borderColor: "#C3BAAF" }}>
-              <h2 className="text-2xl font-bold mb-6" style={{ color: "#5F5C59" }}>
-                Visualizações 3D / Renders
-              </h2>
-              <p style={{ color: "#5F5C59" }}>Módulo ArchViz em desenvolvimento...</p>
-            </Card>
+            <ArchVizGallery constructionId={constructionId} />
           </TabsContent>
         </Tabs>
       </div>

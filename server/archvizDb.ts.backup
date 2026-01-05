@@ -31,13 +31,9 @@ export async function getCompartmentById(id: number) {
     .from(archvizCompartments)
     .where(eq(archvizCompartments.id, id))
     .limit(1);
-  return rows[0] || null;
-}
-
-export async function createCompartment(data: InsertArchvizCompartment) {
+  return rows[0export async function createCompartment(data: InsertArchvizCompartment): Promise<number> {
   const db = await getDb();
-  if (!db) throw new Error('Database not available');
-  const result = await db.insert(archvizCompartments).values(data);
+  if (!db) throw new Error('Database not available');const result = await db.insert(archvizCompartments).values(data);
   return result.insertId;
 }
 
@@ -121,8 +117,7 @@ export async function updateRender(id: number, data: Partial<InsertArchvizRender
 }
 
 export async function toggleFavorite(id: number, isFavorite: boolean) {
-  const db = await getDb();
-  if (!db) return;
+  const db = getDb();
   await db
     .update(archvizRenders)
     .set({ isFavorite, updatedAt: new Date() })
@@ -170,8 +165,7 @@ export async function createComment(data: InsertArchvizComment) {
 }
 
 export async function updateComment(id: number, content: string) {
-  const db = await getDb();
-  if (!db) return;
+  const db = getDb();
   await db
     .update(archvizComments)
     .set({ content, updatedAt: new Date() })
@@ -190,16 +184,8 @@ export async function deleteComment(id: number) {
 
 export async function getArchvizStats(constructionId: number) {
   const db = await getDb();
-  if (!db) return {
-    compartmentCount: 0,
-    renderCount: 0,
-    commentCount: 0,
-    pendingCount: 0,
-    approvedDcCount: 0,
-    approvedClientCount: 0,
-  };
-
-  const [compartmentCount, renderCount, commentCount, statusCounts] = await Promise.all([
+  if (!db) return { compartmentCount: 0, renderCount: 0, commentCount: 0, pendingCount: 0, approvedDcCount: 0, approvedClientCount: 0 };
+  const [compartmentCount, renderCount, commentCount] = await Promise.all([
     db
       .select({ count: sql<number>`COUNT(*)` })
       .from(archvizCompartments)
@@ -218,27 +204,11 @@ export async function getArchvizStats(constructionId: number) {
       .innerJoin(archvizRenders, eq(archvizComments.renderId, archvizRenders.id))
       .where(eq(archvizRenders.constructionId, constructionId))
       .then(r => r[0]?.count || 0),
-
-    db
-      .select({
-        status: archvizRenders.status,
-        count: sql<number>`COUNT(*)`,
-      })
-      .from(archvizRenders)
-      .where(eq(archvizRenders.constructionId, constructionId))
-      .groupBy(archvizRenders.status),
   ]);
-
-  const pendingCount = statusCounts.find(s => s.status === 'pending')?.count || 0;
-  const approvedDcCount = statusCounts.find(s => s.status === 'approved_dc')?.count || 0;
-  const approvedClientCount = statusCounts.find(s => s.status === 'approved_client')?.count || 0;
 
   return {
     compartmentCount,
     renderCount,
     commentCount,
-    pendingCount,
-    approvedDcCount,
-    approvedClientCount,
   };
 }
