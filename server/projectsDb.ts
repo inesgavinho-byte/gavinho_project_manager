@@ -837,10 +837,11 @@ export async function getConstructionCompartments(constructionId: number) {
       name: archvizCompartments.name,
       description: archvizCompartments.description,
       parentId: archvizCompartments.parentId,
+      order: archvizCompartments.order,
     })
     .from(archvizCompartments)
     .where(eq(archvizCompartments.constructionId, constructionId))
-    .orderBy(archvizCompartments.name);
+    .orderBy(archvizCompartments.order, archvizCompartments.name);
   
   return compartments;
 }
@@ -905,4 +906,20 @@ export async function checkCompartmentHasRenders(compartmentId: number) {
     .limit(1);
   
   return renders.length > 0;
+}
+
+
+export async function reorderCompartments(updates: Array<{ compartmentId: number; order: number }>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Update each compartment's order in batch
+  for (const update of updates) {
+    await db
+      .update(archvizCompartments)
+      .set({ order: update.order })
+      .where(eq(archvizCompartments.id, update.compartmentId));
+  }
+  
+  return { success: true };
 }

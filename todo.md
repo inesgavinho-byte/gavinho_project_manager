@@ -896,3 +896,24 @@
 - [x] Adicionar refetch automático após editar ou apagar
 - [ ] Testar edição de nome
 - [ ] Testar exclusão com e sem renders associados
+
+
+## Drag & Drop para Reordenar Compartimentos
+- [x] Verificar se campo displayOrder existe na tabela archvizCompartments (campo 'order' já existe)
+- [x] Criar função reorderCompartments no projectsDb.ts
+- [x] Criar procedure projects.constructions.reorderCompartments no router
+- [x] Adicionar state draggedCompartment no frontend
+- [x] Adicionar state dragOverCompartment no frontend
+- [x] Implementar handler onDragStart nos compartimentos
+- [x] Implementar handler onDragOver nos compartimentos
+- [x] Implementar handler onDrop nos compartimentos
+- [x] Implementar handler onDragEnd para limpar states
+- [x] Adicionar atributo draggable nos compartimentos (desabilitado durante edição)
+- [x] Adicionar indicador visual durante arrasto (opacidade 50%)
+- [x] Adicionar indicador visual no drop target (borda dourada)
+- [x] Adicionar cursor "grab" ao passar mouse
+- [x] Implementar lógica de reordenação local com splice
+- [x] Chamar mutation para persistir nova ordem no banco
+- [x] Adicionar refetch após reordenação
+- [x] Ordenar compartments por 'order' na query
+- [ ] Testar drag & drop entre compartimentos

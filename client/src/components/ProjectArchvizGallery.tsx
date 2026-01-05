@@ -66,6 +66,8 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
   const [editCompartmentData, setEditCompartmentData] = useState({ name: "", description: "" });
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [compartmentToDelete, setCompartmentToDelete] = useState<number | null>(null);
+  const [draggedCompartment, setDraggedCompartment] = useState<number | null>(null);
+  const [dragOverCompartment, setDragOverCompartment] = useState<number | null>(null);
 
   // Fetch renders
   const { data: renders, isLoading, refetch } = trpc.projects.archviz.list.useQuery({
@@ -183,6 +185,16 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
     },
   });
 
+  // Reorder compartments mutation
+  const reorderCompartmentsMutation = trpc.projects.constructions.reorderCompartments.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+    onError: (error) => {
+      toast.error("Erro ao reordenar compartimentos: " + error.message);
+    },
+  });
+
   // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -210,8 +222,60 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
     reader.readAsDataURL(file);
   };
 
-  // Handle upload submit
-  const handleUploadSubmit = async () => {
+  // Drag & drop handlers
+  const handleDragStart = (compartmentId: number) => {
+    setDraggedCompartment(compartmentId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, compartmentId: number) => {
+    e.preventDefault();
+    setDragOverCompartment(compartmentId);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetCompartmentId: number) => {
+    e.preventDefault();
+    
+    if (!draggedCompartment || draggedCompartment === targetCompartmentId || !compartments) {
+      setDraggedCompartment(null);
+      setDragOverCompartment(null);
+      return;
+    }
+
+    // Find indices
+    const draggedIndex = compartments.findIndex(c => c.id === draggedCompartment);
+    const targetIndex = compartments.findIndex(c => c.id === targetCompartmentId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedCompartment(null);
+      setDragOverCompartment(null);
+      return;
+    }
+
+    // Create new order
+    const reordered = [...compartments];
+    const [removed] = reordered.splice(draggedIndex, 1);
+    reordered.splice(targetIndex, 0, removed);
+
+    // Create updates array with new order values
+    const updates = reordered.map((comp, index) => ({
+      compartmentId: comp.id,
+      order: index,
+    }));
+
+    // Send to backend
+    reorderCompartmentsMutation.mutate({ updates });
+
+    // Clear drag states
+    setDraggedCompartment(null);
+    setDragOverCompartment(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCompartment(null);
+    setDragOverCompartment(null);
+  };
+
+  const handleUploadSubmit = () => {
     if (!uploadData.file || !uploadData.name || uploadData.constructionId === 0 || uploadData.compartmentId === 0) {
       toast.error("Por favor preencha todos os campos obrigatórios (obra, compartimento, nome e imagem)");
       return;
@@ -684,7 +748,19 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
                   </SelectTrigger>
                   <SelectContent>
                     {compartments?.map(compartment => (
-                      <div key={compartment.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-accent">
+                      <div 
+                        key={compartment.id} 
+                        className={`flex items-center justify-between px-2 py-1.5 hover:bg-accent cursor-grab active:cursor-grabbing transition-all ${
+                          draggedCompartment === compartment.id ? 'opacity-50' : ''
+                        } ${
+                          dragOverCompartment === compartment.id ? 'border-t-2 border-[#C9A882]' : ''
+                        }`}
+                        draggable={editingCompartmentId !== compartment.id}
+                        onDragStart={() => handleDragStart(compartment.id)}
+                        onDragOver={(e) => handleDragOver(e, compartment.id)}
+                        onDrop={(e) => handleDrop(e, compartment.id)}
+                        onDragEnd={handleDragEnd}
+                      >
                         {editingCompartmentId === compartment.id ? (
                           // Edit mode
                           <div className="flex items-center gap-1 flex-1">

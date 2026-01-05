@@ -646,5 +646,17 @@ export const projectsRouter = router({
         await projectsDb.deleteCompartment(input.compartmentId);
         return { success: true };
       }),
+
+    reorderCompartments: protectedProcedure
+      .input(z.object({
+        updates: z.array(z.object({
+          compartmentId: z.number(),
+          order: z.number(),
+        })),
+      }))
+      .mutation(async ({ input }) => {
+        await projectsDb.reorderCompartments(input.updates);
+        return { success: true };
+      }),
   }),
 });
