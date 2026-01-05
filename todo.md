@@ -708,3 +708,24 @@
 - [x] Integrar botão "Upload em Lote" no ArchVizGallery
 - [x] Adicionar feedback visual durante drag over
 - [x] Testar upload de múltiplos arquivos simultaneamente
+
+
+## MQT - Importação Automática
+- [x] Instalar dependências (xlsx, google-spreadsheet)
+- [x] Criar serviço de importação de Excel (.xlsx, .xls)
+- [x] Implementar parser de colunas do Excel
+- [x] Criar serviço de importação de Google Sheets
+- [x] Implementar autenticação OAuth para Google Sheets
+- [x] Criar sistema de validação de estrutura (colunas obrigatórias)
+- [x] Implementar detecção de discrepâncias (duplicados, valores inválidos, campos vazios)
+- [x] Criar componente MQTImportModal com upload de arquivo
+- [x] Adicionar input para URL do Google Sheets
+- [x] Implementar preview dos dados antes de importar
+- [x] Criar interface de mapeamento de colunas
+- [x] Adicionar alertas visuais para problemas encontrados
+- [x] Implementar opção de corrigir/ignorar discrepâncias
+- [x] Criar barra de progresso para importação em lote
+- [x] Adicionar log de importação com resumo (sucesso/erro/avisos)
+- [x] Integrar botão "Importar MQT" na página de obras
+- [x] Testar importação de Excel com dados reais
+- [x] Testar importação de Google Sheets com dados reais

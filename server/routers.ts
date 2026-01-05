@@ -26,6 +26,7 @@ import { projectsRouter } from "./projectsRouter";
 import { deliveriesRouter } from "./deliveriesRouter";
 import { constructionsRouter } from "./constructionsRouter";
 import { archvizRouter } from "./archvizRouter";
+import { mqtRouter } from "./mqtRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -51,6 +52,9 @@ export const appRouter = router({
 
   // ArchViz - Visualizações 3D / Renders
   archviz: archvizRouter,
+
+  // MQT - Mapa de Quantidades
+  mqt: mqtRouter,
     
 
   // Dashboard

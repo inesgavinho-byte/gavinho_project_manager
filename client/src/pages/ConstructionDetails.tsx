@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calendar, MapPin, DollarSign, TrendingUp, Users, FileText, Image as ImageIcon, Clock, Languages, Search, X, ChevronDown, ChevronRight, History, BarChart3, Trash2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Building2, Calendar, MapPin, DollarSign, TrendingUp, Users, FileText, Image as ImageIcon, Clock, Languages, Search, X, ChevronDown, ChevronRight, History, BarChart3, Trash2, AlertTriangle, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLocation } from "wouter";
 import { MqtItemHistoryModal } from "@/components/MqtItemHistoryModal";
-import { ArchVizGallery } from "@/components/archviz/ArchVizGallery";
+import { ArchVizGallery } from '@/components/archviz/ArchVizGallery';
+import { MQTImportModal } from '@/components/mqt/MQTImportModal';
 
 export default function ConstructionDetails() {
   const [, params] = useRoute("/constructions/:id");
@@ -20,6 +21,7 @@ export default function ConstructionDetails() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
+  const [showImportModal, setShowImportModal] = useState(false);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<{ id: number; code: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -384,19 +386,36 @@ export default function ConstructionDetails() {
                 <h3 className="text-lg font-semibold" style={{ color: "#5F5C59" }}>
                   Mapa de Quantidades (MQT)
                 </h3>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowEnglish(!showEnglish)}
-                  style={{
-                    borderColor: "#C9A882",
-                    color: showEnglish ? "white" : "#5F5C59",
-                    backgroundColor: showEnglish ? "#C9A882" : "transparent"
-                  }}
-                >
-                  <Languages className="h-4 w-4 mr-2" />
-                  {showEnglish ? "Ocultar EN" : "Mostrar EN"}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowImportModal(true)}
+                    style={{
+                      borderColor: "#C9A882",
+                      color: "#5F5C59",
+                      backgroundColor: "transparent"
+                    }}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Importar MQT
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowEnglish(!showEnglish)}
+                    style={{
+                      borderColor: "#C9A882",
+                      color: showEnglish ? "white" : "#5F5C59",
+                      backgroundColor: showEnglish ? "#C9A882" : "transparent"
+                    }}
+                  >
+                    <Languages className="h-4 w-4 mr-2" />
+                    {showEnglish ? "Ocultar EN" : "Mostrar EN"}
+                  </Button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 mb-4">
                 <Link href={`/constructions/${constructionId}/analytics`}>
                   <Button
                     variant="outline"
@@ -742,6 +761,13 @@ export default function ConstructionDetails() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* MQT Import Modal */}
+      <MQTImportModal
+        open={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        constructionId={constructionId}
+      />
     </>
   );
 }
