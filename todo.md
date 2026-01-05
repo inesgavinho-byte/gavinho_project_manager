@@ -766,3 +766,31 @@
 - [x] Criar botão "Configurar Validações" na página MQT
 - [x] Adicionar regras padrão sugeridas por categoria
 - [x] Testar validações com diferentes tipos de regras
+
+
+## Timeline Visual e Gantt Chart
+- [x] Adicionar campo dependencies (array de IDs) à tabela projectMilestones
+- [x] Criar índices para queries de timeline otimizadas
+- [x] Implementar função getProjectTimeline no projectsDb.ts
+- [x] Criar procedure projects.timeline.get no router
+- [x] Criar procedure projects.milestones.updateDates para arrastar e soltar
+- [x] Criar procedure projects.milestones.updateDependencies
+- [x] Instalar biblioteca de Gantt Chart (gantt-task-react ou frappe-gantt)
+- [x] Criar componente ProjectGanttChart.tsx
+- [x] Implementar visualização de fases como barras horizontais
+- [x] Implementar visualização de marcos como diamantes/círculos
+- [x] Adicionar escala de tempo (dias/semanas/meses)
+- [x] Implementar linha vertical "Hoje"
+- [x] Adicionar cores por status (pendente/em andamento/concluído/atrasado)
+- [x] Implementar tooltip com detalhes ao passar mouse
+- [x] Adicionar funcionalidade de arrastar barras para ajustar datas (via modal de edição)
+- [x] Implementar setas de dependência entre marcos
+- [x] Adicionar zoom in/out na timeline
+- [x] Criar filtros (todas as fases / fase específica)
+- [x] Adicionar botão para alternar entre vista Gantt e vista Lista
+- [x] Implementar modal de edição rápida ao clicar em fase/marco
+- [x] Adicionar indicadores visuais de progresso nas barras
+- [x] Criar legenda de cores e símbolos
+- [x] Testar arrastar e soltar com diferentes datas
+- [x] Testar dependências entre marcos
+- [x] Validar cálculo automático de datas críticas (critical path)

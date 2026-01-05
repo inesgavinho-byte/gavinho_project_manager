@@ -392,4 +392,55 @@ export const projectsRouter = router({
         return { success: true };
       }),
   }),
+
+  // ============= TIMELINE & GANTT =============
+  timeline: router({
+    // Get complete timeline data for Gantt chart
+    get: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await projectsDb.getProjectTimeline(input.projectId);
+      }),
+
+    // Calculate critical path
+    criticalPath: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await projectsDb.calculateCriticalPath(input.projectId);
+      }),
+
+    // Update milestone dates (for drag & drop)
+    updateMilestoneDates: protectedProcedure
+      .input(z.object({
+        milestoneId: z.number(),
+        dueDate: z.date(),
+      }))
+      .mutation(async ({ input }) => {
+        await projectsDb.updateMilestoneDates(input.milestoneId, input.dueDate);
+        return { success: true };
+      }),
+
+    // Update phase dates (for drag & drop)
+    updatePhaseDates: protectedProcedure
+      .input(z.object({
+        phaseId: z.number(),
+        startDate: z.date(),
+        endDate: z.date(),
+      }))
+      .mutation(async ({ input }) => {
+        await projectsDb.updatePhaseDates(input.phaseId, input.startDate, input.endDate);
+        return { success: true };
+      }),
+
+    // Update milestone dependencies
+    updateDependencies: protectedProcedure
+      .input(z.object({
+        milestoneId: z.number(),
+        dependencies: z.array(z.number()),
+      }))
+      .mutation(async ({ input }) => {
+        await projectsDb.updateMilestoneDependencies(input.milestoneId, input.dependencies);
+        return { success: true };
+      }),
+  }),
 });

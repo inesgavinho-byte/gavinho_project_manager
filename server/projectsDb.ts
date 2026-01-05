@@ -406,3 +406,122 @@ export async function permanentDeleteProject(projectId: number) {
   // 6. Finally, delete the project itself permanently
   await db.delete(projects).where(eq(projects.id, projectId));
 }
+
+
+// ============= TIMELINE & GANTT =============
+
+/**
+ * Get complete timeline data for Gantt chart
+ * Returns phases and milestones with all necessary information
+ */
+export async function getProjectTimeline(projectId: number) {
+  const db = await getDb();
+  if (!db) return { phases: [], milestones: [] };
+
+  // Get all phases for the project
+  const phases = await db
+    .select()
+    .from(projectPhases)
+    .where(eq(projectPhases.projectId, projectId))
+    .orderBy(projectPhases.order);
+
+  // Get all milestones for the project
+  const milestones = await db
+    .select()
+    .from(projectMilestones)
+    .where(eq(projectMilestones.projectId, projectId))
+    .orderBy(projectMilestones.dueDate);
+
+  return { phases, milestones };
+}
+
+/**
+ * Update milestone dates (for drag & drop functionality)
+ */
+export async function updateMilestoneDates(
+  milestoneId: number,
+  dueDate: Date
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(projectMilestones)
+    .set({ dueDate, updatedAt: new Date() })
+    .where(eq(projectMilestones.id, milestoneId));
+}
+
+/**
+ * Update phase dates (for drag & drop functionality)
+ */
+export async function updatePhaseDates(
+  phaseId: number,
+  startDate: Date,
+  endDate: Date
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(projectPhases)
+    .set({ startDate, endDate, updatedAt: new Date() })
+    .where(eq(projectPhases.id, phaseId));
+}
+
+/**
+ * Update milestone dependencies
+ */
+export async function updateMilestoneDependencies(
+  milestoneId: number,
+  dependencies: number[]
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(projectMilestones)
+    .set({ dependencies, updatedAt: new Date() })
+    .where(eq(projectMilestones.id, milestoneId));
+}
+
+/**
+ * Get milestone by ID with dependencies
+ */
+export async function getMilestoneWithDependencies(milestoneId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(projectMilestones)
+    .where(eq(projectMilestones.id, milestoneId))
+    .limit(1);
+
+  return result[0] || null;
+}
+
+/**
+ * Calculate critical path for project
+ * Returns array of milestone IDs that are on the critical path
+ */
+export async function calculateCriticalPath(projectId: number): Promise<number[]> {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all milestones with dependencies
+  const milestones = await db
+    .select()
+    .from(projectMilestones)
+    .where(eq(projectMilestones.projectId, projectId))
+    .orderBy(projectMilestones.dueDate);
+
+  // Simple critical path: milestones with dependencies or key milestones
+  const criticalMilestones = milestones
+    .filter(m => {
+      const deps = m.dependencies as number[] | null;
+      return m.isKeyMilestone === 1 || (deps && deps.length > 0);
+    })
+    .map(m => m.id);
+
+  return criticalMilestones;
+}

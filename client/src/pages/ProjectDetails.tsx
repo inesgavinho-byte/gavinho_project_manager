@@ -41,6 +41,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ProjectDocuments from "@/components/ProjectDocuments";
 import ProjectGallery from "@/components/ProjectGallery";
 import { DeliveryCenter } from "@/components/DeliveryCenter";
+import { ProjectGanttChart } from "@/components/ProjectGanttChart";
 
 export default function ProjectDetails() {
   const [, params] = useRoute("/projects/:id");
@@ -412,8 +413,11 @@ export default function ProjectDetails() {
         {/* Timeline Tab */}
         {/* Timeline Tab with Sub-tabs */}
         <TabsContent value="timeline" className="space-y-6">
-          <Tabs defaultValue="phases" className="space-y-6">
+          <Tabs defaultValue="gantt" className="space-y-6">
             <TabsList className="bg-[#EEEAE5]/50 border border-[#C3BAAF]/20">
+              <TabsTrigger value="gantt" className="data-[state=active]:bg-white data-[state=active]:text-[#5F5C59]">
+                Timeline Gantt
+              </TabsTrigger>
               <TabsTrigger value="phases" className="data-[state=active]:bg-white data-[state=active]:text-[#5F5C59]">
                 Fases
               </TabsTrigger>
@@ -424,6 +428,14 @@ export default function ProjectDetails() {
                 Central de Entregas
               </TabsTrigger>
             </TabsList>
+
+            {/* Sub-tab: Timeline Gantt */}
+            <TabsContent value="gantt" className="space-y-6">
+              <Card className="p-6 border-[#C3BAAF]/20 bg-white">
+                <h3 className="font-serif text-2xl text-[#5F5C59] mb-6">Timeline Visual do Projeto</h3>
+                <ProjectGanttChart projectId={projectId} />
+              </Card>
+            </TabsContent>
 
             {/* Sub-tab: Fases */}
             <TabsContent value="phases" className="space-y-6">

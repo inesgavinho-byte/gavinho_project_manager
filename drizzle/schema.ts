@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index, date } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index, date, json } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -83,6 +83,7 @@ export const projectMilestones = mysqlTable("projectMilestones", {
   completedDate: timestamp("completedDate"),
   status: mysqlEnum("status", ["pending", "completed", "overdue"]).default("pending").notNull(),
   isKeyMilestone: int("isKeyMilestone").default(0).notNull(), // 0 = no, 1 = yes
+  dependencies: json("dependencies").$type<number[]>().default([]), // Array of milestone IDs that must be completed before this one
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
