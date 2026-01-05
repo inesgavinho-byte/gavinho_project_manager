@@ -98,8 +98,8 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
     projectId,
   });
 
-  // Upload mutation
-  const uploadMutation = trpc.projects.archviz.upload.useMutation({
+  // Upload mutation (S3)
+  const uploadMutation = trpc.projects.archviz.uploadToS3.useMutation({
     onSuccess: () => {
       toast.success("Render carregado com sucesso!");
       refetch();
@@ -155,20 +155,14 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64 = reader.result as string;
-        const base64Data = base64.split(",")[1];
-
-        // Upload to S3 via storagePut (we'll need to call a server endpoint)
-        // For now, we'll use a data URL approach
-        const fileKey = `archviz/${projectId}/${Date.now()}-${uploadData.file!.name}`;
         
-        // Call upload mutation
+        // Call upload mutation with S3 integration
         uploadMutation.mutate({
           constructionId: uploadData.constructionId,
           compartmentId: 1, // Default compartment, you may want to make this selectable
           name: uploadData.name,
           description: uploadData.description || undefined,
-          fileUrl: base64, // Temporary, should be S3 URL
-          fileKey,
+          imageBase64: base64,
           mimeType: uploadData.file!.type,
           fileSize: uploadData.file!.size,
         });

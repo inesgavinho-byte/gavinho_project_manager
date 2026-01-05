@@ -841,7 +841,12 @@
 - [x] Adicionar validação de tamanho (máx 20MB)
 - [x] Adicionar loading states durante upload
 - [x] Implementar refetch após upload bem-sucedido
-- [ ] Implementar integração com S3 via storagePut (atualmente usa base64)
-- [ ] Criar thumbnail automático (opcional)
+- [x] Criar endpoint projects.archviz.uploadToS3 para upload direto
+- [x] Implementar conversão base64 para Buffer no backend
+- [x] Integrar storagePut para enviar imagem ao S3
+- [x] Gerar chave única com timestamp e random suffix
+- [x] Retornar URL pública do S3
+- [x] Atualizar frontend para chamar novo endpoint
+- [x] Simplificar fluxo de upload no frontend
 - [ ] Testar upload com imagem real
-- [ ] Validar que render aparece na galeria após upload
+- [ ] Validar que render aparece na galeria com URL do S3

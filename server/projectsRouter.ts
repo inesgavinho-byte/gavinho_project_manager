@@ -518,7 +518,50 @@ export const projectsRouter = router({
         return stats;
       }),
 
-    // Upload new render
+    // Upload image to S3 and create render
+    uploadToS3: protectedProcedure
+      .input(z.object({
+        constructionId: z.number(),
+        compartmentId: z.number(),
+        name: z.string(),
+        description: z.string().optional(),
+        imageBase64: z.string(), // Base64 encoded image
+        mimeType: z.string(),
+        fileSize: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { storagePut } = await import("./storage");
+        
+        // Convert base64 to Buffer
+        const base64Data = input.imageBase64.split(",")[1] || input.imageBase64;
+        const buffer = Buffer.from(base64Data, "base64");
+        
+        // Generate unique file key
+        const timestamp = Date.now();
+        const randomSuffix = Math.random().toString(36).substring(2, 8);
+        const extension = input.mimeType.split("/")[1] || "jpg";
+        const fileKey = `archviz/${input.constructionId}/${timestamp}-${randomSuffix}.${extension}`;
+        
+        // Upload to S3
+        const { url: fileUrl } = await storagePut(fileKey, buffer, input.mimeType);
+        
+        // Create render in database
+        const renderId = await projectsDb.uploadArchvizRender({
+          constructionId: input.constructionId,
+          compartmentId: input.compartmentId,
+          name: input.name,
+          description: input.description,
+          fileUrl,
+          fileKey,
+          mimeType: input.mimeType,
+          fileSize: input.fileSize,
+          uploadedById: ctx.user.id,
+        });
+        
+        return { renderId, fileUrl };
+      }),
+
+    // Upload new render (legacy, kept for compatibility)
     upload: protectedProcedure
       .input(z.object({
         constructionId: z.number(),
