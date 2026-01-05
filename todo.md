@@ -794,3 +794,34 @@
 - [x] Testar arrastar e soltar com diferentes datas
 - [x] Testar dependências entre marcos
 - [x] Validar cálculo automático de datas críticas (critical path)
+
+
+## Separador Archviz
+- [x] Criar tabela archvizRenders no schema (já existia)
+- [x] Criar tabela archvizComments no schema (já existia)
+- [x] Criar tabela archvizStatusHistory no schema (já existia)
+- [x] Adicionar índices para queries otimizadas
+- [x] Implementar função getProjectArchvizRenders no projectsDb.ts (agrega de todas as obras)
+- [x] Implementar função getArchvizRenderById no projectsDb.ts
+- [x] Implementar função updateArchvizRenderStatus no projectsDb.ts
+- [x] Implementar função addArchvizComment no projectsDb.ts
+- [x] Implementar função getArchvizComments no projectsDb.ts
+- [x] Implementar função getProjectArchvizStats no projectsDb.ts
+- [x] Criar procedures archviz.list, archviz.getById, archviz.updateStatus no router
+- [x] Criar procedures archviz.addComment, archviz.getComments no router
+- [x] Criar procedure archviz.getStats no router
+- [x] Criar componente ProjectArchvizGallery.tsx
+- [x] Implementar grid de renders com thumbnails
+- [x] Criar lightbox para visualização em fullscreen
+- [x] Criar filtros por status (Pendente/Aprovado DC/Aprovado Cliente)
+- [x] Criar filtros por obra (código GB)
+- [x] Implementar alternância entre vista grid e lista
+- [x] Implementar botões de aprovação (Pendente/Aprovado DC/Aprovado Cliente)
+- [x] Criar área de comentários por render
+- [x] Criar painel de estatísticas (total, pendentes, aprovados DC, aprovados cliente, favoritos)
+- [x] Implementar download de renders individuais
+- [x] Integrar componente no tab Archiviz do ProjectDetails
+- [x] Testar aprovações e comentários
+- [ ] Upload de renders (funcionalidade das Obras, não do Projeto)
+- [ ] Sistema de versionamento (funcionalidade das Obras)
+- [ ] Download em lote (ZIP) - melhoria futura

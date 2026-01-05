@@ -443,4 +443,79 @@ export const projectsRouter = router({
         return { success: true };
       }),
   }),
+
+  // Archviz procedures
+  archviz: router({
+    // Get all renders for a project
+    list: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const renders = await projectsDb.getProjectArchvizRenders(input.projectId);
+        return renders;
+      }),
+
+    // Get render by ID
+    getById: protectedProcedure
+      .input(z.object({
+        renderId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const render = await projectsDb.getArchvizRenderById(input.renderId);
+        return render;
+      }),
+
+    // Get comments for a render
+    getComments: protectedProcedure
+      .input(z.object({
+        renderId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const comments = await projectsDb.getArchvizComments(input.renderId);
+        return comments;
+      }),
+
+    // Add comment to a render
+    addComment: protectedProcedure
+      .input(z.object({
+        renderId: z.number(),
+        content: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const commentId = await projectsDb.addArchvizComment(
+          input.renderId,
+          ctx.user.id,
+          input.content
+        );
+        return { commentId };
+      }),
+
+    // Update render status
+    updateStatus: protectedProcedure
+      .input(z.object({
+        renderId: z.number(),
+        status: z.enum(["pending", "approved_dc", "approved_client"]),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await projectsDb.updateArchvizRenderStatus(
+          input.renderId,
+          input.status,
+          ctx.user.id,
+          input.notes
+        );
+        return { success: true };
+      }),
+
+    // Get archviz statistics for a project
+    getStats: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const stats = await projectsDb.getProjectArchvizStats(input.projectId);
+        return stats;
+      }),
+  }),
 });

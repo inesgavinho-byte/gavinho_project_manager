@@ -42,6 +42,7 @@ import ProjectDocuments from "@/components/ProjectDocuments";
 import ProjectGallery from "@/components/ProjectGallery";
 import { DeliveryCenter } from "@/components/DeliveryCenter";
 import { ProjectGanttChart } from "@/components/ProjectGanttChart";
+import { ProjectArchvizGallery } from "@/components/ProjectArchvizGallery";
 
 export default function ProjectDetails() {
   const [, params] = useRoute("/projects/:id");
@@ -894,9 +895,10 @@ export default function ProjectDetails() {
         <TabsContent value="archiviz" className="space-y-6">
           <Card className="p-6 border-[#C3BAAF]/20 bg-white">
             <h3 className="font-serif text-2xl text-[#5F5C59] mb-6">Archiviz</h3>
-            <div className="text-center py-12 text-[#5F5C59]/60">
-              Renders 3D e visualizações arquitetónicas (em desenvolvimento)
-            </div>
+            <p className="text-sm text-gray-600 mb-6">
+              Galeria consolidada de renders 3D de todas as obras associadas a este projeto
+            </p>
+            <ProjectArchvizGallery projectId={projectId} />
           </Card>
         </TabsContent>
 

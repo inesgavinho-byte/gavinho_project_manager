@@ -907,3 +907,4 @@ export const mqtValidationRules = mysqlTable("mqtValidationRules", {
 
 export type MqtValidationRule = typeof mqtValidationRules.$inferSelect;
 export type InsertMqtValidationRule = typeof mqtValidationRules.$inferInsert;
+

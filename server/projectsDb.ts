@@ -20,7 +20,7 @@ import {
   type ProjectGalleryImage,
   type InsertProjectGalleryImage
 } from "../drizzle/schema";
-import { eq, desc, and, isNull, isNotNull } from "drizzle-orm";
+import { eq, desc, and, isNull, isNotNull, sql } from "drizzle-orm";
 
 // ============= PROJECTS =============
 
@@ -524,4 +524,226 @@ export async function calculateCriticalPath(projectId: number): Promise<number[]
     .map(m => m.id);
 
   return criticalMilestones;
+}
+
+
+// ============= ARCHVIZ (Project-level aggregation) =============
+
+/**
+ * Get all archviz renders for a project (aggregates from all associated constructions)
+ */
+export async function getProjectArchvizRenders(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Import constructions and archvizRenders tables
+  const { constructions } = await import("../drizzle/schema");
+  const { archvizRenders } = await import("../drizzle/schema");
+  const { archvizComments } = await import("../drizzle/schema");
+  
+  // Get all constructions for this project
+  const projectConstructions = await db
+    .select()
+    .from(constructions)
+    .where(eq(constructions.projectId, projectId));
+  
+  if (projectConstructions.length === 0) {
+    return [];
+  }
+  
+  const constructionIds = projectConstructions.map(c => c.id);
+  
+  // Get all renders from these constructions with uploader info
+  const renders = await db
+    .select({
+      render: archvizRenders,
+      construction: constructions,
+      uploader: users,
+    })
+    .from(archvizRenders)
+    .leftJoin(constructions, eq(archvizRenders.constructionId, constructions.id))
+    .leftJoin(users, eq(archvizRenders.uploadedById, users.id))
+    .where(
+      and(
+        ...constructionIds.map(id => eq(archvizRenders.constructionId, id))
+      )
+    )
+    .orderBy(desc(archvizRenders.createdAt));
+  
+  // Get comment counts for each render
+  const renderIds = renders.map(r => r.render.id);
+  const commentCounts: Record<number, number> = {};
+  
+  if (renderIds.length > 0) {
+    const comments = await db
+      .select({
+        renderId: archvizComments.renderId,
+        count: sql<number>`COUNT(*)`.as('count'),
+      })
+      .from(archvizComments)
+      .where(
+        and(
+          ...renderIds.map(id => eq(archvizComments.renderId, id))
+        )
+      )
+      .groupBy(archvizComments.renderId);
+    
+    comments.forEach(c => {
+      commentCounts[c.renderId] = c.count;
+    });
+  }
+  
+  return renders.map(r => ({
+    ...r.render,
+    constructionCode: r.construction?.code || 'N/A',
+    constructionName: r.construction?.name || 'N/A',
+    uploaderName: r.uploader?.name || 'Unknown',
+    commentCount: commentCounts[r.render.id] || 0,
+  }));
+}
+
+/**
+ * Get archviz render by ID with full details
+ */
+export async function getArchvizRenderById(renderId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const { archvizRenders } = await import("../drizzle/schema");
+  const { constructions } = await import("../drizzle/schema");
+  
+  const result = await db
+    .select({
+      render: archvizRenders,
+      construction: constructions,
+      uploader: users,
+    })
+    .from(archvizRenders)
+    .leftJoin(constructions, eq(archvizRenders.constructionId, constructions.id))
+    .leftJoin(users, eq(archvizRenders.uploadedById, users.id))
+    .where(eq(archvizRenders.id, renderId))
+    .limit(1);
+  
+  if (result.length === 0) return null;
+  
+  const r = result[0];
+  return {
+    ...r.render,
+    constructionCode: r.construction?.code || 'N/A',
+    constructionName: r.construction?.name || 'N/A',
+    uploaderName: r.uploader?.name || 'Unknown',
+  };
+}
+
+/**
+ * Get comments for a render
+ */
+export async function getArchvizComments(renderId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { archvizComments } = await import("../drizzle/schema");
+  
+  const comments = await db
+    .select({
+      comment: archvizComments,
+      user: users,
+    })
+    .from(archvizComments)
+    .leftJoin(users, eq(archvizComments.userId, users.id))
+    .where(eq(archvizComments.renderId, renderId))
+    .orderBy(desc(archvizComments.createdAt));
+  
+  return comments.map(c => ({
+    ...c.comment,
+    userName: c.user?.name || 'Unknown',
+  }));
+}
+
+/**
+ * Add comment to a render
+ */
+export async function addArchvizComment(renderId: number, userId: number, content: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { archvizComments } = await import("../drizzle/schema");
+  
+  const result = await db.insert(archvizComments).values({
+    renderId,
+    userId,
+    content,
+  });
+  
+  return result[0].insertId;
+}
+
+/**
+ * Update render status
+ */
+export async function updateArchvizRenderStatus(
+  renderId: number,
+  status: "pending" | "approved_dc" | "approved_client",
+  changedById: number,
+  notes?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { archvizRenders } = await import("../drizzle/schema");
+  const { archvizStatusHistory } = await import("../drizzle/schema");
+  
+  // Get current status
+  const currentRender = await db
+    .select()
+    .from(archvizRenders)
+    .where(eq(archvizRenders.id, renderId))
+    .limit(1);
+  
+  if (currentRender.length === 0) {
+    throw new Error("Render not found");
+  }
+  
+  const oldStatus = currentRender[0].status;
+  
+  // Update status
+  await db
+    .update(archvizRenders)
+    .set({ status })
+    .where(eq(archvizRenders.id, renderId));
+  
+  // Record status change in history
+  await db.insert(archvizStatusHistory).values({
+    renderId,
+    oldStatus,
+    newStatus: status,
+    changedById,
+    notes,
+  });
+  
+  return true;
+}
+
+/**
+ * Get archviz statistics for a project
+ */
+export async function getProjectArchvizStats(projectId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const renders = await getProjectArchvizRenders(projectId);
+  
+  const total = renders.length;
+  const pending = renders.filter(r => r.status === "pending").length;
+  const approvedDc = renders.filter(r => r.status === "approved_dc").length;
+  const approvedClient = renders.filter(r => r.status === "approved_client").length;
+  const favorites = renders.filter(r => r.isFavorite).length;
+  
+  return {
+    total,
+    pending,
+    approvedDc,
+    approvedClient,
+    favorites,
+  };
 }
