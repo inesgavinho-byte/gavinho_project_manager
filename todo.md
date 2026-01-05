@@ -693,3 +693,18 @@
 - [x] Implementar botão "Exportar Relatório PDF" na galeria ArchViz
 - [x] Adicionar loading state durante geração do PDF
 - [x] Testar exportação com obra completa
+
+
+## ArchViz - Upload em Lote com Drag & Drop
+- [x] Criar componente BulkUploadModal com área de drag & drop
+- [x] Implementar validação de tipo de arquivo (apenas imagens: jpg, png, webp)
+- [x] Implementar validação de tamanho máximo (ex: 10MB por arquivo)
+- [x] Adicionar preview de miniaturas dos arquivos selecionados
+- [x] Criar formulário para atribuir compartimento, versão e descrição em lote
+- [x] Implementar upload simultâneo de múltiplos arquivos para S3
+- [x] Adicionar barra de progresso individual para cada arquivo
+- [x] Mostrar status de sucesso/erro para cada upload
+- [x] Criar endpoint backend para processar uploads em lote
+- [x] Integrar botão "Upload em Lote" no ArchVizGallery
+- [x] Adicionar feedback visual durante drag over
+- [x] Testar upload de múltiplos arquivos simultaneamente

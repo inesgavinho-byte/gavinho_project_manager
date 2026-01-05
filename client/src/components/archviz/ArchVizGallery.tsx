@@ -27,6 +27,7 @@ import { ArchVizUploadModal } from "./ArchVizUploadModal";
 import { ArchVizEditModal } from "./ArchVizEditModal";
 import { RenderComparisonModal } from "./RenderComparisonModal";
 import { StatusHistoryModal } from "./StatusHistoryModal";
+import { BulkUploadModal } from "./BulkUploadModal";
 
 interface ArchVizGalleryProps {
   constructionId: number;
@@ -38,6 +39,7 @@ type PeriodFilter = "all" | "week" | "month" | "3months";
 export function ArchVizGallery({ constructionId }: ArchVizGalleryProps) {
   const { toast } = useToast();
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedRender, setSelectedRender] = useState<any>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -363,12 +365,12 @@ export function ArchVizGallery({ constructionId }: ArchVizGalleryProps) {
                 {isGeneratingPdf ? "Gerando..." : "Exportar Relatório PDF"}
               </Button>
               <Button
-                onClick={() => setUploadModalOpen(true)}
+                onClick={() => setBulkUploadModalOpen(true)}
                 style={{ backgroundColor: "#C9A882", color: "white" }}
                 className="hover:opacity-90"
               >
                 <Upload className="h-4 w-4 mr-2" />
-                Upload Renders
+                Upload em Lote
               </Button>
             </>
           )}
@@ -637,6 +639,13 @@ export function ArchVizGallery({ constructionId }: ArchVizGalleryProps) {
         open={uploadModalOpen}
         onOpenChange={setUploadModalOpen}
         onSuccess={refetchRenders}
+      />
+
+      <BulkUploadModal
+        constructionId={constructionId}
+        open={bulkUploadModalOpen}
+        onClose={() => setBulkUploadModalOpen(false)}
+        onUploadComplete={refetchRenders}
       />
 
       {selectedRender && (
