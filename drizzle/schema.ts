@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index, date } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -641,3 +641,92 @@ export const deliveryApprovals = mysqlTable("deliveryApprovals", {
 
 export type DeliveryApproval = typeof deliveryApprovals.$inferSelect;
 export type InsertDeliveryApproval = typeof deliveryApprovals.$inferInsert;
+
+
+/**
+ * Constructions (Obras GB) - Construction projects associated with design projects (GA)
+ */
+export const constructions = mysqlTable("constructions", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 50 }).notNull().unique(), // GB00433, GB00402, etc.
+  name: varchar("name", { length: 255 }).notNull(),
+  projectId: int("projectId"), // Link to design project (GA)
+  client: varchar("client", { length: 255 }),
+  location: varchar("location", { length: 255 }),
+  startDate: date("startDate"),
+  endDate: date("endDate"),
+  status: mysqlEnum("status", ["not_started", "in_progress", "on_hold", "completed", "cancelled"]).default("not_started").notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  budget: decimal("budget", { precision: 12, scale: 2 }),
+  actualCost: decimal("actualCost", { precision: 12, scale: 2 }).default("0.00"),
+  progress: int("progress").default(0), // 0-100%
+  description: text("description"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  codeIdx: index("code_idx").on(table.code),
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type Construction = typeof constructions.$inferSelect;
+export type InsertConstruction = typeof constructions.$inferInsert;
+
+/**
+ * MQT Categories - Main categories of the Bill of Quantities (Mapa de Quantidades)
+ */
+export const mqtCategories = mysqlTable("mqtCategories", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  code: varchar("code", { length: 20 }).notNull(), // 1, 2, 3, etc.
+  namePt: varchar("namePt", { length: 255 }).notNull(), // "Demolições"
+  nameEn: varchar("nameEn", { length: 255 }), // "Demolitions"
+  order: int("order").notNull(), // Display order
+  subtotal: decimal("subtotal", { precision: 12, scale: 2 }).default("0.00"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  orderIdx: index("order_idx").on(table.order),
+}));
+
+export type MqtCategory = typeof mqtCategories.$inferSelect;
+export type InsertMqtCategory = typeof mqtCategories.$inferInsert;
+
+/**
+ * MQT Items - Individual items in the Bill of Quantities
+ */
+export const mqtItems = mysqlTable("mqtItems", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  categoryId: int("categoryId").notNull(),
+  code: varchar("code", { length: 20 }).notNull(), // 1.1, 1.2, 2.1, etc.
+  typePt: varchar("typePt", { length: 255 }), // "Demolições"
+  typeEn: varchar("typeEn", { length: 255 }), // "Demolitions"
+  subtypePt: varchar("subtypePt", { length: 255 }), // "Paredes"
+  subtypeEn: varchar("subtypeEn", { length: 255 }), // "Walls"
+  zonePt: varchar("zonePt", { length: 255 }), // "Geral", "IS Master 1"
+  zoneEn: varchar("zoneEn", { length: 255 }), // "General", "IS Master 1"
+  descriptionPt: text("descriptionPt").notNull(), // Main description in Portuguese
+  descriptionEn: text("descriptionEn"), // English description (for client proposals)
+  unit: varchar("unit", { length: 20 }).notNull(), // m2, m, un, vg, ml
+  quantity: decimal("quantity", { precision: 10, scale: 2 }).notNull(),
+  unitPrice: decimal("unitPrice", { precision: 12, scale: 2 }),
+  totalPrice: decimal("totalPrice", { precision: 12, scale: 2 }),
+  supplierId: int("supplierId"), // Link to supplier
+  status: mysqlEnum("status", ["pending", "ordered", "in_progress", "completed"]).default("pending").notNull(),
+  notes: text("notes"),
+  order: int("order").notNull(), // Display order within category
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  categoryIdIdx: index("categoryId_idx").on(table.categoryId),
+  supplierIdIdx: index("supplierId_idx").on(table.supplierId),
+  statusIdx: index("status_idx").on(table.status),
+  orderIdx: index("order_idx").on(table.order),
+}));
+
+export type MqtItem = typeof mqtItems.$inferSelect;
+export type InsertMqtItem = typeof mqtItems.$inferInsert;

@@ -20,6 +20,8 @@ import Predictions from "./pages/Predictions";
 import WhatIfSimulation from "./pages/WhatIfSimulation";
 import ActivityFeed from "./pages/ActivityFeed";
 import Mentions from "./pages/Mentions";
+import Constructions from "./pages/Constructions";
+import ConstructionDetails from "./pages/ConstructionDetails";
 
 function Router() {
   return (
@@ -39,6 +41,18 @@ function Router() {
       <Route path="/projects/:id">
         <DashboardLayout>
           <ProjectDetails />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/constructions">
+        <DashboardLayout>
+          <Constructions />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/constructions/:id">
+        <DashboardLayout>
+          <ConstructionDetails />
         </DashboardLayout>
       </Route>
       

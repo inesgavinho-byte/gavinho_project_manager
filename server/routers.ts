@@ -24,6 +24,7 @@ import * as mentionService from "./mentionService";
 import * as mentionDb from "./mentionDb";
 import { projectsRouter } from "./projectsRouter";
 import { deliveriesRouter } from "./deliveriesRouter";
+import { constructionsRouter } from "./constructionsRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -43,6 +44,9 @@ export const appRouter = router({
 
   // Deliveries - Central de Entregas
   deliveries: deliveriesRouter,
+
+  // Constructions - Obras (GB) e MQT
+  constructions: constructionsRouter,
     
 
   // Dashboard

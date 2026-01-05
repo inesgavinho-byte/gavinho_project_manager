@@ -448,3 +448,29 @@
 - [x] Adicionar histórico de aprovações/rejeições com comentários
 - [x] Aplicar design GAVINHO
 - [x] Testar fluxo completo de entrega e aprovação
+
+
+## Módulo de Obras (GB) - Implementação
+- [x] Analisar estrutura completa do MQT (26 páginas do PDF GA00466-PENTHOUSESI)
+- [x] Criar tabela `constructions` (obras GB) associada a projetos
+- [x] Criar tabela `mqtCategories` (categorias do MQT)
+- [x] Criar tabela `mqtItems` (itens individuais do MQT com descrição PT+EN)
+- [x] Criar relação Projeto (GA) ↔ Obra (GB)
+- [x] Implementar server/constructionsDb.ts com funções de acesso ao banco
+- [x] Implementar server/constructionsRouter.ts com APIs tRPC para CRUD de obras
+- [x] Implementar APIs tRPC para gestão de MQT (categorias e itens)
+- [x] Criar página Constructions.tsx para listagem de obras
+- [x] Criar página ConstructionDetails.tsx com tabs (Dashboard, MQT, Fornecedores, Custos, Timeline)
+- [x] Adicionar menu "Obras" no DashboardLayout
+- [x] Popular 5 obras em curso:
+  - [x] GB00433_Ourique
+  - [x] GB00402_Maria Residences
+  - [x] GB00462_Restelo
+  - [x] GB00464_Apartment IG
+  - [x] GA00466_Penthouse SI
+- [x] Importar MQT da GB00466_Penthouse SI (18 itens: 13 Demolições + 5 Paredes Interiores)
+- [ ] Implementar toggle "Mostrar EN" para descrições em inglês no MQT
+- [ ] Extrair e importar restantes ~180+ itens do MQT (páginas 6-26 do PDF)
+- [ ] Criar dashboard de custos (orçado vs real) no tab Custos
+- [ ] Implementar gestão de fornecedores por item MQT
+- [x] Testar módulo completo
