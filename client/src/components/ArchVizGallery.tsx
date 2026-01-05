@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Download, Trash2, Edit, MessageSquare, ChevronDown, ChevronRight } from "lucide-react";
+import { Star, Download, Trash2, Edit, MessageSquare, ChevronDown, ChevronRight, GitCompare } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { ArchVizEditModal } from "./ArchVizEditModal";
+import { RenderComparisonModal } from "./RenderComparisonModal";
 
 interface Render {
   id: number;
@@ -37,6 +38,9 @@ export function ArchVizGallery({ constructionId, compartments, renders, onRefres
     new Set(compartments.map(c => c.id))
   );
   const [editingRender, setEditingRender] = useState<Render | null>(null);
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [selectedForComparison, setSelectedForComparison] = useState<Render[]>([]);
+  const [showComparison, setShowComparison] = useState(false);
 
   const toggleFavoriteMutation = trpc.archviz.renders.toggleFavorite.useMutation({
     onSuccess: onRefresh,
@@ -81,6 +85,30 @@ export function ArchVizGallery({ constructionId, compartments, renders, onRefres
     return "";
   };
 
+  const toggleComparisonSelection = (render: Render) => {
+    setSelectedForComparison(prev => {
+      const exists = prev.find(r => r.id === render.id);
+      if (exists) {
+        return prev.filter(r => r.id !== render.id);
+      }
+      if (prev.length >= 2) {
+        return [prev[1], render];
+      }
+      return [...prev, render];
+    });
+  };
+
+  const startComparison = () => {
+    if (selectedForComparison.length === 2) {
+      setShowComparison(true);
+    }
+  };
+
+  const cancelComparison = () => {
+    setComparisonMode(false);
+    setSelectedForComparison([]);
+  };
+
   const groupedRenders = compartments.map(comp => ({
     compartment: comp,
     renders: renders.filter(r => r.compartmentId === comp.id),
@@ -88,6 +116,46 @@ export function ArchVizGallery({ constructionId, compartments, renders, onRefres
 
   return (
     <div className="space-y-6">
+      {/* Comparison Mode Header */}
+      {comparisonMode && (
+        <Card className="p-4 bg-blue-50 border-blue-200">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-medium text-blue-900">Modo de Comparação</h3>
+              <p className="text-sm text-blue-700">
+                Selecione 2 versões para comparar ({selectedForComparison.length}/2 selecionadas)
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={startComparison}
+                disabled={selectedForComparison.length !== 2}
+                style={{ backgroundColor: "#C9A882", color: "white" }}
+              >
+                <GitCompare className="w-4 h-4 mr-2" />
+                Comparar
+              </Button>
+              <Button variant="outline" onClick={cancelComparison}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Enable Comparison Button */}
+      {!comparisonMode && renders.length >= 2 && (
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            onClick={() => setComparisonMode(true)}
+            style={{ borderColor: "#C9A882", color: "#C9A882" }}
+          >
+            <GitCompare className="w-4 h-4 mr-2" />
+            Comparar Versões
+          </Button>
+        </div>
+      )}
       {groupedRenders.map(({ compartment, renders: compRenders }) => (
         <div key={compartment.id} className="space-y-4">
           {/* Compartment Header */}
@@ -109,10 +177,15 @@ export function ArchVizGallery({ constructionId, compartments, renders, onRefres
           {/* Renders Grid */}
           {expandedCompartments.has(compartment.id) && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {compRenders.map(render => (
+              {compRenders.map(render => {
+                const isSelected = selectedForComparison.some(r => r.id === render.id);
+                return (
                 <Card
                   key={render.id}
-                  className={`overflow-hidden ${getCardStyle(render.status)}`}
+                  className={`overflow-hidden ${getCardStyle(render.status)} ${
+                    isSelected ? "ring-4 ring-blue-500" : ""
+                  } ${comparisonMode ? "cursor-pointer" : ""}`}
+                  onClick={() => comparisonMode && toggleComparisonSelection(render)}
                 >
                   {/* Thumbnail */}
                   <div className="relative aspect-video bg-gray-100">
@@ -143,6 +216,11 @@ export function ArchVizGallery({ constructionId, compartments, renders, onRefres
 
                     {/* Actions */}
                     <div className="flex gap-1">
+                      {comparisonMode && isSelected && (
+                        <Badge className="absolute bottom-2 right-2 bg-blue-500 text-white">
+                          Selecionada
+                        </Badge>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -182,7 +260,7 @@ export function ArchVizGallery({ constructionId, compartments, renders, onRefres
                     </div>
                   </div>
                 </Card>
-              ))}
+              );})}
             </div>
           )}
         </div>
@@ -196,6 +274,22 @@ export function ArchVizGallery({ constructionId, compartments, renders, onRefres
           render={editingRender}
           compartments={compartments}
           onSuccess={onRefresh}
+        />
+      )}
+
+      {/* Comparison Modal */}
+      {showComparison && selectedForComparison.length === 2 && (
+        <RenderComparisonModal
+          open={showComparison}
+          onOpenChange={(open) => {
+            setShowComparison(open);
+            if (!open) {
+              setComparisonMode(false);
+              setSelectedForComparison([]);
+            }
+          }}
+          renderA={selectedForComparison[0]}
+          renderB={selectedForComparison[1]}
         />
       )}
     </div>

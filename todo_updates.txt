@@ -30,3 +30,12 @@
 - [x] Implementar galeria com cards destacados para aprovados (fundo escuro)
 - [x] Adicionar badges de status nos cards (Pendente, Aprovada DC, Aprovada DC + Cliente)
 - [x] Integrar todos os componentes no tab ArchViz do ConstructionDetails
+
+## ArchViz - Comparação de Versões
+- [x] Criar componente RenderComparisonModal
+- [x] Implementar slider interativo para revelar diferenças
+- [x] Adicionar zoom sincronizado em ambas as imagens
+- [x] Criar modo de seleção de renders para comparação
+- [x] Adicionar botão "Comparar" na galeria
+- [x] Mostrar detalhes comparativos (data, status, descrição) de ambas as versões
+- [x] Implementar navegação entre pares de comparação
