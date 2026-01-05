@@ -825,3 +825,23 @@
 - [ ] Upload de renders (funcionalidade das Obras, não do Projeto)
 - [ ] Sistema de versionamento (funcionalidade das Obras)
 - [ ] Download em lote (ZIP) - melhoria futura
+
+
+## Upload de Renders no Archviz
+- [x] Criar função getProjectConstructions no projectsDb.ts
+- [x] Criar função uploadArchvizRender no projectsDb.ts
+- [x] Adicionar procedure projects.constructions.list no router
+- [x] Adicionar procedure projects.archviz.upload no router
+- [x] Adicionar botão "Upload Render" no ProjectArchvizGallery
+- [x] Criar modal de upload com formulário completo
+- [x] Implementar seleção de obra (dropdown)
+- [x] Adicionar campos nome e descrição
+- [x] Implementar upload de imagem com preview
+- [x] Adicionar validação de formato (JPG, PNG, WebP)
+- [x] Adicionar validação de tamanho (máx 20MB)
+- [x] Adicionar loading states durante upload
+- [x] Implementar refetch após upload bem-sucedido
+- [ ] Implementar integração com S3 via storagePut (atualmente usa base64)
+- [ ] Criar thumbnail automático (opcional)
+- [ ] Testar upload com imagem real
+- [ ] Validar que render aparece na galeria após upload

@@ -11,7 +11,9 @@ import {
   Grid3x3,
   List,
   Star,
-  StarOff
+  StarOff,
+  Upload,
+  Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -23,7 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
@@ -39,6 +43,15 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
   const [newComment, setNewComment] = useState("");
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploadData, setUploadData] = useState({
+    constructionId: 0,
+    name: "",
+    description: "",
+    file: null as File | null,
+  });
+  const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Fetch renders
   const { data: renders, isLoading, refetch } = trpc.projects.archviz.list.useQuery({
@@ -80,6 +93,93 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
     },
   });
 
+  // Fetch constructions for upload
+  const { data: constructions } = trpc.projects.constructions.list.useQuery({
+    projectId,
+  });
+
+  // Upload mutation
+  const uploadMutation = trpc.projects.archviz.upload.useMutation({
+    onSuccess: () => {
+      toast.success("Render carregado com sucesso!");
+      refetch();
+      setUploadDialogOpen(false);
+      setUploadData({ constructionId: 0, name: "", description: "", file: null });
+      setUploadPreview(null);
+      setIsUploading(false);
+    },
+    onError: (error) => {
+      toast.error("Erro ao carregar render: " + error.message);
+      setIsUploading(false);
+    },
+  });
+
+  // Handle file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Por favor selecione uma imagem (JPG, PNG, WebP)");
+      return;
+    }
+
+    // Validate file size (20MB)
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error("Imagem muito grande. Máximo 20MB.");
+      return;
+    }
+
+    setUploadData({ ...uploadData, file });
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setUploadPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Handle upload submit
+  const handleUploadSubmit = async () => {
+    if (!uploadData.file || !uploadData.name || uploadData.constructionId === 0) {
+      toast.error("Por favor preencha todos os campos obrigatórios");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        const base64Data = base64.split(",")[1];
+
+        // Upload to S3 via storagePut (we'll need to call a server endpoint)
+        // For now, we'll use a data URL approach
+        const fileKey = `archviz/${projectId}/${Date.now()}-${uploadData.file!.name}`;
+        
+        // Call upload mutation
+        uploadMutation.mutate({
+          constructionId: uploadData.constructionId,
+          compartmentId: 1, // Default compartment, you may want to make this selectable
+          name: uploadData.name,
+          description: uploadData.description || undefined,
+          fileUrl: base64, // Temporary, should be S3 URL
+          fileKey,
+          mimeType: uploadData.file!.type,
+          fileSize: uploadData.file!.size,
+        });
+      };
+      reader.readAsDataURL(uploadData.file);
+    } catch (error) {
+      toast.error("Erro ao processar imagem");
+      setIsUploading(false);
+    }
+  };
+
   // Filter renders
   const filteredRenders = renders?.filter(render => {
     if (statusFilter !== "all" && render.status !== statusFilter) return false;
@@ -88,7 +188,7 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
   }) || [];
 
   // Get unique construction codes for filter
-  const constructions = Array.from(new Set(renders?.map(r => r.constructionCode) || []));
+  const constructionCodes = Array.from(new Set(renders?.map(r => r.constructionCode) || []));
 
   // Status badge
   const getStatusBadge = (status: string) => {
@@ -150,6 +250,18 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
 
   return (
     <div className="space-y-6">
+      {/* Upload Button */}
+      <div className="flex justify-end">
+        <Button
+          onClick={() => setUploadDialogOpen(true)}
+          className="bg-[#C9A882] hover:bg-[#C9A882]/90"
+          disabled={!constructions || constructions.length === 0}
+        >
+          <Upload className="w-4 h-4 mr-2" />
+          Upload Render
+        </Button>
+      </div>
+
       {/* Statistics */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -199,7 +311,7 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas as Obras</SelectItem>
-            {constructions.map(code => (
+            {constructionCodes.map(code => (
               <SelectItem key={code} value={code}>{code}</SelectItem>
             ))}
           </SelectContent>
@@ -448,6 +560,113 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Upload Dialog */}
+      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Upload Render 3D</DialogTitle>
+            <DialogDescription>
+              Carregue um novo render para este projeto
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Construction Selection */}
+            <div>
+              <Label htmlFor="construction">Obra *</Label>
+              <Select
+                value={uploadData.constructionId.toString()}
+                onValueChange={(value) => setUploadData({ ...uploadData, constructionId: parseInt(value) })}
+              >
+                <SelectTrigger id="construction">
+                  <SelectValue placeholder="Selecione a obra" />
+                </SelectTrigger>
+                <SelectContent>
+                  {constructions?.map(construction => (
+                    <SelectItem key={construction.id} value={construction.id.toString()}>
+                      {construction.code} - {construction.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Name */}
+            <div>
+              <Label htmlFor="name">Nome do Render *</Label>
+              <Input
+                id="name"
+                value={uploadData.name}
+                onChange={(e) => setUploadData({ ...uploadData, name: e.target.value })}
+                placeholder="Ex: Vista Exterior Principal"
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <Label htmlFor="description">Descrição</Label>
+              <Textarea
+                id="description"
+                value={uploadData.description}
+                onChange={(e) => setUploadData({ ...uploadData, description: e.target.value })}
+                placeholder="Descrição opcional do render..."
+                rows={3}
+              />
+            </div>
+
+            {/* File Upload */}
+            <div>
+              <Label htmlFor="file">Imagem *</Label>
+              <Input
+                id="file"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="cursor-pointer"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Formatos aceites: JPG, PNG, WebP. Máximo 20MB.
+              </p>
+            </div>
+
+            {/* Preview */}
+            {uploadPreview && (
+              <div>
+                <Label>Preview</Label>
+                <div className="mt-2 border rounded-lg overflow-hidden bg-gray-100">
+                  <img
+                    src={uploadPreview}
+                    alt="Preview"
+                    className="w-full h-auto max-h-96 object-contain"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setUploadDialogOpen(false);
+                setUploadData({ constructionId: 0, name: "", description: "", file: null });
+                setUploadPreview(null);
+              }}
+              disabled={isUploading}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleUploadSubmit}
+              disabled={isUploading || !uploadData.file || !uploadData.name || uploadData.constructionId === 0}
+              className="bg-[#C9A882] hover:bg-[#C9A882]/90"
+            >
+              {isUploading ? "A carregar..." : "Carregar Render"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

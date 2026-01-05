@@ -517,5 +517,39 @@ export const projectsRouter = router({
         const stats = await projectsDb.getProjectArchvizStats(input.projectId);
         return stats;
       }),
+
+    // Upload new render
+    upload: protectedProcedure
+      .input(z.object({
+        constructionId: z.number(),
+        compartmentId: z.number(),
+        name: z.string(),
+        description: z.string().optional(),
+        fileUrl: z.string(),
+        fileKey: z.string(),
+        thumbnailUrl: z.string().optional(),
+        mimeType: z.string().optional(),
+        fileSize: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const renderId = await projectsDb.uploadArchvizRender({
+          ...input,
+          uploadedById: ctx.user.id,
+        });
+        return { renderId };
+      }),
+  }),
+
+  // Constructions procedures
+  constructions: router({
+    // List constructions for a project
+    list: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const constructions = await projectsDb.getProjectConstructions(input.projectId);
+        return constructions;
+      }),
   }),
 });

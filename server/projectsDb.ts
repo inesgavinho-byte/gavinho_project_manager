@@ -747,3 +747,76 @@ export async function getProjectArchvizStats(projectId: number) {
     favorites,
   };
 }
+
+
+/**
+ * Get all constructions for a project
+ */
+export async function getProjectConstructions(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { constructions } = await import("../drizzle/schema");
+  
+  const projectConstructions = await db
+    .select()
+    .from(constructions)
+    .where(eq(constructions.projectId, projectId))
+    .orderBy(desc(constructions.createdAt));
+  
+  return projectConstructions;
+}
+
+/**
+ * Upload a new archviz render
+ */
+export async function uploadArchvizRender(data: {
+  constructionId: number;
+  compartmentId: number;
+  name: string;
+  description?: string;
+  fileUrl: string;
+  fileKey: string;
+  thumbnailUrl?: string;
+  mimeType?: string;
+  fileSize?: number;
+  uploadedById: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const { archvizRenders } = await import("../drizzle/schema");
+  
+  // Get the next version number for this compartment
+  const existingRenders = await db
+    .select()
+    .from(archvizRenders)
+    .where(
+      and(
+        eq(archvizRenders.compartmentId, data.compartmentId),
+        eq(archvizRenders.constructionId, data.constructionId)
+      )
+    )
+    .orderBy(desc(archvizRenders.version));
+  
+  const nextVersion = existingRenders.length > 0 ? existingRenders[0].version + 1 : 1;
+  
+  // Insert new render
+  const result = await db.insert(archvizRenders).values({
+    constructionId: data.constructionId,
+    compartmentId: data.compartmentId,
+    name: data.name,
+    description: data.description || null,
+    fileUrl: data.fileUrl,
+    fileKey: data.fileKey,
+    thumbnailUrl: data.thumbnailUrl || null,
+    mimeType: data.mimeType || null,
+    fileSize: data.fileSize || null,
+    version: nextVersion,
+    status: "pending",
+    uploadedById: data.uploadedById,
+    isFavorite: false,
+  });
+  
+  return result[0].insertId;
+}
