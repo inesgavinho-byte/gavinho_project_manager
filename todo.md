@@ -671,3 +671,12 @@
 - [x] Integrar botão "Ver Histórico" nos cards de render
 - [x] Adicionar animações de transição na timeline
 - [x] Criar design elegante com cores GAVINHO
+
+
+## ArchViz - Notificações Automáticas
+- [x] Integrar notifyOwner() na mutation updateRender
+- [x] Criar mensagem de notificação com detalhes da mudança (obra, render, status anterior → novo)
+- [x] Incluir nome do utilizador que fez a mudança
+- [x] Adicionar link direto para a obra/render na notificação
+- [x] Testar notificações com mudanças de status reais
+- [x] Verificar se notificações aparecem no painel do owner

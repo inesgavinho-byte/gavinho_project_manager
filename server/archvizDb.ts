@@ -296,3 +296,24 @@ export async function getStatusHistory(renderId: number) {
   
   return history;
 }
+
+export async function getConstructionByRenderId(renderId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const { archvizRenders, archvizCompartments, constructions } = await import("../drizzle/schema");
+  
+  const result = await db
+    .select({
+      id: constructions.id,
+      name: constructions.name,
+      code: constructions.code,
+    })
+    .from(archvizRenders)
+    .innerJoin(archvizCompartments, eq(archvizRenders.compartmentId, archvizCompartments.id))
+    .innerJoin(constructions, eq(archvizCompartments.constructionId, constructions.id))
+    .where(eq(archvizRenders.id, renderId))
+    .limit(1);
+  
+  return result[0] || null;
+}

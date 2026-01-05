@@ -3,6 +3,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as archvizDb from "./archvizDb";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
+import { notifyOwner } from "./_core/notification";
 
 export const archvizRouter = router({
   // ============================================================================
@@ -135,7 +136,7 @@ export const archvizRouter = router({
       .mutation(async ({ input, ctx }) => {
         const { id, notes, ...data } = input;
         
-        // If status is changing, record history
+        // If status is changing, record history and notify owner
         if (input.status) {
           const render = await archvizDb.getRenderById(id);
           if (render && render.status !== input.status) {
@@ -145,6 +146,26 @@ export const archvizRouter = router({
               newStatus: input.status,
               changedById: ctx.user.id,
               notes: notes,
+            });
+            
+            // Get construction name for notification
+            const construction = await archvizDb.getConstructionByRenderId(id);
+            
+            // Format status labels
+            const statusLabels: Record<string, string> = {
+              pending: "Pendente",
+              approved_dc: "Aprovada DC",
+              approved_client: "Aprovada DC + Cliente"
+            };
+            
+            // Send notification to owner
+            await notifyOwner({
+              title: `Render "${render.name}" - Mudança de Status`,
+              content: `**Obra:** ${construction?.name || "N/A"}\n\n` +
+                       `**Render:** ${render.name} (v${render.version})\n\n` +
+                       `**Status:** ${statusLabels[render.status]} → ${statusLabels[input.status]}\n\n` +
+                       `**Alterado por:** ${ctx.user.name}\n\n` +
+                       (notes ? `**Notas:** ${notes}` : "")
             });
           }
         }
