@@ -9,6 +9,9 @@ import {
   users,
   archvizCompartments,
   archvizRenders,
+  clientProjects,
+  clientMessages,
+  clientDocuments,
   type Project,
   type InsertProject,
   type ProjectPhase,
@@ -922,4 +925,180 @@ export async function reorderCompartments(updates: Array<{ compartmentId: number
   }
   
   return { success: true };
+}
+
+
+// ============= CLIENT PORTAL FUNCTIONS =============
+
+export async function getClientProjects(clientId: number) {
+  const db = await getDb();
+  return db
+    .select({
+      id: projects.id,
+      code: projects.code,
+      name: projects.name,
+      description: projects.description,
+      progress: projects.progress,
+      status: projects.status,
+      budget: projects.budget,
+      startDate: projects.startDate,
+      endDate: projects.endDate,
+      clientName: projectTeam.name,
+      accessLevel: clientProjects.accessLevel,
+    })
+    .from(projects)
+    .innerJoin(clientProjects, eq(projects.id, clientProjects.projectId))
+    .innerJoin(projectTeam, eq(projects.id, projectTeam.projectId))
+    .where(eq(clientProjects.clientId, clientId))
+    .orderBy(desc(projects.updatedAt));
+}
+
+export async function getClientProjectDetails(clientId: number, projectId: number) {
+  const db = await getDb();
+  
+  // Verify client has access
+  const access = await db
+    .select()
+    .from(clientProjects)
+    .where(
+      and(
+        eq(clientProjects.clientId, clientId),
+        eq(clientProjects.projectId, projectId)
+      )
+    )
+    .limit(1);
+
+  if (!access.length) {
+    throw new Error("Acesso negado a este projeto");
+  }
+
+  return db
+    .select()
+    .from(projects)
+    .where(eq(projects.id, projectId))
+    .limit(1);
+}
+
+export async function getClientDashboardStats(clientId: number) {
+  const db = await getDb();
+  
+  const projects_ = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(clientProjects)
+    .where(eq(clientProjects.clientId, clientId));
+
+  const pendingMilestones = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(projectMilestones)
+    .innerJoin(clientProjects, eq(projectMilestones.projectId, clientProjects.projectId))
+    .where(
+      and(
+        eq(clientProjects.clientId, clientId),
+        eq(projectMilestones.status, "pending")
+      )
+    );
+
+  return {
+    totalProjects: projects_[0]?.count || 0,
+    pendingMilestones: pendingMilestones[0]?.count || 0,
+  };
+}
+
+export async function getClientMessages(clientId: number, projectId: number) {
+  const db = await getDb();
+  
+  // Verify client has access
+  const access = await db
+    .select()
+    .from(clientProjects)
+    .where(
+      and(
+        eq(clientProjects.clientId, clientId),
+        eq(clientProjects.projectId, projectId)
+      )
+    )
+    .limit(1);
+
+  if (!access.length) {
+    throw new Error("Acesso negado a este projeto");
+  }
+
+  return db
+    .select({
+      id: clientMessages.id,
+      message: clientMessages.message,
+      senderName: users.name,
+      senderId: clientMessages.senderId,
+      createdAt: clientMessages.createdAt,
+      isRead: clientMessages.isRead,
+    })
+    .from(clientMessages)
+    .innerJoin(users, eq(clientMessages.senderId, users.id))
+    .where(eq(clientMessages.projectId, projectId))
+    .orderBy(desc(clientMessages.createdAt));
+}
+
+export async function sendClientMessage(clientId: number, projectId: number, message: string) {
+  const db = await getDb();
+  
+  // Verify client has access
+  const access = await db
+    .select()
+    .from(clientProjects)
+    .where(
+      and(
+        eq(clientProjects.clientId, clientId),
+        eq(clientProjects.projectId, projectId)
+      )
+    )
+    .limit(1);
+
+  if (!access.length) {
+    throw new Error("Acesso negado a este projeto");
+  }
+
+  const result = await db.insert(clientMessages).values({
+    projectId,
+    senderId: clientId,
+    message,
+  });
+
+  return result;
+}
+
+export async function getClientDocuments(clientId: number, projectId: number) {
+  const db = await getDb();
+  
+  // Verify client has access
+  const access = await db
+    .select()
+    .from(clientProjects)
+    .where(
+      and(
+        eq(clientProjects.clientId, clientId),
+        eq(clientProjects.projectId, projectId)
+      )
+    )
+    .limit(1);
+
+  if (!access.length) {
+    throw new Error("Acesso negado a este projeto");
+  }
+
+  return db
+    .select({
+      id: clientDocuments.id,
+      name: clientDocuments.name,
+      description: clientDocuments.description,
+      fileUrl: clientDocuments.fileUrl,
+      fileType: clientDocuments.fileType,
+      fileSize: clientDocuments.fileSize,
+      version: clientDocuments.version,
+      uploadedBy: users.name,
+      uploadedAt: clientDocuments.uploadedAt,
+    })
+    .from(clientDocuments)
+    .innerJoin(users, eq(clientDocuments.uploadedBy, users.id))
+    .where(eq(clientDocuments.projectId, projectId))
+    .orderBy(desc(clientDocuments.uploadedAt));
 }

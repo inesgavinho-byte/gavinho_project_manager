@@ -9,7 +9,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "admin", "client"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -908,3 +908,61 @@ export const mqtValidationRules = mysqlTable("mqtValidationRules", {
 export type MqtValidationRule = typeof mqtValidationRules.$inferSelect;
 export type InsertMqtValidationRule = typeof mqtValidationRules.$inferInsert;
 
+
+// ============= CLIENT PORTAL TABLES =============
+
+export const clientProjects = mysqlTable("clientProjects", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull().references(() => users.id),
+  projectId: int("projectId").notNull().references(() => projects.id),
+  accessLevel: mysqlEnum("accessLevel", ["view", "comment", "approve"]).default("view").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  clientIdIdx: index("clientId_idx").on(table.clientId),
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  clientProjectIdx: index("clientProject_idx").on(table.clientId, table.projectId),
+}));
+
+export type ClientProject = typeof clientProjects.$inferSelect;
+export type InsertClientProject = typeof clientProjects.$inferInsert;
+
+export const clientMessages = mysqlTable("clientMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => projects.id),
+  senderId: int("senderId").notNull().references(() => users.id),
+  message: text("message").notNull(),
+  attachmentUrl: varchar("attachmentUrl", { length: 512 }),
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  senderIdIdx: index("senderId_idx").on(table.senderId),
+  createdAtIdx: index("createdAt_idx").on(table.createdAt),
+}));
+
+export type ClientMessage = typeof clientMessages.$inferSelect;
+export type InsertClientMessage = typeof clientMessages.$inferInsert;
+
+export const clientDocuments = mysqlTable("clientDocuments", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => projects.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  fileUrl: varchar("fileUrl", { length: 512 }).notNull(),
+  fileKey: varchar("fileKey", { length: 512 }).notNull(),
+  fileType: varchar("fileType", { length: 50 }).notNull(), // pdf, docx, xlsx, etc
+  fileSize: int("fileSize"), // in bytes
+  version: int("version").default(1).notNull(),
+  uploadedBy: int("uploadedBy").notNull().references(() => users.id),
+  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  uploadedByIdx: index("uploadedBy_idx").on(table.uploadedBy),
+  fileTypeIdx: index("fileType_idx").on(table.fileType),
+}));
+
+export type ClientDocument = typeof clientDocuments.$inferSelect;
+export type InsertClientDocument = typeof clientDocuments.$inferInsert;

@@ -917,3 +917,78 @@
 - [x] Adicionar refetch após reordenação
 - [x] Ordenar compartments por 'order' na query
 - [ ] Testar drag & drop entre compartimentos
+
+
+## Portal do Cliente
+### Sistema de Roles e Autenticação
+- [ ] Adicionar role 'client' à tabela users (se não existir)
+- [ ] Criar tabela clientProjects (userId, projectId) para associar clientes a projetos
+- [ ] Criar função getClientProjects no projectsDb.ts
+- [ ] Criar middleware clientProcedure no tRPC para validar role client
+- [ ] Criar procedure portal.auth.me para obter dados do cliente logado
+
+### Backend do Portal
+- [ ] Criar função getClientDashboardStats no projectsDb.ts
+- [ ] Criar função getClientProjectDetails no projectsDb.ts
+- [ ] Criar função getClientArchvizRenders no projectsDb.ts
+- [ ] Criar função getClientDocuments no projectsDb.ts
+- [ ] Criar procedure portal.dashboard.stats
+- [ ] Criar procedure portal.projects.list
+- [ ] Criar procedure portal.projects.getById
+- [ ] Criar procedure portal.archviz.list
+- [ ] Criar procedure portal.archviz.approve
+- [ ] Criar procedure portal.archviz.requestRevision
+- [ ] Criar procedure portal.documents.list
+
+### Frontend - Dashboard do Cliente
+- [ ] Criar rota /portal no App.tsx
+- [ ] Criar componente ClientPortalLayout.tsx
+- [ ] Criar página ClientDashboard.tsx
+- [ ] Implementar cards de estatísticas (projetos ativos, marcos pendentes)
+- [ ] Criar lista de projetos do cliente
+- [ ] Adicionar seção de notificações recentes
+- [ ] Implementar navegação do portal
+
+### Frontend - Projetos e Archviz
+- [ ] Criar página ClientProjectDetails.tsx
+- [ ] Implementar visualização de fases e progresso
+- [ ] Criar timeline de marcos
+- [ ] Criar componente ClientArchvizGallery.tsx
+- [ ] Implementar galeria de renders com aprovação
+- [ ] Adicionar botões Aprovar/Solicitar Revisão
+- [ ] Implementar sistema de comentários do cliente
+- [ ] Criar lightbox para visualização fullscreen
+
+### Frontend - Documentos
+- [ ] Criar página ClientDocuments.tsx
+- [ ] Implementar lista de documentos por projeto
+- [ ] Adicionar filtros por tipo de documento
+- [ ] Implementar download de documentos
+- [ ] Mostrar histórico de versões
+
+### Sistema de Mensagens
+- [ ] Criar tabela clientMessages (id, projectId, senderId, message, createdAt)
+- [ ] Criar função sendClientMessage no projectsDb.ts
+- [ ] Criar função getClientMessages no projectsDb.ts
+- [ ] Criar procedure portal.messages.send
+- [ ] Criar procedure portal.messages.list
+- [ ] Criar componente ClientMessaging.tsx
+- [ ] Implementar chat em tempo real (polling ou websockets)
+- [ ] Adicionar notificações de novas mensagens
+
+### UI/UX do Portal
+- [ ] Criar tema visual diferenciado para o portal
+- [ ] Implementar navegação simplificada
+- [ ] Adicionar breadcrumbs
+- [ ] Criar estados vazios user-friendly
+- [ ] Implementar loading states
+- [ ] Adicionar tooltips explicativos
+- [ ] Garantir responsividade mobile
+
+### Testes e Validação
+- [ ] Testar login como cliente
+- [ ] Validar que cliente vê apenas seus projetos
+- [ ] Testar aprovação de renders
+- [ ] Testar sistema de mensagens
+- [ ] Validar download de documentos
+- [ ] Testar em diferentes dispositivos
