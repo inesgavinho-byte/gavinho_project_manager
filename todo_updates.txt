@@ -12,3 +12,11 @@
 - [x] Adicionar gráfico de linha para timeline de atividade
 - [x] Integrar dashboard no menu de navegação principal
 - [x] Testar todas as visualizações e métricas
+## Deleção de Projetos
+- [x] Verificar mutation tRPC delete existente no projectsRouter
+- [x] Implementar deleção em cascata na função deleteProject (fases, marcos, equipa, documentos, galeria)
+- [x] Adicionar botão "Apagar" na página ProjectDetails
+- [x] Criar modal de confirmação com avisos sobre dados relacionados
+- [x] Adicionar mutation deleteProject no frontend
+- [x] Implementar redirecionamento após deleção
+- [x] Testar deleção completa de projeto

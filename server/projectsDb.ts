@@ -53,6 +53,24 @@ export async function updateProject(projectId: number, data: Partial<InsertProje
 export async function deleteProject(projectId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
+  
+  // Delete in cascade order (child tables first)
+  // 1. Delete gallery images
+  await db.delete(projectGallery).where(eq(projectGallery.projectId, projectId));
+  
+  // 2. Delete documents
+  await db.delete(projectDocuments).where(eq(projectDocuments.projectId, projectId));
+  
+  // 3. Delete team members
+  await db.delete(projectTeam).where(eq(projectTeam.projectId, projectId));
+  
+  // 4. Delete milestones
+  await db.delete(projectMilestones).where(eq(projectMilestones.projectId, projectId));
+  
+  // 5. Delete phases
+  await db.delete(projectPhases).where(eq(projectPhases.projectId, projectId));
+  
+  // 6. Finally, delete the project itself
   await db.delete(projects).where(eq(projects.id, projectId));
 }
 

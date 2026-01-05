@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
-import { useRoute, Link } from "wouter";
+import { useRoute, Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -65,6 +65,9 @@ export default function ProjectDetails() {
   const [selectedPhase, setSelectedPhase] = useState<string>("all");
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
+  // Delete dialog state
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
   const { data: statsData, isLoading } = trpc.projects.getStats.useQuery({ id: projectId });
   const { data: phases } = trpc.projects.phases.list.useQuery({ projectId });
   const { data: milestones } = trpc.projects.milestones.list.useQuery({ projectId });
@@ -93,6 +96,22 @@ export default function ProjectDetails() {
       toast.error("Erro ao remover membro: " + error.message);
     },
   });
+
+  const [, setLocation] = useLocation();
+  const deleteProject = trpc.projects.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Projeto apagado com sucesso!");
+      setLocation("/projects");
+    },
+    onError: (error) => {
+      toast.error("Erro ao apagar projeto: " + error.message);
+    },
+  });
+
+  const handleDeleteProject = () => {
+    deleteProject.mutate({ id: projectId });
+    setIsDeleteDialogOpen(false);
+  };
 
   const handleAddMember = () => {
     if (!newMember.name || !newMember.email) {
@@ -223,9 +242,19 @@ export default function ProjectDetails() {
               <p className="text-[#5F5C59]/60 max-w-3xl">{project.description}</p>
             )}
           </div>
-          <Button className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white">
-            Editar Projeto
-          </Button>
+          <div className="flex gap-2">
+            <Button className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white">
+              Editar Projeto
+            </Button>
+            <Button 
+              variant="outline" 
+              className="border-red-500 text-red-500 hover:bg-red-50"
+              onClick={() => setIsDeleteDialogOpen(true)}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Apagar
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -866,6 +895,54 @@ export default function ProjectDetails() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="font-serif text-2xl text-[#5F5C59]">
+              Apagar Projeto?
+            </DialogTitle>
+            <DialogDescription className="text-[#5F5C59]/70 space-y-3 pt-4">
+              <p className="font-semibold">
+                Tem a certeza que deseja apagar o projeto "{project?.name}"?
+              </p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-2">
+                <p className="text-red-800 font-semibold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  Esta ação é irreversível!
+                </p>
+                <p className="text-red-700 text-sm">
+                  Todos os dados relacionados serão permanentemente apagados:
+                </p>
+                <ul className="text-red-700 text-sm list-disc list-inside space-y-1 ml-2">
+                  <li>{phases?.length || 0} fases</li>
+                  <li>{milestones?.length || 0} marcos</li>
+                  <li>{teamMembers?.length || 0} membros da equipa</li>
+                  <li>{documents?.length || 0} documentos</li>
+                  <li>{gallery?.length || 0} imagens da galeria</li>
+                </ul>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              className="border-[#C3BAAF] text-[#5F5C59]"
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleDeleteProject}
+              disabled={deleteProject.isPending}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              {deleteProject.isPending ? "A apagar..." : "Sim, Apagar Projeto"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

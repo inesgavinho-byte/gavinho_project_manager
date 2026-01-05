@@ -573,3 +573,17 @@
 - [ ] Adicionar gráfico de linha para timeline de atividade
 - [ ] Integrar dashboard no menu de navegação principal
 - [ ] Testar todas as visualizações e métricas
+
+## Funcionalidade de Apagar Projetos
+- [ ] Criar mutation tRPC deleteProject no projectsRouter
+- [ ] Implementar função deleteProject no projectsDb com deleção em cascata
+- [ ] Adicionar botão "Apagar Projeto" na página de detalhes do projeto
+- [ ] Criar modal de confirmação com avisos sobre dados relacionados
+- [ ] Testar deleção de projeto com dados mockados
+
+## Funcionalidade de Apagar Projetos
+- [ ] Criar mutation tRPC deleteProject no projectsRouter
+- [ ] Implementar função deleteProject no projectsDb com deleção em cascata
+- [ ] Adicionar botão "Apagar Projeto" na página de detalhes do projeto
+- [ ] Criar modal de confirmação com avisos sobre dados relacionados
+- [ ] Testar deleção de projeto com dados mockados
