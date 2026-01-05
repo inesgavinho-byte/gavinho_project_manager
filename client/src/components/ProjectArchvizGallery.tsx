@@ -13,7 +13,11 @@ import {
   List,
   Star,
   StarOff,
-  Upload
+  Upload,
+  Edit,
+  Trash2,
+  Check,
+  X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -58,6 +62,10 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
     name: "",
     description: "",
   });
+  const [editingCompartmentId, setEditingCompartmentId] = useState<number | null>(null);
+  const [editCompartmentData, setEditCompartmentData] = useState({ name: "", description: "" });
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [compartmentToDelete, setCompartmentToDelete] = useState<number | null>(null);
 
   // Fetch renders
   const { data: renders, isLoading, refetch } = trpc.projects.archviz.list.useQuery({
@@ -140,6 +148,38 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
     },
     onError: (error) => {
       toast.error("Erro ao criar compartimento: " + error.message);
+    },
+  });
+
+  // Update compartment mutation
+  const updateCompartmentMutation = trpc.projects.constructions.updateCompartment.useMutation({
+    onSuccess: () => {
+      toast.success("Compartimento atualizado com sucesso!");
+      refetch();
+      setEditingCompartmentId(null);
+      setEditCompartmentData({ name: "", description: "" });
+    },
+    onError: (error) => {
+      toast.error("Erro ao atualizar compartimento: " + error.message);
+    },
+  });
+
+  // Delete compartment mutation
+  const deleteCompartmentMutation = trpc.projects.constructions.deleteCompartment.useMutation({
+    onSuccess: () => {
+      toast.success("Compartimento apagado com sucesso!");
+      refetch();
+      setDeleteConfirmOpen(false);
+      setCompartmentToDelete(null);
+      // Reset selected compartment if it was deleted
+      if (uploadData.compartmentId === compartmentToDelete) {
+        setUploadData({ ...uploadData, compartmentId: 0 });
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      setDeleteConfirmOpen(false);
+      setCompartmentToDelete(null);
     },
   });
 
@@ -644,9 +684,82 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
                   </SelectTrigger>
                   <SelectContent>
                     {compartments?.map(compartment => (
-                      <SelectItem key={compartment.id} value={compartment.id.toString()}>
-                        {compartment.name}
-                      </SelectItem>
+                      <div key={compartment.id} className="flex items-center justify-between px-2 py-1.5 hover:bg-accent">
+                        {editingCompartmentId === compartment.id ? (
+                          // Edit mode
+                          <div className="flex items-center gap-1 flex-1">
+                            <Input
+                              value={editCompartmentData.name}
+                              onChange={(e) => setEditCompartmentData({ ...editCompartmentData, name: e.target.value })}
+                              className="h-7 text-sm flex-1"
+                              placeholder="Nome"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (editCompartmentData.name) {
+                                  updateCompartmentMutation.mutate({
+                                    compartmentId: compartment.id,
+                                    name: editCompartmentData.name,
+                                    description: editCompartmentData.description,
+                                  });
+                                }
+                              }}
+                            >
+                              <Check className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingCompartmentId(null);
+                                setEditCompartmentData({ name: "", description: "" });
+                              }}
+                            >
+                              <X className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </div>
+                        ) : (
+                          // View mode
+                          <>
+                            <SelectItem value={compartment.id.toString()} className="flex-1 border-0">
+                              {compartment.name}
+                            </SelectItem>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingCompartmentId(compartment.id);
+                                  setEditCompartmentData({ name: compartment.name, description: compartment.description || "" });
+                                }}
+                              >
+                                <Edit className="h-3 w-3" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setCompartmentToDelete(compartment.id);
+                                  setDeleteConfirmOpen(true);
+                                }}
+                              >
+                                <Trash2 className="h-3 w-3 text-red-600" />
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     ))}
                   </SelectContent>
                 </Select>
@@ -729,6 +842,42 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
               className="bg-[#C9A882] hover:bg-[#C9A882]/90"
             >
               {isUploading ? "A carregar..." : "Carregar Render"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirmar Exclus\u00e3o</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja apagar este compartimento? Esta a\u00e7\u00e3o n\u00e3o pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteConfirmOpen(false);
+                setCompartmentToDelete(null);
+              }}
+              disabled={deleteCompartmentMutation.isPending}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (compartmentToDelete) {
+                  deleteCompartmentMutation.mutate({ compartmentId: compartmentToDelete });
+                }
+              }}
+              disabled={deleteCompartmentMutation.isPending}
+            >
+              {deleteCompartmentMutation.isPending ? "A apagar..." : "Apagar"}
             </Button>
           </DialogFooter>
         </DialogContent>

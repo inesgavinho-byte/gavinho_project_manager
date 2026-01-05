@@ -8,6 +8,7 @@ import {
   projectGallery,
   users,
   archvizCompartments,
+  archvizRenders,
   type Project,
   type InsertProject,
   type ProjectPhase,
@@ -867,4 +868,41 @@ export async function createCompartment(data: {
     });
   
   return result.insertId;
+}
+
+
+export async function updateCompartment(compartmentId: number, name: string, description?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db
+    .update(archvizCompartments)
+    .set({
+      name,
+      description: description || null,
+    })
+    .where(eq(archvizCompartments.id, compartmentId));
+  
+  return { success: true };
+}
+
+export async function deleteCompartment(compartmentId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db
+    .delete(archvizCompartments)
+    .where(eq(archvizCompartments.id, compartmentId));
+  
+  return { success: true };
+}
+
+export async function checkCompartmentHasRenders(compartmentId: number) {
+  const db = await getDb();
+  if (!db) return false;
+  const renders = await db
+    .select({ id: archvizRenders.id })
+    .from(archvizRenders)
+    .where(eq(archvizRenders.compartmentId, compartmentId))
+    .limit(1);
+  
+  return renders.length > 0;
 }

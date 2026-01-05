@@ -876,3 +876,23 @@
 - [x] Implementar seleção automática do compartimento recém-criado
 - [x] Adicionar loading state no botão de criação
 - [ ] Testar criação e seleção automática
+
+
+## Edição Inline de Compartimentos
+- [x] Criar função updateCompartment no projectsDb.ts
+- [x] Criar função deleteCompartment no projectsDb.ts
+- [x] Criar função checkCompartmentHasRenders no projectsDb.ts
+- [x] Criar procedure projects.constructions.updateCompartment no router
+- [x] Criar procedure projects.constructions.deleteCompartment no router
+- [x] Redesenhar SelectItem para incluir ícones de editar e apagar
+- [x] Adicionar state para controlar modo de edição (editingCompartmentId)
+- [x] Criar mini-formulário inline com Input para nome
+- [x] Adicionar botões de confirmar e cancelar na edição
+- [x] Implementar mutation updateCompartment
+- [x] Implementar mutation deleteCompartment
+- [x] Adicionar dialog de confirmação antes de apagar
+- [x] Validar se compartimento tem renders antes de permitir exclusão
+- [x] Mostrar mensagem de erro se tentar apagar compartimento com renders
+- [x] Adicionar refetch automático após editar ou apagar
+- [ ] Testar edição de nome
+- [ ] Testar exclusão com e sem renders associados

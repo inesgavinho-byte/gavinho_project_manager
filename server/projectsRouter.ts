@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./_core/trpc";
 import * as projectsDb from "./projectsDb";
 import { storagePut } from "./storage";
@@ -616,6 +617,34 @@ export const projectsRouter = router({
       .mutation(async ({ input }) => {
         const compartmentId = await projectsDb.createCompartment(input);
         return { compartmentId };
+      }),
+
+    updateCompartment: protectedProcedure
+      .input(z.object({
+        compartmentId: z.number(),
+        name: z.string(),
+        description: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await projectsDb.updateCompartment(input.compartmentId, input.name, input.description);
+        return { success: true };
+      }),
+
+    deleteCompartment: protectedProcedure
+      .input(z.object({
+        compartmentId: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        // Check if compartment has renders
+        const hasRenders = await projectsDb.checkCompartmentHasRenders(input.compartmentId);
+        if (hasRenders) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'N\u00e3o \u00e9 poss\u00edvel apagar um compartimento que cont\u00e9m renders. Por favor, mova ou apague os renders primeiro.',
+          });
+        }
+        await projectsDb.deleteCompartment(input.compartmentId);
+        return { success: true };
       }),
   }),
 });
