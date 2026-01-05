@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calendar, MapPin, DollarSign, TrendingUp, Users, FileText, Image as ImageIcon, Clock, Languages } from "lucide-react";
+import { ArrowLeft, Building2, Calendar, MapPin, DollarSign, TrendingUp, Users, FileText, Image as ImageIcon, Clock, Languages, Search, X, ChevronDown, ChevronRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +13,9 @@ export default function ConstructionDetails() {
   const [, params] = useRoute("/constructions/:id");
   const constructionId = params?.id ? parseInt(params.id) : 0;
   const [showEnglish, setShowEnglish] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
 
   const { data: construction, isLoading } = trpc.constructions.getById.useQuery(
     { id: constructionId },
@@ -31,6 +36,61 @@ export default function ConstructionDetails() {
     { constructionId },
     { enabled: constructionId > 0 }
   );
+
+  // Expandir todas as categorias por padrão quando os dados carregam
+  useEffect(() => {
+    if (mqtCategories && expandedCategories.size === 0) {
+      setExpandedCategories(new Set(mqtCategories.map(cat => cat.id)));
+    }
+  }, [mqtCategories]);
+
+  const toggleCategory = (categoryId: number) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+      }
+      return newSet;
+    });
+  };
+
+  // Lógica de filtro
+  const filteredItems = mqtItems?.filter((item) => {
+    // Filtro por categoria
+    if (selectedCategory !== "all" && item.categoryId.toString() !== selectedCategory) {
+      return false;
+    }
+
+    // Filtro por pesquisa (busca em código, tipo, zona, descrição PT/EN)
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return (
+        item.code?.toLowerCase().includes(query) ||
+        item.typePt?.toLowerCase().includes(query) ||
+        item.typeEn?.toLowerCase().includes(query) ||
+        item.zonePt?.toLowerCase().includes(query) ||
+        item.zoneEn?.toLowerCase().includes(query) ||
+        item.descriptionPt?.toLowerCase().includes(query) ||
+        item.descriptionEn?.toLowerCase().includes(query)
+      );
+    }
+
+    return true;
+  }) || [];
+
+  // Agrupar itens por categoria
+  const groupedItems = mqtCategories?.map(category => {
+    const categoryItems = filteredItems.filter(item => item.categoryId === category.id);
+    const totalQuantity = categoryItems.reduce((sum, item) => sum + (parseFloat(item.quantity?.toString() || "0")), 0);
+    return {
+      category,
+      items: categoryItems,
+      totalQuantity,
+      itemCount: categoryItems.length
+    };
+  }).filter(group => group.itemCount > 0) || [];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -283,7 +343,7 @@ export default function ConstructionDetails() {
           {/* MQT Tab */}
           <TabsContent value="mqt">
             <Card className="p-6" style={{ backgroundColor: "white", borderColor: "#C3BAAF" }}>
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold" style={{ color: "#5F5C59" }}>
                   Mapa de Quantidades (MQT)
                 </h3>
@@ -301,44 +361,171 @@ export default function ConstructionDetails() {
                   {showEnglish ? "Ocultar EN" : "Mostrar EN"}
                 </Button>
               </div>
-              {mqtItems && mqtItems.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr style={{ backgroundColor: "#EEEAE5", borderBottom: "2px solid #C3BAAF" }}>
-                        <th className="p-3 text-left text-sm font-semibold" style={{ color: "#5F5C59" }}>Item</th>
-                        <th className="p-3 text-left text-sm font-semibold" style={{ color: "#5F5C59" }}>Tipo</th>
-                        <th className="p-3 text-left text-sm font-semibold" style={{ color: "#5F5C59" }}>Zona</th>
-                        <th className="p-3 text-left text-sm font-semibold" style={{ color: "#5F5C59" }}>Descrição (PT)</th>
-                        {showEnglish && (
-                          <th className="p-3 text-left text-sm font-semibold" style={{ color: "#5F5C59" }}>Description (EN)</th>
-                        )}
-                        <th className="p-3 text-center text-sm font-semibold" style={{ color: "#5F5C59" }}>UN</th>
-                        <th className="p-3 text-center text-sm font-semibold" style={{ color: "#5F5C59" }}>QT</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {mqtItems.map((item, index) => (
-                        <tr
-                          key={item.id}
-                          style={{
-                            backgroundColor: index % 2 === 0 ? "white" : "#FAFAFA",
-                            borderBottom: "1px solid #E5E5E5"
-                          }}
-                        >
-                          <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.code}</td>
-                          <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.typePt}</td>
-                          <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.zonePt || "-"}</td>
-                          <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.descriptionPt}</td>
-                          {showEnglish && (
-                            <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.descriptionEn || "-"}</td>
+
+              {/* Filtros e Pesquisa */}
+              <div className="flex gap-4 mb-6">
+                {/* Barra de Pesquisa */}
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4" style={{ color: "#C9A882" }} />
+                  <Input
+                    placeholder="Pesquisar por código, tipo, zona ou descrição..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                    style={{
+                      borderColor: "#C3BAAF",
+                      backgroundColor: "white",
+                      color: "#5F5C59"
+                    }}
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                      style={{ color: "#C9A882" }}
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Filtro por Categoria */}
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="w-[280px]" style={{ borderColor: "#C3BAAF", color: "#5F5C59" }}>
+                    <SelectValue placeholder="Todas as Categorias" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as Categorias</SelectItem>
+                    {mqtCategories?.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id.toString()}>
+                        {cat.code} - {cat.namePt}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Botão Limpar Filtros */}
+                {(searchQuery || selectedCategory !== "all") && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSelectedCategory("all");
+                    }}
+                    style={{ borderColor: "#C9A882", color: "#5F5C59" }}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Limpar Filtros
+                  </Button>
+                )}
+              </div>
+
+              {/* Contador de Resultados */}
+              {mqtItems && mqtItems.length > 0 && (
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-sm" style={{ color: "#5F5C59" }}>
+                    A mostrar <span className="font-semibold">{filteredItems.length}</span> de{" "}
+                    <span className="font-semibold">{mqtItems.length}</span> itens
+                  </p>
+                </div>
+              )}
+
+              {groupedItems && groupedItems.length > 0 ? (
+                <div className="space-y-4">
+                  {groupedItems.map((group) => (
+                    <div key={group.category.id} className="border rounded-lg" style={{ borderColor: "#C3BAAF" }}>
+                      {/* Header da Categoria */}
+                      <button
+                        onClick={() => toggleCategory(group.category.id)}
+                        className="w-full flex items-center justify-between p-4 hover:bg-opacity-50 transition-colors"
+                        style={{ backgroundColor: "#EEEAE5" }}
+                      >
+                        <div className="flex items-center gap-3">
+                          {expandedCategories.has(group.category.id) ? (
+                            <ChevronDown className="h-5 w-5" style={{ color: "#C9A882" }} />
+                          ) : (
+                            <ChevronRight className="h-5 w-5" style={{ color: "#C9A882" }} />
                           )}
-                          <td className="p-3 text-center text-sm" style={{ color: "#5F5C59" }}>{item.unit}</td>
-                          <td className="p-3 text-center text-sm font-semibold" style={{ color: "#5F5C59" }}>{item.quantity}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          <span className="font-semibold text-base" style={{ color: "#5F5C59" }}>
+                            {group.category.code} - {group.category.namePt}
+                          </span>
+                          {showEnglish && (
+                            <span className="text-sm italic" style={{ color: "#8B8581" }}>
+                              ({group.category.nameEn})
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-6">
+                          <span className="text-sm" style={{ color: "#5F5C59" }}>
+                            <span className="font-semibold">{group.itemCount}</span> {group.itemCount === 1 ? "item" : "itens"}
+                          </span>
+                          <span className="text-sm" style={{ color: "#C9A882" }}>
+                            Total QT: <span className="font-semibold">{group.totalQuantity.toFixed(2)}</span>
+                          </span>
+                        </div>
+                      </button>
+
+                      {/* Itens da Categoria (colapsável) */}
+                      {expandedCategories.has(group.category.id) && (
+                        <div className="overflow-x-auto">
+                          <table className="w-full border-collapse">
+                            <thead>
+                              <tr style={{ backgroundColor: "#FAFAFA", borderBottom: "1px solid #E5E5E5" }}>
+                                <th className="p-3 text-left text-xs font-semibold" style={{ color: "#8B8581" }}>Item</th>
+                                <th className="p-3 text-left text-xs font-semibold" style={{ color: "#8B8581" }}>Tipo</th>
+                                <th className="p-3 text-left text-xs font-semibold" style={{ color: "#8B8581" }}>Zona</th>
+                                <th className="p-3 text-left text-xs font-semibold" style={{ color: "#8B8581" }}>Descrição (PT)</th>
+                                {showEnglish && (
+                                  <th className="p-3 text-left text-xs font-semibold" style={{ color: "#8B8581" }}>Description (EN)</th>
+                                )}
+                                <th className="p-3 text-center text-xs font-semibold" style={{ color: "#8B8581" }}>UN</th>
+                                <th className="p-3 text-center text-xs font-semibold" style={{ color: "#8B8581" }}>QT</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {group.items.map((item, index) => (
+                                <tr
+                                  key={item.id}
+                                  style={{
+                                    backgroundColor: index % 2 === 0 ? "white" : "#FAFAFA",
+                                    borderBottom: "1px solid #E5E5E5"
+                                  }}
+                                >
+                                  <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.code}</td>
+                                  <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.typePt}</td>
+                                  <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.zonePt || "-"}</td>
+                                  <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.descriptionPt}</td>
+                                  {showEnglish && (
+                                    <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.descriptionEn || "-"}</td>
+                                  )}
+                                  <td className="p-3 text-center text-sm" style={{ color: "#5F5C59" }}>{item.unit}</td>
+                                  <td className="p-3 text-center text-sm font-semibold" style={{ color: "#5F5C59" }}>{item.quantity}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : mqtItems && mqtItems.length > 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-sm" style={{ color: "#5F5C59" }}>
+                    Nenhum item encontrado com os filtros aplicados.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSelectedCategory("all");
+                    }}
+                    className="mt-4"
+                    style={{ borderColor: "#C9A882", color: "#5F5C59" }}
+                  >
+                    Limpar Filtros
+                  </Button>
                 </div>
               ) : (
                 <p style={{ color: "#5F5C59" }}>Nenhum item MQT encontrado</p>

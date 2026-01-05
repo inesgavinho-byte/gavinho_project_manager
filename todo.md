@@ -493,3 +493,18 @@
 - [ ] Criar script de seed para popular banco de dados
 - [ ] Executar script e validar dados
 - [ ] Verificar tabela MQT completa no frontend
+
+## Filtros e Pesquisa no MQT
+- [x] Adicionar barra de pesquisa na tabela MQT (busca por código, tipo, zona, descrição PT/EN)
+- [x] Adicionar filtro dropdown por categoria
+- [x] Adicionar contador de resultados filtrados
+- [x] Adicionar botão "Limpar Filtros"
+- [x] Implementar lógica de filtro combinado (pesquisa + categoria)
+
+## Agrupamento por Categoria no MQT
+- [x] Adicionar estado de categorias expandidas/colapsadas
+- [x] Criar headers de categoria clicáveis com ícone expand/collapse
+- [x] Agrupar itens por categoria na renderização
+- [x] Calcular subtotais por categoria (quantidade total)
+- [x] Adicionar visual hierárquico (indentação, cores)
+- [x] Implementar animação suave de expand/collapse
