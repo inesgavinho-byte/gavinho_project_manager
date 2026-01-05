@@ -37,6 +37,13 @@ export default function ConstructionDetails() {
     { enabled: constructionId > 0 }
   );
 
+  const utils = trpc.useUtils();
+  const updateQuantityExecutedMutation = trpc.constructions.items.updateQuantityExecuted.useMutation({
+    onSuccess: () => {
+      utils.constructions.items.listByConstruction.invalidate({ constructionId });
+    },
+  });
+
   // Expandir todas as categorias por padrão quando os dados carregam
   useEffect(() => {
     if (mqtCategories && expandedCategories.size === 0) {
@@ -84,10 +91,14 @@ export default function ConstructionDetails() {
   const groupedItems = mqtCategories?.map(category => {
     const categoryItems = filteredItems.filter(item => item.categoryId === category.id);
     const totalQuantity = categoryItems.reduce((sum, item) => sum + (parseFloat(item.quantity?.toString() || "0")), 0);
+    const totalExecuted = categoryItems.reduce((sum, item) => sum + (parseFloat(item.quantityExecuted?.toString() || "0")), 0);
+    const averageProgress = totalQuantity > 0 ? (totalExecuted / totalQuantity) * 100 : 0;
     return {
       category,
       items: categoryItems,
       totalQuantity,
+      totalExecuted,
+      averageProgress,
       itemCount: categoryItems.length
     };
   }).filter(group => group.itemCount > 0) || [];
@@ -456,11 +467,21 @@ export default function ConstructionDetails() {
                           )}
                         </div>
                         <div className="flex items-center gap-6">
-                          <span className="text-sm" style={{ color: "#5F5C59" }}>
+                          <span className="text-sm" style={{ color: "#8B8581" }}>
                             <span className="font-semibold">{group.itemCount}</span> {group.itemCount === 1 ? "item" : "itens"}
                           </span>
                           <span className="text-sm" style={{ color: "#C9A882" }}>
-                            Total QT: <span className="font-semibold">{group.totalQuantity.toFixed(2)}</span>
+                            Planejado: <span className="font-semibold">{group.totalQuantity.toFixed(2)}</span>
+                          </span>
+                          <span className="text-sm" style={{ color: "#C9A882" }}>
+                            Executado: <span className="font-semibold">{group.totalExecuted.toFixed(2)}</span>
+                          </span>
+                          <span className="text-sm font-semibold" style={{ 
+                            color: group.averageProgress < 80 ? "#EF4444" : 
+                                   group.averageProgress < 90 || group.averageProgress > 110 ? "#F59E0B" : 
+                                   group.averageProgress > 120 ? "#EF4444" : "#10B981"
+                          }}>
+                            {group.averageProgress.toFixed(0)}%
                           </span>
                         </div>
                       </button>
@@ -479,7 +500,9 @@ export default function ConstructionDetails() {
                                   <th className="p-3 text-left text-xs font-semibold" style={{ color: "#8B8581" }}>Description (EN)</th>
                                 )}
                                 <th className="p-3 text-center text-xs font-semibold" style={{ color: "#8B8581" }}>UN</th>
-                                <th className="p-3 text-center text-xs font-semibold" style={{ color: "#8B8581" }}>QT</th>
+                                <th className="p-3 text-center text-xs font-semibold" style={{ color: "#8B8581" }}>QT Planejado</th>
+                                <th className="p-3 text-center text-xs font-semibold" style={{ color: "#8B8581" }}>QT Executado</th>
+                                <th className="p-3 text-left text-xs font-semibold" style={{ color: "#8B8581" }}>Progresso</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -500,6 +523,60 @@ export default function ConstructionDetails() {
                                   )}
                                   <td className="p-3 text-center text-sm" style={{ color: "#5F5C59" }}>{item.unit}</td>
                                   <td className="p-3 text-center text-sm font-semibold" style={{ color: "#5F5C59" }}>{item.quantity}</td>
+                                  <td className="p-3 text-center text-sm">
+                                    <input
+                                      type="number"
+                                      step="0.01"
+                                      min="0"
+                                      defaultValue={item.quantityExecuted || "0.00"}
+                                      onBlur={(e) => {
+                                        const newValue = e.target.value;
+                                        if (newValue !== (item.quantityExecuted || "0.00")) {
+                                          updateQuantityExecutedMutation.mutate({
+                                            id: item.id,
+                                            quantityExecuted: newValue,
+                                          });
+                                        }
+                                      }}
+                                      className="w-20 px-2 py-1 text-center border rounded"
+                                      style={{ borderColor: "#C3BAAF", color: "#5F5C59" }}
+                                    />
+                                  </td>
+                                  <td className="p-3">
+                                    {(() => {
+                                      const planned = parseFloat(item.quantity);
+                                      const executed = parseFloat(item.quantityExecuted || "0");
+                                      const percentage = planned > 0 ? (executed / planned) * 100 : 0;
+                                      const displayPercentage = Math.min(percentage, 100);
+                                      
+                                      // Determine color based on percentage
+                                      let barColor = "#10B981"; // green
+                                      if (percentage < 80) {
+                                        barColor = "#EF4444"; // red
+                                      } else if (percentage < 90 || percentage > 110) {
+                                        barColor = "#F59E0B"; // yellow
+                                      } else if (percentage > 120) {
+                                        barColor = "#EF4444"; // red
+                                      }
+                                      
+                                      return (
+                                        <div className="flex items-center gap-2">
+                                          <div className="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden">
+                                            <div
+                                              className="h-full transition-all duration-300"
+                                              style={{
+                                                width: `${displayPercentage}%`,
+                                                backgroundColor: barColor,
+                                              }}
+                                            />
+                                          </div>
+                                          <span className="text-xs font-semibold w-12 text-right" style={{ color: barColor }}>
+                                            {percentage.toFixed(0)}%
+                                          </span>
+                                        </div>
+                                      );
+                                    })()}
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>

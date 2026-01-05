@@ -154,6 +154,18 @@ export async function updateMqtItem(id: number, data: Partial<InsertMqtItem>) {
   return true;
 }
 
+export async function updateMqtItemQuantityExecuted(id: number, quantityExecuted: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db
+    .update(mqtItems)
+    .set({ quantityExecuted })
+    .where(eq(mqtItems.id, id));
+  
+  return true;
+}
+
 export async function deleteMqtItem(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

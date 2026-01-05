@@ -508,3 +508,41 @@
 - [x] Calcular subtotais por categoria (quantidade total)
 - [x] Adicionar visual hierárquico (indentação, cores)
 - [x] Implementar animação suave de expand/collapse
+
+## Comparação Visual Planejado vs Executado no MQT
+- [ ] Adicionar campo quantityExecuted (DECIMAL) ao schema mqtItems
+- [ ] Executar db:push para migrar banco de dados
+- [ ] Criar mutation updateItemQuantityExecuted no tRPC
+- [ ] Renomear coluna "QT" para "QT Planejado" no frontend
+- [ ] Adicionar coluna "QT Executado" com edição inline
+- [ ] Adicionar coluna "Progresso" com barra visual
+- [ ] Implementar lógica de cores (verde: 90-110%, amarelo: 80-90%/110-120%, vermelho: <80%/>120%)
+- [ ] Atualizar subtotais para incluir total executado e % médio por categoria
+- [ ] Adicionar tooltip com detalhes ao passar mouse na barra de progresso
+- [ ] Testar edição inline e atualização de progresso
+## Filtros e Pesquisa no MQT
+- [x] Adicionar barra de pesquisa na tabela MQT (busca por código, tipo, zona, descrição PT/EN)
+- [x] Adicionar filtro dropdown por categoria
+- [x] Adicionar contador de resultados filtrados
+- [x] Adicionar botão "Limpar Filtros"
+- [x] Implementar lógica de filtro combinado (pesquisa + categoria)
+
+## Agrupamento por Categoria no MQT
+- [x] Adicionar estado de categorias expandidas/colapsadas
+- [x] Criar headers de categoria clicáveis com ícone expand/collapse
+- [x] Agrupar itens por categoria na renderização
+- [x] Calcular subtotais por categoria (quantidade total)
+- [x] Adicionar visual hierárquico (indentação, cores)
+- [x] Implementar animação suave de expand/collapse
+## Comparação Planejado vs Executado no MQT
+- [x] Adicionar campo quantityExecuted ao schema mqtItems
+- [x] Migrar banco de dados com novo campo
+- [x] Criar mutation tRPC updateQuantityExecuted
+- [x] Adicionar função updateMqtItemQuantityExecuted no constructionsDb
+- [x] Renomear coluna QT para QT Planejado
+- [x] Adicionar coluna QT Executado com input editável
+- [x] Adicionar coluna Progresso com barra visual
+- [x] Implementar lógica de cores (verde 90-110%, amarelo 80-90%/110-120%, vermelho <80%/>120%)
+- [x] Atualizar subtotais para incluir totalExecuted e averageProgress
+- [x] Testar edição inline e atualização em tempo real
+- [x] Verificar persistência no banco de dados

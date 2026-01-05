@@ -712,6 +712,7 @@ export const mqtItems = mysqlTable("mqtItems", {
   descriptionEn: text("descriptionEn"), // English description (for client proposals)
   unit: varchar("unit", { length: 20 }).notNull(), // m2, m, un, vg, ml
   quantity: decimal("quantity", { precision: 10, scale: 2 }).notNull(),
+  quantityExecuted: decimal("quantityExecuted", { precision: 10, scale: 2 }).default("0.00"),
   unitPrice: decimal("unitPrice", { precision: 12, scale: 2 }),
   totalPrice: decimal("totalPrice", { precision: 12, scale: 2 }),
   supplierId: int("supplierId"), // Link to supplier

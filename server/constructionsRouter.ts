@@ -204,6 +204,18 @@ export const constructionsRouter = router({
         await constructionsDb.deleteMqtItem(input.id);
         return { success: true };
       }),
+
+    updateQuantityExecuted: protectedProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          quantityExecuted: z.string(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        await constructionsDb.updateMqtItemQuantityExecuted(input.id, input.quantityExecuted);
+        return { success: true };
+      }),
   }),
 
   // ==================== STATISTICS ====================
