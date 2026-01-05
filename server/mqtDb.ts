@@ -1,5 +1,5 @@
 import { getDb } from "./db";
-import { mqtCategories, mqtItems, mqtImportHistory, mqtImportItems, type InsertMqtCategory, type InsertMqtItem, type InsertMqtImportHistory, type InsertMqtImportItem } from "../drizzle/schema";
+import { mqtCategories, mqtItems, mqtImportHistory, mqtImportItems, mqtValidationRules, type InsertMqtCategory, type InsertMqtItem, type InsertMqtImportHistory, type InsertMqtImportItem, type InsertMqtValidationRule } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
 /**
@@ -145,4 +145,63 @@ export async function revertImport(importId: number) {
   await db.delete(mqtImportHistory).where(eq(mqtImportHistory.id, importId));
   
   return { success: true, deletedItems: importItems.length };
+}
+
+
+/**
+ * Get all validation rules for a construction
+ */
+export async function getValidationRules(constructionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database connection failed');
+  
+  return db
+    .select()
+    .from(mqtValidationRules)
+    .where(eq(mqtValidationRules.constructionId, constructionId))
+    .orderBy(mqtValidationRules.createdAt);
+}
+
+/**
+ * Create a new validation rule
+ */
+export async function createValidationRule(data: InsertMqtValidationRule) {
+  const db = await getDb();
+  if (!db) throw new Error('Database connection failed');
+  
+  const [result] = await db.insert(mqtValidationRules).values(data);
+  return result;
+}
+
+/**
+ * Update a validation rule
+ */
+export async function updateValidationRule(id: number, data: Partial<InsertMqtValidationRule>) {
+  const db = await getDb();
+  if (!db) throw new Error('Database connection failed');
+  
+  await db.update(mqtValidationRules).set(data).where(eq(mqtValidationRules.id, id));
+  return { success: true };
+}
+
+/**
+ * Delete a validation rule
+ */
+export async function deleteValidationRule(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database connection failed');
+  
+  await db.delete(mqtValidationRules).where(eq(mqtValidationRules.id, id));
+  return { success: true };
+}
+
+/**
+ * Toggle validation rule enabled status
+ */
+export async function toggleValidationRule(id: number, enabled: boolean) {
+  const db = await getDb();
+  if (!db) throw new Error('Database connection failed');
+  
+  await db.update(mqtValidationRules).set({ enabled }).where(eq(mqtValidationRules.id, id));
+  return { success: true };
 }

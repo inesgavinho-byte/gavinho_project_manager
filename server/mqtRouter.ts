@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "./_core/trpc";
-import { getOrCreateCategory, createMqtItem, getMqtItems, createImportHistory, createImportItem, getImportHistory, revertImport } from "./mqtDb";
+import { getOrCreateCategory, createMqtItem, getMqtItems, createImportHistory, createImportItem, getImportHistory, revertImport, getValidationRules, createValidationRule, updateValidationRule, deleteValidationRule, toggleValidationRule } from "./mqtDb";
 
 const mqtImportRowSchema = z.object({
   code: z.string(),
@@ -117,5 +117,71 @@ export const mqtRouter = router({
     .input(z.object({ importId: z.number() }))
     .mutation(async ({ input }) => {
       return await revertImport(input.importId);
+    }),
+
+  /**
+   * Get validation rules for a construction
+   */
+  getValidationRules: protectedProcedure
+    .input(z.object({ constructionId: z.number() }))
+    .query(async ({ input }) => {
+      return await getValidationRules(input.constructionId);
+    }),
+
+  /**
+   * Create a new validation rule
+   */
+  createValidationRule: protectedProcedure
+    .input(z.object({
+      constructionId: z.number(),
+      name: z.string(),
+      ruleType: z.enum(['price_min', 'price_max', 'code_pattern', 'quantity_min', 'quantity_max', 'duplicate_check']),
+      field: z.string(),
+      condition: z.string(),
+      severity: z.enum(['error', 'warning', 'info']),
+      message: z.string().optional(),
+      enabled: z.boolean(),
+      category: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      return await createValidationRule(input);
+    }),
+
+  /**
+   * Update a validation rule
+   */
+  updateValidationRule: protectedProcedure
+    .input(z.object({
+      id: z.number(),
+      name: z.string().optional(),
+      ruleType: z.enum(['price_min', 'price_max', 'code_pattern', 'quantity_min', 'quantity_max', 'duplicate_check']).optional(),
+      field: z.string().optional(),
+      condition: z.string().optional(),
+      severity: z.enum(['error', 'warning', 'info']).optional(),
+      message: z.string().optional(),
+      enabled: z.boolean().optional(),
+      category: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const { id, ...data } = input;
+      return await updateValidationRule(id, data);
+    }),
+
+  /**
+   * Delete a validation rule
+   */
+  deleteValidationRule: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      return await deleteValidationRule(input.id);
+    }),
+
+  /**
+   * Toggle validation rule enabled status
+   */
+  toggleValidationRule: protectedProcedure
+    .input(z.object({ id: z.number(), enabled: z.boolean() }))
+    .mutation(async ({ input }) => {
+      return await toggleValidationRule(input.id, input.enabled);
     }),
 });

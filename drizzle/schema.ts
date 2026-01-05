@@ -881,3 +881,28 @@ export const mqtImportItems = mysqlTable("mqtImportItems", {
 
 export type MqtImportItem = typeof mqtImportItems.$inferSelect;
 export type InsertMqtImportItem = typeof mqtImportItems.$inferInsert;
+
+
+/**
+ * MQT Validation Rules - Customizable validation rules for MQT imports
+ */
+export const mqtValidationRules = mysqlTable("mqtValidationRules", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  ruleType: mysqlEnum("ruleType", ["price_min", "price_max", "code_pattern", "quantity_min", "quantity_max", "duplicate_check"]).notNull(),
+  field: varchar("field", { length: 100 }).notNull(), // e.g., "unitPrice", "code", "quantity"
+  condition: text("condition"), // JSON with rule parameters (e.g., {"min": 0, "max": 1000} or {"pattern": "^[A-Z]{2}\\d{4}$"})
+  severity: mysqlEnum("severity", ["error", "warning", "info"]).notNull().default("warning"),
+  message: text("message"), // Custom error message
+  enabled: boolean("enabled").notNull().default(true),
+  category: varchar("category", { length: 255 }), // Optional: apply rule only to specific category
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  enabledIdx: index("enabled_idx").on(table.enabled),
+}));
+
+export type MqtValidationRule = typeof mqtValidationRules.$inferSelect;
+export type InsertMqtValidationRule = typeof mqtValidationRules.$inferInsert;

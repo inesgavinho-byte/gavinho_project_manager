@@ -14,6 +14,7 @@ import { MqtItemHistoryModal } from "@/components/MqtItemHistoryModal";
 import { ArchVizGallery } from '@/components/archviz/ArchVizGallery';
 import { MQTImportModal } from '@/components/mqt/MQTImportModal';
 import { MQTImportHistory } from '@/components/mqt/MQTImportHistory';
+import { MQTValidationRules } from '@/components/mqt/MQTValidationRules';
 
 export default function ConstructionDetails() {
   const [, params] = useRoute("/constructions/:id");
@@ -24,6 +25,7 @@ export default function ConstructionDetails() {
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const [showImportModal, setShowImportModal] = useState(false);
   const [showImportHistory, setShowImportHistory] = useState(false);
+  const [showValidationRules, setShowValidationRules] = useState(false);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<{ id: number; code: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -418,6 +420,19 @@ export default function ConstructionDetails() {
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() => setShowValidationRules(true)}
+                    style={{
+                      borderColor: "#C9A882",
+                      color: "#5F5C59",
+                      backgroundColor: "transparent"
+                    }}
+                  >
+                    <AlertTriangle className="h-4 w-4 mr-2" />
+                    Configurar Validações
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => setShowEnglish(!showEnglish)}
                     style={{
                       borderColor: "#C9A882",
@@ -788,6 +803,13 @@ export default function ConstructionDetails() {
       <MQTImportHistory
         open={showImportHistory}
         onOpenChange={setShowImportHistory}
+        constructionId={constructionId}
+      />
+
+      {/* MQT Validation Rules */}
+      <MQTValidationRules
+        open={showValidationRules}
+        onOpenChange={setShowValidationRules}
         constructionId={constructionId}
       />
     </>

@@ -748,3 +748,21 @@
 - [x] Integrar botão "Ver Histórico" na página MQT
 - [x] Adicionar modal ou drawer para mostrar histórico
 - [x] Testar reversão de importação
+
+
+## MQT - Validação Customizável
+- [x] Criar tabela mqt_validation_rules no schema
+- [x] Adicionar campos: constructionId, ruleType (price_range/code_pattern/quantity_limit/duplicate_tolerance), field, condition, value, severity (error/warning/info), enabled
+- [x] Criar serviço de validação customizável no frontend
+- [x] Implementar validadores por tipo: preço (min/max), código (regex), quantidade (limites)
+- [x] Adicionar validação de duplicados com tolerância configurável
+- [x] Criar componente MQTValidationRules para configurar regras
+- [x] Adicionar interface de criação/edição de regras
+- [x] Implementar preview de regras aplicadas
+- [x] Criar procedures CRUD para regras de validação no backend
+- [x] Integrar validação customizável no mqtImportService
+- [x] Atualizar MQTImportModal para mostrar violações de regras
+- [x] Adicionar alertas visuais destacados para violações
+- [x] Criar botão "Configurar Validações" na página MQT
+- [x] Adicionar regras padrão sugeridas por categoria
+- [x] Testar validações com diferentes tipos de regras

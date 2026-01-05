@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS mqtValidationRules (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  constructionId INT NOT NULL,\n  name VARCHAR(255) NOT NULL,\n  ruleType ENUM('price_min', 'price_max', 'code_pattern', 'quantity_min', 'quantity_max', 'duplicate_check') NOT NULL,\n  field VARCHAR(100) NOT NULL,\n  condition TEXT,\n  severity ENUM('error', 'warning', 'info') NOT NULL DEFAULT 'warning',\n  message TEXT,\n  enabled BOOLEAN NOT NULL DEFAULT TRUE,\n  category VARCHAR(255),\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  INDEX constructionId_idx (constructionId),\n  INDEX enabled_idx (enabled)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute CREATE TABLE IF NOT EXISTS mqtValidationRules (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  constructionId INT NOT NULL,\n  name VARCHAR(255) NOT NULL,\n  ruleType ENUM('price_min', 'price_max', 'code_pattern', 'quantity_min', 'quantity_max', 'duplicate_check') NOT NULL,\n  field VARCHAR(100) NOT NULL,\n  condition TEXT,\n  severity ENUM('error', 'warning', 'info') NOT NULL DEFAULT 'warning',\n  message TEXT,\n  enabled BOOLEAN NOT NULL DEFAULT TRUE,\n  category VARCHAR(255),\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  INDEX constructionId_idx (constructionId),\n  INDEX enabled_idx (enabled)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 579
+}
