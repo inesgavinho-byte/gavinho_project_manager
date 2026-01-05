@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS notifications (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  userId INT NOT NULL,\n  type VARCHAR(50) NOT NULL,\n  priority VARCHAR(20) NOT NULL DEFAULT 'normal',\n  title VARCHAR(255) NOT NULL,\n  message TEXT NOT NULL,\n  link VARCHAR(512),\n  projectId INT,\n  taskId INT,\n  isRead BOOLEAN NOT NULL DEFAULT FALSE,\n  readAt TIMESTAMP NULL,\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  INDEX userId_idx (userId),\n  INDEX isRead_idx (isRead),\n  INDEX createdAt_idx (createdAt)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute CREATE TABLE IF NOT EXISTS notifications (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  userId INT NOT NULL,\n  type VARCHAR(50) NOT NULL,\n  priority VARCHAR(20) NOT NULL DEFAULT 'normal',\n  title VARCHAR(255) NOT NULL,\n  message TEXT NOT NULL,\n  link VARCHAR(512),\n  projectId INT,\n  taskId INT,\n  isRead BOOLEAN NOT NULL DEFAULT FALSE,\n  readAt TIMESTAMP NULL,\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  INDEX userId_idx (userId),\n  INDEX isRead_idx (isRead),\n  INDEX createdAt_idx (createdAt)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 438
+}
