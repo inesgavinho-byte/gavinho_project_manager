@@ -23,6 +23,7 @@ import Mentions from "./pages/Mentions";
 import Constructions from "./pages/Constructions";
 import ConstructionDetails from "./pages/ConstructionDetails";
 import MqtAnalyticsDashboard from "./pages/MqtAnalyticsDashboard";
+import Trash from "./pages/Trash";
 
 function Router() {
   return (
@@ -42,6 +43,12 @@ function Router() {
       <Route path="/projects/:id">
         <DashboardLayout>
           <ProjectDetails />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/trash">
+        <DashboardLayout>
+          <Trash />
         </DashboardLayout>
       </Route>
       

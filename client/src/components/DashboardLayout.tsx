@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, FolderKanban, Package, ListTodo, DollarSign, FileText, Mail, Brain, Bell, TrendingUp, Lightbulb, Activity, AtSign, Building2 } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, FolderKanban, Package, ListTodo, DollarSign, FileText, Mail, Brain, Bell, TrendingUp, Lightbulb, Activity, AtSign, Building2, Trash2 } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { Badge } from "./ui/badge";
 import { trpc } from "@/lib/trpc";
@@ -44,6 +44,7 @@ const menuItems = [
   { icon: Activity, label: "Atividades", path: "/activity-feed" },
   { icon: AtSign, label: "Menções", path: "/mentions" },
   { icon: Bell, label: "Notificações", path: "/notifications" },
+  { icon: Trash2, label: "Lixeira", path: "/trash" },
   { icon: FileText, label: "Relatórios", path: "/reports" },
 ];
 

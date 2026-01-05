@@ -587,3 +587,16 @@
 - [ ] Adicionar botão "Apagar Projeto" na página de detalhes do projeto
 - [ ] Criar modal de confirmação com avisos sobre dados relacionados
 - [ ] Testar deleção de projeto com dados mockados
+
+## Soft Delete com Lixeira
+- [ ] Adicionar campo deletedAt (timestamp nullable) às tabelas projects e constructions
+- [ ] Atualizar queries para filtrar registos com deletedAt IS NULL por padrão
+- [ ] Modificar mutation delete para fazer soft delete (SET deletedAt = NOW())
+- [ ] Criar query listTrash para listar itens apagados (deletedAt IS NOT NULL)
+- [ ] Criar mutation restore para recuperar itens (SET deletedAt = NULL)
+- [x] Criar mutation permanentDelete para apagar definitivamente
+- [x] Criar página Trash.tsx para visualizar lixeira
+- [x] Adicionar botões Restaurar e Apagar Permanentemente
+- [ ] Adicionar link "Lixeira" no menu de navegação
+- [ ] Adicionar badge com contador de itens na lixeira
+- [ ] Testar soft delete, restauração e deleção permanente

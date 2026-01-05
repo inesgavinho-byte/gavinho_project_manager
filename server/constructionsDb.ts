@@ -1,6 +1,6 @@
 import { getDb } from "./db";
 import { constructions, mqtCategories, mqtItems, mqtItemHistory } from "../drizzle/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, isNull, isNotNull } from "drizzle-orm";
 import type { InsertConstruction, InsertMqtCategory, InsertMqtItem, InsertMqtItemHistory } from "../drizzle/schema";
 
 // ==================== CONSTRUCTIONS ====================
@@ -12,6 +12,7 @@ export async function getAllConstructions() {
   return await db
     .select()
     .from(constructions)
+    .where(isNull(constructions.deletedAt))
     .orderBy(desc(constructions.createdAt));
 }
 
@@ -65,7 +66,8 @@ export async function deleteConstruction(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  await db.delete(constructions).where(eq(constructions.id, id));
+  // Soft delete: just set deletedAt timestamp
+  await db.update(constructions).set({ deletedAt: new Date() }).where(eq(constructions.id, id));
   return true;
 }
 
@@ -408,4 +410,48 @@ export async function getActivityTimeline(constructionId: number, days: number =
   return Object.entries(dateGroups)
     .map(([date, count]) => ({ date, count }))
     .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+// ==================== TRASH (SOFT DELETE) ====================
+
+export async function getTrashedConstructions() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(constructions)
+    .where(isNotNull(constructions.deletedAt))
+    .orderBy(desc(constructions.deletedAt));
+}
+
+export async function restoreConstruction(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Restore: set deletedAt back to null
+  await db.update(constructions).set({ deletedAt: null }).where(eq(constructions.id, id));
+  return true;
+}
+
+export async function permanentDeleteConstruction(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Delete MQT data in cascade
+  // 1. Delete MQT item history
+  const items = await getMqtItemsByConstruction(id);
+  for (const item of items) {
+    await db.delete(mqtItemHistory).where(eq(mqtItemHistory.itemId, item.id));
+  }
+  
+  // 2. Delete MQT items
+  await db.delete(mqtItems).where(eq(mqtItems.constructionId, id));
+  
+  // 3. Delete MQT categories
+  await db.delete(mqtCategories).where(eq(mqtCategories.constructionId, id));
+  
+  // 4. Finally, delete the construction itself permanently
+  await db.delete(constructions).where(eq(constructions.id, id));
+  return true;
 }

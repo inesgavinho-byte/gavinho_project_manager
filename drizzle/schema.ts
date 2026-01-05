@@ -42,6 +42,7 @@ export const projects = mysqlTable("projects", {
   createdById: int("createdById").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  deletedAt: timestamp("deletedAt"),
 });
 
 export type Project = typeof projects.$inferSelect;
@@ -664,6 +665,7 @@ export const constructions = mysqlTable("constructions", {
   notes: text("notes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  deletedAt: timestamp("deletedAt"),
 }, (table) => ({
   codeIdx: index("code_idx").on(table.code),
   projectIdIdx: index("projectId_idx").on(table.projectId),

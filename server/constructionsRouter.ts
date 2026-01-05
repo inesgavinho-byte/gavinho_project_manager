@@ -238,6 +238,29 @@ export const constructionsRouter = router({
       }),
   }),
 
+  // ==================== TRASH (SOFT DELETE) ====================
+
+  trash: router({
+    listConstructions: protectedProcedure
+      .query(async () => {
+        return await constructionsDb.getTrashedConstructions();
+      }),
+
+    restore: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await constructionsDb.restoreConstruction(input.id);
+        return { success: true };
+      }),
+
+    permanentDelete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await constructionsDb.permanentDeleteConstruction(input.id);
+        return { success: true };
+      }),
+  }),
+
   // ==================== MQT ANALYTICS ====================
 
   analytics: router({

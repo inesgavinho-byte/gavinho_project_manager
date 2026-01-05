@@ -301,6 +301,29 @@ export const projectsRouter = router({
       }),
   }),
 
+  // ============= TRASH (SOFT DELETE) =============
+
+  trash: router({
+    listProjects: protectedProcedure
+      .query(async () => {
+        return await projectsDb.getTrashedProjects();
+      }),
+
+    restore: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await projectsDb.restoreProject(input.id);
+        return { success: true };
+      }),
+
+    permanentDelete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await projectsDb.permanentDeleteProject(input.id);
+        return { success: true };
+      }),
+  }),
+
   // ============= GALLERY =============
 
   gallery: router({
