@@ -600,3 +600,11 @@
 - [ ] Adicionar link "Lixeira" no menu de navegação
 - [ ] Adicionar badge com contador de itens na lixeira
 - [ ] Testar soft delete, restauração e deleção permanente
+
+## Deleção de Obras
+- [x] Adicionar botão Apagar na página ConstructionDetails
+- [x] Criar modal de confirmação de deleção de obra
+- [ ] Implementar contagem de dados relacionados (MQT, categorias, histórico)
+- [ ] Testar soft delete de obra
+- [ ] Testar restauração de obra da lixeira
+- [ ] Verificar que obra restaurada volta para lista principal

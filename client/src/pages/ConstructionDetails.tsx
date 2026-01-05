@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calendar, MapPin, DollarSign, TrendingUp, Users, FileText, Image as ImageIcon, Clock, Languages, Search, X, ChevronDown, ChevronRight, History, BarChart3 } from "lucide-react";
+import { ArrowLeft, Building2, Calendar, MapPin, DollarSign, TrendingUp, Users, FileText, Image as ImageIcon, Clock, Languages, Search, X, ChevronDown, ChevronRight, History, BarChart3, Trash2, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useLocation } from "wouter";
 import { MqtItemHistoryModal } from "@/components/MqtItemHistoryModal";
 
 export default function ConstructionDetails() {
@@ -19,6 +21,7 @@ export default function ConstructionDetails() {
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<{ id: number; code: string } | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const { data: construction, isLoading } = trpc.constructions.getById.useQuery(
     { id: constructionId },
@@ -40,10 +43,17 @@ export default function ConstructionDetails() {
     { enabled: constructionId > 0 }
   );
 
+  const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
   const updateQuantityExecutedMutation = trpc.constructions.items.updateQuantityExecuted.useMutation({
     onSuccess: () => {
       utils.constructions.items.listByConstruction.invalidate({ constructionId });
+    },
+  });
+
+  const deleteConstructionMutation = trpc.constructions.delete.useMutation({
+    onSuccess: () => {
+      setLocation("/constructions");
     },
   });
 
@@ -195,9 +205,19 @@ export default function ConstructionDetails() {
                 )}
               </div>
             </div>
-            <Badge className={getStatusColor(construction.status)}>
-              {getStatusLabel(construction.status)}
-            </Badge>
+            <div className="flex items-center gap-3">
+              <Badge className={getStatusColor(construction.status)}>
+                {getStatusLabel(construction.status)}
+              </Badge>
+              <Button
+                variant="outline"
+                className="gap-2 border-red-300 text-red-600 hover:bg-red-50"
+                onClick={() => setIsDeleteDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+                Apagar
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -673,6 +693,48 @@ export default function ConstructionDetails() {
           onOpenChange={setHistoryModalOpen}
         />
       )}
+
+      {/* Modal de Confirmação de Deleção */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent style={{ backgroundColor: "white", borderColor: "#C3BAAF" }}>
+          <DialogHeader>
+            <DialogTitle style={{ color: "#5F5C59" }}>Apagar Obra?</DialogTitle>
+            <DialogDescription style={{ color: "#5F5C59" }}>
+              Tem a certeza que deseja apagar a obra '{construction?.name}'?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="flex items-center gap-2 mb-4 p-3 rounded-lg" style={{ backgroundColor: "#FEF3C7" }}>
+              <AlertTriangle className="h-5 w-5 text-amber-600" />
+              <p className="text-sm font-medium text-amber-800">Esta ação é irreversível!</p>
+            </div>
+            <p className="text-sm mb-2" style={{ color: "#5F5C59" }}>Os seguintes dados serão apagados:</p>
+            <ul className="text-sm space-y-1" style={{ color: "#5F5C59" }}>
+              <li>• {mqtItems?.length || 0} itens MQT</li>
+              <li>• {mqtCategories?.length || 0} categorias MQT</li>
+              <li>• Histórico de alterações</li>
+            </ul>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              style={{ borderColor: "#C3BAAF", color: "#5F5C59" }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                deleteConstructionMutation.mutate({ id: constructionId });
+                setIsDeleteDialogOpen(false);
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Sim, Apagar Obra
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
