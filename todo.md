@@ -484,3 +484,12 @@
 - [x] Adicionar animação suave na transição (React renderização condicional)
 - [x] Aplicar design GAVINHO ao botão toggle (cores #C9A882 quando ativo)
 - [x] Testar funcionalidade
+
+
+## Extrair e Importar MQT Completo do PDF
+- [ ] Processar todas as 26 páginas do PDF GA00466-PENTHOUSESI
+- [ ] Extrair ~200+ itens com estrutura completa (Item, Tipo, Subtipo, Zona, Descrição PT/EN, UN, QT)
+- [ ] Identificar e mapear todas as categorias do MQT
+- [ ] Criar script de seed para popular banco de dados
+- [ ] Executar script e validar dados
+- [ ] Verificar tabela MQT completa no frontend
