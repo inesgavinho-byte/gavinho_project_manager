@@ -212,9 +212,29 @@ export const constructionsRouter = router({
           quantityExecuted: z.string(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        // Get current value before updating
+        const currentItem = await constructionsDb.getMqtItemById(input.id);
+        const oldValue = currentItem?.quantityExecuted || "0.00";
+        
+        // Update quantity executed
         await constructionsDb.updateMqtItemQuantityExecuted(input.id, input.quantityExecuted);
+        
+        // Record history entry
+        await constructionsDb.createMqtItemHistoryEntry({
+          itemId: input.id,
+          userId: ctx.user.id,
+          oldValue: oldValue,
+          newValue: input.quantityExecuted,
+        });
+        
         return { success: true };
+      }),
+
+    getHistory: protectedProcedure
+      .input(z.object({ itemId: z.number() }))
+      .query(async ({ input }) => {
+        return await constructionsDb.getMqtItemHistory(input.itemId);
       }),
   }),
 

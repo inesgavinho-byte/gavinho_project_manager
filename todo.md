@@ -546,3 +546,15 @@
 - [x] Atualizar subtotais para incluir totalExecuted e averageProgress
 - [x] Testar edição inline e atualização em tempo real
 - [x] Verificar persistência no banco de dados
+
+## Histórico de Alterações no MQT
+- [x] Criar tabela mqtItemHistory no schema (itemId, userId, oldValue, newValue, changedAt)
+- [x] Migrar banco de dados com nova tabela
+- [x] Adicionar função createMqtItemHistoryEntry no constructionsDb
+- [x] Integrar registro de histórico na mutation updateQuantityExecuted
+- [x] Criar query tRPC para buscar histórico por itemId
+- [x] Criar componente Modal de histórico com timeline
+- [x] Adicionar botão de ícone de histórico em cada linha da tabela MQT
+- [x] Implementar indicador visual de número de alterações
+- [x] Adicionar filtros por data e utilizador no modal
+- [x] Testar registro e visualização de histórico completo

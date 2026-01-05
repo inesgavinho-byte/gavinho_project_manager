@@ -731,3 +731,22 @@ export const mqtItems = mysqlTable("mqtItems", {
 
 export type MqtItem = typeof mqtItems.$inferSelect;
 export type InsertMqtItem = typeof mqtItems.$inferInsert;
+
+/**
+ * MQT Item History - Track changes to quantity executed
+ */
+export const mqtItemHistory = mysqlTable("mqtItemHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  itemId: int("itemId").notNull(), // Reference to mqtItems.id
+  userId: int("userId").notNull(), // User who made the change
+  oldValue: decimal("oldValue", { precision: 10, scale: 2 }), // Previous quantityExecuted
+  newValue: decimal("newValue", { precision: 10, scale: 2 }).notNull(), // New quantityExecuted
+  changedAt: timestamp("changedAt").defaultNow().notNull(),
+}, (table) => ({
+  itemIdIdx: index("itemId_idx").on(table.itemId),
+  userIdIdx: index("userId_idx").on(table.userId),
+  changedAtIdx: index("changedAt_idx").on(table.changedAt),
+}));
+
+export type MqtItemHistory = typeof mqtItemHistory.$inferSelect;
+export type InsertMqtItemHistory = typeof mqtItemHistory.$inferInsert;

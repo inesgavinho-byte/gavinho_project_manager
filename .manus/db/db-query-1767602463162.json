@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS mqtItemHistory (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  itemId INT NOT NULL,\n  userId INT NOT NULL,\n  oldValue DECIMAL(10, 2),\n  newValue DECIMAL(10, 2) NOT NULL,\n  changedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  INDEX itemId_idx (itemId),\n  INDEX userId_idx (userId),\n  INDEX changedAt_idx (changedAt)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute CREATE TABLE IF NOT EXISTS mqtItemHistory (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  itemId INT NOT NULL,\n  userId INT NOT NULL,\n  oldValue DECIMAL(10, 2),\n  newValue DECIMAL(10, 2) NOT NULL,\n  changedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  INDEX itemId_idx (itemId),\n  INDEX userId_idx (userId),\n  INDEX changedAt_idx (changedAt)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 532
+}

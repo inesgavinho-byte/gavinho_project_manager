@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calendar, MapPin, DollarSign, TrendingUp, Users, FileText, Image as ImageIcon, Clock, Languages, Search, X, ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowLeft, Building2, Calendar, MapPin, DollarSign, TrendingUp, Users, FileText, Image as ImageIcon, Clock, Languages, Search, X, ChevronDown, ChevronRight, History } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MqtItemHistoryModal } from "@/components/MqtItemHistoryModal";
 
 export default function ConstructionDetails() {
   const [, params] = useRoute("/constructions/:id");
@@ -16,6 +17,8 @@ export default function ConstructionDetails() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState<{ id: number; code: string } | null>(null);
 
   const { data: construction, isLoading } = trpc.constructions.getById.useQuery(
     { id: constructionId },
@@ -155,6 +158,7 @@ export default function ConstructionDetails() {
   }
 
   return (
+    <>
     <div className="min-h-screen" style={{ backgroundColor: "#EEEAE5" }}>
       {/* Header */}
       <div className="border-b" style={{ borderColor: "#C3BAAF" }}>
@@ -503,6 +507,7 @@ export default function ConstructionDetails() {
                                 <th className="p-3 text-center text-xs font-semibold" style={{ color: "#8B8581" }}>QT Planejado</th>
                                 <th className="p-3 text-center text-xs font-semibold" style={{ color: "#8B8581" }}>QT Executado</th>
                                 <th className="p-3 text-left text-xs font-semibold" style={{ color: "#8B8581" }}>Progresso</th>
+                                <th className="p-3 text-center text-xs font-semibold" style={{ color: "#8B8581" }}>Ações</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -577,6 +582,20 @@ export default function ConstructionDetails() {
                                       );
                                     })()}
                                   </td>
+                                  <td className="p-3 text-center">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        setSelectedHistoryItem({ id: item.id, code: item.code });
+                                        setHistoryModalOpen(true);
+                                      }}
+                                      className="h-8 w-8 p-0"
+                                      style={{ color: "#C9A882" }}
+                                    >
+                                      <History className="h-4 w-4" />
+                                    </Button>
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
@@ -631,5 +650,16 @@ export default function ConstructionDetails() {
         </Tabs>
       </div>
     </div>
+
+      {/* Modal de Histórico */}
+      {selectedHistoryItem && (
+        <MqtItemHistoryModal
+          itemId={selectedHistoryItem.id}
+          itemCode={selectedHistoryItem.code}
+          open={historyModalOpen}
+          onOpenChange={setHistoryModalOpen}
+        />
+      )}
+    </>
   );
 }

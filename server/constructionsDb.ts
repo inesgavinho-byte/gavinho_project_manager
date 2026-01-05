@@ -1,7 +1,7 @@
 import { getDb } from "./db";
-import { constructions, mqtCategories, mqtItems } from "../drizzle/schema";
+import { constructions, mqtCategories, mqtItems, mqtItemHistory } from "../drizzle/schema";
 import { eq, desc, and } from "drizzle-orm";
-import type { InsertConstruction, InsertMqtCategory, InsertMqtItem } from "../drizzle/schema";
+import type { InsertConstruction, InsertMqtCategory, InsertMqtItem, InsertMqtItemHistory } from "../drizzle/schema";
 
 // ==================== CONSTRUCTIONS ====================
 
@@ -123,6 +123,19 @@ export async function getMqtItemsByConstruction(constructionId: number) {
     .orderBy(mqtItems.order);
 }
 
+export async function getMqtItemById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const results = await db
+    .select()
+    .from(mqtItems)
+    .where(eq(mqtItems.id, id))
+    .limit(1);
+  
+  return results[0] || null;
+}
+
 export async function getMqtItemsByCategory(categoryId: number) {
   const db = await getDb();
   if (!db) return [];
@@ -172,6 +185,27 @@ export async function deleteMqtItem(id: number) {
   
   await db.delete(mqtItems).where(eq(mqtItems.id, id));
   return true;
+}
+
+// ==================== MQT ITEM HISTORY ====================
+
+export async function createMqtItemHistoryEntry(data: InsertMqtItemHistory) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(mqtItemHistory).values(data);
+  return result[0].insertId;
+}
+
+export async function getMqtItemHistory(itemId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(mqtItemHistory)
+    .where(eq(mqtItemHistory.itemId, itemId))
+    .orderBy(desc(mqtItemHistory.changedAt));
 }
 
 // ==================== STATISTICS ====================
