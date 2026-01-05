@@ -1,0 +1,14 @@
+## Dashboard de Análise de Alterações MQT
+- [x] Criar queries tRPC para estatísticas agregadas (total alterações, por período, por utilizador)
+- [x] Criar query para itens mais editados (top 10)
+- [x] Criar query para utilizadores mais ativos
+- [x] Criar query para análise de desvios críticos
+- [x] Criar query para timeline de atividade
+- [x] Criar página MqtAnalyticsDashboard.tsx
+- [x] Implementar cards de métricas principais (total, 24h, 7d, 30d)
+- [x] Adicionar gráfico de barras para itens mais editados
+- [x] Adicionar gráfico de pizza para utilizadores ativos
+- [x] Implementar lista de itens com desvios críticos
+- [x] Adicionar gráfico de linha para timeline de atividade
+- [x] Integrar dashboard no menu de navegação principal
+- [x] Testar todas as visualizações e métricas

@@ -22,6 +22,7 @@ import ActivityFeed from "./pages/ActivityFeed";
 import Mentions from "./pages/Mentions";
 import Constructions from "./pages/Constructions";
 import ConstructionDetails from "./pages/ConstructionDetails";
+import MqtAnalyticsDashboard from "./pages/MqtAnalyticsDashboard";
 
 function Router() {
   return (
@@ -53,6 +54,12 @@ function Router() {
       <Route path="/constructions/:id">
         <DashboardLayout>
           <ConstructionDetails />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/constructions/:id/analytics">
+        <DashboardLayout>
+          <MqtAnalyticsDashboard />
         </DashboardLayout>
       </Route>
       

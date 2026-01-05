@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calendar, MapPin, DollarSign, TrendingUp, Users, FileText, Image as ImageIcon, Clock, Languages, Search, X, ChevronDown, ChevronRight, History } from "lucide-react";
+import { ArrowLeft, Building2, Calendar, MapPin, DollarSign, TrendingUp, Users, FileText, Image as ImageIcon, Clock, Languages, Search, X, ChevronDown, ChevronRight, History, BarChart3 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -375,6 +375,19 @@ export default function ConstructionDetails() {
                   <Languages className="h-4 w-4 mr-2" />
                   {showEnglish ? "Ocultar EN" : "Mostrar EN"}
                 </Button>
+                <Link href={`/constructions/${constructionId}/analytics`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    style={{
+                      borderColor: "#C9A882",
+                      color: "#C9A882"
+                    }}
+                  >
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    Ver Análise
+                  </Button>
+                </Link>
               </div>
 
               {/* Filtros e Pesquisa */}

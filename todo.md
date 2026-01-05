@@ -558,3 +558,18 @@
 - [x] Implementar indicador visual de número de alterações
 - [x] Adicionar filtros por data e utilizador no modal
 - [x] Testar registro e visualização de histórico completo
+
+## Dashboard de Análise de Alterações MQT
+- [ ] Criar queries tRPC para estatísticas agregadas (total alterações, por período, por utilizador)
+- [ ] Criar query para itens mais editados (top 10)
+- [ ] Criar query para utilizadores mais ativos
+- [ ] Criar query para análise de desvios críticos
+- [ ] Criar query para timeline de atividade
+- [ ] Criar página MqtAnalyticsDashboard.tsx
+- [ ] Implementar cards de métricas principais (total, 24h, 7d, 30d)
+- [ ] Adicionar gráfico de barras para itens mais editados
+- [ ] Adicionar gráfico de pizza para utilizadores ativos
+- [ ] Implementar lista de itens com desvios críticos
+- [ ] Adicionar gráfico de linha para timeline de atividade
+- [ ] Integrar dashboard no menu de navegação principal
+- [ ] Testar todas as visualizações e métricas

@@ -238,6 +238,40 @@ export const constructionsRouter = router({
       }),
   }),
 
+  // ==================== MQT ANALYTICS ====================
+
+  analytics: router({
+    overview: protectedProcedure
+      .input(z.object({ constructionId: z.number() }))
+      .query(async ({ input }) => {
+        return await constructionsDb.getMqtHistoryAnalytics(input.constructionId);
+      }),
+
+    mostEditedItems: protectedProcedure
+      .input(z.object({ constructionId: z.number(), limit: z.number().optional() }))
+      .query(async ({ input }) => {
+        return await constructionsDb.getMostEditedItems(input.constructionId, input.limit);
+      }),
+
+    mostActiveUsers: protectedProcedure
+      .input(z.object({ constructionId: z.number() }))
+      .query(async ({ input }) => {
+        return await constructionsDb.getMostActiveUsers(input.constructionId);
+      }),
+
+    criticalDeviations: protectedProcedure
+      .input(z.object({ constructionId: z.number() }))
+      .query(async ({ input }) => {
+        return await constructionsDb.getCriticalDeviations(input.constructionId);
+      }),
+
+    activityTimeline: protectedProcedure
+      .input(z.object({ constructionId: z.number(), days: z.number().optional() }))
+      .query(async ({ input }) => {
+        return await constructionsDb.getActivityTimeline(input.constructionId, input.days);
+      }),
+  }),
+
   // ==================== STATISTICS ====================
 
   statistics: protectedProcedure
