@@ -604,5 +604,18 @@ export const projectsRouter = router({
         const compartments = await projectsDb.getConstructionCompartments(input.constructionId);
         return compartments;
       }),
+
+    // Create a new compartment
+    createCompartment: protectedProcedure
+      .input(z.object({
+        constructionId: z.number(),
+        name: z.string(),
+        description: z.string().optional(),
+        parentId: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const compartmentId = await projectsDb.createCompartment(input);
+        return { compartmentId };
+      }),
   }),
 });

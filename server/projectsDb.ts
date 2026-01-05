@@ -843,3 +843,28 @@ export async function getConstructionCompartments(constructionId: number) {
   
   return compartments;
 }
+
+
+/**
+ * Create a new compartment for a construction
+ */
+export async function createCompartment(data: {
+  constructionId: number;
+  name: string;
+  description?: string;
+  parentId?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const [result] = await db
+    .insert(archvizCompartments)
+    .values({
+      constructionId: data.constructionId,
+      name: data.name,
+      description: data.description || null,
+      parentId: data.parentId || null,
+    });
+  
+  return result.insertId;
+}

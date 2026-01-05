@@ -8,12 +8,12 @@ import {
   Clock, 
   Download,
   Filter,
+  Plus,
   Grid3x3,
   List,
   Star,
   StarOff,
-  Upload,
-  Plus
+  Upload
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -53,6 +53,11 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
   });
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [createCompartmentDialogOpen, setCreateCompartmentDialogOpen] = useState(false);
+  const [newCompartmentData, setNewCompartmentData] = useState({
+    name: "",
+    description: "",
+  });
 
   // Fetch renders
   const { data: renders, isLoading, refetch } = trpc.projects.archviz.list.useQuery({
@@ -118,6 +123,23 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
     onError: (error) => {
       toast.error("Erro ao carregar render: " + error.message);
       setIsUploading(false);
+    },
+  });
+
+  // Create compartment mutation
+  const createCompartmentMutation = trpc.projects.constructions.createCompartment.useMutation({
+    onSuccess: (data) => {
+      toast.success("Compartimento criado com sucesso!");
+      // Refetch compartments to update the list
+      refetch();
+      // Select the newly created compartment
+      setUploadData({ ...uploadData, compartmentId: data.compartmentId });
+      // Close dialog and reset form
+      setCreateCompartmentDialogOpen(false);
+      setNewCompartmentData({ name: "", description: "" });
+    },
+    onError: (error) => {
+      toast.error("Erro ao criar compartimento: " + error.message);
     },
   });
 
@@ -600,7 +622,19 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
             {/* Compartment Selection */}
             {uploadData.constructionId > 0 && (
               <div>
-                <Label htmlFor="compartment">Compartimento *</Label>
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="compartment">Compartimento *</Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2"
+                    onClick={() => setCreateCompartmentDialogOpen(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Novo
+                  </Button>
+                </div>
                 <Select
                   value={uploadData.compartmentId.toString()}
                   onValueChange={(value) => setUploadData({ ...uploadData, compartmentId: parseInt(value) })}
@@ -695,6 +729,70 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
               className="bg-[#C9A882] hover:bg-[#C9A882]/90"
             >
               {isUploading ? "A carregar..." : "Carregar Render"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Compartment Dialog */}
+      <Dialog open={createCompartmentDialogOpen} onOpenChange={setCreateCompartmentDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Novo Compartimento</DialogTitle>
+            <DialogDescription>
+              Crie um novo compartimento para organizar os renders
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="compartment-name">Nome do Compartimento *</Label>
+              <Input
+                id="compartment-name"
+                value={newCompartmentData.name}
+                onChange={(e) => setNewCompartmentData({ ...newCompartmentData, name: e.target.value })}
+                placeholder="Ex: Sala de Estar"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="compartment-description">Descrição</Label>
+              <Textarea
+                id="compartment-description"
+                value={newCompartmentData.description}
+                onChange={(e) => setNewCompartmentData({ ...newCompartmentData, description: e.target.value })}
+                placeholder="Descrição opcional..."
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCreateCompartmentDialogOpen(false);
+                setNewCompartmentData({ name: "", description: "" });
+              }}
+              disabled={createCompartmentMutation.isPending}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                if (!newCompartmentData.name) {
+                  toast.error("Por favor preencha o nome do compartimento");
+                  return;
+                }
+                createCompartmentMutation.mutate({
+                  constructionId: uploadData.constructionId,
+                  name: newCompartmentData.name,
+                  description: newCompartmentData.description || undefined,
+                });
+              }}
+              disabled={createCompartmentMutation.isPending}
+            >
+              {createCompartmentMutation.isPending ? "A criar..." : "Criar Compartimento"}
             </Button>
           </DialogFooter>
         </DialogContent>

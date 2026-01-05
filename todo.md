@@ -863,3 +863,16 @@
 - [x] Adicionar validação obrigatória de compartimento
 - [x] Atualizar uploadData inicial com compartmentId: 0
 - [ ] Testar seleção de compartimento e upload
+
+
+## Criação Rápida de Compartimentos
+- [x] Criar função createCompartment no projectsDb.ts
+- [x] Criar procedure projects.constructions.createCompartment no router
+- [x] Adicionar botão "+ Novo" ao lado do seletor de compartimentos
+- [x] Criar dialog compacto para criação rápida
+- [x] Adicionar campos nome (obrigatório) e descrição (opcional)
+- [x] Implementar mutation para criar compartimento
+- [x] Adicionar refetch automático após criação
+- [x] Implementar seleção automática do compartimento recém-criado
+- [x] Adicionar loading state no botão de criação
+- [ ] Testar criação e seleção automática
