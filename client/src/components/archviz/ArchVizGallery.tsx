@@ -18,12 +18,14 @@ import {
   X, 
   Filter,
   Heart,
-  Calendar
+  Calendar,
+  History
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ArchVizUploadModal } from "./ArchVizUploadModal";
 import { ArchVizEditModal } from "./ArchVizEditModal";
 import { RenderComparisonModal } from "./RenderComparisonModal";
+import { StatusHistoryModal } from "./StatusHistoryModal";
 
 interface ArchVizGalleryProps {
   constructionId: number;
@@ -42,6 +44,8 @@ export function ArchVizGallery({ constructionId }: ArchVizGalleryProps) {
   const [comparisonMode, setComparisonMode] = useState(false);
   const [selectedForComparison, setSelectedForComparison] = useState<number[]>([]);
   const [comparisonModalOpen, setComparisonModalOpen] = useState(false);
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [renderForHistory, setRenderForHistory] = useState<{ id: number; name: string } | null>(null);
 
   // Filtros
   const [searchQuery, setSearchQuery] = useState("");
@@ -501,6 +505,19 @@ export function ArchVizGallery({ constructionId }: ArchVizGalleryProps) {
                             <Button
                               variant="outline"
                               size="sm"
+                              onClick={() => {
+                                setRenderForHistory({ id: render.id, name: render.name });
+                                setHistoryModalOpen(true);
+                              }}
+                              className={isApproved ? "border-gray-600 text-gray-300 hover:bg-gray-700" : ""}
+                              style={!isApproved ? { borderColor: "#C3BAAF", color: "#5F5C59" } : {}}
+                              title="Ver Histórico"
+                            >
+                              <History className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleEdit(render)}
                               className={isApproved ? "border-gray-600 text-gray-300 hover:bg-gray-700" : ""}
                               style={!isApproved ? { borderColor: "#C3BAAF", color: "#5F5C59" } : {}}
@@ -553,6 +570,16 @@ export function ArchVizGallery({ constructionId }: ArchVizGalleryProps) {
           render2Id={selectedForComparison[1]}
           open={comparisonModalOpen}
           onOpenChange={setComparisonModalOpen}
+        />
+      )}
+
+      {/* Modal de Histórico */}
+      {renderForHistory && (
+        <StatusHistoryModal
+          open={historyModalOpen}
+          onOpenChange={setHistoryModalOpen}
+          renderId={renderForHistory.id}
+          renderName={renderForHistory.name}
         />
       )}
 

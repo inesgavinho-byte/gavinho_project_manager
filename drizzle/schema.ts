@@ -820,3 +820,23 @@ export const archvizComments = mysqlTable("archvizComments", {
 
 export type ArchvizComment = typeof archvizComments.$inferSelect;
 export type InsertArchvizComment = typeof archvizComments.$inferInsert;
+
+/**
+ * ArchViz Status History - Track all status changes for renders
+ */
+export const archvizStatusHistory = mysqlTable("archvizStatusHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  renderId: int("renderId").notNull(),
+  oldStatus: mysqlEnum("oldStatus", ["pending", "approved_dc", "approved_client"]),
+  newStatus: mysqlEnum("newStatus", ["pending", "approved_dc", "approved_client"]).notNull(),
+  changedById: int("changedById").notNull(),
+  notes: text("notes"), // Optional notes about the change
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  renderIdIdx: index("renderId_idx").on(table.renderId),
+  changedByIdIdx: index("changedById_idx").on(table.changedById),
+  createdAtIdx: index("createdAt_idx").on(table.createdAt),
+}));
+
+export type ArchvizStatusHistory = typeof archvizStatusHistory.$inferSelect;
+export type InsertArchvizStatusHistory = typeof archvizStatusHistory.$inferInsert;

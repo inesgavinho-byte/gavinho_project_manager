@@ -130,9 +130,25 @@ export const archvizRouter = router({
         description: z.string().optional(),
         compartmentId: z.number().optional(),
         status: z.enum(["pending", "approved_dc", "approved_client"]).optional(),
+        notes: z.string().optional(),
       }))
-      .mutation(async ({ input }) => {
-        const { id, ...data } = input;
+      .mutation(async ({ input, ctx }) => {
+        const { id, notes, ...data } = input;
+        
+        // If status is changing, record history
+        if (input.status) {
+          const render = await archvizDb.getRenderById(id);
+          if (render && render.status !== input.status) {
+            await archvizDb.createStatusHistory({
+              renderId: id,
+              oldStatus: render.status,
+              newStatus: input.status,
+              changedById: ctx.user.id,
+              notes: notes,
+            });
+          }
+        }
+        
         await archvizDb.updateRender(id, data);
         return { success: true };
       }),
@@ -208,5 +224,15 @@ export const archvizRouter = router({
     .input(z.object({ constructionId: z.number() }))
     .query(async ({ input }) => {
       return await archvizDb.getArchvizStats(input.constructionId);
+    }),
+
+  // ============================================================================
+  // STATUS HISTORY
+  // ============================================================================
+
+  getStatusHistory: protectedProcedure
+    .input(z.object({ renderId: z.number() }))
+    .query(async ({ input }) => {
+      return await archvizDb.getStatusHistory(input.renderId);
     }),
 });

@@ -242,3 +242,57 @@ export async function getArchvizStats(constructionId: number) {
     approvedClientCount,
   };
 }
+
+// ============================================================================
+// STATUS HISTORY
+// ============================================================================
+
+export async function createStatusHistory(data: {
+  renderId: number;
+  oldStatus: 'pending' | 'approved_dc' | 'approved_client' | null;
+  newStatus: 'pending' | 'approved_dc' | 'approved_client';
+  changedById: number;
+  notes?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  const { archvizStatusHistory } = await import("../drizzle/schema");
+  
+  const result = await db.insert(archvizStatusHistory).values({
+    renderId: data.renderId,
+    oldStatus: data.oldStatus,
+    newStatus: data.newStatus,
+    changedById: data.changedById,
+    notes: data.notes,
+  });
+  
+  return result.insertId;
+}
+
+export async function getStatusHistory(renderId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { archvizStatusHistory } = await import("../drizzle/schema");
+  const { users } = await import("../drizzle/schema");
+  
+  const history = await db
+    .select({
+      id: archvizStatusHistory.id,
+      renderId: archvizStatusHistory.renderId,
+      oldStatus: archvizStatusHistory.oldStatus,
+      newStatus: archvizStatusHistory.newStatus,
+      changedById: archvizStatusHistory.changedById,
+      changedByName: users.name,
+      changedByEmail: users.email,
+      notes: archvizStatusHistory.notes,
+      createdAt: archvizStatusHistory.createdAt,
+    })
+    .from(archvizStatusHistory)
+    .leftJoin(users, eq(archvizStatusHistory.changedById, users.id))
+    .where(eq(archvizStatusHistory.renderId, renderId))
+    .orderBy(desc(archvizStatusHistory.createdAt));
+  
+  return history;
+}

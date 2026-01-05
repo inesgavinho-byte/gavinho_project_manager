@@ -656,3 +656,18 @@
 - [x] Adicionar contador de resultados ("A mostrar X de Y renders")
 - [x] Adicionar botão "Limpar Filtros"
 - [x] Criar interface elegante com design GAVINHO
+
+
+## ArchViz - Histórico de Aprovações
+- [x] Criar tabela archviz_status_history no schema
+- [x] Adicionar campos: renderId, oldStatus, newStatus, changedBy (userId), changedAt, notes
+- [x] Implementar trigger automático para registar mudanças de status
+- [x] Criar query getStatusHistory(renderId) no archvizDb
+- [x] Criar procedure archviz.getStatusHistory no router
+- [x] Criar componente StatusHistoryModal com timeline visual
+- [x] Adicionar ícones diferentes por tipo de mudança (pending, approved_dc, approved_client)
+- [x] Mostrar nome do utilizador que aprovou
+- [x] Adicionar data/hora formatada de cada mudança
+- [x] Integrar botão "Ver Histórico" nos cards de render
+- [x] Adicionar animações de transição na timeline
+- [x] Criar design elegante com cores GAVINHO
