@@ -7,6 +7,7 @@ import {
   projectDocuments, 
   projectGallery,
   users,
+  archvizCompartments,
   type Project,
   type InsertProject,
   type ProjectPhase,
@@ -819,4 +820,26 @@ export async function uploadArchvizRender(data: {
   });
   
   return result[0].insertId;
+}
+
+
+/**
+ * Get compartments for a construction
+ */
+export async function getConstructionCompartments(constructionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const compartments = await db
+    .select({
+      id: archvizCompartments.id,
+      name: archvizCompartments.name,
+      description: archvizCompartments.description,
+      parentId: archvizCompartments.parentId,
+    })
+    .from(archvizCompartments)
+    .where(eq(archvizCompartments.constructionId, constructionId))
+    .orderBy(archvizCompartments.name);
+  
+  return compartments;
 }

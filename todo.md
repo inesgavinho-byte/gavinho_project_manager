@@ -850,3 +850,16 @@
 - [x] Simplificar fluxo de upload no frontend
 - [ ] Testar upload com imagem real
 - [ ] Validar que render aparece na galeria com URL do S3
+
+
+## Seletor de Compartimento no Upload
+- [x] Verificar estrutura da tabela compartments no schema
+- [x] Criar função getConstructionCompartments no projectsDb.ts
+- [x] Criar procedure projects.constructions.getCompartments no router
+- [x] Adicionar query para buscar compartimentos no frontend
+- [x] Adicionar Select de compartimentos no modal de upload
+- [x] Implementar carregamento dinâmico ao selecionar obra
+- [x] Atualizar estado uploadData com compartmentId selecionado
+- [x] Adicionar validação obrigatória de compartimento
+- [x] Atualizar uploadData inicial com compartmentId: 0
+- [ ] Testar seleção de compartimento e upload

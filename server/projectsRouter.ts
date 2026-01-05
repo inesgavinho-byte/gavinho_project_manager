@@ -594,5 +594,15 @@ export const projectsRouter = router({
         const constructions = await projectsDb.getProjectConstructions(input.projectId);
         return constructions;
       }),
+
+    // Get compartments for a construction
+    getCompartments: protectedProcedure
+      .input(z.object({
+        constructionId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const compartments = await projectsDb.getConstructionCompartments(input.constructionId);
+        return compartments;
+      }),
   }),
 });

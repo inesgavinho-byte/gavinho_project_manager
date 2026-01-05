@@ -46,6 +46,7 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [uploadData, setUploadData] = useState({
     constructionId: 0,
+    compartmentId: 0,
     name: "",
     description: "",
     file: null as File | null,
@@ -98,13 +99,19 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
     projectId,
   });
 
+  // Fetch compartments when construction is selected
+  const { data: compartments } = trpc.projects.constructions.getCompartments.useQuery(
+    { constructionId: uploadData.constructionId },
+    { enabled: uploadData.constructionId > 0 }
+  );
+
   // Upload mutation (S3)
   const uploadMutation = trpc.projects.archviz.uploadToS3.useMutation({
     onSuccess: () => {
       toast.success("Render carregado com sucesso!");
       refetch();
       setUploadDialogOpen(false);
-      setUploadData({ constructionId: 0, name: "", description: "", file: null });
+      setUploadData({ constructionId: 0, compartmentId: 0, name: "", description: "", file: null });
       setUploadPreview(null);
       setIsUploading(false);
     },
@@ -143,8 +150,8 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
 
   // Handle upload submit
   const handleUploadSubmit = async () => {
-    if (!uploadData.file || !uploadData.name || uploadData.constructionId === 0) {
-      toast.error("Por favor preencha todos os campos obrigatórios");
+    if (!uploadData.file || !uploadData.name || uploadData.constructionId === 0 || uploadData.compartmentId === 0) {
+      toast.error("Por favor preencha todos os campos obrigatórios (obra, compartimento, nome e imagem)");
       return;
     }
 
@@ -159,7 +166,7 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
         // Call upload mutation with S3 integration
         uploadMutation.mutate({
           constructionId: uploadData.constructionId,
-          compartmentId: 1, // Default compartment, you may want to make this selectable
+          compartmentId: uploadData.compartmentId,
           name: uploadData.name,
           description: uploadData.description || undefined,
           imageBase64: base64,
@@ -573,7 +580,9 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
               <Label htmlFor="construction">Obra *</Label>
               <Select
                 value={uploadData.constructionId.toString()}
-                onValueChange={(value) => setUploadData({ ...uploadData, constructionId: parseInt(value) })}
+                onValueChange={(value) => {
+                  setUploadData({ ...uploadData, constructionId: parseInt(value), compartmentId: 0 });
+                }}
               >
                 <SelectTrigger id="construction">
                   <SelectValue placeholder="Selecione a obra" />
@@ -587,6 +596,33 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Compartment Selection */}
+            {uploadData.constructionId > 0 && (
+              <div>
+                <Label htmlFor="compartment">Compartimento *</Label>
+                <Select
+                  value={uploadData.compartmentId.toString()}
+                  onValueChange={(value) => setUploadData({ ...uploadData, compartmentId: parseInt(value) })}
+                >
+                  <SelectTrigger id="compartment">
+                    <SelectValue placeholder="Selecione o compartimento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {compartments?.map(compartment => (
+                      <SelectItem key={compartment.id} value={compartment.id.toString()}>
+                        {compartment.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {compartments && compartments.length === 0 && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Esta obra ainda não tem compartimentos cadastrados.
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Name */}
             <div>
@@ -646,7 +682,7 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
               variant="outline"
               onClick={() => {
                 setUploadDialogOpen(false);
-                setUploadData({ constructionId: 0, name: "", description: "", file: null });
+                setUploadData({ constructionId: 0, compartmentId: 0, name: "", description: "", file: null });
                 setUploadPreview(null);
               }}
               disabled={isUploading}
