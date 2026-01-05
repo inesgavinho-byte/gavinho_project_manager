@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Building2, Calendar, MapPin, DollarSign, TrendingUp, Users, FileText, Image as ImageIcon, Clock } from "lucide-react";
+import { ArrowLeft, Building2, Calendar, MapPin, DollarSign, TrendingUp, Users, FileText, Image as ImageIcon, Clock, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function ConstructionDetails() {
   const [, params] = useRoute("/constructions/:id");
   const constructionId = params?.id ? parseInt(params.id) : 0;
+  const [showEnglish, setShowEnglish] = useState(false);
 
   const { data: construction, isLoading } = trpc.constructions.getById.useQuery(
     { id: constructionId },
@@ -282,21 +283,62 @@ export default function ConstructionDetails() {
           {/* MQT Tab */}
           <TabsContent value="mqt">
             <Card className="p-6" style={{ backgroundColor: "white", borderColor: "#C3BAAF" }}>
-              <h3 className="text-lg font-semibold mb-4" style={{ color: "#5F5C59" }}>
-                Mapa de Quantidades (MQT)
-              </h3>
-              {mqtCategories && mqtCategories.length > 0 ? (
-                <div className="space-y-4">
-                  {mqtCategories.map((category) => (
-                    <div key={category.id} className="border-b pb-4" style={{ borderColor: "#C3BAAF" }}>
-                      <h4 className="font-semibold mb-2" style={{ color: "#5F5C59" }}>
-                        {category.code}. {category.namePt}
-                      </h4>
-                      <p className="text-sm" style={{ color: "#5F5C59" }}>
-                        Subtotal: €{category.subtotal ? parseFloat(category.subtotal.toString()).toLocaleString("pt-PT") : "0"}
-                      </p>
-                    </div>
-                  ))}
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold" style={{ color: "#5F5C59" }}>
+                  Mapa de Quantidades (MQT)
+                </h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowEnglish(!showEnglish)}
+                  style={{
+                    borderColor: "#C9A882",
+                    color: showEnglish ? "white" : "#5F5C59",
+                    backgroundColor: showEnglish ? "#C9A882" : "transparent"
+                  }}
+                >
+                  <Languages className="h-4 w-4 mr-2" />
+                  {showEnglish ? "Ocultar EN" : "Mostrar EN"}
+                </Button>
+              </div>
+              {mqtItems && mqtItems.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr style={{ backgroundColor: "#EEEAE5", borderBottom: "2px solid #C3BAAF" }}>
+                        <th className="p-3 text-left text-sm font-semibold" style={{ color: "#5F5C59" }}>Item</th>
+                        <th className="p-3 text-left text-sm font-semibold" style={{ color: "#5F5C59" }}>Tipo</th>
+                        <th className="p-3 text-left text-sm font-semibold" style={{ color: "#5F5C59" }}>Zona</th>
+                        <th className="p-3 text-left text-sm font-semibold" style={{ color: "#5F5C59" }}>Descrição (PT)</th>
+                        {showEnglish && (
+                          <th className="p-3 text-left text-sm font-semibold" style={{ color: "#5F5C59" }}>Description (EN)</th>
+                        )}
+                        <th className="p-3 text-center text-sm font-semibold" style={{ color: "#5F5C59" }}>UN</th>
+                        <th className="p-3 text-center text-sm font-semibold" style={{ color: "#5F5C59" }}>QT</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mqtItems.map((item, index) => (
+                        <tr
+                          key={item.id}
+                          style={{
+                            backgroundColor: index % 2 === 0 ? "white" : "#FAFAFA",
+                            borderBottom: "1px solid #E5E5E5"
+                          }}
+                        >
+                          <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.code}</td>
+                          <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.typePt}</td>
+                          <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.zonePt || "-"}</td>
+                          <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.descriptionPt}</td>
+                          {showEnglish && (
+                            <td className="p-3 text-sm" style={{ color: "#5F5C59" }}>{item.descriptionEn || "-"}</td>
+                          )}
+                          <td className="p-3 text-center text-sm" style={{ color: "#5F5C59" }}>{item.unit}</td>
+                          <td className="p-3 text-center text-sm font-semibold" style={{ color: "#5F5C59" }}>{item.quantity}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               ) : (
                 <p style={{ color: "#5F5C59" }}>Nenhum item MQT encontrado</p>

@@ -474,3 +474,13 @@
 - [ ] Criar dashboard de custos (orçado vs real) no tab Custos
 - [ ] Implementar gestão de fornecedores por item MQT
 - [x] Testar módulo completo
+
+
+## Toggle "Mostrar EN" no MQT
+- [x] Adicionar estado showEnglish no componente ConstructionDetails
+- [x] Criar botão toggle com ícone Languages no cabeçalho do tab MQT
+- [x] Adicionar coluna Description (EN) à tabela MQT
+- [x] Implementar lógica de ocultar/mostrar coluna EN baseado no estado
+- [x] Adicionar animação suave na transição (React renderização condicional)
+- [x] Aplicar design GAVINHO ao botão toggle (cores #C9A882 quando ativo)
+- [x] Testar funcionalidade
