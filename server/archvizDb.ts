@@ -317,3 +317,96 @@ export async function getConstructionByRenderId(renderId: number) {
   
   return result[0] || null;
 }
+
+export async function getReportData(constructionId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const { constructions, archvizRenders, archvizCompartments, archvizStatusHistory, archvizComments, users } = await import("../drizzle/schema");
+  
+  // Get construction info
+  const construction = await db
+    .select({
+      id: constructions.id,
+      name: constructions.name,
+      code: constructions.code,
+    })
+    .from(constructions)
+    .where(eq(constructions.id, constructionId))
+    .limit(1);
+  
+  if (!construction[0]) return null;
+  
+  // Get all renders with compartment info
+  const renders = await db
+    .select({
+      id: archvizRenders.id,
+      name: archvizRenders.name,
+      version: archvizRenders.version,
+      status: archvizRenders.status,
+      imageUrl: archvizRenders.imageUrl,
+      isFavorite: archvizRenders.isFavorite,
+      uploadedAt: archvizRenders.createdAt,
+      compartmentId: archvizCompartments.id,
+      compartmentName: archvizCompartments.name,
+    })
+    .from(archvizRenders)
+    .innerJoin(archvizCompartments, eq(archvizRenders.compartmentId, archvizCompartments.id))
+    .where(eq(archvizCompartments.constructionId, constructionId))
+    .orderBy(archvizCompartments.order, archvizRenders.version);
+  
+  // Get history and comments for each render
+  const rendersWithDetails = await Promise.all(
+    renders.map(async (render) => {
+      // Get history
+      const history = await db
+        .select({
+          oldStatus: archvizStatusHistory.oldStatus,
+          newStatus: archvizStatusHistory.newStatus,
+          changedByName: users.name,
+          changedAt: archvizStatusHistory.createdAt,
+          notes: archvizStatusHistory.notes,
+        })
+        .from(archvizStatusHistory)
+        .leftJoin(users, eq(archvizStatusHistory.changedById, users.id))
+        .where(eq(archvizStatusHistory.renderId, render.id))
+        .orderBy(desc(archvizStatusHistory.createdAt));
+      
+      // Get comments
+      const comments = await db
+        .select({
+          content: archvizComments.content,
+          authorName: users.name,
+          createdAt: archvizComments.createdAt,
+        })
+        .from(archvizComments)
+        .leftJoin(users, eq(archvizComments.userId, users.id))
+        .where(eq(archvizComments.renderId, render.id))
+        .orderBy(desc(archvizComments.createdAt));
+      
+      return {
+        render,
+        history,
+        comments,
+      };
+    })
+  );
+  
+  // Calculate statistics
+  const stats = renders.reduce(
+    (acc, render) => {
+      acc.total++;
+      if (render.status === "pending") acc.pending++;
+      else if (render.status === "approved_dc") acc.approvedDc++;
+      else if (render.status === "approved_client") acc.approvedClient++;
+      return acc;
+    },
+    { total: 0, pending: 0, approvedDc: 0, approvedClient: 0 }
+  );
+  
+  return {
+    construction: construction[0],
+    stats,
+    renders: rendersWithDetails,
+  };
+}

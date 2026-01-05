@@ -19,7 +19,8 @@ import {
   Filter,
   Heart,
   Calendar,
-  History
+  History,
+  FileDown
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ArchVizUploadModal } from "./ArchVizUploadModal";
@@ -46,6 +47,7 @@ export function ArchVizGallery({ constructionId }: ArchVizGalleryProps) {
   const [comparisonModalOpen, setComparisonModalOpen] = useState(false);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [renderForHistory, setRenderForHistory] = useState<{ id: number; name: string } | null>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 
   // Filtros
   const [searchQuery, setSearchQuery] = useState("");
@@ -205,6 +207,80 @@ export function ArchVizGallery({ constructionId }: ArchVizGalleryProps) {
     setSelectedForComparison([]);
   };
 
+  const handleExportPdf = async () => {
+    console.log("[PDF Export] Starting export...");
+    setIsGeneratingPdf(true);
+    try {
+      console.log("[PDF Export] Importing PDF service...");
+      const { generateArchVizReport } = await import("@/lib/archvizPdfService");
+      console.log("[PDF Export] PDF service imported successfully");
+      
+      console.log("[PDF Export] Fetching report data for constructionId:", constructionId);
+      const reportDataResult = await trpc.archviz.getReportData.query({ constructionId });
+      console.log("[PDF Export] Report data received:", reportDataResult);
+      
+      if (!reportDataResult) {
+        toast({
+          title: "Erro",
+          description: "Não foi possível obter os dados do relatório",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const reportData = {
+        constructionName: reportDataResult.construction.name,
+        constructionCode: reportDataResult.construction.code,
+        totalRenders: reportDataResult.stats.total,
+        pendingCount: reportDataResult.stats.pending,
+        approvedDcCount: reportDataResult.stats.approvedDc,
+        approvedClientCount: reportDataResult.stats.approvedClient,
+        renders: reportDataResult.renders.map((item: any) => ({
+          render: {
+            id: item.render.id,
+            name: item.render.name,
+            version: item.render.version,
+            status: item.render.status,
+            compartmentName: item.render.compartmentName,
+            uploadedAt: item.render.uploadedAt,
+            imageUrl: item.render.imageUrl,
+            isFavorite: item.render.isFavorite,
+          },
+          history: item.history.map((h: any) => ({
+            oldStatus: h.oldStatus,
+            newStatus: h.newStatus,
+            changedByName: h.changedByName || "Sistema",
+            changedAt: h.changedAt,
+            notes: h.notes,
+          })),
+          comments: item.comments.map((c: any) => ({
+            content: c.content,
+            authorName: c.authorName || "Anónimo",
+            createdAt: c.createdAt,
+          })),
+        })),
+      };
+      
+      console.log("[PDF Export] Calling generateArchVizReport with data:", reportData);
+      await generateArchVizReport(reportData);
+      console.log("[PDF Export] PDF generated successfully!");
+      
+      toast({
+        title: "Sucesso",
+        description: "Relatório PDF gerado com sucesso!",
+      });
+    } catch (error) {
+      console.error("[PDF Export] Error:", error);
+      toast({
+        title: "Erro",
+        description: "Erro ao gerar o relatório PDF",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "approved_client":
@@ -276,6 +352,15 @@ export function ArchVizGallery({ constructionId }: ArchVizGalleryProps) {
                 style={{ borderColor: "#C3BAAF", color: "#5F5C59" }}
               >
                 Comparar Versões
+              </Button>
+              <Button
+                onClick={handleExportPdf}
+                variant="outline"
+                disabled={isGeneratingPdf || renders.length === 0}
+                style={{ borderColor: "#C3BAAF", color: "#5F5C59" }}
+              >
+                <FileDown className="h-4 w-4 mr-2" />
+                {isGeneratingPdf ? "Gerando..." : "Exportar Relatório PDF"}
               </Button>
               <Button
                 onClick={() => setUploadModalOpen(true)}

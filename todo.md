@@ -680,3 +680,16 @@
 - [x] Adicionar link direto para a obra/render na notificação
 - [x] Testar notificações com mudanças de status reais
 - [x] Verificar se notificações aparecem no painel do owner
+
+
+## ArchViz - Exportação de Relatório PDF
+- [x] Instalar dependências jsPDF e jspdf-autotable
+- [x] Criar serviço de geração de PDF no frontend
+- [x] Criar endpoint backend para buscar dados completos (renders + histórico + comentários)
+- [x] Implementar estrutura do relatório PDF (cabeçalho, informações da obra, estatísticas)
+- [x] Adicionar lista de renders com miniaturas no PDF
+- [x] Incluir histórico de aprovações de cada render
+- [x] Adicionar comentários associados a cada render
+- [x] Implementar botão "Exportar Relatório PDF" na galeria ArchViz
+- [x] Adicionar loading state durante geração do PDF
+- [x] Testar exportação com obra completa

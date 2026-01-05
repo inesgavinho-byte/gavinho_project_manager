@@ -256,4 +256,14 @@ export const archvizRouter = router({
     .query(async ({ input }) => {
       return await archvizDb.getStatusHistory(input.renderId);
     }),
+
+  // ============================================================================
+  // REPORT DATA
+  // ============================================================================
+
+  getReportData: protectedProcedure
+    .input(z.object({ constructionId: z.number() }))
+    .query(async ({ input }) => {
+      return await archvizDb.getReportData(input.constructionId);
+    }),
 });
