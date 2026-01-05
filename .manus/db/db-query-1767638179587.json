@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS mqtImportHistory (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  constructionId INT NOT NULL,\n  userId INT NOT NULL,\n  source ENUM('excel', 'sheets') NOT NULL,\n  fileName VARCHAR(255),\n  sheetsUrl TEXT,\n  itemsImported INT NOT NULL DEFAULT 0,\n  itemsSuccess INT NOT NULL DEFAULT 0,\n  itemsError INT NOT NULL DEFAULT 0,\n  errorLog TEXT,\n  importedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  INDEX constructionId_idx (constructionId),\n  INDEX userId_idx (userId),\n  INDEX importedAt_idx (importedAt)\n);\n\nCREATE TABLE IF NOT EXISTS mqtImportItems (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  importId INT NOT NULL,\n  mqtItemId INT NOT NULL,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  INDEX importId_idx (importId),\n  INDEX mqtItemId_idx (mqtItemId)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute CREATE TABLE IF NOT EXISTS mqtImportHistory (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  constructionId INT NOT NULL,\n  userId INT NOT NULL,\n  source ENUM('excel', 'sheets') NOT NULL,\n  fileName VARCHAR(255),\n  sheetsUrl TEXT,\n  itemsImported INT NOT NULL DEFAULT 0,\n  itemsSuccess INT NOT NULL DEFAULT 0,\n  itemsError INT NOT NULL DEFAULT 0,\n  errorLog TEXT,\n  importedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  INDEX constructionId_idx (constructionId),\n  INDEX userId_idx (userId),\n  INDEX importedAt_idx (importedAt)\n);\n\nCREATE TABLE IF NOT EXISTS mqtImportItems (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  importId INT NOT NULL,\n  mqtItemId INT NOT NULL,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  INDEX importId_idx (importId),\n  INDEX mqtItemId_idx (mqtItemId)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 836
+}

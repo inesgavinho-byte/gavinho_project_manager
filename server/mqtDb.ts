@@ -1,5 +1,5 @@
 import { getDb } from "./db";
-import { mqtCategories, mqtItems, type InsertMqtCategory, type InsertMqtItem } from "../drizzle/schema";
+import { mqtCategories, mqtItems, mqtImportHistory, mqtImportItems, type InsertMqtCategory, type InsertMqtItem, type InsertMqtImportHistory, type InsertMqtImportItem } from "../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 
 /**
@@ -77,4 +77,72 @@ export async function itemCodeExists(constructionId: number, code: string): Prom
     .limit(1);
 
   return result.length > 0;
+}
+
+
+/**
+ * Create import history record
+ */
+export async function createImportHistory(data: Omit<InsertMqtImportHistory, 'id' | 'importedAt' | 'itemsSuccess' | 'itemsError' | 'errorLog'>) {
+  const db = await getDb();
+  if (!db) throw new Error('Database connection failed');
+  const result = await db.insert(mqtImportHistory).values({
+    ...data,
+    itemsSuccess: 0,
+    itemsError: 0,
+  });
+  return Number((result as any).insertId);
+}
+
+/**
+ * Create import item record (track which items were added in an import)
+ */
+export async function createImportItem(importId: number, mqtItemId: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database connection failed');
+  const result = await db.insert(mqtImportItems).values({
+    importId,
+    mqtItemId,
+  });
+  return Number((result as any).insertId);
+}
+
+/**
+ * Get import history for a construction
+ */
+export async function getImportHistory(constructionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database connection failed');
+  return await db
+    .select()
+    .from(mqtImportHistory)
+    .where(eq(mqtImportHistory.constructionId, constructionId))
+    .orderBy(mqtImportHistory.importedAt);
+}
+
+/**
+ * Revert an import (delete all items that were added in that import)
+ */
+export async function revertImport(importId: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database connection failed');
+  
+  // Get all items that were added in this import
+  const importItems = await db
+    .select()
+    .from(mqtImportItems)
+    .where(eq(mqtImportItems.importId, importId));
+  
+  // Delete all MQT items
+  for (const item of importItems) {
+    await db.delete(mqtItems).where(eq(mqtItems.id, item.mqtItemId));
+  }
+  
+  // Delete import items records
+  await db.delete(mqtImportItems).where(eq(mqtImportItems.importId, importId));
+  
+  // Delete import history record
+  await db.delete(mqtImportHistory).where(eq(mqtImportHistory.id, importId));
+  
+  return { success: true, deletedItems: importItems.length };
 }

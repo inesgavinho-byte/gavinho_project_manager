@@ -13,6 +13,7 @@ import { useLocation } from "wouter";
 import { MqtItemHistoryModal } from "@/components/MqtItemHistoryModal";
 import { ArchVizGallery } from '@/components/archviz/ArchVizGallery';
 import { MQTImportModal } from '@/components/mqt/MQTImportModal';
+import { MQTImportHistory } from '@/components/mqt/MQTImportHistory';
 
 export default function ConstructionDetails() {
   const [, params] = useRoute("/constructions/:id");
@@ -22,6 +23,7 @@ export default function ConstructionDetails() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [expandedCategories, setExpandedCategories] = useState<Set<number>>(new Set());
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showImportHistory, setShowImportHistory] = useState(false);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [selectedHistoryItem, setSelectedHistoryItem] = useState<{ id: number; code: string } | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -403,6 +405,19 @@ export default function ConstructionDetails() {
                   <Button
                     variant="outline"
                     size="sm"
+                    onClick={() => setShowImportHistory(true)}
+                    style={{
+                      borderColor: "#C9A882",
+                      color: "#5F5C59",
+                      backgroundColor: "transparent"
+                    }}
+                  >
+                    <Clock className="h-4 w-4 mr-2" />
+                    Ver Histórico
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => setShowEnglish(!showEnglish)}
                     style={{
                       borderColor: "#C9A882",
@@ -766,6 +781,13 @@ export default function ConstructionDetails() {
       <MQTImportModal
         open={showImportModal}
         onClose={() => setShowImportModal(false)}
+        constructionId={constructionId}
+      />
+
+      {/* MQT Import History */}
+      <MQTImportHistory
+        open={showImportHistory}
+        onOpenChange={setShowImportHistory}
         constructionId={constructionId}
       />
     </>

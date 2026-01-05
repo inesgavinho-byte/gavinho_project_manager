@@ -840,3 +840,44 @@ export const archvizStatusHistory = mysqlTable("archvizStatusHistory", {
 
 export type ArchvizStatusHistory = typeof archvizStatusHistory.$inferSelect;
 export type InsertArchvizStatusHistory = typeof archvizStatusHistory.$inferInsert;
+
+
+/**
+ * MQT Import History - Track all MQT imports
+ */
+export const mqtImportHistory = mysqlTable("mqtImportHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  userId: int("userId").notNull(),
+  source: mysqlEnum("source", ["excel", "sheets"]).notNull(),
+  fileName: varchar("fileName", { length: 255 }),
+  sheetsUrl: text("sheetsUrl"),
+  itemsImported: int("itemsImported").notNull().default(0),
+  itemsSuccess: int("itemsSuccess").notNull().default(0),
+  itemsError: int("itemsError").notNull().default(0),
+  errorLog: text("errorLog"), // JSON string with errors
+  importedAt: timestamp("importedAt").defaultNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  userIdIdx: index("userId_idx").on(table.userId),
+  importedAtIdx: index("importedAt_idx").on(table.importedAt),
+}));
+
+export type MqtImportHistory = typeof mqtImportHistory.$inferSelect;
+export type InsertMqtImportHistory = typeof mqtImportHistory.$inferInsert;
+
+/**
+ * MQT Import Items - Track which items were added in each import
+ */
+export const mqtImportItems = mysqlTable("mqtImportItems", {
+  id: int("id").autoincrement().primaryKey(),
+  importId: int("importId").notNull(),
+  mqtItemId: int("mqtItemId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  importIdIdx: index("importId_idx").on(table.importId),
+  mqtItemIdIdx: index("mqtItemId_idx").on(table.mqtItemId),
+}));
+
+export type MqtImportItem = typeof mqtImportItems.$inferSelect;
+export type InsertMqtImportItem = typeof mqtImportItems.$inferInsert;

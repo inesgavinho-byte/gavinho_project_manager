@@ -82,6 +82,9 @@ export function MQTImportModal({ open, onClose, constructionId }: MQTImportModal
       await importMutation.mutateAsync({
         constructionId,
         items: importResult.data,
+        source: importType,
+        fileName: file?.name,
+        sheetsUrl: importType === 'sheets' ? sheetsUrl : undefined,
       });
 
       utils.mqt.getItems.invalidate({ constructionId });

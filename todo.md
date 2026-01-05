@@ -729,3 +729,22 @@
 - [x] Integrar botão "Importar MQT" na página de obras
 - [x] Testar importação de Excel com dados reais
 - [x] Testar importação de Google Sheets com dados reais
+
+
+## MQT - Histórico de Importações
+- [x] Criar tabela mqt_import_history no schema
+- [x] Adicionar campos: constructionId, userId, source (excel/sheets), fileName, itemsImported, itemsSuccess, itemsError, importedAt
+- [x] Criar tabela mqt_import_items para rastrear itens de cada importação
+- [x] Atualizar mutation importItems para registar histórico automaticamente
+- [x] Criar query getImportHistory(constructionId) no mqtDb
+- [x] Criar mutation revertImport(importId) no mqtDb
+- [x] Criar procedure mqt.getImportHistory no router
+- [x] Criar procedure mqt.revertImport no router
+- [x] Criar componente MQTImportHistory com lista de importações
+- [x] Adicionar timeline visual com data, utilizador e estatísticas
+- [x] Implementar botão "Reverter Importação" com confirmação
+- [x] Adicionar filtros por data, utilizador e fonte
+- [x] Mostrar detalhes de cada importação (itens, erros, avisos)
+- [x] Integrar botão "Ver Histórico" na página MQT
+- [x] Adicionar modal ou drawer para mostrar histórico
+- [x] Testar reversão de importação
