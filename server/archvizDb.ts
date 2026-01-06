@@ -478,3 +478,165 @@ export async function saveAnnotations(
     });
   }
 }
+
+// ============================================================================
+// Approval Functions
+// ============================================================================
+
+export async function approveRender(renderId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  const { archvizRenders, archvizRenderHistory, users } = await import("../drizzle/schema");
+  
+  await db.update(archvizRenders)
+    .set({
+      approvalStatus: "approved",
+      approvedById: userId,
+      approvedAt: new Date(),
+    })
+    .where(eq(archvizRenders.id, renderId));
+  
+  // Log history
+  await db.insert(archvizRenderHistory).values({
+    renderId,
+    userId,
+    action: "approved",
+    newValue: "approved",
+  });
+  
+  return true;
+}
+
+export async function rejectRender(renderId: number, userId: number, reason: string) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  const { archvizRenders, archvizRenderHistory } = await import("../drizzle/schema");
+  
+  await db.update(archvizRenders)
+    .set({
+      approvalStatus: "rejected",
+      approvedById: userId,
+      approvedAt: new Date(),
+      rejectionReason: reason,
+    })
+    .where(eq(archvizRenders.id, renderId));
+  
+  // Log history
+  await db.insert(archvizRenderHistory).values({
+    renderId,
+    userId,
+    action: "rejected",
+    newValue: "rejected",
+    comment: reason,
+  });
+  
+  return true;
+}
+
+export async function setRenderInReview(renderId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  const { archvizRenders, archvizRenderHistory } = await import("../drizzle/schema");
+  
+  await db.update(archvizRenders)
+    .set({
+      approvalStatus: "in_review",
+    })
+    .where(eq(archvizRenders.id, renderId));
+  
+  // Log history
+  await db.insert(archvizRenderHistory).values({
+    renderId,
+    userId,
+    action: "status_changed",
+    newValue: "in_review",
+  });
+  
+  return true;
+}
+
+// ============================================================================
+// Comment Functions
+// ============================================================================
+
+export async function addRenderComment(renderId: number, userId: number, comment: string) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  const { archvizRenderComments, archvizRenderHistory } = await import("../drizzle/schema");
+  
+  const [result] = await db.insert(archvizRenderComments).values({
+    renderId,
+    userId,
+    comment,
+  });
+  
+  // Log history
+  await db.insert(archvizRenderHistory).values({
+    renderId,
+    userId,
+    action: "commented",
+    comment,
+  });
+  
+  return result.insertId;
+}
+
+export async function getRenderComments(renderId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { archvizRenderComments, users } = await import("../drizzle/schema");
+  
+  const comments = await db.select({
+    id: archvizRenderComments.id,
+    comment: archvizRenderComments.comment,
+    createdAt: archvizRenderComments.createdAt,
+    updatedAt: archvizRenderComments.updatedAt,
+    user: {
+      id: users.id,
+      name: users.name,
+      email: users.email,
+    },
+  })
+    .from(archvizRenderComments)
+    .leftJoin(users, eq(archvizRenderComments.userId, users.id))
+    .where(eq(archvizRenderComments.renderId, renderId))
+    .orderBy(desc(archvizRenderComments.createdAt));
+  
+  return comments;
+}
+
+// ============================================================================
+// History Functions
+// ============================================================================
+
+export async function getRenderHistory(renderId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { archvizRenderHistory, users } = await import("../drizzle/schema");
+  
+  const history = await db.select({
+    id: archvizRenderHistory.id,
+    action: archvizRenderHistory.action,
+    oldValue: archvizRenderHistory.oldValue,
+    newValue: archvizRenderHistory.newValue,
+    comment: archvizRenderHistory.comment,
+    createdAt: archvizRenderHistory.createdAt,
+    user: {
+      id: users.id,
+      name: users.name,
+      email: users.email,
+    },
+  })
+    .from(archvizRenderHistory)
+    .leftJoin(users, eq(archvizRenderHistory.userId, users.id))
+    .where(eq(archvizRenderHistory.renderId, renderId))
+    .orderBy(desc(archvizRenderHistory.createdAt));
+  
+  return history;
+}

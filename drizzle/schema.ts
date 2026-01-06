@@ -792,6 +792,10 @@ export const archvizRenders = mysqlTable("archvizRenders", {
   fileSize: int("fileSize"), // In bytes
   isFavorite: boolean("isFavorite").default(false).notNull(),
   status: mysqlEnum("status", ["pending", "approved_dc", "approved_client"]).default("pending").notNull(),
+  approvalStatus: mysqlEnum("approvalStatus", ["pending", "in_review", "approved", "rejected"]).default("pending").notNull(),
+  approvedById: int("approvedById"),
+  approvedAt: timestamp("approvedAt"),
+  rejectionReason: text("rejectionReason"),
   uploadedById: int("uploadedById").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -1058,3 +1062,41 @@ export const timesheets = mysqlTable("timesheets", {
 
 export type Timesheet = typeof timesheets.$inferSelect;
 export type InsertTimesheet = typeof timesheets.$inferInsert;
+
+/**
+ * ArchViz Render Comments - Feedback and comments on renders
+ */
+export const archvizRenderComments = mysqlTable("archvizRenderComments", {
+  id: int("id").autoincrement().primaryKey(),
+  renderId: int("renderId").notNull(),
+  userId: int("userId").notNull(),
+  comment: text("comment").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  renderIdIdx: index("renderId_idx").on(table.renderId),
+  userIdIdx: index("userId_idx").on(table.userId),
+}));
+
+export type ArchvizRenderComment = typeof archvizRenderComments.$inferSelect;
+export type InsertArchvizRenderComment = typeof archvizRenderComments.$inferInsert;
+
+/**
+ * ArchViz Render History - Track all changes to renders
+ */
+export const archvizRenderHistory = mysqlTable("archvizRenderHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  renderId: int("renderId").notNull(),
+  userId: int("userId").notNull(),
+  action: mysqlEnum("action", ["created", "status_changed", "approved", "rejected", "commented"]).notNull(),
+  oldValue: text("oldValue"),
+  newValue: text("newValue"),
+  comment: text("comment"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  renderIdIdx: index("renderId_idx").on(table.renderId),
+  userIdIdx: index("userId_idx").on(table.userId),
+}));
+
+export type ArchvizRenderHistory = typeof archvizRenderHistory.$inferSelect;
+export type InsertArchvizRenderHistory = typeof archvizRenderHistory.$inferInsert;

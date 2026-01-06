@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { RenderLightbox } from "@/components/RenderLightbox";
+import { RenderApprovalModal } from "@/components/RenderApprovalModal";
 
 interface ProjectArchvizGalleryProps {
   projectId: number;
@@ -43,6 +44,8 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<any[]>([]);
   const [lightboxInitialIndex, setLightboxInitialIndex] = useState(0);
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
+  const [selectedRender, setSelectedRender] = useState<any>(null);
 
   // Fetch renders aggregated by project
   const { data: renders, isLoading, refetch } = trpc.projects.archviz.list.useQuery({
@@ -415,6 +418,21 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
                               </div>
                             )}
 
+                            {/* Approval Status Badge */}
+                            {latestVersion.approvalStatus && latestVersion.approvalStatus !== "pending" && (
+                              <div className="absolute bottom-2 left-2">
+                                {latestVersion.approvalStatus === "approved" && (
+                                  <Badge className="bg-green-600 text-white">Aprovado</Badge>
+                                )}
+                                {latestVersion.approvalStatus === "in_review" && (
+                                  <Badge className="bg-blue-600 text-white">Em Revisão</Badge>
+                                )}
+                                {latestVersion.approvalStatus === "rejected" && (
+                                  <Badge className="bg-red-600 text-white">Rejeitado</Badge>
+                                )}
+                              </div>
+                            )}
+
                             {/* Action Buttons Overlay */}
                             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
                               <div className="flex items-center justify-between">
@@ -439,11 +457,12 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
                                     className="h-7 w-7 p-0"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      // TODO: Implement edit
-                                      toast.info("Funcionalidade de edição em desenvolvimento");
+                                      setSelectedRender(latestVersion);
+                                      setApprovalModalOpen(true);
                                     }}
+                                    title="Gerir aprovação"
                                   >
-                                    <Edit2 className="w-4 h-4" />
+                                    <Eye className="w-4 h-4" />
                                   </Button>
                                   <Button
                                     size="sm"
@@ -584,6 +603,16 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
       </Dialog>
 
 
+
+      {/* Render Approval Modal */}
+      {selectedRender && (
+        <RenderApprovalModal
+          render={selectedRender}
+          open={approvalModalOpen}
+          onOpenChange={setApprovalModalOpen}
+          onSuccess={() => refetch()}
+        />
+      )}
 
       {/* Render Lightbox */}
       <RenderLightbox

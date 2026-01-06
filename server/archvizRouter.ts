@@ -269,6 +269,67 @@ export const archvizRouter = router({
     }),
 
   // ============================================================================
+  // APPROVAL
+  // ============================================================================
+  approval: router({
+    approve: protectedProcedure
+      .input(z.object({ renderId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await archvizDb.approveRender(input.renderId, ctx.user.id);
+        return { success: true };
+      }),
+
+    reject: protectedProcedure
+      .input(z.object({
+        renderId: z.number(),
+        reason: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await archvizDb.rejectRender(input.renderId, ctx.user.id, input.reason);
+        return { success: true };
+      }),
+
+    setInReview: protectedProcedure
+      .input(z.object({ renderId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        await archvizDb.setRenderInReview(input.renderId, ctx.user.id);
+        return { success: true };
+      }),
+  }),
+
+  // ============================================================================
+  // COMMENTS
+  // ============================================================================
+  comments: router({
+    list: protectedProcedure
+      .input(z.object({ renderId: z.number() }))
+      .query(async ({ input }) => {
+        return await archvizDb.getRenderComments(input.renderId);
+      }),
+
+    add: protectedProcedure
+      .input(z.object({
+        renderId: z.number(),
+        comment: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const id = await archvizDb.addRenderComment(input.renderId, ctx.user.id, input.comment);
+        return { id };
+      }),
+  }),
+
+  // ============================================================================
+  // HISTORY
+  // ============================================================================
+  history: router({
+    get: protectedProcedure
+      .input(z.object({ renderId: z.number() }))
+      .query(async ({ input }) => {
+        return await archvizDb.getRenderHistory(input.renderId);
+      }),
+  }),
+
+  // ============================================================================
   // ANNOTATIONS
   // ============================================================================
   annotations: router({

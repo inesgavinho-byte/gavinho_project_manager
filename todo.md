@@ -1140,3 +1140,18 @@
 - [x] Criar sistema de compartimentos por projeto
 - [x] Migrar dados existentes preservando renders
 - [x] Testar upload e visualização de renders
+
+
+## Sistema de Aprovação de Renders
+- [x] Adicionar coluna `approvalStatus` à tabela archvizRenders (pending/in_review/approved/rejected)
+- [x] Adicionar colunas `approvedBy` e `approvedAt` à tabela archvizRenders
+- [x] Criar tabela `archvizRenderComments` para feedback
+- [x] Criar tabela `archvizRenderHistory` para rastreamento de mudanças
+- [x] Implementar procedures de aprovação/rejeição no archvizRouter
+- [x] Implementar sistema de comentários no archvizRouter
+- [ ] Criar notificações automáticas para mudanças de estado (futuro)
+- [x] Adicionar badges de status na galeria de renders
+- [x] Criar modal de aprovação com comentários
+- [x] Implementar histórico de revisões na visualização de render
+- [ ] Adicionar filtros por status de aprovação (futuro)
+- [x] Testar workflow completo de aprovação
