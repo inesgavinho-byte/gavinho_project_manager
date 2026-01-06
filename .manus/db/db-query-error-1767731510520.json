@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE archvizCompartments \nMODIFY COLUMN projectId INT NOT NULL,\nADD INDEX projectId_idx (projectId);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute ALTER TABLE archvizCompartments \nMODIFY COLUMN projectId INT NOT NULL,\nADD INDEX projectId_idx (projectId);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 8200 (HY000) at line 1: Unsupported operate same column 'projectid'"
+  ]
+}

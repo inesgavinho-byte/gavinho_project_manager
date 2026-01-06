@@ -760,7 +760,7 @@ export type InsertMqtItemHistory = typeof mqtItemHistory.$inferInsert;
  */
 export const archvizCompartments = mysqlTable("archvizCompartments", {
   id: int("id").autoincrement().primaryKey(),
-  constructionId: int("constructionId").notNull(),
+  projectId: int("projectId").notNull(),
   parentId: int("parentId"), // For hierarchical organization (sub-compartments)
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
@@ -768,7 +768,7 @@ export const archvizCompartments = mysqlTable("archvizCompartments", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
-  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  projectIdIdx: index("projectId_idx").on(table.projectId),
   parentIdIdx: index("parentId_idx").on(table.parentId),
 }));
 
@@ -780,8 +780,8 @@ export type InsertArchvizCompartment = typeof archvizCompartments.$inferInsert;
  */
 export const archvizRenders = mysqlTable("archvizRenders", {
   id: int("id").autoincrement().primaryKey(),
-  compartmentId: int("compartmentId").notNull(),
-  constructionId: int("constructionId").notNull(),
+  projectId: int("projectId").notNull(),
+  compartmentId: int("compartmentId"),
   version: int("version").notNull(), // Auto-increment per compartment
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
@@ -796,8 +796,8 @@ export const archvizRenders = mysqlTable("archvizRenders", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
   compartmentIdIdx: index("compartmentId_idx").on(table.compartmentId),
-  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
   uploadedByIdIdx: index("uploadedById_idx").on(table.uploadedById),
 }));
 

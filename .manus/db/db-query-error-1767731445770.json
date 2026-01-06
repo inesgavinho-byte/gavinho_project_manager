@@ -1,0 +1,8 @@
+{
+  "query": "ALTER TABLE archvizCompartments \nADD COLUMN projectId INT NOT NULL AFTER id,\nADD INDEX projectId_idx (projectId);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute ALTER TABLE archvizCompartments \nADD COLUMN projectId INT NOT NULL AFTER id,\nADD INDEX projectId_idx (projectId);",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1072 (42000) at line 1: column does not exist: projectId"
+  ]
+}

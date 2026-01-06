@@ -522,13 +522,11 @@ export const projectsRouter = router({
     // Upload image to S3 and create render
     uploadToS3: protectedProcedure
       .input(z.object({
-        constructionId: z.number(),
-        compartmentId: z.number(),
+        projectId: z.number(),
+        compartmentId: z.number().nullable().optional(),
         name: z.string(),
         description: z.string().optional(),
         imageBase64: z.string(), // Base64 encoded image
-        mimeType: z.string(),
-        fileSize: z.number(),
       }))
       .mutation(async ({ input, ctx }) => {
         const { storagePut } = await import("./storage");
@@ -537,25 +535,29 @@ export const projectsRouter = router({
         const base64Data = input.imageBase64.split(",")[1] || input.imageBase64;
         const buffer = Buffer.from(base64Data, "base64");
         
+        // Detect mime type from base64 header
+        const mimeMatch = input.imageBase64.match(/data:([^;]+);/);
+        const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
+        
         // Generate unique file key
         const timestamp = Date.now();
         const randomSuffix = Math.random().toString(36).substring(2, 8);
-        const extension = input.mimeType.split("/")[1] || "jpg";
-        const fileKey = `archviz/${input.constructionId}/${timestamp}-${randomSuffix}.${extension}`;
+        const extension = mimeType.split("/")[1] || "jpg";
+        const fileKey = `archviz/${input.projectId}/${input.compartmentId || 'uncategorized'}/${timestamp}-${randomSuffix}.${extension}`;
         
         // Upload to S3
-        const { url: fileUrl } = await storagePut(fileKey, buffer, input.mimeType);
+        const { url: fileUrl } = await storagePut(fileKey, buffer, mimeType);
         
         // Create render in database
         const renderId = await projectsDb.uploadArchvizRender({
-          constructionId: input.constructionId,
+          projectId: input.projectId,
           compartmentId: input.compartmentId,
           name: input.name,
           description: input.description,
           fileUrl,
           fileKey,
-          mimeType: input.mimeType,
-          fileSize: input.fileSize,
+          mimeType,
+          fileSize: buffer.length,
           uploadedById: ctx.user.id,
         });
         
@@ -565,8 +567,8 @@ export const projectsRouter = router({
     // Upload new render (legacy, kept for compatibility)
     upload: protectedProcedure
       .input(z.object({
-        constructionId: z.number(),
-        compartmentId: z.number(),
+        projectId: z.number(),
+        compartmentId: z.number().nullable().optional(),
         name: z.string(),
         description: z.string().optional(),
         fileUrl: z.string(),

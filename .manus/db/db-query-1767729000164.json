@@ -1,0 +1,15 @@
+{
+  "query": "SELECT p.id, p.name, COUNT(c.id) as num_obras\nFROM projects p\nLEFT JOIN constructions c ON c.projectId = p.id\nWHERE p.name LIKE '%MYRIAD%'\nGROUP BY p.id, p.name;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute SELECT p.id, p.name, COUNT(c.id) as num_obras\nFROM projects p\nLEFT JOIN constructions c ON c.projectId = p.id\nWHERE p.name LIKE '%MYRIAD%'\nGROUP BY p.id, p.name;",
+  "rows": [
+    {
+      "id": "30010",
+      "name": "GA00469_MYRIAD",
+      "num_obras": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tnum_obras\n30010\tGA00469_MYRIAD\t1\n",
+  "stderr": "",
+  "execution_time_ms": 399
+}

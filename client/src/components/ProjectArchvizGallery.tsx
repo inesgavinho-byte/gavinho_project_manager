@@ -34,7 +34,6 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
   const [expandedCompartments, setExpandedCompartments] = useState<Set<number>>(new Set());
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [uploadData, setUploadData] = useState({
-    constructionId: 0,
     compartmentId: 0,
     name: "",
     description: "",
@@ -50,16 +49,10 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
     projectId,
   });
 
-  // Fetch constructions for upload dropdown
-  const { data: constructions } = trpc.projects.constructions.list.useQuery({
+  // Fetch compartments for this project
+  const { data: compartments } = trpc.projects.archviz.compartments.list.useQuery({
     projectId,
   });
-
-  // Fetch compartments when construction is selected
-  const { data: compartments, refetch: refetchCompartments } = trpc.projects.constructions.getCompartments.useQuery(
-    { constructionId: uploadData.constructionId },
-    { enabled: uploadData.constructionId > 0 }
-  );
 
   // Mutations
   const uploadMutation = trpc.projects.archviz.uploadToS3.useMutation({
@@ -67,7 +60,6 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
       toast.success("Render carregado com sucesso!");
       setUploadDialogOpen(false);
       setUploadData({
-        constructionId: 0,
         compartmentId: 0,
         name: "",
         description: "",
@@ -165,7 +157,7 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
   };
 
   const handleUploadSubmit = async () => {
-    if (!uploadData.file || !uploadData.constructionId || !uploadData.compartmentId || !uploadData.name) {
+    if (!uploadData.file || !uploadData.name) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
@@ -175,8 +167,8 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
     reader.onloadend = () => {
       const base64 = reader.result as string;
       uploadMutation.mutate({
-        constructionId: uploadData.constructionId,
-        compartmentId: uploadData.compartmentId,
+        projectId,
+        compartmentId: uploadData.compartmentId || null,
         name: uploadData.name,
         description: uploadData.description,
         imageBase64: base64,
@@ -224,57 +216,33 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
             </DialogHeader>
 
             <div className="space-y-4">
-              {/* Construction Selection */}
+              {/* Compartment Selection */}
               <div>
-                <Label>Obra *</Label>
+                <Label>Compartimento (opcional)</Label>
                 <Select
-                  value={uploadData.constructionId.toString()}
+                  value={uploadData.compartmentId.toString()}
                   onValueChange={(value) => {
-                    setUploadData(prev => ({ ...prev, constructionId: parseInt(value), compartmentId: 0 }));
+                    setUploadData(prev => ({ ...prev, compartmentId: parseInt(value) }));
                   }}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Selecione a obra" />
+                    <SelectValue placeholder="Selecione o compartimento" />
                   </SelectTrigger>
                   <SelectContent>
-                    {constructions?.map((construction: any) => (
-                      <SelectItem key={construction.id} value={construction.id.toString()}>
-                        {construction.code} - {construction.name}
-                      </SelectItem>
-                    ))}
+                    {compartments && compartments.length > 0 ? (
+                      compartments.map((comp: any) => (
+                        <SelectItem key={comp.id} value={comp.id.toString()}>
+                          {comp.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="px-2 py-4 text-sm text-muted-foreground text-center">
+                        Nenhum compartimento cadastrado
+                      </div>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
-
-              {/* Compartment Selection */}
-              {uploadData.constructionId > 0 && (
-                <div>
-                  <Label>Compartimento *</Label>
-                  <Select
-                    value={uploadData.compartmentId.toString()}
-                    onValueChange={(value) => {
-                      setUploadData(prev => ({ ...prev, compartmentId: parseInt(value) }));
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o compartimento" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {compartments && compartments.length > 0 ? (
-                        compartments.map((comp: any) => (
-                          <SelectItem key={comp.id} value={comp.id.toString()}>
-                            {comp.name}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <div className="px-2 py-4 text-sm text-muted-foreground text-center">
-                          Nenhum compartimento cadastrado
-                        </div>
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
 
               {/* Name */}
               <div>
@@ -524,57 +492,33 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
           </DialogHeader>
 
           <div className="space-y-4">
-            {/* Construction Selection */}
+            {/* Compartment Selection */}
             <div>
-              <Label>Obra *</Label>
+              <Label>Compartimento (opcional)</Label>
               <Select
-                value={uploadData.constructionId.toString()}
+                value={uploadData.compartmentId.toString()}
                 onValueChange={(value) => {
-                  setUploadData(prev => ({ ...prev, constructionId: parseInt(value), compartmentId: 0 }));
+                  setUploadData(prev => ({ ...prev, compartmentId: parseInt(value) }));
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione a obra" />
+                  <SelectValue placeholder="Selecione o compartimento" />
                 </SelectTrigger>
                 <SelectContent>
-                  {constructions?.map((construction: any) => (
-                    <SelectItem key={construction.id} value={construction.id.toString()}>
-                      {construction.code} - {construction.name}
-                    </SelectItem>
-                  ))}
+                  {compartments && compartments.length > 0 ? (
+                    compartments.map((comp: any) => (
+                      <SelectItem key={comp.id} value={comp.id.toString()}>
+                        {comp.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="px-2 py-4 text-sm text-muted-foreground text-center">
+                      Nenhum compartimento cadastrado
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
             </div>
-
-            {/* Compartment Selection */}
-            {uploadData.constructionId > 0 && (
-              <div>
-                <Label>Compartimento *</Label>
-                <Select
-                  value={uploadData.compartmentId.toString()}
-                  onValueChange={(value) => {
-                    setUploadData(prev => ({ ...prev, compartmentId: parseInt(value) }));
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o compartimento" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {compartments && compartments.length > 0 ? (
-                      compartments.map((comp: any) => (
-                        <SelectItem key={comp.id} value={comp.id.toString()}>
-                          {comp.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <div className="px-2 py-4 text-sm text-muted-foreground text-center">
-                        Nenhum compartimento cadastrado
-                      </div>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
 
             {/* Name */}
             <div>

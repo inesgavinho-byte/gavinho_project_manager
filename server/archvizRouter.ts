@@ -12,14 +12,14 @@ export const archvizRouter = router({
   
   compartments: router({
     list: protectedProcedure
-      .input(z.object({ constructionId: z.number() }))
+      .input(z.object({ projectId: z.number() }))
       .query(async ({ input }) => {
-        return await archvizDb.getCompartmentsByConstruction(input.constructionId);
+        return await archvizDb.getCompartmentsByProject(input.projectId);
       }),
 
     create: protectedProcedure
       .input(z.object({
-        constructionId: z.number(),
+        projectId: z.number(),
         parentId: z.number().optional(),
         name: z.string(),
         description: z.string().optional(),
@@ -63,9 +63,9 @@ export const archvizRouter = router({
       }),
 
     listByConstruction: protectedProcedure
-      .input(z.object({ constructionId: z.number() }))
+      .input(z.object({ projectId: z.number() }))
       .query(async ({ input }) => {
-        return await archvizDb.getRendersByConstruction(input.constructionId);
+        return await archvizDb.getRendersByConstruction(input.projectId);
       }),
 
     getById: protectedProcedure
@@ -80,8 +80,8 @@ export const archvizRouter = router({
 
     upload: protectedProcedure
       .input(z.object({
-        compartmentId: z.number(),
-        constructionId: z.number(),
+        compartmentId: z.number().nullable().optional(),
+        projectId: z.number(),
         name: z.string(),
         description: z.string().optional(),
         fileData: z.string(), // Base64 encoded file
@@ -89,18 +89,20 @@ export const archvizRouter = router({
         fileSize: z.number(),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Get next version number
-        const version = await archvizDb.getNextVersionNumber(input.compartmentId);
+        // Get next version number (use projectId if no compartment)
+        const version = input.compartmentId 
+          ? await archvizDb.getNextVersionNumber(input.compartmentId)
+          : await archvizDb.getNextVersionNumberByProject(input.projectId);
 
         // Upload file to S3
         const fileBuffer = Buffer.from(input.fileData, "base64");
-        const fileKey = `archviz/${input.constructionId}/${input.compartmentId}/v${version}-${Date.now()}.${input.mimeType.split("/")[1]}`;
+        const fileKey = `archviz/${input.projectId}/${input.compartmentId}/v${version}-${Date.now()}.${input.mimeType.split("/")[1]}`;
         const { url: fileUrl } = await storagePut(fileKey, fileBuffer, input.mimeType);
 
         // Create render record
         const id = await archvizDb.createRender({
           compartmentId: input.compartmentId,
-          constructionId: input.constructionId,
+          projectId: input.projectId,
           version,
           name: input.name,
           description: input.description,
@@ -242,9 +244,9 @@ export const archvizRouter = router({
   // ============================================================================
 
   stats: protectedProcedure
-    .input(z.object({ constructionId: z.number() }))
+    .input(z.object({ projectId: z.number() }))
     .query(async ({ input }) => {
-      return await archvizDb.getArchvizStats(input.constructionId);
+      return await archvizDb.getArchvizStats(input.projectId);
     }),
 
   // ============================================================================
@@ -261,9 +263,9 @@ export const archvizRouter = router({
   // REPORT DATA
   // ============================================================================
   getReportData: protectedProcedure
-    .input(z.object({ constructionId: z.number() }))
+    .input(z.object({ projectId: z.number() }))
     .query(async ({ input }) => {
-      return await archvizDb.getReportData(input.constructionId);
+      return await archvizDb.getReportData(input.projectId);
     }),
 
   // ============================================================================

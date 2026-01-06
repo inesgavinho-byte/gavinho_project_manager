@@ -1129,3 +1129,14 @@
 - [x] Implementar exportação Excel/CSV usando export nativo
 - [x] Adicionar gráficos de estatísticas (ausências/mês, horas/projeto)
 - [x] Adicionar item "Relatórios RH" no menu lateral (admin only)
+
+
+## Refatoração ArchViz - Associar Renders a Projetos
+- [x] Modificar schema: adicionar projectId à tabela archviz_renders
+- [x] Criar tabela archviz_compartments independente (não ligada a obras)
+- [x] Atualizar archvizDb.ts para trabalhar com projectId
+- [x] Modificar archvizRouter.ts para usar projetos ao invés de obras
+- [x] Simplificar ProjectArchvizGallery.tsx removendo dropdown de obra
+- [x] Criar sistema de compartimentos por projeto
+- [x] Migrar dados existentes preservando renders
+- [x] Testar upload e visualização de renders

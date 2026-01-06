@@ -14,13 +14,13 @@ import { eq, and, desc, sql, isNull } from "drizzle-orm";
 // COMPARTMENTS
 // ============================================================================
 
-export async function getCompartmentsByConstruction(constructionId: number) {
+export async function getCompartmentsByProject(projectId: number) {
   const db = await getDb();
   if (!db) return [];
   return await db
     .select()
     .from(archvizCompartments)
-    .where(eq(archvizCompartments.constructionId, constructionId))
+    .where(eq(archvizCompartments.projectId, projectId))
     .orderBy(archvizCompartments.order, archvizCompartments.name);
 }
 
@@ -73,13 +73,13 @@ export async function getRendersByCompartment(compartmentId: number) {
     .orderBy(desc(archvizRenders.version));
 }
 
-export async function getRendersByConstruction(constructionId: number) {
+export async function getRendersByConstruction(projectId: number) {
   const db = await getDb();
   if (!db) return [];
   return await db
     .select()
     .from(archvizRenders)
-    .where(eq(archvizRenders.constructionId, constructionId))
+    .where(eq(archvizRenders.projectId, projectId))
     .orderBy(desc(archvizRenders.createdAt));
 }
 
@@ -101,6 +101,17 @@ export async function getNextVersionNumber(compartmentId: number): Promise<numbe
     .select({ maxVersion: sql<number>`COALESCE(MAX(${archvizRenders.version}), 0)` })
     .from(archvizRenders)
     .where(eq(archvizRenders.compartmentId, compartmentId));
+  
+  return (result[0]?.maxVersion || 0) + 1;
+}
+
+export async function getNextVersionNumberByProject(projectId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 1;
+  const result = await db
+    .select({ maxVersion: sql<number>`COALESCE(MAX(${archvizRenders.version}), 0)` })
+    .from(archvizRenders)
+    .where(and(eq(archvizRenders.projectId, projectId), isNull(archvizRenders.compartmentId)));
   
   return (result[0]?.maxVersion || 0) + 1;
 }
@@ -189,7 +200,7 @@ export async function deleteComment(id: number) {
 // STATISTICS
 // ============================================================================
 
-export async function getArchvizStats(constructionId: number) {
+export async function getArchvizStats(projectId: number) {
   const db = await getDb();
   if (!db) return {
     compartmentCount: 0,
@@ -204,20 +215,20 @@ export async function getArchvizStats(constructionId: number) {
     db
       .select({ count: sql<number>`COUNT(*)` })
       .from(archvizCompartments)
-      .where(eq(archvizCompartments.constructionId, constructionId))
+      .where(eq(archvizCompartments.projectId, projectId))
       .then(r => r[0]?.count || 0),
     
     db
       .select({ count: sql<number>`COUNT(*)` })
       .from(archvizRenders)
-      .where(eq(archvizRenders.constructionId, constructionId))
+      .where(eq(archvizRenders.projectId, projectId))
       .then(r => r[0]?.count || 0),
     
     db
       .select({ count: sql<number>`COUNT(*)` })
       .from(archvizComments)
       .innerJoin(archvizRenders, eq(archvizComments.renderId, archvizRenders.id))
-      .where(eq(archvizRenders.constructionId, constructionId))
+      .where(eq(archvizRenders.projectId, projectId))
       .then(r => r[0]?.count || 0),
 
     db
@@ -226,7 +237,7 @@ export async function getArchvizStats(constructionId: number) {
         count: sql<number>`COUNT(*)`,
       })
       .from(archvizRenders)
-      .where(eq(archvizRenders.constructionId, constructionId))
+      .where(eq(archvizRenders.projectId, projectId))
       .groupBy(archvizRenders.status),
   ]);
 
@@ -298,45 +309,42 @@ export async function getStatusHistory(renderId: number) {
   return history;
 }
 
-export async function getConstructionByRenderId(renderId: number) {
+export async function getProjectByRenderId(renderId: number) {
   const db = await getDb();
   if (!db) return null;
   
-  const { archvizRenders, archvizCompartments, constructions } = await import("../drizzle/schema");
+  const { archvizRenders, projects } = await import("../drizzle/schema");
   
   const result = await db
     .select({
-      id: constructions.id,
-      name: constructions.name,
-      code: constructions.code,
+      id: projects.id,
+      name: projects.name,
     })
     .from(archvizRenders)
-    .innerJoin(archvizCompartments, eq(archvizRenders.compartmentId, archvizCompartments.id))
-    .innerJoin(constructions, eq(archvizCompartments.constructionId, constructions.id))
+    .innerJoin(projects, eq(archvizRenders.projectId, projects.id))
     .where(eq(archvizRenders.id, renderId))
     .limit(1);
   
   return result[0] || null;
 }
 
-export async function getReportData(constructionId: number) {
+export async function getReportData(projectId: number) {
   const db = await getDb();
   if (!db) return null;
   
-  const { constructions, archvizRenders, archvizCompartments, archvizStatusHistory, archvizComments, users } = await import("../drizzle/schema");
+  const { projects, archvizRenders, archvizCompartments, archvizStatusHistory, archvizComments, users } = await import("../drizzle/schema");
   
-  // Get construction info
-  const construction = await db
+  // Get project info
+  const project = await db
     .select({
-      id: constructions.id,
-      name: constructions.name,
-      code: constructions.code,
+      id: projects.id,
+      name: projects.name,
     })
-    .from(constructions)
-    .where(eq(constructions.id, constructionId))
+    .from(projects)
+    .where(eq(projects.id, projectId))
     .limit(1);
   
-  if (!construction[0]) return null;
+  if (!project[0]) return null;
   
   // Get all renders with compartment info
   const renders = await db
@@ -353,7 +361,7 @@ export async function getReportData(constructionId: number) {
     })
     .from(archvizRenders)
     .innerJoin(archvizCompartments, eq(archvizRenders.compartmentId, archvizCompartments.id))
-    .where(eq(archvizCompartments.constructionId, constructionId))
+    .where(eq(archvizCompartments.projectId, projectId))
     .orderBy(archvizCompartments.order, archvizRenders.version);
   
   // Get history and comments for each render
@@ -406,7 +414,7 @@ export async function getReportData(constructionId: number) {
   );
   
   return {
-    construction: construction[0],
+    project: project[0],
     stats,
     renders: rendersWithDetails,
   };

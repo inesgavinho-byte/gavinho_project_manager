@@ -776,8 +776,8 @@ export async function getProjectConstructions(projectId: number) {
  * Upload a new archviz render
  */
 export async function uploadArchvizRender(data: {
-  constructionId: number;
-  compartmentId: number;
+  projectId: number;
+  compartmentId?: number | null;
   name: string;
   description?: string;
   fileUrl: string;
@@ -792,24 +792,29 @@ export async function uploadArchvizRender(data: {
   
   const { archvizRenders } = await import("../drizzle/schema");
   
-  // Get the next version number for this compartment
+  // Get the next version number
+  const whereConditions = data.compartmentId
+    ? and(
+        eq(archvizRenders.compartmentId, data.compartmentId),
+        eq(archvizRenders.projectId, data.projectId)
+      )
+    : and(
+        eq(archvizRenders.projectId, data.projectId),
+        isNull(archvizRenders.compartmentId)
+      );
+  
   const existingRenders = await db
     .select()
     .from(archvizRenders)
-    .where(
-      and(
-        eq(archvizRenders.compartmentId, data.compartmentId),
-        eq(archvizRenders.constructionId, data.constructionId)
-      )
-    )
+    .where(whereConditions)
     .orderBy(desc(archvizRenders.version));
   
   const nextVersion = existingRenders.length > 0 ? existingRenders[0].version + 1 : 1;
   
   // Insert new render
   const result = await db.insert(archvizRenders).values({
-    constructionId: data.constructionId,
-    compartmentId: data.compartmentId,
+    projectId: data.projectId,
+    compartmentId: data.compartmentId || null,
     name: data.name,
     description: data.description || null,
     fileUrl: data.fileUrl,

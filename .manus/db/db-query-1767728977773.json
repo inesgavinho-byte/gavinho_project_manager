@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, code, name, projectId, createdAt FROM constructions ORDER BY createdAt DESC LIMIT 20;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute SELECT id, code, name, projectId, createdAt FROM constructions ORDER BY createdAt DESC LIMIT 20;",
+  "rows": [
+    {
+      "id": "2",
+      "code": "GB00402",
+      "name": "Maria Residences",
+      "projectId": "NULL",
+      "createdAt": "2026-01-05 00:14:03"
+    },
+    {
+      "id": "3",
+      "code": "GB00462",
+      "name": "Restelo Villa",
+      "projectId": "NULL",
+      "createdAt": "2026-01-05 00:14:03"
+    },
+    {
+      "id": "4",
+      "code": "GB00464",
+      "name": "Apartment IG",
+      "projectId": "NULL",
+      "createdAt": "2026-01-05 00:14:03"
+    },
+    {
+      "id": "5",
+      "code": "GA00466",
+      "name": "Penthouse SI",
+      "projectId": "30010",
+      "createdAt": "2026-01-05 00:14:03"
+    },
+    {
+      "id": "1",
+      "code": "GB00433",
+      "name": "Ourique",
+      "projectId": "NULL",
+      "createdAt": "2026-01-05 00:14:03"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcode\tname\tprojectId\tcreatedAt\n2\tGB00402\tMaria Residences\tNULL\t2026-01-05 00:14:03\n3\tGB00462\tRestelo Villa\tNULL\t2026-01-05 00:14:03\n4\tGB00464\tApartment IG\tNULL\t2026-01-05 00:14:03\n5\tGA00466\tPenthouse SI\t30010\t2026-01-05 00:14:03\n1\tGB00433\tOurique\tNULL\t2026-01-05 00:14:03\n",
+  "stderr": "",
+  "execution_time_ms": 397
+}
