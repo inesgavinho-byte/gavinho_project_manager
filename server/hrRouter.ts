@@ -128,30 +128,23 @@ export const hrRouter = router({
 
   // ========== TIMESHEETS ==========
   timesheets: router({
-    myTimesheets: protectedProcedure
-      .input(
-        z.object({
-          startDate: z.string().optional(),
-          endDate: z.string().optional(),
-        })
-      )
-      .query(async ({ ctx, input }) => {
-        return await hrDb.getUserTimesheets(
-          ctx.user.id,
-          input.startDate,
-          input.endDate
-        );
+    listMy: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await hrDb.getUserTimesheets(ctx.user.id);
+      }),
+    
+    listPending: adminProcedure
+      .query(async () => {
+        return await hrDb.getPendingTimesheets();
       }),
     
     create: protectedProcedure
       .input(
         z.object({
-          projectId: z.number().optional(),
           date: z.string(),
-          hours: z.number(),
-          description: z.string().optional(),
-          taskType: z.string().optional(),
-          isBillable: z.boolean(),
+          projectId: z.number(),
+          hours: z.number().min(0.5).max(24),
+          description: z.string().min(1),
         })
       )
       .mutation(async ({ ctx, input }) => {
@@ -159,6 +152,20 @@ export const hrRouter = router({
           userId: ctx.user.id,
           ...input,
         });
+        return { success: true };
+      }),
+    
+    approve: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await hrDb.approveTimesheet(input.id, ctx.user.id);
+        return { success: true };
+      }),
+    
+    reject: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await hrDb.rejectTimesheet(input.id, ctx.user.id);
         return { success: true };
       }),
   }),

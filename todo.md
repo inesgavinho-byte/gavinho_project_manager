@@ -1100,3 +1100,32 @@
 - [x] Criar interface de aprovação/rejeição de pedidos
 - [x] Adicionar botão "Recursos Humanos" no menu lateral (admin only)
 - [x] Dashboard de métricas RH (total equipa, pendentes, ausências, taxa aprovação)
+
+## Formulário de Pedido de Ausência
+- [x] Criar componente RequestAbsenceForm com seleção de datas
+- [x] Adicionar dropdown de tipo de ausência (férias, doença, pessoal)
+- [x] Campo de motivo/observações
+- [x] Validação de datas (não permitir datas passadas, conflitos)
+- [x] Integrar com hrRouter.absences.create
+- [x] Adicionar botão "Solicitar Ausência" na página de perfil
+- [ ] Notificar administradores quando novo pedido é criado
+
+## Página de Timesheets
+- [x] Criar página Timesheets (/timesheets)
+- [x] Formulário de registo de horas (data, projeto, horas, descrição)
+- [x] Lista de timesheets do utilizador com filtros (data, projeto)
+- [x] Tab de aprovação para gestores (pendentes, aprovados, rejeitados)
+- [x] Implementar hrRouter.timesheets procedures (create, list, approve, reject)
+- [ ] Botão de exportação para Excel/CSV
+- [x] Adicionar item "Timesheets" no menu lateral
+- [ ] Dashboard de horas totais por projeto/mês
+
+## Relatórios RH Exportáveis
+- [x] Criar página Reports (/hr-reports)
+- [x] Relatório de ausências por colaborador (filtro período)
+- [x] Relatório de ausências por departamento
+- [ ] Relatório de timesheets por projeto
+- [ ] Implementar exportação PDF usando reportlab/weasyprint
+- [x] Implementar exportação Excel/CSV usando export nativo
+- [x] Adicionar gráficos de estatísticas (ausências/mês, horas/projeto)
+- [x] Adicionar item "Relatórios RH" no menu lateral (admin only)

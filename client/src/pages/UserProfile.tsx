@@ -8,6 +8,7 @@ import { trpc } from "@/lib/trpc";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Mail, User, Calendar, Shield } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { RequestAbsenceForm } from "@/components/RequestAbsenceForm";
 
 export default function UserProfile() {
   const { user } = useAuth();
@@ -206,6 +207,19 @@ export default function UserProfile() {
                 </p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Absence Request Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Pedidos de Ausência</CardTitle>
+            <CardDescription>
+              Solicite férias, ausências por doença ou outros tipos de ausência
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RequestAbsenceForm />
           </CardContent>
         </Card>
       </div>

@@ -236,39 +236,93 @@ export async function getUserVacationDays(userId: number, year: number) {
 
 // ========== TIMESHEETS ==========
 
-export async function getUserTimesheets(userId: number, startDate?: string, endDate?: string) {
+export async function getUserTimesheets(userId: number) {
   const db = await getDb();
   if (!db) return [];
   
-  let query = db.select().from(timesheets).where(eq(timesheets.userId, userId));
+  const results = await db
+    .select({
+      id: timesheets.id,
+      date: timesheets.date,
+      hours: timesheets.hours,
+      description: timesheets.description,
+      status: timesheets.status,
+      projectCode: sql<string>`(SELECT code FROM projects WHERE id = ${timesheets.projectId})`,
+    })
+    .from(timesheets)
+    .where(eq(timesheets.userId, userId))
+    .orderBy(desc(timesheets.date));
   
-  if (startDate && endDate) {
-    query = query.where(
-      and(
-        eq(timesheets.userId, userId),
-        gte(timesheets.date, startDate),
-        lte(timesheets.date, endDate)
-      )
-    );
-  }
+  return results;
+}
+
+export async function getPendingTimesheets() {
+  const db = await getDb();
+  if (!db) return [];
   
-  return await query.orderBy(desc(timesheets.date));
+  const results = await db
+    .select({
+      id: timesheets.id,
+      date: timesheets.date,
+      hours: timesheets.hours,
+      description: timesheets.description,
+      status: timesheets.status,
+      userName: users.name,
+      userEmail: users.email,
+      projectCode: sql<string>`(SELECT code FROM projects WHERE id = ${timesheets.projectId})`,
+    })
+    .from(timesheets)
+    .leftJoin(users, eq(timesheets.userId, users.id))
+    .where(eq(timesheets.status, "pending"))
+    .orderBy(desc(timesheets.date));
+  
+  return results;
 }
 
 export async function createTimesheet(data: {
   userId: number;
-  projectId?: number;
+  projectId: number;
   date: string;
   hours: number;
-  description?: string;
-  taskType?: string;
-  isBillable: boolean;
+  description: string;
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
   await db.insert(timesheets).values({
-    ...data,
-    status: "draft",
+    userId: data.userId,
+    projectId: data.projectId,
+    date: new Date(data.date),
+    hours: data.hours,
+    description: data.description,
+    status: "pending",
   });
+}
+
+export async function approveTimesheet(id: number, approvedBy: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db
+    .update(timesheets)
+    .set({
+      status: "approved",
+      approvedBy,
+      approvedAt: new Date(),
+    })
+    .where(eq(timesheets.id, id));
+}
+
+export async function rejectTimesheet(id: number, approvedBy: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db
+    .update(timesheets)
+    .set({
+      status: "rejected",
+      approvedBy,
+      approvedAt: new Date(),
+    })
+    .where(eq(timesheets.id, id));
 }

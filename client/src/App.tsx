@@ -27,6 +27,8 @@ import Trash from "./pages/Trash";
 import TeamAccess from "./pages/TeamAccess";
 import UserProfile from "./pages/UserProfile";
 import HumanResources from "./pages/HumanResources";
+import Timesheets from "./pages/Timesheets";
+import HRReports from "./pages/HRReports";
 
 function Router() {
   return (
@@ -56,6 +58,18 @@ function Router() {
       <Route path="/hr">
         <DashboardLayout>
           <HumanResources />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/timesheets">
+        <DashboardLayout>
+          <Timesheets />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/hr-reports">
+        <DashboardLayout>
+          <HRReports />
         </DashboardLayout>
       </Route>
       
