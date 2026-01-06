@@ -11,8 +11,10 @@ import {
   Maximize2,
   Star,
   Calendar,
-  FileText
+  FileText,
+  Pencil
 } from 'lucide-react';
+import { RenderAnnotationCanvas, type Annotation } from './RenderAnnotationCanvas';
 import { cn } from '@/lib/utils';
 
 interface RenderImage {
@@ -48,6 +50,8 @@ const STATUS_COLORS: Record<string, string> = {
 
 export function RenderLightbox({ images, initialIndex, isOpen, onClose }: RenderLightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [annotationMode, setAnnotationMode] = useState(false);
+  const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [zoom, setZoom] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -221,15 +225,33 @@ export function RenderLightbox({ images, initialIndex, isOpen, onClose }: Render
           onMouseLeave={handleMouseUp}
           style={{ cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default' }}
         >
-          <img
-            src={currentImage.imageUrl}
-            alt={currentImage.name}
-            className="max-w-full max-h-full object-contain transition-transform duration-200 select-none"
-            style={{
-              transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
-            }}
-            draggable={false}
-          />
+          <div className="relative">
+            <img
+              src={currentImage.imageUrl}
+              alt={currentImage.name}
+              className="max-w-full max-h-full object-contain transition-transform duration-200 select-none"
+              style={{
+                transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
+              }}
+              draggable={false}
+            />
+            {annotationMode && (
+              <div className="absolute inset-0">
+                <RenderAnnotationCanvas
+                  imageUrl={currentImage.imageUrl}
+                  zoom={zoom}
+                  panX={position.x}
+                  panY={position.y}
+                  initialAnnotations={annotations}
+                  onSave={(newAnnotations) => {
+                    setAnnotations(newAnnotations);
+                    // TODO: Save to backend
+                    console.log('Annotations saved:', newAnnotations);
+                  }}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Navigation Arrows */}
@@ -289,6 +311,16 @@ export function RenderLightbox({ images, initialIndex, isOpen, onClose }: Render
           <div className="text-white text-xs text-center mt-1">
             {Math.round(zoom * 100)}%
           </div>
+          <div className="h-px bg-white/20 my-1" />
+          <Button
+            variant={annotationMode ? "default" : "ghost"}
+            size="icon"
+            onClick={() => setAnnotationMode(!annotationMode)}
+            className="text-white hover:bg-white/20 w-10 h-10"
+            title="Modo de Anotação"
+          >
+            <Pencil className="w-5 h-5" />
+          </Button>
         </div>
 
         {/* Thumbnail Navigation */}

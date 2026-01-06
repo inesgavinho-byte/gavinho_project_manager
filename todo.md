@@ -1031,3 +1031,17 @@
 - [x] Adicionar atalhos de teclado (ESC, setas, +/-, 0)
 - [x] Implementar animações suaves de transição
 - [x] Integrar lightbox ao clicar em thumbnail na galeria
+
+## ArchViz - Anotações e Markup Visual
+- [x] Criar componente RenderAnnotationCanvas com canvas overlay
+- [x] Implementar ferramentas de desenho: seta, círculo, retângulo, texto, caneta livre
+- [x] Adicionar seletor de cor e espessura de linha
+- [x] Criar toolbar de ferramentas no lightbox
+- [x] Implementar funcionalidade de desfazer/refazer (undo/redo)
+- [x] Adicionar botão para limpar todas as anotações
+- [x] Criar schema no banco de dados para salvar anotações (archvizAnnotations)
+- [x] Implementar tRPC procedures para salvar/carregar anotações
+- [x] Persistir anotações por render e versão
+- [ ] Carregar anotações existentes ao abrir lightbox (integração tRPC)
+- [x] Adicionar botão "Salvar Anotações" no lightbox
+- [ ] Implementar exportação de render com anotações como imagem

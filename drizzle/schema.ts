@@ -805,6 +805,24 @@ export type ArchvizRender = typeof archvizRenders.$inferSelect;
 export type InsertArchvizRender = typeof archvizRenders.$inferInsert;
 
 /**
+ * ArchViz Annotations - Visual annotations on renders
+ */
+export const archvizAnnotations = mysqlTable("archvizAnnotations", {
+  id: int("id").autoincrement().primaryKey(),
+  renderId: int("renderId").notNull(),
+  annotationsData: json("annotationsData").notNull(), // JSON array of annotations
+  createdById: int("createdById").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  renderIdIdx: index("renderId_idx").on(table.renderId),
+  createdByIdIdx: index("createdById_idx").on(table.createdById),
+}));
+
+export type ArchvizAnnotation = typeof archvizAnnotations.$inferSelect;
+export type InsertArchvizAnnotation = typeof archvizAnnotations.$inferInsert;
+
+/**
  * ArchViz Comments - Comments on renders
  */
 export const archvizComments = mysqlTable("archvizComments", {

@@ -257,13 +257,40 @@ export const archvizRouter = router({
       return await archvizDb.getStatusHistory(input.renderId);
     }),
 
-  // ============================================================================
+   // ============================================================================
   // REPORT DATA
   // ============================================================================
-
   getReportData: protectedProcedure
     .input(z.object({ constructionId: z.number() }))
     .query(async ({ input }) => {
       return await archvizDb.getReportData(input.constructionId);
     }),
+
+  // ============================================================================
+  // ANNOTATIONS
+  // ============================================================================
+  annotations: router({
+    get: protectedProcedure
+      .input(z.object({ renderId: z.number() }))
+      .query(async ({ input }) => {
+        return await archvizDb.getAnnotations(input.renderId);
+      }),
+
+    save: protectedProcedure
+      .input(z.object({
+        renderId: z.number(),
+        annotations: z.array(z.object({
+          id: z.string(),
+          type: z.enum(["arrow", "circle", "rectangle", "text", "pen"]),
+          color: z.string(),
+          lineWidth: z.number(),
+          points: z.array(z.object({ x: z.number(), y: z.number() })),
+          text: z.string().optional(),
+        })),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        await archvizDb.saveAnnotations(input.renderId, input.annotations, ctx.user.id);
+        return { success: true };
+      }),
+  }),
 });

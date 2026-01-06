@@ -3,6 +3,7 @@ import {
   archvizCompartments, 
   archvizRenders, 
   archvizComments,
+  archvizAnnotations,
   type InsertArchvizCompartment,
   type InsertArchvizRender,
   type InsertArchvizComment
@@ -409,4 +410,63 @@ export async function getReportData(constructionId: number) {
     stats,
     renders: rendersWithDetails,
   };
+}
+
+// ============================================================================
+// ANNOTATIONS
+// ============================================================================
+
+export async function getAnnotations(renderId: number) {
+  const db = await getDb();
+  if (!db) return { annotations: [] };
+  
+  const result = await db
+    .select()
+    .from(archvizAnnotations)
+    .where(eq(archvizAnnotations.renderId, renderId))
+    .orderBy(desc(archvizAnnotations.updatedAt))
+    .limit(1);
+  
+  if (result.length === 0) {
+    return { annotations: [] };
+  }
+  
+  return {
+    annotations: result[0].annotationsData as any[],
+    updatedAt: result[0].updatedAt,
+  };
+}
+
+export async function saveAnnotations(
+  renderId: number,
+  annotations: any[],
+  userId: number
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not initialized");
+  
+  // Check if annotations exist for this render
+  const existing = await db
+    .select()
+    .from(archvizAnnotations)
+    .where(eq(archvizAnnotations.renderId, renderId))
+    .limit(1);
+  
+  if (existing.length > 0) {
+    // Update existing
+    await db
+      .update(archvizAnnotations)
+      .set({
+        annotationsData: annotations as any,
+        updatedAt: new Date(),
+      })
+      .where(eq(archvizAnnotations.id, existing[0].id));
+  } else {
+    // Create new
+    await db.insert(archvizAnnotations).values({
+      renderId,
+      annotationsData: annotations as any,
+      createdById: userId,
+    });
+  }
 }
