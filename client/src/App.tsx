@@ -24,6 +24,7 @@ import Constructions from "./pages/Constructions";
 import ConstructionDetails from "./pages/ConstructionDetails";
 import MqtAnalyticsDashboard from "./pages/MqtAnalyticsDashboard";
 import Trash from "./pages/Trash";
+import TeamAccess from "./pages/TeamAccess";
 
 function Router() {
   return (
@@ -44,6 +45,10 @@ function Router() {
         <DashboardLayout>
           <ProjectDetails />
         </DashboardLayout>
+      </Route>
+      
+      <Route path="/team-access">
+        <TeamAccess />
       </Route>
       
       <Route path="/trash">

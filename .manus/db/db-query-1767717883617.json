@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COUNT(*) as total FROM users WHERE email LIKE '%@gavinhogroup.com' OR email LIKE '%@by-gavinho.com';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute SELECT COUNT(*) as total FROM users WHERE email LIKE '%@gavinhogroup.com' OR email LIKE '%@by-gavinho.com';",
+  "rows": [
+    {
+      "total": "16"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\n16\n",
+  "stderr": "",
+  "execution_time_ms": 385
+}

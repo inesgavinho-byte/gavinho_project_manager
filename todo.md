@@ -1056,3 +1056,25 @@
 - [x] Adicionar loading states durante save/load
 - [x] Mostrar toast de sucesso/erro após salvar
 - [x] Testar persistência completa (salvar, fechar, reabrir)
+
+## Gestão de Utilizadores - Registo da Equipa
+- [x] Gerar passwords aleatórias seguras (12 caracteres) - N/A (OAuth)
+- [x] Criar script para registar 7 utilizadores no banco de dados
+- [x] Executar script e validar registos
+- [x] Gerar documento com lista de credenciais (email + instruções OAuth)
+- [x] Entregar lista ao utilizador
+
+## Portal de Acesso da Equipa
+- [x] Criar página HTML do portal de acesso
+- [x] Design profissional com identidade Gavinho
+- [x] Seção de utilizadores registados
+- [x] Instruções passo a passo de login OAuth
+- [x] Seção de funcionalidades disponíveis
+- [x] Testar responsividade mobile/desktop
+- [x] Deploy e validação
+
+## Registo de Novos Utilizadores (Lote 2)
+- [x] Registar 8 novos utilizadores no banco de dados
+- [x] Atualizar portal TeamAccess com lista completa (15 membros)
+- [x] Gerar documento atualizado de credenciais
+- [x] Testar portal com lista expandida
