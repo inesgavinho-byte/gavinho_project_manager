@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { RenderLightbox } from "@/components/RenderLightbox";
 
 interface ProjectArchvizGalleryProps {
   projectId: number;
@@ -41,7 +42,8 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
   });
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [selectedRender, setSelectedRender] = useState<any | null>(null);
+  const [lightboxImages, setLightboxImages] = useState<any[]>([]);
+  const [lightboxInitialIndex, setLightboxInitialIndex] = useState(0);
 
   // Fetch renders aggregated by project
   const { data: renders, isLoading, refetch } = trpc.projects.archviz.list.useQuery({
@@ -408,7 +410,20 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
                           {/* Thumbnail */}
                           <div className="relative aspect-video rounded-lg overflow-hidden border border-[#C3BAAF] cursor-pointer"
                             onClick={() => {
-                              setSelectedRender(latestVersion);
+                              // Open lightbox with all versions of this render
+                              const allVersions = versions.map((v: any) => ({
+                                id: v.id,
+                                name: v.name,
+                                imageUrl: v.fileUrl,
+                                version: v.version,
+                                status: v.status,
+                                isFavorite: v.isFavorite,
+                                createdAt: v.createdAt,
+                                compartmentName: compartment.name,
+                                constructionCode: compartment.constructionCode,
+                              }));
+                              setLightboxImages(allVersions);
+                              setLightboxInitialIndex(allVersions.length - 1); // Start with latest version
                               setLightboxOpen(true);
                             }}
                           >
@@ -624,40 +639,15 @@ export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps)
         </DialogContent>
       </Dialog>
 
-      {/* Lightbox Dialog */}
-      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <DialogContent className="max-w-6xl">
-          {selectedRender && (
-            <>
-              <DialogHeader>
-                <DialogTitle>{selectedRender.name} - Versão {selectedRender.version}</DialogTitle>
-                <DialogDescription>
-                  {selectedRender.constructionCode} • {selectedRender.compartmentName}
-                </DialogDescription>
-              </DialogHeader>
 
-              <div className="space-y-4">
-                <img
-                  src={selectedRender.fileUrl}
-                  alt={selectedRender.name}
-                  className="w-full h-auto rounded-lg"
-                />
 
-                {selectedRender.description && (
-                  <div>
-                    <h4 className="font-semibold mb-2">Descrição</h4>
-                    <p className="text-sm text-muted-foreground">{selectedRender.description}</p>
-                  </div>
-                )}
-
-                <div className="text-sm text-muted-foreground">
-                  Carregado em {new Date(selectedRender.uploadedAt).toLocaleString()} por {selectedRender.uploaderName}
-                </div>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Render Lightbox */}
+      <RenderLightbox
+        images={lightboxImages}
+        initialIndex={lightboxInitialIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </div>
   );
 }

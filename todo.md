@@ -1019,3 +1019,15 @@
 - [x] Corrigir função getProjectArchvizRenders para usar inArray
 - [x] Adicionar leftJoin com archvizCompartments para obter nome do compartimento
 - [x] Criar estatísticas globais no header (total de imagens, vistas e compartimentos)
+
+## ArchViz - Modal Lightbox de Visualização
+- [x] Criar componente RenderLightbox com Dialog do shadcn/ui
+- [x] Implementar navegação entre imagens (setas e teclado)
+- [x] Adicionar funcionalidade de zoom (botões e scroll do mouse)
+- [x] Criar controles de zoom in/out e reset
+- [x] Implementar pan/drag quando imagem está com zoom
+- [x] Adicionar informações do render (nome, versão, status, data)
+- [x] Criar thumbnails de navegação na parte inferior
+- [x] Adicionar atalhos de teclado (ESC, setas, +/-, 0)
+- [x] Implementar animações suaves de transição
+- [x] Integrar lightbox ao clicar em thumbnail na galeria
