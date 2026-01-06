@@ -1044,7 +1044,11 @@
 - [x] Persistir anotações por render e versão
 - [x] Carregar anotações existentes ao abrir lightbox (integração tRPC)
 - [x] Adicionar botão "Salvar Anotações" no lightbox
-- [ ] Implementar exportação de render com anotações como imagem
+- [x] Implementar exportação de render com anotações como imagem
+  - [x] Adicionar botão "Exportar" na toolbar de anotações
+  - [x] Criar função para combinar imagem original + canvas de anotações
+  - [x] Implementar download automático do PNG gerado
+  - [x] Adicionar toast de feedback após exportação
 
 ## ArchViz - Integração tRPC de Anotações
 - [x] Adicionar useQuery para carregar anotações ao abrir lightbox

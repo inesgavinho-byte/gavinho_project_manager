@@ -187,6 +187,160 @@ export function RenderLightbox({ images, initialIndex, isOpen, onClose }: Render
     setIsDragging(false);
   }, []);
 
+  // Export annotated image
+  const handleExportAnnotatedImage = useCallback(async () => {
+    try {
+      // Create a temporary canvas to combine image + annotations
+      const exportCanvas = document.createElement('canvas');
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = () => {
+        exportCanvas.width = img.width;
+        exportCanvas.height = img.height;
+        const ctx = exportCanvas.getContext('2d');
+        
+        if (!ctx) {
+          toast({
+            title: "Erro ao exportar",
+            description: "Não foi possível criar o canvas de exportação.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Draw original image
+        ctx.drawImage(img, 0, 0);
+
+        // Draw annotations
+        annotations.forEach((annotation) => {
+          ctx.strokeStyle = annotation.color;
+          ctx.lineWidth = annotation.lineWidth;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+
+          const points = annotation.points;
+          if (points.length < 2) return;
+
+          ctx.beginPath();
+
+          switch (annotation.tool) {
+            case 'arrow': {
+              const start = points[0];
+              const end = points[points.length - 1];
+              
+              // Draw line
+              ctx.moveTo(start.x, start.y);
+              ctx.lineTo(end.x, end.y);
+              ctx.stroke();
+
+              // Draw arrowhead
+              const angle = Math.atan2(end.y - start.y, end.x - start.x);
+              const headLength = 15;
+              ctx.beginPath();
+              ctx.moveTo(end.x, end.y);
+              ctx.lineTo(
+                end.x - headLength * Math.cos(angle - Math.PI / 6),
+                end.y - headLength * Math.sin(angle - Math.PI / 6)
+              );
+              ctx.moveTo(end.x, end.y);
+              ctx.lineTo(
+                end.x - headLength * Math.cos(angle + Math.PI / 6),
+                end.y - headLength * Math.sin(angle + Math.PI / 6)
+              );
+              ctx.stroke();
+              break;
+            }
+
+            case 'circle': {
+              const start = points[0];
+              const end = points[points.length - 1];
+              const radius = Math.sqrt(
+                Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2)
+              );
+              ctx.arc(start.x, start.y, radius, 0, 2 * Math.PI);
+              ctx.stroke();
+              break;
+            }
+
+            case 'rectangle': {
+              const start = points[0];
+              const end = points[points.length - 1];
+              ctx.strokeRect(
+                start.x,
+                start.y,
+                end.x - start.x,
+                end.y - start.y
+              );
+              break;
+            }
+
+            case 'pen': {
+              ctx.moveTo(points[0].x, points[0].y);
+              for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+              }
+              ctx.stroke();
+              break;
+            }
+
+            case 'text': {
+              if (annotation.text) {
+                ctx.font = `${annotation.lineWidth * 8}px sans-serif`;
+                ctx.fillStyle = annotation.color;
+                ctx.fillText(annotation.text, points[0].x, points[0].y);
+              }
+              break;
+            }
+          }
+        });
+
+        // Convert to blob and download
+        exportCanvas.toBlob((blob) => {
+          if (!blob) {
+            toast({
+              title: "Erro ao exportar",
+              description: "Não foi possível gerar a imagem.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${currentImage.name}_anotado.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+
+          toast({
+            title: "Exportação concluída",
+            description: "Imagem com anotações exportada com sucesso.",
+          });
+        }, 'image/png');
+      };
+
+      img.onerror = () => {
+        toast({
+          title: "Erro ao carregar imagem",
+          description: "Não foi possível carregar a imagem original.",
+          variant: "destructive",
+        });
+      };
+
+      img.src = currentImage.imageUrl;
+    } catch (error) {
+      console.error('Export error:', error);
+      toast({
+        title: "Erro ao exportar",
+        description: "Ocorreu um erro durante a exportação.",
+        variant: "destructive",
+      });
+    }
+  }, [currentImage, annotations, toast]);
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-PT', {
       day: '2-digit',
@@ -283,6 +437,7 @@ export function RenderLightbox({ images, initialIndex, isOpen, onClose }: Render
                       annotations: newAnnotations,
                     });
                   }}
+                  onExport={handleExportAnnotatedImage}
                 />
               </div>
             )}

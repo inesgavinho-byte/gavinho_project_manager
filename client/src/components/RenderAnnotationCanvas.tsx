@@ -10,6 +10,7 @@ import {
   Redo,
   Trash2,
   Save,
+  Download,
 } from "lucide-react";
 import {
   Select,
@@ -43,6 +44,7 @@ interface RenderAnnotationCanvasProps {
   panY: number;
   initialAnnotations?: Annotation[];
   onSave?: (annotations: Annotation[]) => void;
+  onExport?: () => void;
 }
 
 export function RenderAnnotationCanvas({
@@ -52,6 +54,7 @@ export function RenderAnnotationCanvas({
   panY,
   initialAnnotations = [],
   onSave,
+  onExport,
 }: RenderAnnotationCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
@@ -442,6 +445,19 @@ export function RenderAnnotationCanvas({
           >
             <Save className="h-4 w-4 mr-1" />
             Salvar
+          </Button>
+        )}
+
+        {onExport && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onExport}
+            className="w-full"
+            title="Exportar Imagem com Anotações"
+          >
+            <Download className="h-4 w-4 mr-1" />
+            Exportar
           </Button>
         )}
       </div>
