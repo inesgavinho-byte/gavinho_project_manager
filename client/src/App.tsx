@@ -29,6 +29,13 @@ import UserProfile from "./pages/UserProfile";
 import HumanResources from "./pages/HumanResources";
 import Timesheets from "./pages/Timesheets";
 import HRReports from "./pages/HRReports";
+      <Route path="/site-management">
+        <DashboardLayout>
+          <SiteManagement />
+        </DashboardLayout>
+      </Route>
+
+import SiteManagement from "./pages/SiteManagement";
 
 function Router() {
   return (

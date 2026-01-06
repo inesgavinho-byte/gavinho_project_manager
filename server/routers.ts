@@ -28,6 +28,7 @@ import { constructionsRouter } from "./constructionsRouter";
 import { archvizRouter } from "./archvizRouter";
 import { mqtRouter } from "./mqtRouter";
 import { hrRouter } from "./hrRouter";
+import { siteManagementRouter } from "./siteManagementRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -62,6 +63,7 @@ export const appRouter = router({
 
   // HR - Recursos Humanos
   hr: hrRouter,
+  siteManagement: siteManagementRouter,
 
   // MQT - Mapa de Quantidades
   mqt: mqtRouter,

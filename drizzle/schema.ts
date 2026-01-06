@@ -1100,3 +1100,518 @@ export const archvizRenderHistory = mysqlTable("archvizRenderHistory", {
 
 export type ArchvizRenderHistory = typeof archvizRenderHistory.$inferSelect;
 export type InsertArchvizRenderHistory = typeof archvizRenderHistory.$inferInsert;
+
+
+// ============================================================================
+// SITE MANAGEMENT MODULE - Gestão de Obra
+// ============================================================================
+
+/**
+ * Site Workers - Trabalhadores em obra
+ */
+export const siteWorkers = mysqlTable("siteWorkers", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  userId: int("userId"), // Link to users table if they have account
+  name: varchar("name", { length: 255 }).notNull(),
+  role: mysqlEnum("role", ["worker", "foreman", "technician", "engineer"]).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  email: varchar("email", { length: 255 }),
+  company: varchar("company", { length: 255 }), // For external workers
+  isActive: boolean("isActive").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  userIdIdx: index("userId_idx").on(table.userId),
+}));
+
+export type SiteWorker = typeof siteWorkers.$inferSelect;
+export type InsertSiteWorker = typeof siteWorkers.$inferInsert;
+
+/**
+ * Site Attendance - Picagem de ponto
+ */
+export const siteAttendance = mysqlTable("siteAttendance", {
+  id: int("id").autoincrement().primaryKey(),
+  workerId: int("workerId").notNull(),
+  constructionId: int("constructionId").notNull(),
+  checkIn: timestamp("checkIn").notNull(),
+  checkOut: timestamp("checkOut"),
+  location: text("location"), // GPS coordinates
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  workerIdIdx: index("workerId_idx").on(table.workerId),
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  checkInIdx: index("checkIn_idx").on(table.checkIn),
+}));
+
+export type SiteAttendance = typeof siteAttendance.$inferSelect;
+export type InsertSiteAttendance = typeof siteAttendance.$inferInsert;
+
+/**
+ * Site Work Hours - Registo de horas trabalhadas por tarefa
+ */
+export const siteWorkHours = mysqlTable("siteWorkHours", {
+  id: int("id").autoincrement().primaryKey(),
+  workerId: int("workerId").notNull(),
+  constructionId: int("constructionId").notNull(),
+  date: date("date").notNull(),
+  taskDescription: text("taskDescription").notNull(),
+  hours: decimal("hours", { precision: 5, scale: 2 }).notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  approvedBy: int("approvedBy"),
+  approvedAt: timestamp("approvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  workerIdIdx: index("workerId_idx").on(table.workerId),
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  dateIdx: index("date_idx").on(table.date),
+}));
+
+export type SiteWorkHours = typeof siteWorkHours.$inferSelect;
+export type InsertSiteWorkHours = typeof siteWorkHours.$inferInsert;
+
+/**
+ * Site Material Requests - Requisição de materiais
+ */
+export const siteMaterialRequests = mysqlTable("siteMaterialRequests", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  requestedBy: int("requestedBy").notNull(),
+  materialName: varchar("materialName", { length: 255 }).notNull(),
+  quantity: decimal("quantity", { precision: 10, scale: 2 }).notNull(),
+  unit: varchar("unit", { length: 50 }).notNull(),
+  urgency: mysqlEnum("urgency", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  reason: text("reason"),
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "delivered"]).default("pending").notNull(),
+  approvedBy: int("approvedBy"),
+  approvedAt: timestamp("approvedAt"),
+  deliveredAt: timestamp("deliveredAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  requestedByIdx: index("requestedBy_idx").on(table.requestedBy),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type SiteMaterialRequest = typeof siteMaterialRequests.$inferSelect;
+export type InsertSiteMaterialRequest = typeof siteMaterialRequests.$inferInsert;
+
+/**
+ * Site Material Usage - Consumo de materiais
+ */
+export const siteMaterialUsage = mysqlTable("siteMaterialUsage", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  usedBy: int("usedBy").notNull(),
+  materialName: varchar("materialName", { length: 255 }).notNull(),
+  quantity: decimal("quantity", { precision: 10, scale: 2 }).notNull(),
+  unit: varchar("unit", { length: 50 }).notNull(),
+  location: varchar("location", { length: 255 }), // Where in the site
+  notes: text("notes"),
+  date: date("date").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  usedByIdx: index("usedBy_idx").on(table.usedBy),
+  dateIdx: index("date_idx").on(table.date),
+}));
+
+export type SiteMaterialUsage = typeof siteMaterialUsage.$inferSelect;
+export type InsertSiteMaterialUsage = typeof siteMaterialUsage.$inferInsert;
+
+/**
+ * Site Tools - Ferramentas
+ */
+export const siteTools = mysqlTable("siteTools", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId"),
+  name: varchar("name", { length: 255 }).notNull(),
+  code: varchar("code", { length: 100 }).notNull(),
+  category: varchar("category", { length: 100 }),
+  brand: varchar("brand", { length: 100 }),
+  model: varchar("model", { length: 100 }),
+  serialNumber: varchar("serialNumber", { length: 100 }),
+  purchaseDate: date("purchaseDate"),
+  purchasePrice: decimal("purchasePrice", { precision: 10, scale: 2 }),
+  status: mysqlEnum("status", ["available", "in_use", "maintenance", "broken", "retired"]).default("available").notNull(),
+  condition: mysqlEnum("condition", ["excellent", "good", "fair", "poor"]).default("good").notNull(),
+  lastMaintenanceDate: date("lastMaintenanceDate"),
+  nextMaintenanceDate: date("nextMaintenanceDate"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  codeIdx: index("code_idx").on(table.code),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type SiteTool = typeof siteTools.$inferSelect;
+export type InsertSiteTool = typeof siteTools.$inferInsert;
+
+/**
+ * Site Tool Assignments - Atribuição de ferramentas a trabalhadores
+ */
+export const siteToolAssignments = mysqlTable("siteToolAssignments", {
+  id: int("id").autoincrement().primaryKey(),
+  toolId: int("toolId").notNull(),
+  workerId: int("workerId").notNull(),
+  constructionId: int("constructionId").notNull(),
+  assignedAt: timestamp("assignedAt").notNull(),
+  returnedAt: timestamp("returnedAt"),
+  assignedBy: int("assignedBy").notNull(),
+  returnCondition: mysqlEnum("returnCondition", ["excellent", "good", "fair", "poor", "damaged"]),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  toolIdIdx: index("toolId_idx").on(table.toolId),
+  workerIdIdx: index("workerId_idx").on(table.workerId),
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+}));
+
+export type SiteToolAssignment = typeof siteToolAssignments.$inferSelect;
+export type InsertSiteToolAssignment = typeof siteToolAssignments.$inferInsert;
+
+/**
+ * Site Tool Maintenance - Manutenção de ferramentas
+ */
+export const siteToolMaintenance = mysqlTable("siteToolMaintenance", {
+  id: int("id").autoincrement().primaryKey(),
+  toolId: int("toolId").notNull(),
+  type: mysqlEnum("type", ["preventive", "corrective", "replacement"]).notNull(),
+  description: text("description").notNull(),
+  cost: decimal("cost", { precision: 10, scale: 2 }),
+  requestedBy: int("requestedBy"),
+  performedBy: varchar("performedBy", { length: 255 }),
+  status: mysqlEnum("status", ["requested", "in_progress", "completed", "cancelled"]).default("requested").notNull(),
+  requestedAt: timestamp("requestedAt").notNull(),
+  completedAt: timestamp("completedAt"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  toolIdIdx: index("toolId_idx").on(table.toolId),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type SiteToolMaintenance = typeof siteToolMaintenance.$inferSelect;
+export type InsertSiteToolMaintenance = typeof siteToolMaintenance.$inferInsert;
+
+/**
+ * Site Work Photos - Fotografias de trabalhos executados
+ */
+export const siteWorkPhotos = mysqlTable("siteWorkPhotos", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  uploadedBy: int("uploadedBy").notNull(),
+  uploaderType: mysqlEnum("uploaderType", ["worker", "subcontractor", "director", "inspector", "safety"]).notNull(),
+  photoUrl: varchar("photoUrl", { length: 500 }).notNull(),
+  description: text("description"),
+  location: varchar("location", { length: 255 }),
+  tags: text("tags"), // JSON array of tags
+  date: date("date").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  uploadedByIdx: index("uploadedBy_idx").on(table.uploadedBy),
+  dateIdx: index("date_idx").on(table.date),
+}));
+
+export type SiteWorkPhoto = typeof siteWorkPhotos.$inferSelect;
+export type InsertSiteWorkPhoto = typeof siteWorkPhotos.$inferInsert;
+
+/**
+ * Site Incidents - Ocorrências em obra
+ */
+export const siteIncidents = mysqlTable("siteIncidents", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  reportedBy: int("reportedBy").notNull(),
+  type: mysqlEnum("type", ["safety", "quality", "delay", "damage", "theft", "other"]).notNull(),
+  severity: mysqlEnum("severity", ["low", "medium", "high", "critical"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  location: varchar("location", { length: 255 }),
+  photos: text("photos"), // JSON array of photo URLs
+  status: mysqlEnum("status", ["open", "investigating", "resolved", "closed"]).default("open").notNull(),
+  resolvedBy: int("resolvedBy"),
+  resolvedAt: timestamp("resolvedAt"),
+  resolution: text("resolution"),
+  date: timestamp("date").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  reportedByIdx: index("reportedBy_idx").on(table.reportedBy),
+  statusIdx: index("status_idx").on(table.status),
+  dateIdx: index("date_idx").on(table.date),
+}));
+
+export type SiteIncident = typeof siteIncidents.$inferSelect;
+export type InsertSiteIncident = typeof siteIncidents.$inferInsert;
+
+/**
+ * Site Subcontractors - Subempreiteiros
+ */
+export const siteSubcontractors = mysqlTable("siteSubcontractors", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  companyName: varchar("companyName", { length: 255 }).notNull(),
+  contactPerson: varchar("contactPerson", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  nif: varchar("nif", { length: 50 }),
+  specialty: varchar("specialty", { length: 255 }).notNull(),
+  contractValue: decimal("contractValue", { precision: 12, scale: 2 }),
+  startDate: date("startDate"),
+  endDate: date("endDate"),
+  status: mysqlEnum("status", ["active", "inactive", "completed"]).default("active").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type SiteSubcontractor = typeof siteSubcontractors.$inferSelect;
+export type InsertSiteSubcontractor = typeof siteSubcontractors.$inferInsert;
+
+/**
+ * Site Subcontractor Work - Trabalhos de subempreiteiros
+ */
+export const siteSubcontractorWork = mysqlTable("siteSubcontractorWork", {
+  id: int("id").autoincrement().primaryKey(),
+  subcontractorId: int("subcontractorId").notNull(),
+  constructionId: int("constructionId").notNull(),
+  date: date("date").notNull(),
+  workDescription: text("workDescription").notNull(),
+  teamSize: int("teamSize"),
+  hoursWorked: decimal("hoursWorked", { precision: 5, scale: 2 }),
+  progress: decimal("progress", { precision: 5, scale: 2 }), // Percentage
+  photos: text("photos"), // JSON array of photo URLs
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  approvedBy: int("approvedBy"),
+  approvedAt: timestamp("approvedAt"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  subcontractorIdIdx: index("subcontractorId_idx").on(table.subcontractorId),
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  dateIdx: index("date_idx").on(table.date),
+}));
+
+export type SiteSubcontractorWork = typeof siteSubcontractorWork.$inferSelect;
+export type InsertSiteSubcontractorWork = typeof siteSubcontractorWork.$inferInsert;
+
+/**
+ * Site Visits - Visitas à obra (Direção/Fiscalização)
+ */
+export const siteVisits = mysqlTable("siteVisits", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  visitedBy: int("visitedBy").notNull(),
+  visitorType: mysqlEnum("visitorType", ["director", "inspector", "client", "architect", "engineer"]).notNull(),
+  date: timestamp("date").notNull(),
+  duration: int("duration"), // Minutes
+  purpose: text("purpose"),
+  observations: text("observations"),
+  photos: text("photos"), // JSON array of photo URLs
+  attendees: text("attendees"), // JSON array of attendee names
+  reportGenerated: boolean("reportGenerated").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  visitedByIdx: index("visitedBy_idx").on(table.visitedBy),
+  dateIdx: index("date_idx").on(table.date),
+}));
+
+export type SiteVisit = typeof siteVisits.$inferSelect;
+export type InsertSiteVisit = typeof siteVisits.$inferInsert;
+
+/**
+ * Site Non-Compliances - Não conformidades
+ */
+export const siteNonCompliances = mysqlTable("siteNonCompliances", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  reportedBy: int("reportedBy").notNull(),
+  reporterType: mysqlEnum("reporterType", ["director", "inspector", "safety", "quality"]).notNull(),
+  type: mysqlEnum("type", ["quality", "safety", "environmental", "contractual", "other"]).notNull(),
+  severity: mysqlEnum("severity", ["minor", "major", "critical"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  location: varchar("location", { length: 255 }),
+  responsibleParty: varchar("responsibleParty", { length: 255 }), // Who is responsible
+  photos: text("photos"), // JSON array of photo URLs
+  correctiveAction: text("correctiveAction"),
+  deadline: date("deadline"),
+  status: mysqlEnum("status", ["open", "in_progress", "resolved", "closed"]).default("open").notNull(),
+  resolvedBy: int("resolvedBy"),
+  resolvedAt: timestamp("resolvedAt"),
+  verifiedBy: int("verifiedBy"),
+  verifiedAt: timestamp("verifiedAt"),
+  reportGenerated: boolean("reportGenerated").default(false).notNull(),
+  reportUrl: varchar("reportUrl", { length: 500 }),
+  date: timestamp("date").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  reportedByIdx: index("reportedBy_idx").on(table.reportedBy),
+  statusIdx: index("status_idx").on(table.status),
+  dateIdx: index("date_idx").on(table.date),
+}));
+
+export type SiteNonCompliance = typeof siteNonCompliances.$inferSelect;
+export type InsertSiteNonCompliance = typeof siteNonCompliances.$inferInsert;
+
+/**
+ * Site Quantity Map - Mapa de quantidades
+ */
+export const siteQuantityMap = mysqlTable("siteQuantityMap", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  category: varchar("category", { length: 255 }).notNull(),
+  item: varchar("item", { length: 255 }).notNull(),
+  description: text("description"),
+  unit: varchar("unit", { length: 50 }).notNull(),
+  plannedQuantity: decimal("plannedQuantity", { precision: 12, scale: 2 }).notNull(),
+  currentQuantity: decimal("currentQuantity", { precision: 12, scale: 2 }).default("0").notNull(),
+  unitPrice: decimal("unitPrice", { precision: 10, scale: 2 }),
+  order: int("order").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  categoryIdx: index("category_idx").on(table.category),
+}));
+
+export type SiteQuantityMap = typeof siteQuantityMap.$inferSelect;
+export type InsertSiteQuantityMap = typeof siteQuantityMap.$inferInsert;
+
+/**
+ * Site Quantity Progress - Evolução de quantidades
+ */
+export const siteQuantityProgress = mysqlTable("siteQuantityProgress", {
+  id: int("id").autoincrement().primaryKey(),
+  quantityMapId: int("quantityMapId").notNull(),
+  constructionId: int("constructionId").notNull(),
+  updatedBy: int("updatedBy").notNull(),
+  date: date("date").notNull(),
+  quantity: decimal("quantity", { precision: 12, scale: 2 }).notNull(),
+  notes: text("notes"),
+  photos: text("photos"), // JSON array of photo URLs
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  quantityMapIdIdx: index("quantityMapId_idx").on(table.quantityMapId),
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  dateIdx: index("date_idx").on(table.date),
+}));
+
+export type SiteQuantityProgress = typeof siteQuantityProgress.$inferSelect;
+export type InsertSiteQuantityProgress = typeof siteQuantityProgress.$inferInsert;
+
+/**
+ * Site Safety Audits - Auditorias de segurança
+ */
+export const siteSafetyAudits = mysqlTable("siteSafetyAudits", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  auditedBy: int("auditedBy").notNull(),
+  date: timestamp("date").notNull(),
+  type: mysqlEnum("type", ["routine", "special", "incident_followup"]).notNull(),
+  checklist: text("checklist"), // JSON array of checklist items
+  findings: text("findings"),
+  nonCompliances: text("nonCompliances"), // JSON array of non-compliance IDs
+  recommendations: text("recommendations"),
+  photos: text("photos"), // JSON array of photo URLs
+  score: int("score"), // Overall safety score 0-100
+  status: mysqlEnum("status", ["draft", "completed", "approved"]).default("draft").notNull(),
+  reportGenerated: boolean("reportGenerated").default(false).notNull(),
+  reportUrl: varchar("reportUrl", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  auditedByIdx: index("auditedBy_idx").on(table.auditedBy),
+  dateIdx: index("date_idx").on(table.date),
+}));
+
+export type SiteSafetyAudit = typeof siteSafetyAudits.$inferSelect;
+export type InsertSiteSafetyAudit = typeof siteSafetyAudits.$inferInsert;
+
+/**
+ * Site Safety Incidents - Acidentes/Incidentes de segurança
+ */
+export const siteSafetyIncidents = mysqlTable("siteSafetyIncidents", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  reportedBy: int("reportedBy").notNull(),
+  date: timestamp("date").notNull(),
+  type: mysqlEnum("type", ["accident", "near_miss", "unsafe_condition", "unsafe_act"]).notNull(),
+  severity: mysqlEnum("severity", ["minor", "moderate", "serious", "fatal"]).notNull(),
+  injuredPerson: varchar("injuredPerson", { length: 255 }),
+  injuryType: varchar("injuryType", { length: 255 }),
+  bodyPart: varchar("bodyPart", { length: 255 }),
+  description: text("description").notNull(),
+  location: varchar("location", { length: 255 }),
+  witnesses: text("witnesses"), // JSON array of witness names
+  immediateAction: text("immediateAction"),
+  rootCause: text("rootCause"),
+  correctiveAction: text("correctiveAction"),
+  preventiveAction: text("preventiveAction"),
+  photos: text("photos"), // JSON array of photo URLs
+  medicalAttention: boolean("medicalAttention").default(false).notNull(),
+  workDaysLost: int("workDaysLost").default(0).notNull(),
+  status: mysqlEnum("status", ["reported", "investigating", "closed"]).default("reported").notNull(),
+  investigatedBy: int("investigatedBy"),
+  investigatedAt: timestamp("investigatedAt"),
+  reportGenerated: boolean("reportGenerated").default(false).notNull(),
+  reportUrl: varchar("reportUrl", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  reportedByIdx: index("reportedBy_idx").on(table.reportedBy),
+  dateIdx: index("date_idx").on(table.date),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type SiteSafetyIncident = typeof siteSafetyIncidents.$inferSelect;
+export type InsertSiteSafetyIncident = typeof siteSafetyIncidents.$inferInsert;
+
+/**
+ * Site PPE - Equipamentos de Proteção Individual
+ */
+export const sitePPE = mysqlTable("sitePPE", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId"),
+  type: varchar("type", { length: 100 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  code: varchar("code", { length: 100 }),
+  size: varchar("size", { length: 50 }),
+  quantity: int("quantity").notNull(),
+  minQuantity: int("minQuantity").default(0).notNull(),
+  assignedTo: int("assignedTo"), // Worker ID
+  assignedAt: timestamp("assignedAt"),
+  expiryDate: date("expiryDate"),
+  status: mysqlEnum("status", ["available", "assigned", "expired", "damaged"]).default("available").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  assignedToIdx: index("assignedTo_idx").on(table.assignedTo),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type SitePPE = typeof sitePPE.$inferSelect;
+export type InsertSitePPE = typeof sitePPE.$inferInsert;

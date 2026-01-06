@@ -151,7 +151,7 @@ export const archvizRouter = router({
             });
             
             // Get construction name for notification
-            const construction = await archvizDb.getConstructionByRenderId(id);
+            
             
             // Format status labels
             const statusLabels: Record<string, string> = {
@@ -300,24 +300,6 @@ export const archvizRouter = router({
   // ============================================================================
   // COMMENTS
   // ============================================================================
-  comments: router({
-    list: protectedProcedure
-      .input(z.object({ renderId: z.number() }))
-      .query(async ({ input }) => {
-        return await archvizDb.getRenderComments(input.renderId);
-      }),
-
-    add: protectedProcedure
-      .input(z.object({
-        renderId: z.number(),
-        comment: z.string(),
-      }))
-      .mutation(async ({ input, ctx }) => {
-        const id = await archvizDb.addRenderComment(input.renderId, ctx.user.id, input.comment);
-        return { id };
-      }),
-  }),
-
   // ============================================================================
   // HISTORY
   // ============================================================================

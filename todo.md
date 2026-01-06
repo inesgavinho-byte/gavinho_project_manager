@@ -1155,3 +1155,77 @@
 - [x] Implementar histórico de revisões na visualização de render
 - [ ] Adicionar filtros por status de aprovação (futuro)
 - [x] Testar workflow completo de aprovação
+
+
+## Módulo de Gestão de Obra
+
+### Schema e Backend
+- [x] Criar tabela `siteWorkers` (trabalhadores em obra)
+- [x] Criar tabela `siteAttendance` (picagem de ponto)
+- [x] Criar tabela `siteWorkHours` (registo de horas trabalhadas)
+- [x] Criar tabela `siteMaterialRequests` (requisição de materiais)
+- [x] Criar tabela `siteMaterialUsage` (consumo de materiais)
+- [x] Criar tabela `siteTools` (ferramentas)
+- [x] Criar tabela `siteToolAssignments` (atribuição de ferramentas)
+- [x] Criar tabela `siteToolMaintenance` (manutenção de ferramentas)
+- [x] Criar tabela `siteWorkPhotos` (fotografias de trabalhos)
+- [x] Criar tabela `siteIncidents` (ocorrências)
+- [x] Criar tabela `siteSubcontractors` (subempreiteiros)
+- [x] Criar tabela `siteSubcontractorWork` (trabalhos de subempreiteiros)
+- [x] Criar tabela `siteVisits` (visitas à obra - direção/fiscalização)
+- [x] Criar tabela `siteNonCompliances` (não conformidades)
+- [x] Criar tabela `siteQuantityMap` (mapa de quantidades)
+- [x] Criar tabela `siteQuantityProgress` (evolução de quantidades)
+- [x] Criar tabela `siteSafetyAudits` (auditorias de segurança)
+- [x] Criar tabela `siteSafetyIncidents` (acidentes/incidentes)
+- [x] Criar tabela `sitePPE` (EPIs - Equipamentos de Proteção Individual)
+
+### Funcionalidades - Trabalhadores
+- [x] Implementar picagem de ponto (entrada/saída)
+- [x] Sistema de registo de horas por tarefa
+- [x] Requisição de materiais com aprovação
+- [x] Registo de consumo de materiais
+- [ ] Gestão de ferramentas atribuídas (futuro)
+- [ ] Pedidos de manutenção/substituição (futuro)
+- [x] Upload de fotografias diárias
+- [ ] Registo de ocorrências (futuro)
+
+### Funcionalidades - Subempreiteiros
+- [ ] Registo de entrada/saída de obra
+- [ ] Diário de trabalhos executados
+- [ ] Upload de fotografias de progresso
+- [ ] Gestão de equipa própria
+- [ ] Relatórios de produtividade
+
+### Funcionalidades - Direção de Obra
+- [ ] Registo de visitas
+- [ ] Geração automática de relatórios
+- [ ] Gestão de não conformidades
+- [ ] Atualização de mapa de quantidades
+- [ ] Dashboard executivo de obra
+
+### Funcionalidades - Fiscalização GAVINHO
+- [ ] Registo de inspeções
+- [ ] Checklist de conformidade
+- [ ] Relatórios de fiscalização
+- [ ] Validação de trabalhos
+
+### Funcionalidades - Coordenação de Segurança
+- [ ] Auditorias de segurança
+- [ ] Registo de acidentes/incidentes
+- [ ] Gestão de EPIs
+- [ ] Planos de segurança
+
+### Interface Web
+- [ ] Página de gestão de trabalhadores
+- [ ] Dashboard de picagem de ponto
+- [ ] Gestão de materiais e ferramentas
+- [ ] Painel de não conformidades
+- [ ] Relatórios automáticos
+- [ ] Dashboard de segurança
+
+### API Mobile
+- [ ] Endpoints otimizados para mobile
+- [ ] Autenticação mobile
+- [ ] Upload de fotografias otimizado
+- [ ] Sincronização offline

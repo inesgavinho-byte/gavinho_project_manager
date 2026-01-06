@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, FolderKanban, Package, ListTodo, DollarSign, FileText, Mail, Brain, Bell, TrendingUp, Lightbulb, Activity, AtSign, Building2, Trash2, UserCircle, Shield, Clock, BarChart } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Users, FolderKanban, Package, ListTodo, DollarSign, FileText, Mail, Brain, Bell, TrendingUp, Lightbulb, Activity, AtSign, Building2, Trash2, UserCircle, Shield, Clock, BarChart, HardHat } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { Badge } from "./ui/badge";
 import { trpc } from "@/lib/trpc";
@@ -48,6 +48,7 @@ const menuItems = [
   { icon: Clock, label: "Timesheets", path: "/timesheets" },
   { icon: Shield, label: "Recursos Humanos", path: "/hr", adminOnly: true },
   { icon: BarChart, label: "Relatórios RH", path: "/hr-reports", adminOnly: true },
+  { icon: HardHat, label: "Gestão de Obra", path: "/site-management" },
   { icon: Trash2, label: "Lixeira", path: "/trash" },
   { icon: FileText, label: "Relatórios", path: "/reports" },
 ];
