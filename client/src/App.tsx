@@ -26,6 +26,7 @@ import MqtAnalyticsDashboard from "./pages/MqtAnalyticsDashboard";
 import Trash from "./pages/Trash";
 import TeamAccess from "./pages/TeamAccess";
 import UserProfile from "./pages/UserProfile";
+import HumanResources from "./pages/HumanResources";
 
 function Router() {
   return (
@@ -50,6 +51,12 @@ function Router() {
       
       <Route path="/team-access">
         <TeamAccess />
+      </Route>
+      
+      <Route path="/hr">
+        <DashboardLayout>
+          <HumanResources />
+        </DashboardLayout>
       </Route>
       
       <Route path="/profile">

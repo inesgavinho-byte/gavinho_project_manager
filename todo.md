@@ -1091,11 +1091,12 @@
 ## Recursos Humanos (Admin Only)
 - [x] Criar schema de banco de dados (holidays, absences, timesheets)
 - [x] Adicionar calendário de feriados Portugal 2026
-- [ ] Implementar tRPC procedures para gestão de RH
-- [ ] Criar página /hr com controle de acesso admin
-- [ ] Tab "Equipa" - lista dos 15 membros com informações
-- [ ] Tab "Aprovações" - pedidos de ausência/férias pendentes
-- [ ] Tab "Gestão RH" - encerramento de feriados nacionais
-- [ ] Implementar sistema de pedidos de ausência
-- [ ] Criar interface de aprovação/rejeição de pedidos
-- [ ] Adicionar botão "Recursos Humanos" no menu lateral (admin only)
+- [x] Implementar tRPC procedures para gestão de RH
+- [x] Criar página /hr com controle de acesso admin
+- [x] Tab "Equipa" - lista dos 15 membros com informações
+- [x] Tab "Aprovações" - pedidos de ausência/férias pendentes
+- [x] Tab "Gestão RH" - encerramento de feriados nacionais
+- [x] Implementar sistema de pedidos de ausência
+- [x] Criar interface de aprovação/rejeição de pedidos
+- [x] Adicionar botão "Recursos Humanos" no menu lateral (admin only)
+- [x] Dashboard de métricas RH (total equipa, pendentes, ausências, taxa aprovação)
