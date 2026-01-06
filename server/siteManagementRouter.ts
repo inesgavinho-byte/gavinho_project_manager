@@ -267,8 +267,14 @@ export const siteManagementRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         return await siteDb.createMaterialUsage({
-          ...input,
+          constructionId: input.constructionId,
+          materialName: input.materialName,
+          quantity: input.quantity.toString(),
+          unit: input.unit,
           usedBy: ctx.user.id,
+          date: new Date(input.date),
+          location: input.location,
+          notes: input.notes,
         });
       }),
 
@@ -309,29 +315,36 @@ export const siteManagementRouter = router({
     upload: protectedProcedure
       .input(z.object({
         constructionId: z.number(),
-        uploaderType: z.enum(["worker", "subcontractor", "director", "inspector", "safety"]),
-        photoBase64: z.string(),
+        workerId: z.number().optional(),
+        photoData: z.string(), // base64
         description: z.string().optional(),
         location: z.string().optional(),
+        latitude: z.number().optional(),
+        longitude: z.number().optional(),
         tags: z.array(z.string()).optional(),
-        date: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Upload photo to S3
-        const buffer = Buffer.from(input.photoBase64, "base64");
+        // Extract base64 data (remove data:image/...;base64, prefix if present)
+        const base64Data = input.photoData.includes('base64,') 
+          ? input.photoData.split('base64,')[1] 
+          : input.photoData;
+        
+        const buffer = Buffer.from(base64Data, "base64");
         const fileName = `site-photos/${input.constructionId}/${Date.now()}.jpg`;
         const { url } = await storagePut(fileName, buffer, "image/jpeg");
 
         // Save to database
         return await siteDb.createWorkPhoto({
           constructionId: input.constructionId,
-          uploadedBy: ctx.user.id,
-          uploaderType: input.uploaderType,
+          uploadedBy: input.workerId || ctx.user.id,
+          uploaderType: "worker",
           photoUrl: url,
           description: input.description,
           location: input.location,
+          latitude: input.latitude,
+          longitude: input.longitude,
           tags: input.tags ? JSON.stringify(input.tags) : null,
-          date: new Date(input.date),
+          date: new Date(),
         });
       }),
 

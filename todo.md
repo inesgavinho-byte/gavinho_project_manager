@@ -1244,3 +1244,30 @@
 - [ ] Interface mobile para upload de fotografias (em desenvolvimento)
 - [x] Interface mobile para requisição de materiais
 - [x] Otimização para uso em obra (touch-friendly, design mobile-first)
+
+
+## Upload de Fotografias em Obra
+- [x] Implementar captura de fotos no mobile com câmera nativa
+- [x] Adicionar geolocalização automática (latitude/longitude)
+- [x] Upload para S3 com compressão automática
+- [x] Organização por data e localização
+- [ ] Galeria de fotos na interface web (futuro)
+- [ ] Filtros por data, localização e trabalhador (futuro)
+
+## Relatórios Automáticos PDF
+- [x] Criar serviço de geração de relatórios PDF
+- [x] Relatório diário de obra (horas, materiais, fotos)
+- [x] Relatório semanal consolidado
+- [x] Incluir gráficos e estatísticas
+- [x] Incorporar fotografias no relatório
+- [ ] Endpoint para download de relatórios (em desenvolvimento)
+- [ ] Interface para gerar e visualizar relatórios (futuro)
+
+## Sistema de Não Conformidades
+- [ ] Interface de registo de não conformidades
+- [ ] Workflow de aprovação (aberto → em análise → resolvido)
+- [ ] Atribuição de responsáveis e prazos
+- [ ] Upload de evidências fotográficas
+- [ ] Dashboard de não conformidades pendentes
+- [ ] Notificações automáticas de prazos
+- [ ] Geração de relatório de não conformidades

@@ -474,3 +474,134 @@ export async function getOpenNonCompliancesByConstruction(constructionId: number
     )
     .orderBy(desc(siteNonCompliances.date));
 }
+
+// ============================================================================
+// REPORTS - Relatórios Consolidados
+// ============================================================================
+
+export async function getReportData(constructionId: number, startDate: Date, endDate: Date) {
+  // Import constructions table
+  const { constructions } = await import("../drizzle/schema");
+  
+  // Get construction info
+  const construction = await db
+    .select()
+    .from(constructions)
+    .where(eq(constructions.id, constructionId))
+    .then(rows => rows[0]);
+
+  if (!construction) {
+    throw new Error("Construction not found");
+  }
+
+  // Get attendance records
+  const attendanceRecords = await db
+    .select({
+      workerName: siteWorkers.name,
+      date: siteAttendance.date,
+      checkIn: siteAttendance.checkIn,
+      checkOut: siteAttendance.checkOut,
+      totalHours: siteAttendance.totalHours,
+    })
+    .from(siteAttendance)
+    .innerJoin(siteWorkers, eq(siteAttendance.workerId, siteWorkers.id))
+    .where(
+      and(
+        eq(siteAttendance.constructionId, constructionId),
+        sql`date >= ${startDate.toISOString().split('T')[0]}`,
+        sql`date <= ${endDate.toISOString().split('T')[0]}`
+      )
+    );
+
+  // Get work hours
+  const workHoursRecords = await db
+    .select({
+      workerName: siteWorkers.name,
+      taskDescription: siteWorkHours.taskDescription,
+      hours: siteWorkHours.hours,
+      date: siteWorkHours.date,
+    })
+    .from(siteWorkHours)
+    .innerJoin(siteWorkers, eq(siteWorkHours.workerId, siteWorkers.id))
+    .where(
+      and(
+        eq(siteWorkHours.constructionId, constructionId),
+        sql`date >= ${startDate.toISOString().split('T')[0]}`,
+        sql`date <= ${endDate.toISOString().split('T')[0]}`
+      )
+    );
+
+  // Get materials usage
+  const materialsRecords = await db
+    .select({
+      materialName: siteMaterialUsage.materialName,
+      quantity: siteMaterialUsage.quantity,
+      unit: siteMaterialUsage.unit,
+      usedBy: siteWorkers.name,
+      date: siteMaterialUsage.date,
+    })
+    .from(siteMaterialUsage)
+    .innerJoin(siteWorkers, eq(siteMaterialUsage.usedBy, siteWorkers.id))
+    .where(
+      and(
+        eq(siteMaterialUsage.constructionId, constructionId),
+        sql`siteMaterialUsage.date >= ${startDate.toISOString().split('T')[0]}`,
+        sql`siteMaterialUsage.date <= ${endDate.toISOString().split('T')[0]}`
+      )
+    );
+
+  // Get photos
+  const photosRecords = await db
+    .select({
+      photoUrl: siteWorkPhotos.photoUrl,
+      description: siteWorkPhotos.description,
+      location: siteWorkPhotos.location,
+      uploadedBy: siteWorkers.name,
+      date: siteWorkPhotos.date,
+    })
+    .from(siteWorkPhotos)
+    .innerJoin(siteWorkers, eq(siteWorkPhotos.uploadedBy, siteWorkers.id))
+    .where(
+      and(
+        eq(siteWorkPhotos.constructionId, constructionId),
+        sql`siteWorkPhotos.date >= ${startDate}`,
+        sql`siteWorkPhotos.date <= ${endDate}`
+      )
+    );
+
+  // Get non-compliances
+  const nonCompliancesRecords = await db
+    .select({
+      description: siteNonCompliances.description,
+      severity: siteNonCompliances.severity,
+      status: siteNonCompliances.status,
+      responsibleName: siteWorkers.name,
+      reportedDate: siteNonCompliances.reportedDate,
+    })
+    .from(siteNonCompliances)
+    .leftJoin(siteWorkers, eq(siteNonCompliances.responsibleId, siteWorkers.id))
+    .where(
+      and(
+        eq(siteNonCompliances.constructionId, constructionId),
+        sql`reportedDate >= ${startDate}`,
+        sql`reportedDate <= ${endDate}`
+      )
+    );
+
+  return {
+    construction: {
+      code: construction.code,
+      name: construction.name,
+      address: construction.address,
+    },
+    period: {
+      startDate,
+      endDate,
+    },
+    attendance: attendanceRecords,
+    workHours: workHoursRecords,
+    materials: materialsRecords,
+    photos: photosRecords,
+    nonCompliances: nonCompliancesRecords,
+  };
+}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,10 @@ export default function SiteMobile() {
   const [selectedConstruction, setSelectedConstruction] = useState<number | null>(null);
   const [selectedWorker, setSelectedWorker] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<"attendance" | "materials" | "photos">("attendance");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Get constructions list
   const { data: constructions } = trpc.constructions.list.useQuery();
@@ -82,6 +86,26 @@ export default function SiteMobile() {
         title: "Requisição criada",
         description: "A requisição foi registada com sucesso.",
       });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Upload photo mutation
+  const uploadPhoto = trpc.siteManagement.workPhotos.upload.useMutation({
+    onSuccess: () => {
+      toast({
+        title: "Foto enviada",
+        description: "A fotografia foi carregada com sucesso.",
+      });
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      setLocation(null);
     },
     onError: (error) => {
       toast({
@@ -392,16 +416,151 @@ export default function SiteMobile() {
                     Registe trabalhos executados
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <Camera className="h-16 w-16 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-medium mb-2">
-                      Funcionalidade em desenvolvimento
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Upload de fotografias será implementado em breve
-                    </p>
-                  </div>
+                <CardContent className="space-y-4">
+                  {photoPreview ? (
+                    <>
+                      <div className="relative aspect-video rounded-lg overflow-hidden bg-muted">
+                        <img
+                          src={photoPreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      
+                      {location && (
+                        <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-sm">
+                          <p className="font-medium text-green-700">Localização capturada</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Lat: {location.latitude.toFixed(6)}, Long: {location.longitude.toFixed(6)}
+                          </p>
+                        </div>
+                      )}
+
+                      <form onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!photoFile || !selectedWorker || !selectedConstruction) return;
+
+                        const formData = new FormData(e.currentTarget);
+                        const description = formData.get("description") as string;
+                        const locationName = formData.get("location") as string;
+
+                        // Convert file to base64
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          const base64 = reader.result as string;
+                          uploadPhoto.mutate({
+                            constructionId: selectedConstruction,
+                            workerId: selectedWorker,
+                            photoData: base64,
+                            description: description || undefined,
+                            location: locationName || undefined,
+                            latitude: location?.latitude,
+                            longitude: location?.longitude,
+                          });
+                        };
+                        reader.readAsDataURL(photoFile);
+                      }} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="location">Localização na Obra</Label>
+                          <Input
+                            id="location"
+                            name="location"
+                            placeholder="Ex: Piso 2, Sala A"
+                            className="h-12 text-base"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="description">Descrição</Label>
+                          <Textarea
+                            id="description"
+                            name="description"
+                            placeholder="Descreva o trabalho executado..."
+                            rows={3}
+                            className="text-base"
+                          />
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              setPhotoFile(null);
+                              setPhotoPreview(null);
+                              setLocation(null);
+                            }}
+                            className="flex-1 h-12"
+                          >
+                            Cancelar
+                          </Button>
+                          <Button
+                            type="submit"
+                            disabled={uploadPhoto.isPending}
+                            className="flex-1 h-12"
+                          >
+                            {uploadPhoto.isPending ? "A enviar..." : "Enviar Foto"}
+                          </Button>
+                        </div>
+                      </form>
+                    </>
+                  ) : (
+                    <>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setPhotoFile(file);
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setPhotoPreview(reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+
+                            // Get geolocation
+                            if (navigator.geolocation) {
+                              navigator.geolocation.getCurrentPosition(
+                                (position) => {
+                                  setLocation({
+                                    latitude: position.coords.latitude,
+                                    longitude: position.coords.longitude,
+                                  });
+                                },
+                                (error) => {
+                                  console.error("Geolocation error:", error);
+                                  toast({
+                                    title: "Aviso",
+                                    description: "Não foi possível obter a localização.",
+                                    variant: "destructive",
+                                  });
+                                }
+                              );
+                            }
+                          }
+                        }}
+                      />
+
+                      <Button
+                        onClick={() => fileInputRef.current?.click()}
+                        size="lg"
+                        className="w-full h-32 flex-col gap-3 text-lg"
+                      >
+                        <Camera className="h-12 w-12" />
+                        Tirar Fotografia
+                      </Button>
+
+                      <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
+                        <p className="text-sm text-muted-foreground text-center">
+                          A localização GPS será capturada automaticamente
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             )}
