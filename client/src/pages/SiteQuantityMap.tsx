@@ -255,6 +255,29 @@ export default function SiteQuantityMap() {
           </CardContent>
         </Card>
 
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Category Distribution Chart */}
+          <Card className="lg:col-span-1">
+            <CardHeader>
+              <CardTitle className="text-lg">Distribuição por Categoria</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CategoryPieChart categoryData={categoryData} />
+            </CardContent>
+          </Card>
+
+          {/* Planned vs Executed Chart */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-lg">Previsto vs Executado</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PlannedVsExecutedChart categoryData={categoryData} />
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Quantity Map Table */}
         <Card>
           <CardContent className="pt-6">
@@ -423,5 +446,124 @@ function HistoryDialog({ itemId, itemName }: { itemId: number; itemName: string 
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Category Pie Chart Component
+function CategoryPieChart({ categoryData }: { categoryData: any[] }) {
+  if (!categoryData || categoryData.length === 0) {
+    return (
+      <div className="text-center py-8 text-[#5F5C59]/60">
+        Sem dados disponíveis
+      </div>
+    );
+  }
+
+  const total = categoryData.reduce((sum, cat) => sum + cat.itemCount, 0);
+  const colors = [
+    "#C9A882", "#5F5C59", "#8B7355", "#A68968", "#D4B896",
+    "#7A6B5D", "#B39A7C", "#9C8770", "#E5D4C1", "#6B5D52"
+  ];
+
+  return (
+    <div className="space-y-4">
+      {/* Simple Progress Bars */}
+      {categoryData.map((cat, index) => {
+        const percentage = total > 0 ? (cat.itemCount / total) * 100 : 0;
+        return (
+          <div key={cat.category}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-[#5F5C59]">
+                {cat.category}
+              </span>
+              <span className="text-sm text-[#5F5C59]/70">
+                {cat.itemCount} itens ({percentage.toFixed(0)}%)
+              </span>
+            </div>
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full transition-all duration-500"
+                style={{
+                  width: `${percentage}%`,
+                  backgroundColor: colors[index % colors.length],
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// Planned vs Executed Bar Chart Component
+function PlannedVsExecutedChart({ categoryData }: { categoryData: any[] }) {
+  if (!categoryData || categoryData.length === 0) {
+    return (
+      <div className="text-center py-8 text-[#5F5C59]/60">
+        Sem dados disponíveis
+      </div>
+    );
+  }
+
+  const maxValue = Math.max(
+    ...categoryData.map(cat => Math.max(cat.totalPlanned, cat.totalExecuted))
+  );
+
+  return (
+    <div className="space-y-6">
+      {categoryData.map((cat) => {
+        const plannedPercentage = maxValue > 0 ? (cat.totalPlanned / maxValue) * 100 : 0;
+        const executedPercentage = maxValue > 0 ? (cat.totalExecuted / maxValue) * 100 : 0;
+        const progress = cat.totalPlanned > 0 ? (cat.totalExecuted / cat.totalPlanned) * 100 : 0;
+
+        return (
+          <div key={cat.category}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-[#5F5C59]">
+                {cat.category}
+              </span>
+              <span className="text-sm text-[#5F5C59]/70">
+                {progress.toFixed(1)}% executado
+              </span>
+            </div>
+            
+            {/* Planned Bar */}
+            <div className="mb-2">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs text-[#5F5C59]/60 w-20">Previsto:</span>
+                <div className="flex-1 h-6 bg-gray-200 rounded overflow-hidden">
+                  <div
+                    className="h-full bg-[#C9A882]/40 flex items-center justify-end px-2"
+                    style={{ width: `${plannedPercentage}%` }}
+                  >
+                    <span className="text-xs font-medium text-[#5F5C59]">
+                      {cat.totalPlanned.toFixed(0)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Executed Bar */}
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs text-[#5F5C59]/60 w-20">Executado:</span>
+                <div className="flex-1 h-6 bg-gray-200 rounded overflow-hidden">
+                  <div
+                    className="h-full bg-[#C9A882] flex items-center justify-end px-2"
+                    style={{ width: `${executedPercentage}%` }}
+                  >
+                    <span className="text-xs font-medium text-white">
+                      {cat.totalExecuted.toFixed(0)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }

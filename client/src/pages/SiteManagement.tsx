@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { HardHat, Users, Clock, Package, Camera, AlertTriangle } from "lucide-react";
+import { HardHat, Users, Clock, Package, Camera, AlertTriangle, ClipboardList } from "lucide-react";
 import { Link } from "wouter";
 
 export default function SiteManagement() {
@@ -127,6 +127,27 @@ export default function SiteManagement() {
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
                     Registo e acompanhamento de não conformidades
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/constructions">
+              <Card className="cursor-pointer hover:shadow-gavinho transition-shadow border-[#C9A882]/30">
+                <CardHeader>
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-lg bg-[#C9A882]/10">
+                      <ClipboardList className="h-6 w-6 text-[#C9A882]" />
+                    </div>
+                    <div>
+                      <CardTitle>Mapa de Quantidades</CardTitle>
+                      <CardDescription>Controlo de progresso MQT</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Marcação de quantidades executadas e visualização de progresso
                   </p>
                 </CardContent>
               </Card>

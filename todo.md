@@ -1305,21 +1305,21 @@
 - [x] Criar modal de histórico de marcações por item
 - [x] Adicionar dashboard de estatísticas (% total executado, itens concluídos, em andamento, não iniciados)
 
-### Interface Mobile
-- [ ] Criar página SiteMobileQuantityMap.tsx otimizada para mobile
-- [ ] Implementar lista simplificada de itens com busca rápida
-- [ ] Adicionar botão de marcação rápida de quantidade
-- [ ] Permitir upload de fotos de comprovação
+##### Interface Mobile
+- [x] Criar página SiteMobileQuantityMap.tsx otimizada para mobile
+- [x] Implementar lista simplificada de itens com busca rápida
+- [x] Adicionar botão de marcação rápida de quantidade
+- [x] Permitir upload de fotos de comprovação
 - [ ] Implementar modo offline com sincronização posterior
-
 ### Visualizações e Gráficos
-- [ ] Criar gráfico de pizza: distribuição por categoria (concluído/em andamento/não iniciado)
-- [ ] Criar gráfico de barras: comparação previsto vs executado por categoria
-- [ ] Criar gráfico de linha: evolução temporal do progresso
+- [x] Criar gráfico de pizza: distribuição por categoria (concluído/em andamento/não iniciado)
+- [x] Criar gráfico de barras: comparação previsto vs executado por categoria
+- [x] Criar gráfico de linha: evolução temporal do progresso
+- [x] Adicionar seção de gráficos na página SiteQuantityMap.tsx
 - [ ] Implementar exportação de relatório PDF do MQT com progresso
-
 ### Integração
-- [ ] Adicionar link "Mapa de Quantidades" no menu de Gestão de Obra
-- [ ] Integrar com dashboard de obra (mostrar % MQT executado)
+- [x] Adicionar link "Mapa de Quantidades" no menu de Gestão de Obra
+- [x] Integrar com dashboard de obra (mostrar % MQT executado)
+- [x] Adicionar card de MQT no SiteDashboard.tsx
 - [ ] Criar notificações quando itens MQT forem concluídos
 - [ ] Adicionar permissões (trabalhadores podem marcar, gestores podem editar/aprovar)

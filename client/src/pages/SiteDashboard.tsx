@@ -57,11 +57,18 @@ export default function SiteDashboard() {
       { enabled: !!constructionId, refetchInterval: autoRefresh ? 30000 : false }
     );
 
+  const { data: mqtStats, refetch: refetchMqtStats } =
+    trpc.siteManagement.quantityMap.getStats.useQuery(
+      { constructionId: Number(constructionId) },
+      { enabled: !!constructionId, refetchInterval: autoRefresh ? 30000 : false }
+    );
+
   const handleManualRefresh = () => {
     refetchAttendance();
     refetchWorkHours();
     refetchMaterials();
     refetchNonCompliances();
+    refetchMqtStats();
   };
 
   // Calculate metrics
@@ -105,7 +112,7 @@ export default function SiteDashboard() {
       </div>
 
       {/* Main Metrics */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <Card className="p-6 border-blue-200 bg-blue-50">
           <div className="flex items-center justify-between">
             <div>
@@ -159,6 +166,21 @@ export default function SiteDashboard() {
               </p>
             </div>
             <AlertTriangle className="h-12 w-12 text-red-400" />
+          </div>
+        </Card>
+
+        <Card className="p-6 border-[#C9A882]/30 bg-[#C9A882]/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-[#C9A882] mb-1">Progresso MQT</p>
+              <p className="text-3xl font-bold text-[#5F5C59]">
+                {mqtStats?.overallProgress.toFixed(0) || 0}%
+              </p>
+              <p className="text-xs text-[#5F5C59]/70 mt-1">
+                {mqtStats?.completedItems || 0} de {mqtStats ? mqtStats.completedItems + mqtStats.inProgressItems + mqtStats.notStartedItems : 0} itens
+              </p>
+            </div>
+            <TrendingUp className="h-12 w-12 text-[#C9A882]" />
           </div>
         </Card>
       </div>
