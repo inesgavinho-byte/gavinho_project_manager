@@ -1042,6 +1042,13 @@
 - [x] Criar schema no banco de dados para salvar anotações (archvizAnnotations)
 - [x] Implementar tRPC procedures para salvar/carregar anotações
 - [x] Persistir anotações por render e versão
-- [ ] Carregar anotações existentes ao abrir lightbox (integração tRPC)
+- [x] Carregar anotações existentes ao abrir lightbox (integração tRPC)
 - [x] Adicionar botão "Salvar Anotações" no lightbox
 - [ ] Implementar exportação de render com anotações como imagem
+
+## ArchViz - Integração tRPC de Anotações
+- [x] Adicionar useQuery para carregar anotações ao abrir lightbox
+- [x] Implementar useMutation para salvar anotações ao clicar em "Salvar"
+- [x] Adicionar loading states durante save/load
+- [x] Mostrar toast de sucesso/erro após salvar
+- [x] Testar persistência completa (salvar, fechar, reabrir)

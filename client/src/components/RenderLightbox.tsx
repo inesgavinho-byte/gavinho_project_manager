@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { RenderAnnotationCanvas, type Annotation } from './RenderAnnotationCanvas';
 import { cn } from '@/lib/utils';
+import { trpc } from '@/lib/trpc';
+import { useToast } from '@/hooks/use-toast';
 
 interface RenderImage {
   id: number;
@@ -56,8 +58,39 @@ export function RenderLightbox({ images, initialIndex, isOpen, onClose }: Render
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const { toast } = useToast();
 
   const currentImage = images[currentIndex];
+
+  // Load annotations for current render
+  const { data: annotationsData, isLoading: isLoadingAnnotations } = trpc.archviz.annotations.get.useQuery(
+    { renderId: currentImage?.id ?? 0 },
+    { enabled: isOpen && annotationMode && !!currentImage }
+  );
+
+  // Save annotations mutation
+  const saveAnnotationsMutation = trpc.archviz.annotations.save.useMutation({
+    onSuccess: () => {
+      toast({
+        title: "Anotações salvas",
+        description: "As anotações foram guardadas com sucesso.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao salvar",
+        description: error.message || "Não foi possível guardar as anotações.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Load annotations when data is available
+  useEffect(() => {
+    if (annotationsData?.annotations) {
+      setAnnotations(annotationsData.annotations);
+    }
+  }, [annotationsData]);
 
   // Reset zoom and position when image changes
   useEffect(() => {
@@ -245,8 +278,10 @@ export function RenderLightbox({ images, initialIndex, isOpen, onClose }: Render
                   initialAnnotations={annotations}
                   onSave={(newAnnotations) => {
                     setAnnotations(newAnnotations);
-                    // TODO: Save to backend
-                    console.log('Annotations saved:', newAnnotations);
+                    saveAnnotationsMutation.mutate({
+                      renderId: currentImage.id,
+                      annotations: newAnnotations,
+                    });
                   }}
                 />
               </div>
