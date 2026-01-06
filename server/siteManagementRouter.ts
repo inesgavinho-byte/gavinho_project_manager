@@ -331,7 +331,7 @@ export const siteManagementRouter = router({
           description: input.description,
           location: input.location,
           tags: input.tags ? JSON.stringify(input.tags) : null,
-          date: input.date,
+          date: new Date(input.date),
         });
       }),
 
@@ -349,7 +349,7 @@ export const siteManagementRouter = router({
         );
 
         // Parse tags JSON
-        return photos.map(photo => ({
+        return photos.map((photo: any) => ({
           ...photo,
           tags: photo.tags ? JSON.parse(photo.tags) : [],
         }));
@@ -380,7 +380,7 @@ export const siteManagementRouter = router({
         responsibleParty: z.string().optional(),
         photos: z.array(z.string()).optional(),
         correctiveAction: z.string().optional(),
-        deadline: z.string().optional(),
+        deadline: z.date().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         return await siteDb.createNonCompliance({
@@ -421,7 +421,7 @@ export const siteManagementRouter = router({
         id: z.number(),
         status: z.enum(["open", "in_progress", "resolved", "closed"]).optional(),
         correctiveAction: z.string().optional(),
-        deadline: z.string().optional(),
+        deadline: z.date().optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;

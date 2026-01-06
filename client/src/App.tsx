@@ -30,6 +30,32 @@ import HumanResources from "./pages/HumanResources";
 import Timesheets from "./pages/Timesheets";
 import HRReports from "./pages/HRReports";
       <Route path="/site-management">
+      <Route path="/site-management/workers">
+      <Route path="/site-management/attendance">
+      <Route path="/site-management/materials">
+      <Route path="/site-management/mobile">
+        <SiteMobile />
+      </Route>
+
+import SiteMobile from "./pages/SiteMobile";
+        <DashboardLayout>
+          <SiteMaterials />
+        </DashboardLayout>
+      </Route>
+
+import SiteMaterials from "./pages/SiteMaterials";
+        <DashboardLayout>
+          <SiteAttendance />
+        </DashboardLayout>
+      </Route>
+
+import SiteAttendance from "./pages/SiteAttendance";
+        <DashboardLayout>
+          <SiteWorkers />
+        </DashboardLayout>
+      </Route>
+
+import SiteWorkers from "./pages/SiteWorkers";
         <DashboardLayout>
           <SiteManagement />
         </DashboardLayout>

@@ -1229,3 +1229,18 @@
 - [ ] Autenticação mobile
 - [ ] Upload de fotografias otimizado
 - [ ] Sincronização offline
+
+
+## Interfaces Detalhadas de Gestão de Obra
+
+### Páginas Web
+- [x] Página de Gestão de Trabalhadores (lista, formulário, detalhes)
+- [x] Página de Picagem de Ponto (dashboard, registos, aprovações)
+- [x] Página de Gestão de Materiais (requisições, consumos, aprovações)
+- [ ] Dashboards específicos para cada módulo (futuro)
+
+### App Mobile Simplificada
+- [x] Interface mobile para picagem de ponto (check-in/check-out)
+- [ ] Interface mobile para upload de fotografias (em desenvolvimento)
+- [x] Interface mobile para requisição de materiais
+- [x] Otimização para uso em obra (touch-friendly, design mobile-first)
