@@ -1,0 +1,9 @@
+{
+  "query": "\nSELECT \n  ar.id, ar.name, ar.version, ar.constructionId, ar.compartmentId,\n  c.code as constructionCode,\n  ac.name as compartmentName\nFROM archvizRenders ar\nLEFT JOIN constructions c ON ar.constructionId = c.id\nLEFT JOIN archvizCompartments ac ON ar.compartmentId = ac.id\nLEFT JOIN projects p ON c.projectId = p.id\nWHERE p.id = 30010\nLIMIT 10;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute \nSELECT \n  ar.id, ar.name, ar.version, ar.constructionId, ar.compartmentId,\n  c.code as constructionCode,\n  ac.name as compartmentName\nFROM archvizRenders ar\nLEFT JOIN constructions c ON ar.constructionId = c.id\nLEFT JOIN archvizCompartments ac ON ar.compartmentId = ac.id\nLEFT JOIN projects p ON c.projectId = p.id\nWHERE p.id = 30010\nLIMIT 10;\n",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 397
+}

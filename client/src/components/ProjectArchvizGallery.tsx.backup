@@ -1,0 +1,1107 @@
+import { useState } from "react";
+import { trpc } from "@/lib/trpc";
+import { 
+  ChevronDown,
+  ChevronUp,
+  Star,
+  StarOff,
+  Edit2,
+  Trash2,
+  Eye,
+  Upload,
+  Plus,
+  Check,
+  X,
+  Download
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+
+interface ProjectArchvizGalleryProps {
+  projectId: number;
+}
+
+export function ProjectArchvizGallery({ projectId }: ProjectArchvizGalleryProps) {
+  const [expandedCompartments, setExpandedCompartments] = useState<Set<number>>(new Set());
+  const [expandedRenders, setExpandedRenders] = useState<Set<number>>(new Set());
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploadData, setUploadData] = useState({
+    constructionId: 0,
+    compartmentId: 0,
+    name: "",
+    description: "",
+    file: null as File | null,
+  });
+  const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+  const [createCompartmentDialogOpen, setCreateCompartmentDialogOpen] = useState(false);
+  const [newCompartmentData, setNewCompartmentData] = useState({
+    name: "",
+    description: "",
+  });
+  const [editingCompartmentId, setEditingCompartmentId] = useState<number | null>(null);
+  const [editCompartmentData, setEditCompartmentData] = useState({ name: "", description: "" });
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [compartmentToDelete, setCompartmentToDelete] = useState<number | null>(null);
+  const [draggedCompartment, setDraggedCompartment] = useState<number | null>(null);
+  const [dragOverCompartment, setDragOverCompartment] = useState<number | null>(null);
+  const [selectedRender, setSelectedRender] = useState<any | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  // Fetch renders
+  const { data: renders, isLoading, refetch } = trpc.projects.archviz.list.useQuery({
+    projectId,
+  });
+
+  // Fetch constructions for upload
+  const { data: constructions } = trpc.projects.constructions.list.useQuery({
+    projectId,
+  });
+
+  // Fetch compartments when construction is selected
+  const { data: compartments, refetch: refetchCompartments } = trpc.projects.constructions.getCompartments.useQuery(
+    { constructionId: uploadData.constructionId },
+    { enabled: uploadData.constructionId > 0 }
+  );
+
+  // Mutations
+  const uploadMutation = trpc.projects.archviz.uploadToS3.useMutation({
+    onSuccess: () => {
+      toast.success("Render carregado com sucesso!");
+      setUploadDialogOpen(false);
+      setUploadData({
+        constructionId: 0,
+        compartmentId: 0,
+        name: "",
+        description: "",
+        file: null,
+      });
+      setUploadPreview(null);
+      refetch();
+    },
+    onError: (error) => {
+      toast.error("Erro ao carregar render: " + error.message);
+    },
+  });
+
+  const createCompartmentMutation = trpc.projects.constructions.createCompartment.useMutation({
+    onSuccess: (data) => {
+      toast.success("Compartimento criado!");
+      setCreateCompartmentDialogOpen(false);
+      setNewCompartmentData({ name: "", description: "" });
+      refetchCompartments();
+      setUploadData(prev => ({ ...prev, compartmentId: data.id }));
+    },
+    onError: (error) => {
+      toast.error("Erro ao criar compartimento: " + error.message);
+    },
+  });
+
+  const updateCompartmentMutation = trpc.projects.constructions.updateCompartment.useMutation({
+    onSuccess: () => {
+      toast.success("Compartimento atualizado!");
+      setEditingCompartmentId(null);
+      refetchCompartments();
+    },
+    onError: (error) => {
+      toast.error("Erro ao atualizar: " + error.message);
+    },
+  });
+
+  const deleteCompartmentMutation = trpc.projects.constructions.deleteCompartment.useMutation({
+    onSuccess: () => {
+      toast.success("Compartimento apagado!");
+      setDeleteConfirmOpen(false);
+      setCompartmentToDelete(null);
+      refetchCompartments();
+    },
+    onError: (error) => {
+      toast.error("Erro: " + error.message);
+    },
+  });
+
+  const reorderCompartmentsMutation = trpc.projects.constructions.reorderCompartments.useMutation({
+    onSuccess: () => {
+      refetchCompartments();
+    },
+  });
+
+  const toggleFavoriteMutation = trpc.projects.archviz.toggleFavorite.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  const deleteRenderMutation = trpc.projects.archviz.deleteRender.useMutation({
+    onSuccess: () => {
+      toast.success("Render apagado!");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error("Erro ao apagar: " + error.message);
+    },
+  });
+
+  // Group renders by compartment and render name (for versioning)
+  const groupedRenders = renders?.reduce((acc: any, render: any) => {
+    const compartmentId = render.compartmentId || 0;
+    const compartmentName = render.compartmentName || "Sem Compartimento";
+    
+    if (!acc[compartmentId]) {
+      acc[compartmentId] = {
+        id: compartmentId,
+        name: compartmentName,
+        constructionCode: render.constructionCode,
+        renders: {},
+      };
+    }
+
+    // Group by render name for versioning
+    const renderName = render.name || "Sem Nome";
+    if (!acc[compartmentId].renders[renderName]) {
+      acc[compartmentId].renders[renderName] = [];
+    }
+
+    acc[compartmentId].renders[renderName].push(render);
+    return acc;
+  }, {});
+
+  const compartmentList = groupedRenders ? Object.values(groupedRenders) : [];
+
+  // Calculate stats
+  const totalImages = renders?.length || 0;
+  const totalCompartments = compartmentList.length;
+  const totalViews = compartmentList.reduce((sum: number, comp: any) => {
+    return sum + Object.keys(comp.renders).length;
+  }, 0);
+
+  const toggleCompartment = (compartmentId: number) => {
+    setExpandedCompartments(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(compartmentId)) {
+        newSet.delete(compartmentId);
+      } else {
+        newSet.add(compartmentId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleRender = (renderName: string) => {
+    const key = renderName;
+    setExpandedRenders(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(key as any)) {
+        newSet.delete(key as any);
+      } else {
+        newSet.add(key as any);
+      }
+      return newSet;
+    });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("Por favor, selecione uma imagem válida");
+      return;
+    }
+
+    // Validate file size (20MB max)
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error("Imagem muito grande. Máximo 20MB");
+      return;
+    }
+
+    setUploadData(prev => ({ ...prev, file }));
+
+    // Generate preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setUploadPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleUploadSubmit = async () => {
+    if (!uploadData.file || !uploadData.constructionId || !uploadData.compartmentId || !uploadData.name) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    // Convert file to base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      uploadMutation.mutate({
+        constructionId: uploadData.constructionId,
+        compartmentId: uploadData.compartmentId,
+        name: uploadData.name,
+        description: uploadData.description,
+        imageBase64: base64,
+      });
+    };
+    reader.readAsDataURL(uploadData.file);
+  };
+
+  const handleCreateCompartment = () => {
+    if (!newCompartmentData.name || !uploadData.constructionId) {
+      toast.error("Preencha o nome do compartimento");
+      return;
+    }
+
+    createCompartmentMutation.mutate({
+      constructionId: uploadData.constructionId,
+      name: newCompartmentData.name,
+      description: newCompartmentData.description,
+    });
+  };
+
+  const handleDragStart = (compartmentId: number) => {
+    setDraggedCompartment(compartmentId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, compartmentId: number) => {
+    e.preventDefault();
+    setDragOverCompartment(compartmentId);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetCompartmentId: number) => {
+    e.preventDefault();
+    
+    if (!draggedCompartment || draggedCompartment === targetCompartmentId) {
+      setDraggedCompartment(null);
+      setDragOverCompartment(null);
+      return;
+    }
+
+    // Reorder compartments
+    const compartmentArray = Array.from(compartmentList);
+    const draggedIndex = compartmentArray.findIndex((c: any) => c.id === draggedCompartment);
+    const targetIndex = compartmentArray.findIndex((c: any) => c.id === targetCompartmentId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    const [removed] = compartmentArray.splice(draggedIndex, 1);
+    compartmentArray.splice(targetIndex, 0, removed);
+
+    // Update order in database
+    const newOrder = compartmentArray.map((c: any, index) => ({
+      id: c.id,
+      order: index,
+    }));
+
+    reorderCompartmentsMutation.mutate({
+      constructionId: uploadData.constructionId,
+      compartments: newOrder,
+    });
+
+    setDraggedCompartment(null);
+    setDragOverCompartment(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCompartment(null);
+    setDragOverCompartment(null);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">A carregar renders...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!renders || renders.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <Upload className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">Sem renders disponíveis</h3>
+          <p className="text-muted-foreground mb-6">
+            Este projeto ainda não tem renders 3D associados às suas obras.
+          </p>
+          <Button onClick={() => setUploadDialogOpen(true)}>
+            <Upload className="w-4 h-4 mr-2" />
+            Carregar Render
+          </Button>
+        </div>
+
+        {/* Upload Dialog */}
+        <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Carregar Novo Render</DialogTitle>
+              <DialogDescription>
+                Adicione um novo render 3D ao projeto
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {/* Construction Selection */}
+              <div>
+                <Label>Obra *</Label>
+                <Select
+                  value={uploadData.constructionId.toString()}
+                  onValueChange={(value) => {
+                    setUploadData(prev => ({ ...prev, constructionId: parseInt(value), compartmentId: 0 }));
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a obra" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {constructions?.map((construction: any) => (
+                      <SelectItem key={construction.id} value={construction.id.toString()}>
+                        {construction.code} - {construction.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Compartment Selection */}
+              {uploadData.constructionId > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Label>Compartimento *</Label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCreateCompartmentDialogOpen(true)}
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Novo
+                    </Button>
+                  </div>
+                  <Select
+                    value={uploadData.compartmentId.toString()}
+                    onValueChange={(value) => {
+                      setUploadData(prev => ({ ...prev, compartmentId: parseInt(value) }));
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o compartimento" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {compartments && compartments.length > 0 ? (
+                        compartments.map((comp: any) => (
+                          <SelectItem key={comp.id} value={comp.id.toString()}>
+                            {comp.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-2 py-4 text-sm text-muted-foreground text-center">
+                          Nenhum compartimento cadastrado
+                        </div>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* Name */}
+              <div>
+                <Label>Nome do Render *</Label>
+                <Input
+                  value={uploadData.name}
+                  onChange={(e) => setUploadData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Ex: Vista Geral, Bar, Deck externo..."
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <Label>Descrição (opcional)</Label>
+                <Textarea
+                  value={uploadData.description}
+                  onChange={(e) => setUploadData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Adicione detalhes sobre este render..."
+                  rows={3}
+                />
+              </div>
+
+              {/* File Upload */}
+              <div>
+                <Label>Imagem *</Label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Formatos aceites: JPG, PNG, WebP. Máximo 20MB.
+                </p>
+              </div>
+
+              {/* Preview */}
+              {uploadPreview && (
+                <div>
+                  <Label>Pré-visualização</Label>
+                  <div className="mt-2 border rounded-lg overflow-hidden">
+                    <img
+                      src={uploadPreview}
+                      alt="Preview"
+                      className="w-full h-auto"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleUploadSubmit}
+                disabled={uploadMutation.isPending}
+              >
+                {uploadMutation.isPending ? "A carregar..." : "Carregar Render"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Create Compartment Dialog */}
+        <Dialog open={createCompartmentDialogOpen} onOpenChange={setCreateCompartmentDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Criar Novo Compartimento</DialogTitle>
+              <DialogDescription>
+                Adicione um novo compartimento à obra
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div>
+                <Label>Nome *</Label>
+                <Input
+                  value={newCompartmentData.name}
+                  onChange={(e) => setNewCompartmentData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Ex: Sala de Estar, Quarto Principal..."
+                />
+              </div>
+
+              <div>
+                <Label>Descrição (opcional)</Label>
+                <Textarea
+                  value={newCompartmentData.description}
+                  onChange={(e) => setNewCompartmentData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Adicione detalhes sobre este compartimento..."
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setCreateCompartmentDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleCreateCompartment}
+                disabled={createCompartmentMutation.isPending}
+              >
+                {createCompartmentMutation.isPending ? "A criar..." : "Criar Compartimento"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-serif font-semibold">Visualizações 3D / Renders</h2>
+          <p className="text-sm text-muted-foreground">
+            {totalImages} {totalImages === 1 ? "imagem" : "imagens"} em {totalViews} {totalViews === 1 ? "vista" : "vistas"} • {totalCompartments} {totalCompartments === 1 ? "compartimento" : "compartimentos"}
+          </p>
+        </div>
+
+        <Button onClick={() => setUploadDialogOpen(true)}>
+          <Upload className="w-4 h-4 mr-2" />
+          Adicionar Render
+        </Button>
+      </div>
+
+      {/* Compartments List */}
+      <div className="space-y-4">
+        {compartmentList.map((compartment: any) => {
+          const isExpanded = expandedCompartments.has(compartment.id);
+          const rendersList = Object.entries(compartment.renders);
+          const imageCount = rendersList.reduce((sum, [_, versions]: [string, any]) => sum + versions.length, 0);
+
+          return (
+            <Card
+              key={compartment.id}
+              className={`overflow-hidden transition-all ${
+                dragOverCompartment === compartment.id ? "border-primary" : ""
+              } ${draggedCompartment === compartment.id ? "opacity-50" : ""}`}
+              draggable={!editingCompartmentId}
+              onDragStart={() => handleDragStart(compartment.id)}
+              onDragOver={(e) => handleDragOver(e, compartment.id)}
+              onDrop={(e) => handleDrop(e, compartment.id)}
+              onDragEnd={handleDragEnd}
+            >
+              {/* Compartment Header */}
+              <div
+                className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => toggleCompartment(compartment.id)}
+              >
+                <div className="flex items-center gap-3">
+                  {isExpanded ? (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                  )}
+                  <div>
+                    <h3 className="font-semibold">{compartment.name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {rendersList.length} {rendersList.length === 1 ? "vista" : "vistas"} • {imageCount} {imageCount === 1 ? "imagem" : "imagens"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Renders List */}
+              {isExpanded && (
+                <div className="border-t p-4 space-y-6">
+                  {rendersList.map(([renderName, versions]: [string, any]) => {
+                    const isRenderExpanded = expandedRenders.has(renderName as any);
+                    const latestVersion = versions[versions.length - 1];
+
+                    return (
+                      <div key={renderName} className="space-y-3">
+                        {/* Render Header */}
+                        <div
+                          className="flex items-center gap-3 cursor-pointer"
+                          onClick={() => toggleRender(renderName)}
+                        >
+                          {isRenderExpanded ? (
+                            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                          ) : (
+                            <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                          )}
+                          <Eye className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-medium">{renderName}</span>
+                          <Badge variant="secondary">{versions.length} {versions.length === 1 ? "versão" : "versões"}</Badge>
+                        </div>
+
+                        {/* Latest Version Preview */}
+                        {!isRenderExpanded && (
+                          <div className="ml-7">
+                            <div className="relative group">
+                              <img
+                                src={latestVersion.fileUrl}
+                                alt={latestVersion.name}
+                                className="w-64 h-auto rounded-lg border cursor-pointer hover:opacity-90 transition-opacity"
+                                onClick={() => {
+                                  setSelectedRender(latestVersion);
+                                  setLightboxOpen(true);
+                                }}
+                              />
+                              <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium">
+                                v{latestVersion.version}
+                              </div>
+                              <div className="absolute bottom-2 left-2 flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  className="h-7 w-7 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleFavoriteMutation.mutate({ renderId: latestVersion.id });
+                                  }}
+                                >
+                                  {latestVersion.isFavorite ? (
+                                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                  ) : (
+                                    <StarOff className="w-4 h-4" />
+                                  )}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="secondary"
+                                  className="h-7 w-7 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // TODO: Implement edit
+                                  }}
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  className="h-7 w-7 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (confirm("Tem certeza que deseja apagar este render?")) {
+                                      deleteRenderMutation.mutate({ renderId: latestVersion.id });
+                                    }
+                                  }}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                              <div className="mt-2 text-sm text-muted-foreground">
+                                Última: v{latestVersion.version} • {new Date(latestVersion.uploadedAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* All Versions */}
+                        {isRenderExpanded && (
+                          <div className="ml-7 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {versions.map((version: any) => (
+                              <div key={version.id} className="relative group">
+                                <img
+                                  src={version.fileUrl}
+                                  alt={version.name}
+                                  className="w-full h-auto rounded-lg border cursor-pointer hover:opacity-90 transition-opacity"
+                                  onClick={() => {
+                                    setSelectedRender(version);
+                                    setLightboxOpen(true);
+                                  }}
+                                />
+                                <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium">
+                                  v{version.version}
+                                </div>
+                                <div className="absolute bottom-2 left-2 flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    className="h-7 w-7 p-0"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleFavoriteMutation.mutate({ renderId: version.id });
+                                    }}
+                                  >
+                                    {version.isFavorite ? (
+                                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                    ) : (
+                                      <StarOff className="w-4 h-4" />
+                                    )}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    className="h-7 w-7 p-0"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      // TODO: Implement edit
+                                    }}
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    className="h-7 w-7 p-0"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (confirm("Tem certeza que deseja apagar este render?")) {
+                                        deleteRenderMutation.mutate({ renderId: version.id });
+                                      }
+                                    }}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                                <div className="mt-2 text-sm text-muted-foreground">
+                                  Versão {version.version} • {new Date(version.uploadedAt).toLocaleDateString()}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Upload Dialog */}
+      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Carregar Novo Render</DialogTitle>
+            <DialogDescription>
+              Adicione um novo render 3D ao projeto
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Construction Selection */}
+            <div>
+              <Label>Obra *</Label>
+              <Select
+                value={uploadData.constructionId.toString()}
+                onValueChange={(value) => {
+                  setUploadData(prev => ({ ...prev, constructionId: parseInt(value), compartmentId: 0 }));
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a obra" />
+                </SelectTrigger>
+                <SelectContent>
+                  {constructions?.map((construction: any) => (
+                    <SelectItem key={construction.id} value={construction.id.toString()}>
+                      {construction.code} - {construction.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Compartment Selection */}
+            {uploadData.constructionId > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Compartimento *</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCreateCompartmentDialogOpen(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Novo
+                  </Button>
+                </div>
+                <Select
+                  value={uploadData.compartmentId.toString()}
+                  onValueChange={(value) => {
+                    setUploadData(prev => ({ ...prev, compartmentId: parseInt(value) }));
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o compartimento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {compartments && compartments.length > 0 ? (
+                      compartments.map((comp: any) => (
+                        <div
+                          key={comp.id}
+                          className={`flex items-center justify-between px-2 py-2 hover:bg-muted cursor-pointer ${
+                            dragOverCompartment === comp.id ? "bg-primary/10 border-l-2 border-primary" : ""
+                          } ${draggedCompartment === comp.id ? "opacity-50" : ""}`}
+                          draggable={editingCompartmentId !== comp.id}
+                          onDragStart={() => handleDragStart(comp.id)}
+                          onDragOver={(e) => handleDragOver(e, comp.id)}
+                          onDrop={(e) => handleDrop(e, comp.id)}
+                          onDragEnd={handleDragEnd}
+                          onClick={() => {
+                            if (editingCompartmentId !== comp.id) {
+                              setUploadData(prev => ({ ...prev, compartmentId: comp.id }));
+                            }
+                          }}
+                        >
+                          {editingCompartmentId === comp.id ? (
+                            <div className="flex items-center gap-2 flex-1" onClick={(e) => e.stopPropagation()}>
+                              <Input
+                                value={editCompartmentData.name}
+                                onChange={(e) => setEditCompartmentData(prev => ({ ...prev, name: e.target.value }))}
+                                className="h-7"
+                                autoFocus
+                              />
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 w-7 p-0"
+                                onClick={() => {
+                                  updateCompartmentMutation.mutate({
+                                    compartmentId: comp.id,
+                                    name: editCompartmentData.name,
+                                    description: editCompartmentData.description,
+                                  });
+                                }}
+                              >
+                                <Check className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 w-7 p-0"
+                                onClick={() => setEditingCompartmentId(null)}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <>
+                              <span className="text-sm">{comp.name}</span>
+                              <div className="flex gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-6 w-6 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingCompartmentId(comp.id);
+                                    setEditCompartmentData({ name: comp.name, description: comp.description || "" });
+                                  }}
+                                >
+                                  <Edit2 className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-6 w-6 p-0 text-destructive"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setCompartmentToDelete(comp.id);
+                                    setDeleteConfirmOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-2 py-4 text-sm text-muted-foreground text-center">
+                        Nenhum compartimento cadastrado
+                      </div>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Name */}
+            <div>
+              <Label>Nome do Render *</Label>
+              <Input
+                value={uploadData.name}
+                onChange={(e) => setUploadData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Ex: Vista Geral, Bar, Deck externo..."
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <Label>Descrição (opcional)</Label>
+              <Textarea
+                value={uploadData.description}
+                onChange={(e) => setUploadData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Adicione detalhes sobre este render..."
+                rows={3}
+              />
+            </div>
+
+            {/* File Upload */}
+            <div>
+              <Label>Imagem *</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Formatos aceites: JPG, PNG, WebP. Máximo 20MB.
+              </p>
+            </div>
+
+            {/* Preview */}
+            {uploadPreview && (
+              <div>
+                <Label>Pré-visualização</Label>
+                <div className="mt-2 border rounded-lg overflow-hidden">
+                  <img
+                    src={uploadPreview}
+                    alt="Preview"
+                    className="w-full h-auto"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleUploadSubmit}
+              disabled={uploadMutation.isPending}
+            >
+              {uploadMutation.isPending ? "A carregar..." : "Carregar Render"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Compartment Dialog */}
+      <Dialog open={createCompartmentDialogOpen} onOpenChange={setCreateCompartmentDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Criar Novo Compartimento</DialogTitle>
+            <DialogDescription>
+              Adicione um novo compartimento à obra
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label>Nome *</Label>
+              <Input
+                value={newCompartmentData.name}
+                onChange={(e) => setNewCompartmentData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Ex: Sala de Estar, Quarto Principal..."
+              />
+            </div>
+
+            <div>
+              <Label>Descrição (opcional)</Label>
+              <Textarea
+                value={newCompartmentData.description}
+                onChange={(e) => setNewCompartmentData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Adicione detalhes sobre este compartimento..."
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateCompartmentDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleCreateCompartment}
+              disabled={createCompartmentMutation.isPending}
+            >
+              {createCompartmentMutation.isPending ? "A criar..." : "Criar Compartimento"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirmar Exclusão</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja apagar este compartimento? Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (compartmentToDelete) {
+                  deleteCompartmentMutation.mutate({ compartmentId: compartmentToDelete });
+                }
+              }}
+              disabled={deleteCompartmentMutation.isPending}
+            >
+              {deleteCompartmentMutation.isPending ? "A apagar..." : "Apagar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Lightbox Dialog */}
+      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+        <DialogContent className="max-w-6xl">
+          {selectedRender && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{selectedRender.name} - Versão {selectedRender.version}</DialogTitle>
+                <DialogDescription>
+                  {selectedRender.constructionCode} • {selectedRender.compartmentName}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <img
+                  src={selectedRender.fileUrl}
+                  alt={selectedRender.name}
+                  className="w-full h-auto rounded-lg"
+                />
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      toggleFavoriteMutation.mutate({ renderId: selectedRender.id });
+                    }}
+                  >
+                    {selectedRender.isFavorite ? (
+                      <>
+                        <Star className="w-4 h-4 mr-2 fill-yellow-400 text-yellow-400" />
+                        Remover dos Favoritos
+                      </>
+                    ) : (
+                      <>
+                        <StarOff className="w-4 h-4 mr-2" />
+                        Adicionar aos Favoritos
+                      </>
+                    )}
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      window.open(selectedRender.fileUrl, "_blank");
+                    }}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+
+                {selectedRender.description && (
+                  <div>
+                    <h4 className="font-semibold mb-2">Descrição</h4>
+                    <p className="text-sm text-muted-foreground">{selectedRender.description}</p>
+                  </div>
+                )}
+
+                <div className="text-sm text-muted-foreground">
+                  Carregado em {new Date(selectedRender.uploadedAt).toLocaleString()} por {selectedRender.uploaderName}
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

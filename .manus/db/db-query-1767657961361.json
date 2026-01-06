@@ -1,0 +1,15 @@
+{
+  "query": "\nSELECT p.id, p.name, COUNT(c.id) as construction_count\nFROM projects p\nLEFT JOIN constructions c ON p.id = c.projectId\nWHERE p.id = 30010\nGROUP BY p.id, p.name;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute \nSELECT p.id, p.name, COUNT(c.id) as construction_count\nFROM projects p\nLEFT JOIN constructions c ON p.id = c.projectId\nWHERE p.id = 30010\nGROUP BY p.id, p.name;\n",
+  "rows": [
+    {
+      "id": "30010",
+      "name": "GA00469_MYRIAD",
+      "construction_count": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tconstruction_count\n30010\tGA00469_MYRIAD\t0\n",
+  "stderr": "",
+  "execution_time_ms": 387
+}

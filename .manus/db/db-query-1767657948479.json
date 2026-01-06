@@ -1,0 +1,17 @@
+{
+  "query": "\nSELECT c.id, c.code, c.name, c.projectId, p.name as projectName\nFROM constructions c\nLEFT JOIN projects p ON c.projectId = p.id\nWHERE c.name LIKE '%Penthouse SI%'\nLIMIT 5;\n",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute \nSELECT c.id, c.code, c.name, c.projectId, p.name as projectName\nFROM constructions c\nLEFT JOIN projects p ON c.projectId = p.id\nWHERE c.name LIKE '%Penthouse SI%'\nLIMIT 5;\n",
+  "rows": [
+    {
+      "id": "5",
+      "code": "GA00466",
+      "name": "Penthouse SI",
+      "projectId": "NULL",
+      "projectName": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tcode\tname\tprojectId\tprojectName\n5\tGA00466\tPenthouse SI\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 400
+}

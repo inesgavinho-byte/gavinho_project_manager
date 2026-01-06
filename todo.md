@@ -992,3 +992,30 @@
 - [ ] Testar sistema de mensagens
 - [ ] Validar download de documentos
 - [ ] Testar em diferentes dispositivos
+
+
+## Melhorias no Separador Archviz do Projeto
+- [ ] Verificar implementação atual do ProjectArchvizGallery
+- [ ] Adicionar organização visual por compartimentos (accordion)
+- [ ] Implementar agrupamento de versões por render
+- [ ] Adicionar indicador de versão (v1, v2, v3...) nas thumbnails
+- [ ] Implementar ícone de favorito (estrela) clicável
+- [ ] Adicionar ícone de editar render
+- [ ] Adicionar ícone de apagar render
+- [ ] Melhorar layout das thumbnails (cards com ações)
+- [ ] Adicionar contador de imagens e vistas por compartimento
+- [ ] Implementar collapse/expand de compartimentos
+- [ ] Testar upload de render com interface melhorada
+- [ ] Validar organização automática por compartimento
+
+## ArchViz - Galeria com Accordion por Compartimentos
+- [x] Redesenhar interface da galeria com organização por compartimentos
+- [x] Implementar accordion expansível para cada compartimento
+- [x] Adicionar contadores visuais (X imagens em Y vistas)
+- [x] Criar agrupamento de versões dentro de cada compartimento
+- [x] Adicionar badges de versões (ex: "3 versões")
+- [x] Implementar grid responsivo de thumbnails (1/2/3 colunas)
+- [x] Adicionar hover effects e overlay com ações
+- [x] Corrigir função getProjectArchvizRenders para usar inArray
+- [x] Adicionar leftJoin com archvizCompartments para obter nome do compartimento
+- [x] Criar estatísticas globais no header (total de imagens, vistas e compartimentos)

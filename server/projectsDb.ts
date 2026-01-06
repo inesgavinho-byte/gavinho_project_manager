@@ -25,7 +25,7 @@ import {
   type ProjectGalleryImage,
   type InsertProjectGalleryImage
 } from "../drizzle/schema";
-import { eq, desc, and, isNull, isNotNull, sql } from "drizzle-orm";
+import { eq, desc, and, isNull, isNotNull, sql, inArray } from "drizzle-orm";
 
 // ============= PROJECTS =============
 
@@ -559,20 +559,19 @@ export async function getProjectArchvizRenders(projectId: number) {
   const constructionIds = projectConstructions.map(c => c.id);
   
   // Get all renders from these constructions with uploader info
+  const { archvizCompartments } = await import("../drizzle/schema");
   const renders = await db
     .select({
       render: archvizRenders,
       construction: constructions,
       uploader: users,
+      compartment: archvizCompartments,
     })
     .from(archvizRenders)
     .leftJoin(constructions, eq(archvizRenders.constructionId, constructions.id))
     .leftJoin(users, eq(archvizRenders.uploadedById, users.id))
-    .where(
-      and(
-        ...constructionIds.map(id => eq(archvizRenders.constructionId, id))
-      )
-    )
+    .leftJoin(archvizCompartments, eq(archvizRenders.compartmentId, archvizCompartments.id))
+    .where(inArray(archvizRenders.constructionId, constructionIds))
     .orderBy(desc(archvizRenders.createdAt));
   
   // Get comment counts for each render
@@ -602,6 +601,7 @@ export async function getProjectArchvizRenders(projectId: number) {
     ...r.render,
     constructionCode: r.construction?.code || 'N/A',
     constructionName: r.construction?.name || 'N/A',
+    compartmentName: r.compartment?.name || 'Sem Compartimento',
     uploaderName: r.uploader?.name || 'Unknown',
     commentCount: commentCounts[r.render.id] || 0,
   }));
