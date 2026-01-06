@@ -39,6 +39,12 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+    updateProfile: protectedProcedure
+      .input(z.object({ name: z.string().min(1) }))
+      .mutation(async ({ ctx, input }) => {
+        await db.updateUser(ctx.user.id, { name: input.name });
+        return { success: true };
+      }),
   }),
 
   // Projects - Full router with phases, milestones, team, documents, gallery

@@ -375,3 +375,10 @@ export async function getUserById(userId: number) {
   const result = await db.select().from(users).where(eq(users.id, userId)).limit(1);
   return result[0] || null;
 }
+
+export async function updateUser(userId: number, data: { name?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(users).set({ ...data, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+}

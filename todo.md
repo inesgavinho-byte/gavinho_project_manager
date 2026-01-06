@@ -1078,3 +1078,24 @@
 - [x] Atualizar portal TeamAccess com lista completa (15 membros)
 - [x] Gerar documento atualizado de credenciais
 - [x] Testar portal com lista expandida
+
+## Melhorias de Navegação e Perfil
+- [x] Adicionar botão "Portal da Equipa" no menu lateral do DashboardLayout
+- [x] Criar página de perfil de utilizador (/profile)
+- [x] Implementar formulário de edição de informações pessoais
+- [ ] Adicionar upload de foto de perfil
+- [ ] Criar sistema de notificações por email para novos registos
+- [ ] Integrar envio de email de boas-vindas ao registar utilizador
+- [ ] Testar fluxo completo de navegação e perfil
+
+## Recursos Humanos (Admin Only)
+- [x] Criar schema de banco de dados (holidays, absences, timesheets)
+- [x] Adicionar calendário de feriados Portugal 2026
+- [ ] Implementar tRPC procedures para gestão de RH
+- [ ] Criar página /hr com controle de acesso admin
+- [ ] Tab "Equipa" - lista dos 15 membros com informações
+- [ ] Tab "Aprovações" - pedidos de ausência/férias pendentes
+- [ ] Tab "Gestão RH" - encerramento de feriados nacionais
+- [ ] Implementar sistema de pedidos de ausência
+- [ ] Criar interface de aprovação/rejeição de pedidos
+- [ ] Adicionar botão "Recursos Humanos" no menu lateral (admin only)

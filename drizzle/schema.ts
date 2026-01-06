@@ -984,3 +984,77 @@ export const clientDocuments = mysqlTable("clientDocuments", {
 
 export type ClientDocument = typeof clientDocuments.$inferSelect;
 export type InsertClientDocument = typeof clientDocuments.$inferInsert;
+
+
+/**
+ * HR - Holidays (Feriados Nacionais)
+ */
+export const holidays = mysqlTable("holidays", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  date: date("date").notNull(),
+  year: int("year").notNull(),
+  type: mysqlEnum("type", ["national", "regional", "company"]).default("national").notNull(),
+  isRecurring: boolean("isRecurring").default(false).notNull(), // true for holidays that repeat yearly
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  dateIdx: index("date_idx").on(table.date),
+  yearIdx: index("year_idx").on(table.year),
+}));
+
+export type Holiday = typeof holidays.$inferSelect;
+export type InsertHoliday = typeof holidays.$inferInsert;
+
+/**
+ * HR - Absences (Férias e Ausências)
+ */
+export const absences = mysqlTable("absences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id),
+  type: mysqlEnum("type", ["vacation", "sick", "personal", "other"]).default("vacation").notNull(),
+  startDate: date("startDate").notNull(),
+  endDate: date("endDate").notNull(),
+  days: int("days").notNull(), // Total days of absence
+  reason: text("reason"),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  approvedBy: int("approvedBy").references(() => users.id),
+  approvedAt: timestamp("approvedAt"),
+  rejectionReason: text("rejectionReason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("userId_idx").on(table.userId),
+  statusIdx: index("status_idx").on(table.status),
+  startDateIdx: index("startDate_idx").on(table.startDate),
+}));
+
+export type Absence = typeof absences.$inferSelect;
+export type InsertAbsence = typeof absences.$inferInsert;
+
+/**
+ * HR - Timesheets (Registro de Horas)
+ */
+export const timesheets = mysqlTable("timesheets", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id),
+  projectId: int("projectId").references(() => projects.id),
+  date: date("date").notNull(),
+  hours: decimal("hours", { precision: 5, scale: 2 }).notNull(), // Hours worked (e.g., 8.50)
+  description: text("description"),
+  taskType: varchar("taskType", { length: 100 }), // e.g., "Design", "Development", "Meeting"
+  isBillable: boolean("isBillable").default(true).notNull(),
+  status: mysqlEnum("status", ["draft", "submitted", "approved"]).default("draft").notNull(),
+  approvedBy: int("approvedBy").references(() => users.id),
+  approvedAt: timestamp("approvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("userId_idx").on(table.userId),
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  dateIdx: index("date_idx").on(table.date),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type Timesheet = typeof timesheets.$inferSelect;
+export type InsertTimesheet = typeof timesheets.$inferInsert;
