@@ -24,7 +24,8 @@ import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { Clock, Download, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { Clock, Download, CheckCircle, XCircle, Loader2, BarChart3 } from "lucide-react";
+import TimesheetsDashboard from "@/components/TimesheetsDashboard";
 
 export default function Timesheets() {
   const { user } = useAuth();
@@ -198,12 +199,17 @@ export default function Timesheets() {
 
       <Tabs defaultValue="register" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="dashboard"><BarChart3 className="h-4 w-4 mr-2" />Dashboard</TabsTrigger>
           <TabsTrigger value="register">Registar Horas</TabsTrigger>
           <TabsTrigger value="my-timesheets">Meus Timesheets</TabsTrigger>
           {user?.role === "admin" && (
             <TabsTrigger value="approvals">Aprovações</TabsTrigger>
           )}
         </TabsList>
+        
+        <TabsContent value="dashboard" className="space-y-4">
+          <TimesheetsDashboard />
+        </TabsContent>
 
         <TabsContent value="register" className="space-y-4">
           <Card>

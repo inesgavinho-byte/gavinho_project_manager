@@ -1108,7 +1108,7 @@
 - [x] Validação de datas (não permitir datas passadas, conflitos)
 - [x] Integrar com hrRouter.absences.create
 - [x] Adicionar botão "Solicitar Ausência" na página de perfil
-- [ ] Notificar administradores quando novo pedido é criado
+- [x] Notificar administradores quando novo pedido é criado
 
 ## Página de Timesheets
 - [x] Criar página Timesheets (/timesheets)
@@ -1118,14 +1118,14 @@
 - [x] Implementar hrRouter.timesheets procedures (create, list, approve, reject)
 - [ ] Botão de exportação para Excel/CSV
 - [x] Adicionar item "Timesheets" no menu lateral
-- [ ] Dashboard de horas totais por projeto/mês
+- [x] Dashboard de horas totais por projeto/mês com gráficos
 
 ## Relatórios RH Exportáveis
 - [x] Criar página Reports (/hr-reports)
 - [x] Relatório de ausências por colaborador (filtro período)
 - [x] Relatório de ausências por departamento
 - [ ] Relatório de timesheets por projeto
-- [ ] Implementar exportação PDF usando reportlab/weasyprint
+- [x] Implementar exportação PDF profissional com logotipos GAVINHO
 - [x] Implementar exportação Excel/CSV usando export nativo
 - [x] Adicionar gráficos de estatísticas (ausências/mês, horas/projeto)
 - [x] Adicionar item "Relatórios RH" no menu lateral (admin only)

@@ -13,7 +13,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
 import { useToast } from "@/hooks/use-toast";
-import { Download, FileText, Loader2, BarChart3 } from "lucide-react";
+import { Download, FileText, Loader2, BarChart3, FileDown } from "lucide-react";
 
 export default function HRReports() {
   const { toast } = useToast();
@@ -25,6 +25,54 @@ export default function HRReports() {
   const { data: users } = trpc.hr.team.list.useQuery();
   const { data: absences, isLoading: loadingAbsences } = trpc.hr.absences.list.useQuery();
   const { data: metrics } = trpc.hr.metrics.absences.useQuery({ year });
+  
+  const exportAbsencesPDFMutation = trpc.hr.reports.absencesPDF.useMutation({
+    onSuccess: (data) => {
+      const pdfBlob = new Blob(
+        [Uint8Array.from(atob(data.pdf), c => c.charCodeAt(0))],
+        { type: "application/pdf" }
+      );
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(pdfBlob);
+      link.download = data.filename;
+      link.click();
+      toast({
+        title: "PDF gerado",
+        description: "O relatório PDF foi descarregado com sucesso.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const exportTimesheetsPDFMutation = trpc.hr.reports.timesheetsPDF.useMutation({
+    onSuccess: (data) => {
+      const pdfBlob = new Blob(
+        [Uint8Array.from(atob(data.pdf), c => c.charCodeAt(0))],
+        { type: "application/pdf" }
+      );
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(pdfBlob);
+      link.download = data.filename;
+      link.click();
+      toast({
+        title: "PDF gerado",
+        description: "O relatório PDF foi descarregado com sucesso.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const exportAbsencesReport = () => {
     if (!absences || absences.length === 0) {
@@ -244,14 +292,33 @@ export default function HRReports() {
                   </div>
                 </div>
 
-                <Button 
-                  onClick={exportAbsencesReport}
-                  disabled={loadingAbsences || !absences || absences.length === 0}
-                  className="w-full"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Exportar Relatório (CSV/Excel)
-                </Button>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button 
+                    onClick={exportAbsencesReport}
+                    disabled={loadingAbsences || !absences || absences.length === 0}
+                    variant="outline"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Exportar CSV
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => exportAbsencesPDFMutation.mutate({
+                      startDate: startDate || undefined,
+                      endDate: endDate || undefined,
+                      companyType: "arquitetura",
+                    })}
+                    disabled={loadingAbsences || !absences || absences.length === 0 || exportAbsencesPDFMutation.isPending}
+                    className="bg-[#C9A882] hover:bg-[#B8976F]"
+                  >
+                    {exportAbsencesPDFMutation.isPending ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <FileDown className="mr-2 h-4 w-4" />
+                    )}
+                    Exportar PDF
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
