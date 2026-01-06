@@ -1263,11 +1263,28 @@
 - [ ] Endpoint para download de relatórios (em desenvolvimento)
 - [ ] Interface para gerar e visualizar relatórios (futuro)
 
-## Sistema de Não Conformidades
-- [ ] Interface de registo de não conformidades
-- [ ] Workflow de aprovação (aberto → em análise → resolvido)
-- [ ] Atribuição de responsáveis e prazos
-- [ ] Upload de evidências fotográficas
-- [ ] Dashboard de não conformidades pendentes
-- [ ] Notificações automáticas de prazos
-- [ ] Geração de relatório de não conformidades
+## Sistema de Não Conformidades Completo
+- [x] Criar página web de gestão de não conformidades
+- [x] Interface de registo com formulário completo
+- [x] Workflow de aprovação (aberto → em análise → resolvido → fechado)
+- [x] Atribuição de responsáveis e prazos
+- [ ] Upload de fotografias de não conformidades (futuro)
+- [ ] Sistema de comentários e histórico (futuro)
+- [ ] Geração automática de relatórios PDF (futuro)
+- [x] Dashboard de não conformidades (abertas, em progresso, resolvidas)
+
+## Dashboard de Obra em Tempo Real
+- [x] Criar dashboard executivo de obra
+- [x] Métricas ao vivo: trabalhadores presentes hoje
+- [x] Métricas ao vivo: horas trabalhadas hoje
+- [x] Métricas ao vivo: materiais consumidos hoje
+- [x] Alertas de não conformidades críticas
+- [x] Gráficos de tendências (semanal/mensal)
+- [x] Atualização automática de dados (30 segundos)
+
+## Notificações Push Mobile
+- [x] Integrar sistema de notificações push (usando sistema Manus)
+- [x] Notificar trabalhadores sobre aprovações de requisições
+- [x] Notificar gestores sobre novos pedidos
+- [x] Notificar direção sobre não conformidades críticas
+- [ ] Configurações de preferências de notificações (futuro)nformidades

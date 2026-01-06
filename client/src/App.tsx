@@ -38,6 +38,8 @@ import HRReports from "./pages/HRReports";
       </Route>
 
 import SiteMobile from "./pages/SiteMobile";
+import SiteNonCompliances from "./pages/SiteNonCompliances";
+import SiteDashboard from "./pages/SiteDashboard";
         <DashboardLayout>
           <SiteMaterials />
         </DashboardLayout>

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as siteDb from "./siteManagementDb";
 import { storagePut } from "./storage";
+import * as siteNotifications from "./siteNotificationService";
 
 export const siteManagementRouter = router({
   // ============================================================================
@@ -341,8 +342,6 @@ export const siteManagementRouter = router({
           photoUrl: url,
           description: input.description,
           location: input.location,
-          latitude: input.latitude,
-          longitude: input.longitude,
           tags: input.tags ? JSON.stringify(input.tags) : null,
           date: new Date(),
         });
