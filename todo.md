@@ -1288,3 +1288,38 @@
 - [x] Notificar gestores sobre novos pedidos
 - [x] Notificar direção sobre não conformidades críticas
 - [ ] Configurações de preferências de notificações (futuro)nformidades
+
+
+## Mapa de Quantidades Interativo (MQT)
+
+#### Backend e Schema
+- [x] Criar tabela siteQuantityMapItems (id, constructionId, category, code, description, unit, quantityPlanned, quantityExecuted, notes)
+- [x] Criar tabela siteQuantityMapProgress (id, itemId, workerId, quantityMarked, date, notes, photos)
+- [x] Implementar funções em siteManagementDb.ts (getQuantityMapItems, updateQuantityExecuted, getProgressHistory)
+- [x] Criar endpoints tRPC em siteManagementRouter.ts (quantityMap.list, quantityMap.updateProgress, quantityMap.getHistory, quantityMap.getStats)
+### Interface Web
+- [x] Criar página SiteQuantityMap.tsx com tabela de itens MQT
+- [x] Implementar filtros por categoria e pesquisa
+- [x] Adicionar coluna de progresso com barra visual (executado/planejado)
+- [x] Implementar edição inline de quantidades executadas
+- [x] Criar modal de histórico de marcações por item
+- [x] Adicionar dashboard de estatísticas (% total executado, itens concluídos, em andamento, não iniciados)
+
+### Interface Mobile
+- [ ] Criar página SiteMobileQuantityMap.tsx otimizada para mobile
+- [ ] Implementar lista simplificada de itens com busca rápida
+- [ ] Adicionar botão de marcação rápida de quantidade
+- [ ] Permitir upload de fotos de comprovação
+- [ ] Implementar modo offline com sincronização posterior
+
+### Visualizações e Gráficos
+- [ ] Criar gráfico de pizza: distribuição por categoria (concluído/em andamento/não iniciado)
+- [ ] Criar gráfico de barras: comparação previsto vs executado por categoria
+- [ ] Criar gráfico de linha: evolução temporal do progresso
+- [ ] Implementar exportação de relatório PDF do MQT com progresso
+
+### Integração
+- [ ] Adicionar link "Mapa de Quantidades" no menu de Gestão de Obra
+- [ ] Integrar com dashboard de obra (mostrar % MQT executado)
+- [ ] Criar notificações quando itens MQT forem concluídos
+- [ ] Adicionar permissões (trabalhadores podem marcar, gestores podem editar/aprovar)

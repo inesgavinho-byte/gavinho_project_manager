@@ -404,11 +404,15 @@ export async function deleteWorkPhoto(id: number) {
 // ============================================================================
 
 export async function createNonCompliance(data: InsertSiteNonCompliance) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const [nonCompliance] = await db.insert(siteNonCompliances).values(data);
   return nonCompliance;
 }
 
 export async function getNonCompliancesByConstruction(constructionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   return await db
     .select()
     .from(siteNonCompliances)
@@ -417,6 +421,8 @@ export async function getNonCompliancesByConstruction(constructionId: number) {
 }
 
 export async function getNonComplianceById(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const [nonCompliance] = await db
     .select()
     .from(siteNonCompliances)
@@ -428,6 +434,8 @@ export async function updateNonCompliance(
   id: number,
   data: Partial<InsertSiteNonCompliance>
 ) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   await db
     .update(siteNonCompliances)
     .set({ ...data, updatedAt: new Date() })
@@ -436,6 +444,8 @@ export async function updateNonCompliance(
 }
 
 export async function resolveNonCompliance(id: number, resolvedBy: number, resolution: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   await db
     .update(siteNonCompliances)
     .set({
@@ -450,6 +460,8 @@ export async function resolveNonCompliance(id: number, resolvedBy: number, resol
 }
 
 export async function verifyNonCompliance(id: number, verifiedBy: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   await db
     .update(siteNonCompliances)
     .set({
@@ -463,6 +475,8 @@ export async function verifyNonCompliance(id: number, verifiedBy: number) {
 }
 
 export async function getOpenNonCompliancesByConstruction(constructionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   return await db
     .select()
     .from(siteNonCompliances)
@@ -482,6 +496,8 @@ export async function getOpenNonCompliancesByConstruction(constructionId: number
 export async function getReportData(constructionId: number, startDate: Date, endDate: Date) {
   // Import constructions table
   const { constructions } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   
   // Get construction info
   const construction = await db
@@ -498,18 +514,16 @@ export async function getReportData(constructionId: number, startDate: Date, end
   const attendanceRecords = await db
     .select({
       workerName: siteWorkers.name,
-      date: siteAttendance.date,
       checkIn: siteAttendance.checkIn,
       checkOut: siteAttendance.checkOut,
-      totalHours: siteAttendance.totalHours,
     })
     .from(siteAttendance)
     .innerJoin(siteWorkers, eq(siteAttendance.workerId, siteWorkers.id))
     .where(
       and(
         eq(siteAttendance.constructionId, constructionId),
-        sql`date >= ${startDate.toISOString().split('T')[0]}`,
-        sql`date <= ${endDate.toISOString().split('T')[0]}`
+        sql`checkIn >= ${startDate}`,
+        sql`checkIn <= ${endDate}`
       )
     );
 
@@ -576,15 +590,15 @@ export async function getReportData(constructionId: number, startDate: Date, end
       severity: siteNonCompliances.severity,
       status: siteNonCompliances.status,
       responsibleName: siteWorkers.name,
-      reportedDate: siteNonCompliances.reportedDate,
+      reportedDate: siteNonCompliances.date,
     })
     .from(siteNonCompliances)
-    .leftJoin(siteWorkers, eq(siteNonCompliances.responsibleId, siteWorkers.id))
+    .leftJoin(siteWorkers, eq(siteNonCompliances.reportedBy, siteWorkers.id))
     .where(
       and(
         eq(siteNonCompliances.constructionId, constructionId),
-        sql`reportedDate >= ${startDate}`,
-        sql`reportedDate <= ${endDate}`
+        sql`date >= ${startDate}`,
+        sql`date <= ${endDate}`
       )
     );
 
@@ -592,7 +606,7 @@ export async function getReportData(constructionId: number, startDate: Date, end
     construction: {
       code: construction.code,
       name: construction.name,
-      address: construction.address,
+      location: construction.location,
     },
     period: {
       startDate,
@@ -604,4 +618,209 @@ export async function getReportData(constructionId: number, startDate: Date, end
     photos: photosRecords,
     nonCompliances: nonCompliancesRecords,
   };
+}
+
+
+// ============================================================================
+// QUANTITY MAP - Mapa de Quantidades
+// ============================================================================
+
+export async function getQuantityMapItems(constructionId: number) {
+  const { siteQuantityMap } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  return await db
+    .select()
+    .from(siteQuantityMap)
+    .where(eq(siteQuantityMap.constructionId, constructionId))
+    .orderBy(siteQuantityMap.order, siteQuantityMap.category);
+}
+
+export async function getQuantityMapItemById(id: number) {
+  const { siteQuantityMap } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [item] = await db
+    .select()
+    .from(siteQuantityMap)
+    .where(eq(siteQuantityMap.id, id));
+  return item;
+}
+
+export async function createQuantityMapItem(data: any) {
+  const { siteQuantityMap } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const [item] = await db.insert(siteQuantityMap).values(data);
+  return item;
+}
+
+export async function updateQuantityMapItem(id: number, data: any) {
+  const { siteQuantityMap } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db
+    .update(siteQuantityMap)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(siteQuantityMap.id, id));
+  return getQuantityMapItemById(id);
+}
+
+export async function updateQuantityExecuted(
+  itemId: number,
+  quantityExecuted: number,
+  updatedBy: number,
+  notes?: string
+) {
+  const { siteQuantityMap, siteQuantityProgress } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Update current quantity in main table
+  await db
+    .update(siteQuantityMap)
+    .set({ 
+      currentQuantity: quantityExecuted.toString(),
+      updatedAt: new Date() 
+    })
+    .where(eq(siteQuantityMap.id, itemId));
+
+  // Get construction ID
+  const item = await getQuantityMapItemById(itemId);
+  if (!item) throw new Error("Item not found");
+
+  // Record progress history
+  await db.insert(siteQuantityProgress).values({
+    quantityMapId: itemId,
+    constructionId: item.constructionId,
+    updatedBy,
+    date: new Date(),
+    quantity: quantityExecuted.toString(),
+    notes: notes || null,
+    photos: null,
+  });
+
+  return getQuantityMapItemById(itemId);
+}
+
+export async function getQuantityMapProgress(itemId: number) {
+  const { siteQuantityProgress, users } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db
+    .select({
+      id: siteQuantityProgress.id,
+      date: siteQuantityProgress.date,
+      quantity: siteQuantityProgress.quantity,
+      notes: siteQuantityProgress.notes,
+      photos: siteQuantityProgress.photos,
+      updatedBy: users.name,
+      createdAt: siteQuantityProgress.createdAt,
+    })
+    .from(siteQuantityProgress)
+    .leftJoin(users, eq(siteQuantityProgress.updatedBy, users.id))
+    .where(eq(siteQuantityProgress.quantityMapId, itemId))
+    .orderBy(desc(siteQuantityProgress.date));
+}
+
+export async function getQuantityMapStats(constructionId: number) {
+  const { siteQuantityMap } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const items = await db
+    .select()
+    .from(siteQuantityMap)
+    .where(eq(siteQuantityMap.constructionId, constructionId));
+
+  let totalPlanned = 0;
+  let totalExecuted = 0;
+  let completedItems = 0;
+  let inProgressItems = 0;
+  let notStartedItems = 0;
+
+  items.forEach((item: any) => {
+    const planned = parseFloat(item.plannedQuantity);
+    const executed = parseFloat(item.currentQuantity);
+    
+    totalPlanned += planned;
+    totalExecuted += executed;
+
+    const progress = planned > 0 ? (executed / planned) * 100 : 0;
+    
+    if (progress >= 100) {
+      completedItems++;
+    } else if (progress > 0) {
+      inProgressItems++;
+    } else {
+      notStartedItems++;
+    }
+  });
+
+  const overallProgress = totalPlanned > 0 ? (totalExecuted / totalPlanned) * 100 : 0;
+
+  return {
+    totalItems: items.length,
+    completedItems,
+    inProgressItems,
+    notStartedItems,
+    totalPlanned,
+    totalExecuted,
+    overallProgress: Math.round(overallProgress * 100) / 100,
+  };
+}
+
+export async function getQuantityMapByCategory(constructionId: number) {
+  const { siteQuantityMap } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const items = await db
+    .select()
+    .from(siteQuantityMap)
+    .where(eq(siteQuantityMap.constructionId, constructionId))
+    .orderBy(siteQuantityMap.category, siteQuantityMap.order);
+
+  // Group by category
+  const grouped: Record<string, any[]> = {};
+  
+  items.forEach((item: any) => {
+    if (!grouped[item.category]) {
+      grouped[item.category] = [];
+    }
+    
+    const planned = parseFloat(item.plannedQuantity);
+    const executed = parseFloat(item.currentQuantity);
+    const progress = planned > 0 ? (executed / planned) * 100 : 0;
+    
+    grouped[item.category].push({
+      ...item,
+      progress: Math.round(progress * 100) / 100,
+    });
+  });
+
+  // Calculate category stats
+  const categoryStats = Object.entries(grouped).map(([category, categoryItems]) => {
+    let totalPlanned = 0;
+    let totalExecuted = 0;
+    
+    categoryItems.forEach(item => {
+      totalPlanned += parseFloat(item.plannedQuantity);
+      totalExecuted += parseFloat(item.currentQuantity);
+    });
+    
+    const progress = totalPlanned > 0 ? (totalExecuted / totalPlanned) * 100 : 0;
+    
+    return {
+      category,
+      items: categoryItems,
+      itemCount: categoryItems.length,
+      totalPlanned,
+      totalExecuted,
+      progress: Math.round(progress * 100) / 100,
+    };
+  });
+
+  return categoryStats;
 }

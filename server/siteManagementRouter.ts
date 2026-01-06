@@ -155,7 +155,11 @@ export const siteManagementRouter = router({
         hours: z.number(),
       }))
       .mutation(async ({ input }) => {
-        return await siteDb.createWorkHours(input);
+        return await siteDb.createWorkHours({
+          ...input,
+          date: new Date(input.date),
+          hours: input.hours.toString(),
+        });
       }),
 
     listByConstruction: protectedProcedure
@@ -216,6 +220,7 @@ export const siteManagementRouter = router({
       .mutation(async ({ input, ctx }) => {
         return await siteDb.createMaterialRequest({
           ...input,
+          quantity: input.quantity.toString(),
           requestedBy: ctx.user.id,
         });
       }),
@@ -453,6 +458,102 @@ export const siteManagementRouter = router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input, ctx }) => {
         return await siteDb.verifyNonCompliance(input.id, ctx.user.id);
+      }),
+  }),
+
+  // ============================================================================
+  // QUANTITY MAP - Mapa de Quantidades
+  // ============================================================================
+  
+  quantityMap: router({
+    list: protectedProcedure
+      .input(z.object({ constructionId: z.number() }))
+      .query(async ({ input }) => {
+        return await siteDb.getQuantityMapItems(input.constructionId);
+      }),
+
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await siteDb.getQuantityMapItemById(input.id);
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        constructionId: z.number(),
+        category: z.string(),
+        item: z.string(),
+        description: z.string().optional(),
+        unit: z.string(),
+        plannedQuantity: z.number(),
+        unitPrice: z.number().optional(),
+        order: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        return await siteDb.createQuantityMapItem({
+          ...input,
+          plannedQuantity: input.plannedQuantity.toString(),
+          unitPrice: input.unitPrice?.toString(),
+          currentQuantity: "0",
+        });
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        category: z.string().optional(),
+        item: z.string().optional(),
+        description: z.string().optional(),
+        unit: z.string().optional(),
+        plannedQuantity: z.number().optional(),
+        unitPrice: z.number().optional(),
+        order: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        const updateData: any = {};
+        if (data.category) updateData.category = data.category;
+        if (data.item) updateData.item = data.item;
+        if (data.description) updateData.description = data.description;
+        if (data.unit) updateData.unit = data.unit;
+        if (data.plannedQuantity) updateData.plannedQuantity = data.plannedQuantity.toString();
+        if (data.unitPrice) updateData.unitPrice = data.unitPrice.toString();
+        if (data.order !== undefined) updateData.order = data.order;
+        
+        return await siteDb.updateQuantityMapItem(id, updateData);
+      }),
+
+    updateProgress: protectedProcedure
+      .input(z.object({
+        itemId: z.number(),
+        quantityExecuted: z.number(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        return await siteDb.updateQuantityExecuted(
+          input.itemId,
+          input.quantityExecuted,
+          ctx.user.id,
+          input.notes
+        );
+      }),
+
+    getProgress: protectedProcedure
+      .input(z.object({ itemId: z.number() }))
+      .query(async ({ input }) => {
+        return await siteDb.getQuantityMapProgress(input.itemId);
+      }),
+
+    getStats: protectedProcedure
+      .input(z.object({ constructionId: z.number() }))
+      .query(async ({ input }) => {
+        return await siteDb.getQuantityMapStats(input.constructionId);
+      }),
+
+    getByCategory: protectedProcedure
+      .input(z.object({ constructionId: z.number() }))
+      .query(async ({ input }) => {
+        return await siteDb.getQuantityMapByCategory(input.constructionId);
       }),
   }),
 });

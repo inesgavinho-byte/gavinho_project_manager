@@ -23,6 +23,7 @@ import Mentions from "./pages/Mentions";
 import Constructions from "./pages/Constructions";
 import ConstructionDetails from "./pages/ConstructionDetails";
 import MqtAnalyticsDashboard from "./pages/MqtAnalyticsDashboard";
+import SiteQuantityMap from "./pages/SiteQuantityMap";
 import Trash from "./pages/Trash";
 import TeamAccess from "./pages/TeamAccess";
 import UserProfile from "./pages/UserProfile";
@@ -136,6 +137,10 @@ function Router() {
         <DashboardLayout>
           <MqtAnalyticsDashboard />
         </DashboardLayout>
+      </Route>
+      
+      <Route path="/site-management/:id/quantity-map">
+        <SiteQuantityMap />
       </Route>
       
       <Route path="/suppliers">
