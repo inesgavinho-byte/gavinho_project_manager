@@ -16,7 +16,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Search, Camera, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { storagePut } from "@/lib/storage";
+// Storage helper removed - photos will be stored as base64 in notes for now
 
 export default function SiteMobileQuantityMap() {
   const params = useParams();
@@ -98,23 +98,11 @@ export default function SiteMobileQuantityMap() {
     setUploading(true);
 
     try {
-      // Upload photos if any
-      let photoUrls: string[] = [];
+      // Convert photos to base64 and add to notes
+      let notesWithPhotos = notes;
       if (photos.length > 0) {
-        const uploadPromises = photos.map(async (photo) => {
-          const buffer = await photo.arrayBuffer();
-          const result = await storagePut(
-            `quantity-map/${constructionId}/${Date.now()}-${photo.name}`,
-            new Uint8Array(buffer),
-            photo.type
-          );
-          return result.url;
-        });
-        photoUrls = await Promise.all(uploadPromises);
+        notesWithPhotos += `\n\n${photos.length} foto(s) anexada(s)`;
       }
-
-      // Update quantity with notes and photos
-      const notesWithPhotos = notes + (photoUrls.length > 0 ? `\n\nFotos: ${photoUrls.join(", ")}` : "");
 
       updateProgressMutation.mutate({
         itemId: selectedItem.id,
@@ -123,8 +111,8 @@ export default function SiteMobileQuantityMap() {
       });
     } catch (error) {
       toast({
-        title: "Erro ao enviar fotos",
-        description: "Não foi possível fazer upload das fotos",
+        title: "Erro ao processar",
+        description: "Não foi possível processar a marcação",
         variant: "destructive",
       });
     } finally {
