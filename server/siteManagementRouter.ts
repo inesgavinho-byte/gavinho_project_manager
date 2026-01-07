@@ -594,6 +594,15 @@ export const siteManagementRouter = router({
         return await siteDb.getPendingMarcations(input.constructionId);
       }),
 
+    getByStatus: protectedProcedure
+      .input(z.object({
+        constructionId: z.number(),
+        status: z.enum(["pending", "approved", "rejected"]).optional(),
+      }))
+      .query(async ({ input }) => {
+        return await siteDb.getMarcationsByStatus(input.constructionId, input.status);
+      }),
+
     getPendingCount: protectedProcedure
       .input(z.object({ constructionId: z.number() }))
       .query(async ({ input }) => {

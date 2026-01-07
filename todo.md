@@ -1412,3 +1412,37 @@
 - [x] Adicionar notificação na função rejectMarcation (incluir motivo da rejeição)
 - [x] Buscar informações do trabalhador (nome, email) para personalizar notificação
 - [x] Testar envio de notificações em ambos os cenários (aprovação e rejeição)
+
+
+## Funcionalidades Finais do Sistema MQT
+
+### Página de Notificações
+- [ ] Criar tabela `notifications` no schema (id, userId, title, content, type, read, createdAt)
+- [ ] Criar funções em db.ts (createNotification, getNotifications, markAsRead, getUnreadCount)
+- [ ] Criar endpoints tRPC (notifications.list, notifications.markAsRead, notifications.getUnreadCount)
+- [ ] Criar página Notifications.tsx com lista de notificações
+- [ ] Adicionar filtros por tipo (MQT, Obra, Sistema) e data
+- [ ] Implementar marcação de lida/não lida
+- [ ] Adicionar badge de notificações não lidas no menu lateral
+- [ ] Adicionar link para página de notificações no DashboardLayout
+
+### Sistema de Email
+- [ ] Pesquisar API de email disponível (SendGrid, Mailgun, AWS SES)
+- [ ] Criar helper de envio de email em server/_core/email.ts
+- [ ] Adicionar campo `email` na tabela `users` se não existir
+- [ ] Modificar approveMarcation para enviar email ao trabalhador
+- [ ] Modificar rejectMarcation para enviar email ao trabalhador com motivo
+- [ ] Criar template de email para aprovação
+- [ ] Criar template de email para rejeição
+- [ ] Testar envio de emails em ambiente de desenvolvimento
+
+### Filtros de Status no MQT
+- [x] Adicionar dropdown de filtro de status na página SiteQuantityMap.tsx
+- [x] Implementar filtro por status (Todos, Pendentes, Aprovados, Rejeitados)
+- [x] Criar endpoint getByStatus que aceita filtro de status opcional
+- [x] Criar função getMarcationsByStatus no backend
+- [x] Substituir seção de pendentes por seção de histórico filtrado
+- [x] Adicionar badge de status em cada marcação (Pendente/Aprovado/Rejeitado)
+- [x] Mostrar data de aprovação e motivo de rejeição quando aplicável
+- [x] Botões de aprovar/rejeitar apenas visíveis para marcações pendentes
+- [x] Cores dinâmicas do card conforme filtro selecionado

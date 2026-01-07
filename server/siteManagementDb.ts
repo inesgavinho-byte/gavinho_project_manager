@@ -1004,6 +1004,44 @@ export async function getPendingMarcations(constructionId: number) {
     .orderBy(desc(siteQuantityProgress.date));
 }
 
+export async function getMarcationsByStatus(
+  constructionId: number,
+  status?: "pending" | "approved" | "rejected"
+) {
+  const { siteQuantityProgress, siteQuantityMap, users } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const conditions = [eq(siteQuantityProgress.constructionId, constructionId)];
+  
+  if (status) {
+    conditions.push(eq(siteQuantityProgress.status, status));
+  }
+  
+  return await db
+    .select({
+      id: siteQuantityProgress.id,
+      date: siteQuantityProgress.date,
+      quantity: siteQuantityProgress.quantity,
+      notes: siteQuantityProgress.notes,
+      photos: siteQuantityProgress.photos,
+      status: siteQuantityProgress.status,
+      rejectionReason: siteQuantityProgress.rejectionReason,
+      updatedBy: users.name,
+      updatedById: siteQuantityProgress.updatedBy,
+      approvedAt: siteQuantityProgress.approvedAt,
+      createdAt: siteQuantityProgress.createdAt,
+      item: siteQuantityMap.item,
+      category: siteQuantityMap.category,
+      unit: siteQuantityMap.unit,
+    })
+    .from(siteQuantityProgress)
+    .leftJoin(siteQuantityMap, eq(siteQuantityProgress.quantityMapId, siteQuantityMap.id))
+    .leftJoin(users, eq(siteQuantityProgress.updatedBy, users.id))
+    .where(and(...conditions))
+    .orderBy(desc(siteQuantityProgress.date));
+}
+
 export async function getPendingMarcationsCount(constructionId: number) {
   const { siteQuantityProgress } = await import("../drizzle/schema");
   const db = await getDb();

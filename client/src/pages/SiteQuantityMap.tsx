@@ -34,6 +34,7 @@ export default function SiteQuantityMap() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
   const [editingItemId, setEditingItemId] = useState<number | null>(null);
   const [editingQuantity, setEditingQuantity] = useState("");
 
@@ -50,6 +51,14 @@ export default function SiteQuantityMap() {
 
   const { data: categoryData = [] } = trpc.siteManagement.quantityMap.getByCategory.useQuery(
     { constructionId },
+    { enabled: constructionId > 0 }
+  );
+
+  const { data: filteredMarcations = [], refetch: refetchFiltered } = trpc.siteManagement.quantityMap.getByStatus.useQuery(
+    {
+      constructionId,
+      status: statusFilter === "all" ? undefined : statusFilter,
+    },
     { enabled: constructionId > 0 }
   );
 
@@ -71,6 +80,7 @@ export default function SiteQuantityMap() {
       });
       refetchItems();
       refetchPending();
+      refetchFiltered();
       setEditingItemId(null);
       setEditingQuantity("");
     },
@@ -90,6 +100,7 @@ export default function SiteQuantityMap() {
         description: "A marcação foi aprovada com sucesso",
       });
       refetchPending();
+      refetchFiltered();
       refetchItems();
     },
     onError: (error) => {
@@ -105,9 +116,10 @@ export default function SiteQuantityMap() {
     onSuccess: () => {
       toast({
         title: "Marcação rejeitada",
-        description: "A marcação foi rejeitada",
+        description: "A marcação foi rejeitada com sucesso",
       });
       refetchPending();
+      refetchFiltered();
       refetchItems();
       setRejectDialogOpen(false);
       setRejectionReason("");
@@ -260,18 +272,26 @@ export default function SiteQuantityMap() {
           </div>
         )}
 
-        {/* Pending Marcations */}
-        {pendingMarcations.length > 0 && (
-          <Card className="mb-6 border-orange-200 bg-orange-50">
+        {/* Filtered Marcations History */}
+        {filteredMarcations.length > 0 && (
+          <Card className={`mb-6 ${
+            statusFilter === "pending" ? "border-orange-200 bg-orange-50" :
+            statusFilter === "approved" ? "border-green-200 bg-green-50" :
+            statusFilter === "rejected" ? "border-red-200 bg-red-50" :
+            "border-[#C3BAAF]/30"
+          }`}>
             <CardHeader>
               <CardTitle className="text-lg font-medium text-[#5F5C59] flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-orange-600" />
-                Marcações Pendentes de Aprovação ({pendingMarcations.length})
+                <History className="h-5 w-5" />
+                {statusFilter === "all" && `Histórico de Marcações (${filteredMarcations.length})`}
+                {statusFilter === "pending" && `Marcações Pendentes de Aprovação (${filteredMarcations.length})`}
+                {statusFilter === "approved" && `Marcações Aprovadas (${filteredMarcations.length})`}
+                {statusFilter === "rejected" && `Marcações Rejeitadas (${filteredMarcations.length})`}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {pendingMarcations.map((marcation: any) => (
+                {filteredMarcations.map((marcation: any) => (
                   <div
                     key={marcation.id}
                     className="bg-white p-4 rounded-lg border border-orange-200 flex items-center justify-between"
@@ -282,6 +302,15 @@ export default function SiteQuantityMap() {
                           {marcation.category}
                         </Badge>
                         <span className="font-medium text-[#5F5C59]">{marcation.item}</span>
+                        {marcation.status === "approved" && (
+                          <Badge className="bg-green-600 text-white">Aprovado</Badge>
+                        )}
+                        {marcation.status === "rejected" && (
+                          <Badge className="bg-red-600 text-white">Rejeitado</Badge>
+                        )}
+                        {marcation.status === "pending" && (
+                          <Badge className="bg-orange-500 text-white">Pendente</Badge>
+                        )}
                       </div>
                       <div className="text-sm text-[#5F5C59]/70 space-y-1">
                         <p>
@@ -293,6 +322,16 @@ export default function SiteQuantityMap() {
                         <p>
                           <strong>Data:</strong> {new Date(marcation.date).toLocaleDateString("pt-PT")}
                         </p>
+                        {marcation.approvedAt && (
+                          <p>
+                            <strong>Aprovado em:</strong> {new Date(marcation.approvedAt).toLocaleDateString("pt-PT")}
+                          </p>
+                        )}
+                        {marcation.rejectionReason && (
+                          <p className="text-red-600">
+                            <strong>Motivo da rejeição:</strong> {marcation.rejectionReason}
+                          </p>
+                        )}
                         {marcation.notes && (
                           <p>
                             <strong>Notas:</strong> {marcation.notes}
@@ -300,7 +339,7 @@ export default function SiteQuantityMap() {
                         )}
                       </div>
                     </div>
-                    {user?.role === 'admin' && (
+                    {user?.role === 'admin' && marcation.status === 'pending' && (
                       <div className="flex gap-2 ml-4">
                         <Button
                           size="sm"
@@ -358,12 +397,24 @@ export default function SiteQuantityMap() {
                 ))}
               </select>
 
-              {(searchTerm || selectedCategory) && (
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as "all" | "pending" | "approved" | "rejected")}
+                className="px-4 py-2 border border-[#C3BAAF] rounded-md bg-white text-[#5F5C59]"
+              >
+                <option value="all">Todos os status</option>
+                <option value="pending">Pendentes</option>
+                <option value="approved">Aprovados</option>
+                <option value="rejected">Rejeitados</option>
+              </select>
+
+              {(searchTerm || selectedCategory || statusFilter !== "all") && (
                 <Button
                   variant="outline"
                   onClick={() => {
                     setSearchTerm("");
                     setSelectedCategory(null);
+                    setStatusFilter("all");
                   }}
                 >
                   Limpar Filtros
