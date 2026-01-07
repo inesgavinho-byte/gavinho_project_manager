@@ -1509,6 +1509,10 @@ export const siteQuantityProgress = mysqlTable("siteQuantityProgress", {
   quantity: decimal("quantity", { precision: 12, scale: 2 }).notNull(),
   notes: text("notes"),
   photos: text("photos"), // JSON array of photo URLs
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  approvedBy: int("approvedBy"),
+  approvedAt: timestamp("approvedAt"),
+  rejectionReason: text("rejectionReason"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => ({
   quantityMapIdIdx: index("quantityMapId_idx").on(table.quantityMapId),

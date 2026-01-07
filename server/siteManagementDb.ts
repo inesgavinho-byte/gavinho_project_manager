@@ -698,7 +698,19 @@ export async function updateQuantityExecuted(
     quantity: quantityExecuted.toString(),
     notes: notes || null,
     photos: null,
+    status: "pending",
   });
+
+  // Send notification to owner about new marcation
+  try {
+    const { notifyOwner } = await import("./_core/notification");
+    await notifyOwner({
+      title: "Nova marcação MQT pendente",
+      content: `Nova marcação de quantidade no item "${item.item}": ${quantityExecuted} ${item.unit}. Aguarda aprovação.`,
+    });
+  } catch (error) {
+    console.error("Failed to send notification:", error);
+  }
 
   return getQuantityMapItemById(itemId);
 }
@@ -715,6 +727,10 @@ export async function getQuantityMapProgress(itemId: number) {
       quantity: siteQuantityProgress.quantity,
       notes: siteQuantityProgress.notes,
       photos: siteQuantityProgress.photos,
+      status: siteQuantityProgress.status,
+      approvedBy: siteQuantityProgress.approvedBy,
+      approvedAt: siteQuantityProgress.approvedAt,
+      rejectionReason: siteQuantityProgress.rejectionReason,
       updatedBy: users.name,
       createdAt: siteQuantityProgress.createdAt,
     })
@@ -823,4 +839,91 @@ export async function getQuantityMapByCategory(constructionId: number) {
   });
 
   return categoryStats;
+}
+
+// Approval functions for quantity map progress
+export async function approveMarcation(progressId: number, approvedBy: number) {
+  const { siteQuantityProgress } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db
+    .update(siteQuantityProgress)
+    .set({
+      status: "approved",
+      approvedBy,
+      approvedAt: new Date(),
+      rejectionReason: null,
+    })
+    .where(eq(siteQuantityProgress.id, progressId));
+  
+  return true;
+}
+
+export async function rejectMarcation(progressId: number, approvedBy: number, reason: string) {
+  const { siteQuantityProgress } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db
+    .update(siteQuantityProgress)
+    .set({
+      status: "rejected",
+      approvedBy,
+      approvedAt: new Date(),
+      rejectionReason: reason,
+    })
+    .where(eq(siteQuantityProgress.id, progressId));
+  
+  return true;
+}
+
+export async function getPendingMarcations(constructionId: number) {
+  const { siteQuantityProgress, siteQuantityMap, users } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db
+    .select({
+      id: siteQuantityProgress.id,
+      date: siteQuantityProgress.date,
+      quantity: siteQuantityProgress.quantity,
+      notes: siteQuantityProgress.notes,
+      photos: siteQuantityProgress.photos,
+      status: siteQuantityProgress.status,
+      updatedBy: users.name,
+      updatedById: siteQuantityProgress.updatedBy,
+      createdAt: siteQuantityProgress.createdAt,
+      item: siteQuantityMap.item,
+      category: siteQuantityMap.category,
+      unit: siteQuantityMap.unit,
+    })
+    .from(siteQuantityProgress)
+    .leftJoin(siteQuantityMap, eq(siteQuantityProgress.quantityMapId, siteQuantityMap.id))
+    .leftJoin(users, eq(siteQuantityProgress.updatedBy, users.id))
+    .where(
+      and(
+        eq(siteQuantityProgress.constructionId, constructionId),
+        eq(siteQuantityProgress.status, "pending")
+      )
+    )
+    .orderBy(desc(siteQuantityProgress.date));
+}
+
+export async function getPendingMarcationsCount(constructionId: number) {
+  const { siteQuantityProgress } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .select()
+    .from(siteQuantityProgress)
+    .where(
+      and(
+        eq(siteQuantityProgress.constructionId, constructionId),
+        eq(siteQuantityProgress.status, "pending")
+      )
+    );
+  
+  return result.length;
 }

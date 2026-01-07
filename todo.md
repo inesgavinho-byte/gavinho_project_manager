@@ -1323,3 +1323,71 @@
 - [x] Adicionar card de MQT no SiteDashboard.tsx
 - [ ] Criar notificações quando itens MQT forem concluídos
 - [ ] Adicionar permissões (trabalhadores podem marcar, gestores podem editar/aprovar)
+
+
+## Sistema de Aprovação de Marcações MQT
+
+### Schema e Backend
+- [x] Adicionar campo `status` (pending/approved/rejected) em siteQuantityProgress
+- [x] Adicionar campo `approvedBy` (userId) em siteQuantityProgress
+- [x] Adicionar campo `approvedAt` (timestamp) em siteQuantityProgress
+- [x] Adicionar campo `rejectionReason` (text) em siteQuantityProgress
+- [x] Executar `pnpm db:push` para aplicar alterações no schema
+- [x] Criar função `approveMarcation` em siteManagementDb.ts
+- [x] Criar função `rejectMarcation` em siteManagementDb.ts
+- [x] Criar função `getPendingMarcations` em siteManagementDb.ts
+- [x] Adicionar endpoints tRPC `quantityMap.approve`, `quantityMap.reject`, `quantityMap.getPending`
+
+### Interface de Aprovação
+- [x] Adicionar badge de status (Pendente/Aprovado/Rejeitado) no histórico de marcações
+- [x] Criar seção "Marcações Pendentes" na página SiteQuantityMap.tsx
+- [x] Adicionar botões "Aprovar" e "Rejeitar" para cada marcação pendente
+- [x] Implementar modal de rejeição com campo para motivo
+- [ ] Adicionar filtro para mostrar apenas marcações pendentes
+- [ ] Mostrar contador de marcações pendentes no dashboard de obra
+
+### Notificações
+- [x] Enviar notificação ao proprietário quando nova marcação for criada
+- [ ] Enviar notificação ao trabalhador quando marcação for aprovada
+- [ ] Enviar notificação ao trabalhador quando marcação for rejeitada (com motivo)
+- [ ] Adicionar badge de notificações pendentes no card de MQT do dashboard
+
+### Permissões
+- [ ] Verificar role do usuário (apenas gestores podem aprovar/rejeitar)
+- [ ] Trabalhadores podem criar marcações mas não podem aprovar
+- [ ] Gestores podem criar e aprovar marcações
+- [ ] Adicionar mensagem de erro se trabalhador tentar aprovar
+
+
+## Sistema de Aprovação de Marcações MQT
+
+### Schema e Backend
+- [x] Adicionar campo `status` (pending/approved/rejected) em siteQuantityProgress
+- [x] Adicionar campo `approvedBy` (userId) em siteQuantityProgress
+- [x] Adicionar campo `approvedAt` (timestamp) em siteQuantityProgress
+- [x] Adicionar campo `rejectionReason` (text) em siteQuantityProgress
+- [x] Executar `pnpm db:push` para aplicar alterações no schema
+- [x] Criar função `approveMarcation` em siteManagementDb.ts
+- [x] Criar função `rejectMarcation` em siteManagementDb.ts
+- [x] Criar função `getPendingMarcations` em siteManagementDb.ts
+- [x] Adicionar endpoints tRPC `quantityMap.approve`, `quantityMap.reject`, `quantityMap.getPending`
+
+### Interface de Aprovação
+- [x] Adicionar badge de status (Pendente/Aprovado/Rejeitado) no histórico de marcações
+- [x] Criar seção "Marcações Pendentes" na página SiteQuantityMap.tsx
+- [x] Adicionar botões "Aprovar" e "Rejeitar" para cada marcação pendente
+- [x] Implementar modal de rejeição com campo para motivo
+- [ ] Adicionar filtro para mostrar apenas marcações pendentes
+- [ ] Mostrar contador de marcações pendentes no dashboard de obra
+
+### Notificações
+- [x] Enviar notificação ao proprietário quando nova marcação for criada
+- [ ] Enviar notificação ao trabalhador quando marcação for aprovada
+- [ ] Enviar notificação ao trabalhador quando marcação for rejeitada (com motivo)
+- [ ] Adicionar badge de notificações pendentes no card de MQT do dashboard
+
+### Permissões
+- [ ] Verificar role do usuário (apenas gestores podem aprovar/rejeitar)
+- [ ] Trabalhadores podem criar marcações mas não podem aprovar
+- [ ] Gestores podem criar e aprovar marcações
+- [ ] Adicionar mensagem de erro se trabalhador tentar aprovar

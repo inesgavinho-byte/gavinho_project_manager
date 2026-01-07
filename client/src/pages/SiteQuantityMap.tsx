@@ -51,6 +51,15 @@ export default function SiteQuantityMap() {
     { enabled: constructionId > 0 }
   );
 
+  const { data: pendingMarcations = [], refetch: refetchPending } = trpc.siteManagement.quantityMap.getPending.useQuery(
+    { constructionId },
+    { enabled: constructionId > 0 }
+  );
+
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [selectedMarcationId, setSelectedMarcationId] = useState<number | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+
   // Mutations
   const updateProgressMutation = trpc.siteManagement.quantityMap.updateProgress.useMutation({
     onSuccess: () => {
@@ -59,12 +68,52 @@ export default function SiteQuantityMap() {
         description: "A quantidade executada foi atualizada com sucesso",
       });
       refetchItems();
+      refetchPending();
       setEditingItemId(null);
       setEditingQuantity("");
     },
     onError: (error) => {
       toast({
         title: "Erro ao atualizar",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const approveMutation = trpc.siteManagement.quantityMap.approve.useMutation({
+    onSuccess: () => {
+      toast({
+        title: "Marcação aprovada",
+        description: "A marcação foi aprovada com sucesso",
+      });
+      refetchPending();
+      refetchItems();
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao aprovar",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const rejectMutation = trpc.siteManagement.quantityMap.reject.useMutation({
+    onSuccess: () => {
+      toast({
+        title: "Marcação rejeitada",
+        description: "A marcação foi rejeitada",
+      });
+      refetchPending();
+      refetchItems();
+      setRejectDialogOpen(false);
+      setRejectionReason("");
+      setSelectedMarcationId(null);
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro ao rejeitar",
         description: error.message,
         variant: "destructive",
       });
@@ -207,6 +256,75 @@ export default function SiteQuantityMap() {
               </CardContent>
             </Card>
           </div>
+        )}
+
+        {/* Pending Marcations */}
+        {pendingMarcations.length > 0 && (
+          <Card className="mb-6 border-orange-200 bg-orange-50">
+            <CardHeader>
+              <CardTitle className="text-lg font-medium text-[#5F5C59] flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-orange-600" />
+                Marcações Pendentes de Aprovação ({pendingMarcations.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {pendingMarcations.map((marcation: any) => (
+                  <div
+                    key={marcation.id}
+                    className="bg-white p-4 rounded-lg border border-orange-200 flex items-center justify-between"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300">
+                          {marcation.category}
+                        </Badge>
+                        <span className="font-medium text-[#5F5C59]">{marcation.item}</span>
+                      </div>
+                      <div className="text-sm text-[#5F5C59]/70 space-y-1">
+                        <p>
+                          <strong>Quantidade:</strong> {marcation.quantity} {marcation.unit}
+                        </p>
+                        <p>
+                          <strong>Marcado por:</strong> {marcation.updatedBy}
+                        </p>
+                        <p>
+                          <strong>Data:</strong> {new Date(marcation.date).toLocaleDateString("pt-PT")}
+                        </p>
+                        {marcation.notes && (
+                          <p>
+                            <strong>Notas:</strong> {marcation.notes}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-2 ml-4">
+                      <Button
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700"
+                        onClick={() => approveMutation.mutate({ progressId: marcation.id })}
+                        disabled={approveMutation.isPending}
+                      >
+                        <CheckCircle2 className="h-4 w-4 mr-1" />
+                        Aprovar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-red-300 text-red-600 hover:bg-red-50"
+                        onClick={() => {
+                          setSelectedMarcationId(marcation.id);
+                          setRejectDialogOpen(true);
+                        }}
+                      >
+                        Rejeitar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Filters */}
@@ -385,6 +503,62 @@ export default function SiteQuantityMap() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Reject Dialog */}
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rejeitar Marcação</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium text-[#5F5C59] mb-2 block">
+                Motivo da rejeição
+              </label>
+              <textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                className="w-full px-3 py-2 border border-[#C3BAAF] rounded-md focus:outline-none focus:ring-2 focus:ring-[#C9A882] min-h-[100px]"
+                placeholder="Descreva o motivo da rejeição..."
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setRejectDialogOpen(false);
+                  setRejectionReason("");
+                  setSelectedMarcationId(null);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                className="bg-red-600 hover:bg-red-700"
+                onClick={() => {
+                  if (!rejectionReason.trim()) {
+                    toast({
+                      title: "Motivo obrigatório",
+                      description: "Por favor, indique o motivo da rejeição",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  if (selectedMarcationId) {
+                    rejectMutation.mutate({
+                      progressId: selectedMarcationId,
+                      reason: rejectionReason,
+                    });
+                  }
+                }}
+                disabled={rejectMutation.isPending}
+              >
+                Confirmar Rejeição
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -417,19 +591,32 @@ function HistoryDialog({ itemId, itemName }: { itemId: number; itemName: string 
             </p>
           ) : (
             history.map((entry: any) => (
-              <div
-                key={entry.id}
-                className="flex items-start gap-4 p-4 border border-[#C3BAAF] rounded-lg"
-              >
-                <TrendingUp className="h-5 w-5 text-[#C9A882] mt-1" />
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-[#5F5C59]">
-                      {parseFloat(entry.quantity).toFixed(2)} unidades
-                    </span>
-                    <span className="text-sm text-[#5F5C59]/60">
-                      {new Date(entry.date).toLocaleDateString("pt-PT")}
-                    </span>
+              <div key={entry.id} className="border-b border-[#C3BAAF] last:border-0 pb-4 last:pb-0">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm font-medium text-[#5F5C59]">
+                        {new Date(entry.date).toLocaleDateString("pt-PT")}
+                      </span>
+                      <Badge variant="outline">
+                        {entry.quantity} un
+                      </Badge>
+                      {entry.status === "approved" && (
+                        <Badge className="bg-green-100 text-green-700 border-green-300">
+                          Aprovado
+                        </Badge>
+                      )}
+                      {entry.status === "pending" && (
+                        <Badge className="bg-orange-100 text-orange-700 border-orange-300">
+                          Pendente
+                        </Badge>
+                      )}
+                      {entry.status === "rejected" && (
+                        <Badge className="bg-red-100 text-red-700 border-red-300">
+                          Rejeitado
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   <p className="text-sm text-[#5F5C59]/70">
                     Atualizado por: {entry.updatedBy || "Sistema"}
@@ -437,6 +624,11 @@ function HistoryDialog({ itemId, itemName }: { itemId: number; itemName: string 
                   {entry.notes && (
                     <p className="text-sm text-[#5F5C59]/60 mt-2 italic">
                       {entry.notes}
+                    </p>
+                  )}
+                  {entry.rejectionReason && (
+                    <p className="text-sm text-red-600 mt-2 italic">
+                      Motivo da rejeição: {entry.rejectionReason}
                     </p>
                   )}
                 </div>

@@ -555,5 +555,36 @@ export const siteManagementRouter = router({
       .query(async ({ input }) => {
         return await siteDb.getQuantityMapByCategory(input.constructionId);
       }),
+
+    approve: protectedProcedure
+      .input(z.object({
+        progressId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // TODO: Check if user has permission (admin/manager role)
+        return await siteDb.approveMarcation(input.progressId, ctx.user.id);
+      }),
+
+    reject: protectedProcedure
+      .input(z.object({
+        progressId: z.number(),
+        reason: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // TODO: Check if user has permission (admin/manager role)
+        return await siteDb.rejectMarcation(input.progressId, ctx.user.id, input.reason);
+      }),
+
+    getPending: protectedProcedure
+      .input(z.object({ constructionId: z.number() }))
+      .query(async ({ input }) => {
+        return await siteDb.getPendingMarcations(input.constructionId);
+      }),
+
+    getPendingCount: protectedProcedure
+      .input(z.object({ constructionId: z.number() }))
+      .query(async ({ input }) => {
+        return await siteDb.getPendingMarcationsCount(input.constructionId);
+      }),
   }),
 });
