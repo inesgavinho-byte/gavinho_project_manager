@@ -1536,3 +1536,15 @@
 - [x] Adicionar botão "Editar" na página de detalhes do projeto
 - [x] Mostrar toast de sucesso após edição
 - [x] Atualizar cache do tRPC após edição bem-sucedida
+
+
+## Atualização do Projeto GA00469_MYRIAD com Dados Reais
+
+- [x] Identificar ID do projeto GA00469 no banco de dados
+- [x] Atualizar nome do projeto para "GA00469_MYRIAD - Hotel Myriad by SANA"
+- [x] Atualizar cliente para "Myriad Investments / SANA Hotels"
+- [x] Atualizar localização para "Lisboa, Portugal"
+- [x] Atualizar descrição com âmbito completo do projeto
+- [x] Adicionar informações de custos de referência (895 €/m²)
+- [x] Adicionar fases do projeto (Estudo Prévio, Projeto Base, Projeto de Execução)
+- [x] Verificar atualização no frontend

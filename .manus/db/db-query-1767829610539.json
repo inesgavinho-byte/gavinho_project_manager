@@ -1,0 +1,9 @@
+{
+  "query": "UPDATE projects \nSET \n  name = 'GA00469_MYRIAD - Hotel Myriad by SANA',\n  clientName = 'Myriad Investments / SANA Hotels',\n  location = 'Lisboa, Portugal',\n  description = 'Prestação de serviços para projeto de Arquitetura de Interior, Design de Interiores e Decoração para remodelação do Hotel MYRIAD by SANA e Myriad Crystal Center. Inclui conceção, desenvolvimento e implementação ao nível do projeto de Arquitetura de Interior, Design de Interiores, Decoração e Mobiliário, com definições de Luminotecnia, Paisagismo, Cozinhas e equipamentos hoteleiros. Custos de referência: 895 €/m² (665 €/m² construção + 230 €/m² FF&E). Fases: Estudo Prévio, Projeto Base, Projeto de Execução e Acompanhamento de Obra.',\n  budget = 0,\n  priority = 'urgent'\nWHERE name LIKE '%MYRIAD%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute UPDATE projects \nSET \n  name = 'GA00469_MYRIAD - Hotel Myriad by SANA',\n  clientName = 'Myriad Investments / SANA Hotels',\n  location = 'Lisboa, Portugal',\n  description = 'Prestação de serviços para projeto de Arquitetura de Interior, Design de Interiores e Decoração para remodelação do Hotel MYRIAD by SANA e Myriad Crystal Center. Inclui conceção, desenvolvimento e implementação ao nível do projeto de Arquitetura de Interior, Design de Interiores, Decoração e Mobiliário, com definições de Luminotecnia, Paisagismo, Cozinhas e equipamentos hoteleiros. Custos de referência: 895 €/m² (665 €/m² construção + 230 €/m² FF&E). Fases: Estudo Prévio, Projeto Base, Projeto de Execução e Acompanhamento de Obra.',\n  budget = 0,\n  priority = 'urgent'\nWHERE name LIKE '%MYRIAD%';",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 65
+}
