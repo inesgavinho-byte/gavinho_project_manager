@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { HardHat, Users, Clock, Package, Camera, AlertTriangle, ClipboardList, BarChart3 } from "lucide-react";
+import { HardHat, Users, Clock, Package, Camera, AlertTriangle, ClipboardList, BarChart3, Target } from "lucide-react";
 import { Link } from "wouter";
 
 export default function SiteManagement() {
@@ -148,6 +148,27 @@ export default function SiteManagement() {
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
                     Marcação de quantidades executadas e visualização de progresso
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/site-management/1/productivity-goals">
+              <Card className="cursor-pointer hover:shadow-gavinho transition-shadow border-green-500/30">
+                <CardHeader>
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-lg bg-green-500/10">
+                      <Target className="h-6 w-6 text-green-600" />
+                    </div>
+                    <div>
+                      <CardTitle>Metas de Produtividade</CardTitle>
+                      <CardDescription>Configurar e monitorar metas</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Defina metas diárias e receba alertas automáticos de desempenho
                   </p>
                 </CardContent>
               </Card>

@@ -43,10 +43,12 @@ import ProjectGallery from "@/components/ProjectGallery";
 import { DeliveryCenter } from "@/components/DeliveryCenter";
 import { ProjectGanttChart } from "@/components/ProjectGanttChart";
 import { ProjectArchvizGallery } from "@/components/ProjectArchvizGallery";
+import EditProjectDialog from "@/components/EditProjectDialog";
 
 export default function ProjectDetails() {
   const [, params] = useRoute("/projects/:id");
   const projectId = params?.id ? parseInt(params.id) : 0;
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [newMember, setNewMember] = useState({
@@ -245,7 +247,10 @@ export default function ProjectDetails() {
             )}
           </div>
           <div className="flex gap-2">
-            <Button className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white">
+            <Button 
+              className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white"
+              onClick={() => setIsEditDialogOpen(true)}
+            >
               Editar Projeto
             </Button>
             <Button 
@@ -909,6 +914,13 @@ export default function ProjectDetails() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Project Dialog */}
+      <EditProjectDialog
+        project={project}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+      />
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

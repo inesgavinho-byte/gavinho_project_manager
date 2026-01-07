@@ -26,6 +26,7 @@ import MqtAnalyticsDashboard from "./pages/MqtAnalyticsDashboard";
 import SiteQuantityMap from "./pages/SiteQuantityMap";
 import SiteMobileQuantityMap from "./pages/SiteMobileQuantityMap";
 import SiteQuantityMapAnalytics from "./pages/SiteQuantityMapAnalytics";
+import SiteProductivityGoals from "./pages/SiteProductivityGoals";
 import Trash from "./pages/Trash";
 import TeamAccess from "./pages/TeamAccess";
 import UserProfile from "./pages/UserProfile";
@@ -123,6 +124,10 @@ function Router() {
       
       <Route path="/site-management/:id/quantity-map-analytics">
         <SiteQuantityMapAnalytics />
+      </Route>
+      
+      <Route path="/site-management/:id/productivity-goals">
+        <SiteProductivityGoals />
       </Route>
       
       <Route path="/suppliers">

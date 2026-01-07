@@ -362,6 +362,8 @@ export async function getMaterialUsageByWorker(
 // ============================================================================
 
 export async function createWorkPhoto(data: InsertSiteWorkPhoto) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const [photo] = await db.insert(siteWorkPhotos).values(data);
   return photo;
 }
@@ -371,6 +373,9 @@ export async function getWorkPhotosByConstruction(
   startDate?: Date,
   endDate?: Date
 ) {
+  const db = await getDb();
+  if (!db) return [];
+  
   const conditions = [eq(siteWorkPhotos.constructionId, constructionId)];
   
   if (startDate) {
@@ -388,6 +393,9 @@ export async function getWorkPhotosByConstruction(
 }
 
 export async function getWorkPhotoById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
   const [photo] = await db
     .select()
     .from(siteWorkPhotos)
@@ -396,6 +404,8 @@ export async function getWorkPhotoById(id: number) {
 }
 
 export async function deleteWorkPhoto(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   await db.delete(siteWorkPhotos).where(eq(siteWorkPhotos.id, id));
 }
 
@@ -1327,3 +1337,6 @@ export async function getAnalyticsSummary(
     topWorkerQuantity: topWorker?.total.toFixed(2) || "0.00",
   };
 }
+
+
+// ============================================

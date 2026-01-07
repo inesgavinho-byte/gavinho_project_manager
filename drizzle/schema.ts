@@ -1619,3 +1619,56 @@ export const sitePPE = mysqlTable("sitePPE", {
 
 export type SitePPE = typeof sitePPE.$inferSelect;
 export type InsertSitePPE = typeof sitePPE.$inferInsert;
+
+
+/**
+ * Site Productivity Goals - Metas de Produtividade
+ */
+export const siteProductivityGoals = mysqlTable("siteProductivityGoals", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  workerId: int("workerId").notNull(),
+  dailyGoal: decimal("dailyGoal", { precision: 10, scale: 2 }).notNull(),
+  weeklyGoal: decimal("weeklyGoal", { precision: 10, scale: 2 }),
+  unit: varchar("unit", { length: 50 }).default("unidades").notNull(),
+  active: boolean("active").default(true).notNull(),
+  createdBy: int("createdBy").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  workerIdIdx: index("workerId_idx").on(table.workerId),
+  activeIdx: index("active_idx").on(table.active),
+}));
+
+export type SiteProductivityGoal = typeof siteProductivityGoals.$inferSelect;
+export type InsertSiteProductivityGoal = typeof siteProductivityGoals.$inferInsert;
+
+/**
+ * Site Productivity Alerts - Alertas de Produtividade
+ */
+export const siteProductivityAlerts = mysqlTable("siteProductivityAlerts", {
+  id: int("id").autoincrement().primaryKey(),
+  constructionId: int("constructionId").notNull(),
+  workerId: int("workerId").notNull(),
+  date: date("date").notNull(),
+  actualQuantity: decimal("actualQuantity", { precision: 10, scale: 2 }).notNull(),
+  goalQuantity: decimal("goalQuantity", { precision: 10, scale: 2 }).notNull(),
+  percentageAchieved: decimal("percentageAchieved", { precision: 5, scale: 2 }).notNull(),
+  alertType: mysqlEnum("alertType", ["above_goal", "below_goal", "on_target"]).notNull(),
+  status: mysqlEnum("status", ["unread", "read", "acknowledged"]).default("unread").notNull(),
+  notifiedAt: timestamp("notifiedAt"),
+  acknowledgedBy: int("acknowledgedBy"),
+  acknowledgedAt: timestamp("acknowledgedAt"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  workerIdIdx: index("workerId_idx").on(table.workerId),
+  dateIdx: index("date_idx").on(table.date),
+  alertTypeIdx: index("alertType_idx").on(table.alertType),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type SiteProductivityAlert = typeof siteProductivityAlerts.$inferSelect;
+export type InsertSiteProductivityAlert = typeof siteProductivityAlerts.$inferInsert;

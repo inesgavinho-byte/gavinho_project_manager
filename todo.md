@@ -1477,3 +1477,62 @@
 - [x] Implementar loading states automáticos via tRPC
 - [x] Adicionar tooltips informativos nos gráficos (via Recharts)
 - [x] Implementar responsividade com grid adaptativo
+
+
+## Sistema de Alertas de Produtividade
+
+### Schema e Backend
+- [ ] Criar tabela siteProductivityGoals (id, constructionId, workerId, dailyGoal, weeklyGoal, active)
+- [ ] Criar tabela siteProductivityAlerts (id, constructionId, workerId, date, actualQuantity, goalQuantity, alertType, status, notifiedAt)
+- [ ] Executar db:push para aplicar alterações no schema
+- [ ] Criar função setWorkerProductivityGoal (definir meta para trabalhador)
+- [ ] Criar função getWorkerProductivityGoals (listar metas por obra)
+- [ ] Criar função checkDailyProductivity (verificar desempenho diário vs meta)
+- [ ] Criar função generateProductivityAlerts (gerar alertas automáticos)
+- [ ] Adicionar endpoints tRPC para todas as funções
+
+### Lógica de Alertas
+- [ ] Implementar verificação automática ao final do dia (comparar quantidade marcada vs meta)
+- [ ] Gerar alerta "above_goal" quando trabalhador supera meta em 20%+
+- [ ] Gerar alerta "below_goal" quando trabalhador fica abaixo de 80% da meta
+- [ ] Gerar alerta "on_target" quando trabalhador atinge 80-120% da meta
+- [ ] Enviar notificação ao proprietário para alertas "above_goal" e "below_goal"
+- [ ] Armazenar histórico de alertas para análise posterior
+
+### Interface de Configuração
+- [ ] Criar página SiteProductivityGoals.tsx para gestão de metas
+- [ ] Implementar tabela de trabalhadores com campos de meta diária editáveis
+- [ ] Adicionar botão "Definir Meta" para cada trabalhador
+- [ ] Implementar modal de edição de meta com input numérico
+- [ ] Adicionar toggle para ativar/desativar monitoramento por trabalhador
+- [ ] Mostrar histórico de alterações de metas
+
+### Visualização de Alertas
+- [ ] Adicionar seção "Alertas de Produtividade" no dashboard de análise MQT
+- [ ] Implementar cards coloridos para cada tipo de alerta (verde/amarelo/vermelho)
+- [ ] Mostrar lista de alertas recentes (últimos 7 dias)
+- [ ] Adicionar filtro por tipo de alerta e trabalhador
+- [ ] Implementar gráfico de tendência de alertas ao longo do tempo
+- [ ] Adicionar badge de alertas pendentes no menu de gestão de obra
+
+### Integração
+- [ ] Adicionar link "Metas de Produtividade" no menu de gestão de obra
+- [ ] Integrar verificação automática com sistema de marcações do MQT
+- [ ] Adicionar contador de alertas não lidos no dashboard principal
+
+
+## Edição de Projetos
+
+### Backend
+- [x] Criar função updateProject em db.ts (já existia)
+- [x] Adicionar endpoint tRPC projects.update (já existia)
+- [x] Validar permissões (apenas criador ou admin pode editar)
+- [x] Atualizar campo updatedAt automaticamente
+
+### Interface
+- [x] Criar modal EditProjectDialog.tsx
+- [x] Adicionar formulário completo com todos os campos do projeto
+- [x] Implementar validação de campos obrigatórios
+- [x] Adicionar botão "Editar" na página de detalhes do projeto
+- [x] Mostrar toast de sucesso após edição
+- [x] Atualizar cache do tRPC após edição bem-sucedida

@@ -10,6 +10,7 @@ import {
   Calendar,
   Download,
   ArrowLeft,
+  AlertTriangle,
 } from "lucide-react";
 import {
   BarChart,
@@ -366,6 +367,19 @@ export default function SiteQuantityMapAnalytics() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Alertas de Produtividade */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg font-medium text-[#5F5C59] flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              Alertas de Produtividade (Últimos 7 Dias)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProductivityAlertsSection constructionId={constructionId} />
+          </CardContent>
+        </Card>
 
         {/* Worker Performance Table */}
         <Card>
