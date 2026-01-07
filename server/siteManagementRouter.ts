@@ -609,4 +609,64 @@ export const siteManagementRouter = router({
         return await siteDb.getPendingMarcationsCount(input.constructionId);
       }),
   }),
+
+  analytics: router({
+    productivityByWorker: protectedProcedure
+      .input(z.object({
+        constructionId: z.number(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+      }))
+      .query(async ({ input }) => {
+        return await siteDb.getProductivityByWorker(
+          input.constructionId,
+          input.startDate,
+          input.endDate
+        );
+      }),
+
+    temporalEvolution: protectedProcedure
+      .input(z.object({
+        constructionId: z.number(),
+        groupBy: z.enum(["day", "week", "month"]).default("day"),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+      }))
+      .query(async ({ input }) => {
+        return await siteDb.getTemporalEvolution(
+          input.constructionId,
+          input.groupBy,
+          input.startDate,
+          input.endDate
+        );
+      }),
+
+    categoryComparison: protectedProcedure
+      .input(z.object({
+        constructionId: z.number(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+      }))
+      .query(async ({ input }) => {
+        return await siteDb.getCategoryComparison(
+          input.constructionId,
+          input.startDate,
+          input.endDate
+        );
+      }),
+
+    summary: protectedProcedure
+      .input(z.object({
+        constructionId: z.number(),
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+      }))
+      .query(async ({ input }) => {
+        return await siteDb.getAnalyticsSummary(
+          input.constructionId,
+          input.startDate,
+          input.endDate
+        );
+      }),
+  }),
 });

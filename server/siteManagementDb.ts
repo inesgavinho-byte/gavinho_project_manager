@@ -1059,3 +1059,271 @@ export async function getPendingMarcationsCount(constructionId: number) {
   
   return result.length;
 }
+
+
+// ============================================
+// MQT Analytics Functions
+// ============================================
+
+export async function getProductivityByWorker(
+  constructionId: number,
+  startDate?: Date,
+  endDate?: Date
+) {
+  const { siteQuantityProgress, users } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const conditions = [eq(siteQuantityProgress.constructionId, constructionId)];
+  
+  if (startDate) {
+    conditions.push(gte(siteQuantityProgress.date, startDate));
+  }
+  if (endDate) {
+    conditions.push(lte(siteQuantityProgress.date, endDate));
+  }
+
+  const marcations = await db
+    .select({
+      workerId: siteQuantityProgress.updatedBy,
+      workerName: users.name,
+      quantity: siteQuantityProgress.quantity,
+      status: siteQuantityProgress.status,
+      date: siteQuantityProgress.date,
+    })
+    .from(siteQuantityProgress)
+    .leftJoin(users, eq(siteQuantityProgress.updatedBy, users.id))
+    .where(and(...conditions));
+
+  // Group by worker
+  const workerStats = marcations.reduce((acc: any, m: any) => {
+    if (!acc[m.workerId]) {
+      acc[m.workerId] = {
+        workerId: m.workerId,
+        workerName: m.workerName || "Desconhecido",
+        totalQuantity: 0,
+        totalMarcations: 0,
+        approvedMarcations: 0,
+        rejectedMarcations: 0,
+        pendingMarcations: 0,
+        dates: new Set(),
+      };
+    }
+    
+    acc[m.workerId].totalQuantity += parseFloat(m.quantity) || 0;
+    acc[m.workerId].totalMarcations += 1;
+    acc[m.workerId].dates.add(m.date.toISOString().split('T')[0]);
+    
+    if (m.status === "approved") acc[m.workerId].approvedMarcations += 1;
+    if (m.status === "rejected") acc[m.workerId].rejectedMarcations += 1;
+    if (m.status === "pending") acc[m.workerId].pendingMarcations += 1;
+    
+    return acc;
+  }, {});
+
+  // Calculate metrics
+  return Object.values(workerStats).map((worker: any) => ({
+    workerId: worker.workerId,
+    workerName: worker.workerName,
+    totalQuantity: worker.totalQuantity,
+    totalMarcations: worker.totalMarcations,
+    approvedMarcations: worker.approvedMarcations,
+    rejectedMarcations: worker.rejectedMarcations,
+    pendingMarcations: worker.pendingMarcations,
+    approvalRate: worker.totalMarcations > 0 
+      ? ((worker.approvedMarcations / worker.totalMarcations) * 100).toFixed(1)
+      : "0.0",
+    activeDays: worker.dates.size,
+    avgDailyQuantity: worker.dates.size > 0
+      ? (worker.totalQuantity / worker.dates.size).toFixed(2)
+      : "0.00",
+  }));
+}
+
+export async function getTemporalEvolution(
+  constructionId: number,
+  groupBy: "day" | "week" | "month" = "day",
+  startDate?: Date,
+  endDate?: Date
+) {
+  const { siteQuantityProgress } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const conditions = [
+    eq(siteQuantityProgress.constructionId, constructionId),
+    eq(siteQuantityProgress.status, "approved"), // Only count approved
+  ];
+  
+  if (startDate) {
+    conditions.push(gte(siteQuantityProgress.date, startDate));
+  }
+  if (endDate) {
+    conditions.push(lte(siteQuantityProgress.date, endDate));
+  }
+
+  const marcations = await db
+    .select({
+      date: siteQuantityProgress.date,
+      quantity: siteQuantityProgress.quantity,
+    })
+    .from(siteQuantityProgress)
+    .where(and(...conditions))
+    .orderBy(siteQuantityProgress.date);
+
+  // Group by period
+  const grouped = marcations.reduce((acc: any, m: any) => {
+    let key: string;
+    const date = new Date(m.date);
+    
+    if (groupBy === "day") {
+      key = date.toISOString().split('T')[0];
+    } else if (groupBy === "week") {
+      const weekStart = new Date(date);
+      weekStart.setDate(date.getDate() - date.getDay());
+      key = weekStart.toISOString().split('T')[0];
+    } else {
+      key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    }
+    
+    if (!acc[key]) {
+      acc[key] = { period: key, totalQuantity: 0, marcationsCount: 0 };
+    }
+    
+    acc[key].totalQuantity += parseFloat(m.quantity) || 0;
+    acc[key].marcationsCount += 1;
+    
+    return acc;
+  }, {});
+
+  return Object.values(grouped).sort((a: any, b: any) => 
+    a.period.localeCompare(b.period)
+  );
+}
+
+export async function getCategoryComparison(
+  constructionId: number,
+  startDate?: Date,
+  endDate?: Date
+) {
+  const { siteQuantityProgress, siteQuantityMap } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const conditions = [eq(siteQuantityProgress.constructionId, constructionId)];
+  
+  if (startDate) {
+    conditions.push(gte(siteQuantityProgress.date, startDate));
+  }
+  if (endDate) {
+    conditions.push(lte(siteQuantityProgress.date, endDate));
+  }
+
+  const marcations = await db
+    .select({
+      category: siteQuantityMap.category,
+      quantity: siteQuantityProgress.quantity,
+      status: siteQuantityProgress.status,
+    })
+    .from(siteQuantityProgress)
+    .leftJoin(siteQuantityMap, eq(siteQuantityProgress.quantityMapId, siteQuantityMap.id))
+    .where(and(...conditions));
+
+  // Group by category
+  const categoryStats = marcations.reduce((acc: any, m: any) => {
+    const cat = m.category || "Sem categoria";
+    
+    if (!acc[cat]) {
+      acc[cat] = {
+        category: cat,
+        totalQuantity: 0,
+        totalMarcations: 0,
+        approvedQuantity: 0,
+        approvedMarcations: 0,
+      };
+    }
+    
+    const qty = parseFloat(m.quantity) || 0;
+    acc[cat].totalQuantity += qty;
+    acc[cat].totalMarcations += 1;
+    
+    if (m.status === "approved") {
+      acc[cat].approvedQuantity += qty;
+      acc[cat].approvedMarcations += 1;
+    }
+    
+    return acc;
+  }, {});
+
+  return Object.values(categoryStats).map((cat: any) => ({
+    category: cat.category,
+    totalQuantity: cat.totalQuantity,
+    totalMarcations: cat.totalMarcations,
+    approvedQuantity: cat.approvedQuantity,
+    approvedMarcations: cat.approvedMarcations,
+    approvalRate: cat.totalMarcations > 0
+      ? ((cat.approvedMarcations / cat.totalMarcations) * 100).toFixed(1)
+      : "0.0",
+  }));
+}
+
+export async function getAnalyticsSummary(
+  constructionId: number,
+  startDate?: Date,
+  endDate?: Date
+) {
+  const { siteQuantityProgress, users } = await import("../drizzle/schema");
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const conditions = [eq(siteQuantityProgress.constructionId, constructionId)];
+  
+  if (startDate) {
+    conditions.push(gte(siteQuantityProgress.date, startDate));
+  }
+  if (endDate) {
+    conditions.push(lte(siteQuantityProgress.date, endDate));
+  }
+
+  const marcations = await db
+    .select({
+      quantity: siteQuantityProgress.quantity,
+      status: siteQuantityProgress.status,
+      date: siteQuantityProgress.date,
+      workerId: siteQuantityProgress.updatedBy,
+      workerName: users.name,
+    })
+    .from(siteQuantityProgress)
+    .leftJoin(users, eq(siteQuantityProgress.updatedBy, users.id))
+    .where(and(...conditions));
+
+  const totalQuantity = marcations.reduce((sum, m) => sum + (parseFloat(m.quantity) || 0), 0);
+  const approvedQuantity = marcations
+    .filter(m => m.status === "approved")
+    .reduce((sum, m) => sum + (parseFloat(m.quantity) || 0), 0);
+
+  const uniqueDates = new Set(marcations.map(m => m.date.toISOString().split('T')[0]));
+  const avgDailyQuantity = uniqueDates.size > 0 ? totalQuantity / uniqueDates.size : 0;
+
+  // Find most productive worker
+  const workerTotals = marcations.reduce((acc: any, m) => {
+    if (!acc[m.workerId]) {
+      acc[m.workerId] = { name: m.workerName || "Desconhecido", total: 0 };
+    }
+    acc[m.workerId].total += parseFloat(m.quantity) || 0;
+    return acc;
+  }, {});
+
+  const topWorker = Object.values(workerTotals).sort((a: any, b: any) => b.total - a.total)[0] as any;
+
+  return {
+    totalQuantity: totalQuantity.toFixed(2),
+    approvedQuantity: approvedQuantity.toFixed(2),
+    totalMarcations: marcations.length,
+    approvedMarcations: marcations.filter(m => m.status === "approved").length,
+    avgDailyQuantity: avgDailyQuantity.toFixed(2),
+    activeDays: uniqueDates.size,
+    topWorkerName: topWorker?.name || "N/A",
+    topWorkerQuantity: topWorker?.total.toFixed(2) || "0.00",
+  };
+}

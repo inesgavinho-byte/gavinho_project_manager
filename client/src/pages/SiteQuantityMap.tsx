@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Search, History, TrendingUp, CheckCircle2, Circle, AlertCircle } from "lucide-react";
+import { ArrowLeft, Search, History, TrendingUp, CheckCircle2, Circle, AlertCircle, BarChart3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -204,6 +204,14 @@ export default function SiteQuantityMap() {
                 Controlo de progresso de execução
               </p>
             </div>
+            <Button
+              variant="outline"
+              onClick={() => setLocation(`/site-management/${constructionId}/quantity-map-analytics`)}
+              className="flex items-center gap-2"
+            >
+              <BarChart3 className="h-4 w-4" />
+              Análise de Produtividade
+            </Button>
           </div>
         </div>
       </div>

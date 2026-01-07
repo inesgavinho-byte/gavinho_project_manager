@@ -25,6 +25,7 @@ import ConstructionDetails from "./pages/ConstructionDetails";
 import MqtAnalyticsDashboard from "./pages/MqtAnalyticsDashboard";
 import SiteQuantityMap from "./pages/SiteQuantityMap";
 import SiteMobileQuantityMap from "./pages/SiteMobileQuantityMap";
+import SiteQuantityMapAnalytics from "./pages/SiteQuantityMapAnalytics";
 import Trash from "./pages/Trash";
 import TeamAccess from "./pages/TeamAccess";
 import UserProfile from "./pages/UserProfile";
@@ -118,6 +119,10 @@ function Router() {
       
       <Route path="/site-management/:id/quantity-map-mobile">
         <SiteMobileQuantityMap />
+      </Route>
+      
+      <Route path="/site-management/:id/quantity-map-analytics">
+        <SiteQuantityMapAnalytics />
       </Route>
       
       <Route path="/suppliers">

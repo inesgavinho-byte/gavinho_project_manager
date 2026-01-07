@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { HardHat, Users, Clock, Package, Camera, AlertTriangle, ClipboardList } from "lucide-react";
+import { HardHat, Users, Clock, Package, Camera, AlertTriangle, ClipboardList, BarChart3 } from "lucide-react";
 import { Link } from "wouter";
 
 export default function SiteManagement() {

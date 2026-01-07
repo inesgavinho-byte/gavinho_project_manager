@@ -1446,3 +1446,34 @@
 - [x] Mostrar data de aprovação e motivo de rejeição quando aplicável
 - [x] Botões de aprovar/rejeitar apenas visíveis para marcações pendentes
 - [x] Cores dinâmicas do card conforme filtro selecionado
+
+
+## Dashboard de Análise do MQT
+
+### Backend - Estatísticas Avançadas
+- [x] Criar função getProductivityByWorker (retorna quantidade marcada por trabalhador, taxa de aprovação, total de marcações)
+- [x] Criar função getTemporalEvolution (retorna marcações agrupadas por dia/semana/mês com quantidades)
+- [x] Criar função getCategoryComparison (retorna progresso, marcações e produtividade por categoria)
+- [x] Criar função getAnalyticsSummary (total, aprovado, média diária, trabalhador mais produtivo)
+- [x] Criar endpoints tRPC para todas as funções de análise
+- [x] Adicionar filtros de período (última semana, último mês, últimos 3 meses)
+- [x] Suporte para agrupar evolução temporal por dia/semana/mês
+
+### Frontend - Dashboard de Análise
+- [x] Criar página SiteQuantityMapAnalytics.tsx
+- [x] Implementar gráfico de barras: produtividade por trabalhador (quantidade marcada)
+- [x] Implementar gráfico de linha: evolução temporal de marcações (diário/semanal/mensal)
+- [x] Implementar gráfico de pizza: distribuição de marcações por categoria
+- [x] Implementar gráfico de barras horizontais: taxa de aprovação por trabalhador
+- [x] Adicionar cards de métricas principais (total marcado, média diária, trabalhador mais produtivo, taxa de aprovação)
+- [x] Implementar filtros de período (semana/mês/trimestre)
+- [x] Implementar filtro de agrupamento temporal (dia/semana/mês)
+- [x] Adicionar tabela de ranking de trabalhadores com métricas detalhadas
+- [ ] Implementar exportação de dados para CSV
+
+### Integração e UX
+- [x] Adicionar botão "Análise de Produtividade" no header da página SiteQuantityMap
+- [x] Criar rota /site-management/:id/quantity-map-analytics
+- [x] Implementar loading states automáticos via tRPC
+- [x] Adicionar tooltips informativos nos gráficos (via Recharts)
+- [x] Implementar responsividade com grid adaptativo
