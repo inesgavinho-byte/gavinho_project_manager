@@ -843,10 +843,36 @@ export async function getQuantityMapByCategory(constructionId: number) {
 
 // Approval functions for quantity map progress
 export async function approveMarcation(progressId: number, approvedBy: number) {
-  const { siteQuantityProgress } = await import("../drizzle/schema");
+  const { siteQuantityProgress, siteQuantityMap, users } = await import("../drizzle/schema");
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
+  // Get marcation details before updating
+  const marcation = await db
+    .select({
+      updatedBy: siteQuantityProgress.updatedBy,
+      quantity: siteQuantityProgress.quantity,
+      quantityMapId: siteQuantityProgress.quantityMapId,
+    })
+    .from(siteQuantityProgress)
+    .where(eq(siteQuantityProgress.id, progressId))
+    .limit(1);
+  
+  if (!marcation || marcation.length === 0) {
+    throw new Error("Marcation not found");
+  }
+  
+  // Get item details
+  const item = await db
+    .select({
+      item: siteQuantityMap.item,
+      unit: siteQuantityMap.unit,
+    })
+    .from(siteQuantityMap)
+    .where(eq(siteQuantityMap.id, marcation[0].quantityMapId))
+    .limit(1);
+  
+  // Update marcation status
   await db
     .update(siteQuantityProgress)
     .set({
@@ -857,14 +883,61 @@ export async function approveMarcation(progressId: number, approvedBy: number) {
     })
     .where(eq(siteQuantityProgress.id, progressId));
   
+  // Send notification to worker
+  if (marcation[0].updatedBy && item && item.length > 0) {
+    try {
+      const { notifyOwner } = await import("./_core/notification");
+      const worker = await db
+        .select({ name: users.name })
+        .from(users)
+        .where(eq(users.id, marcation[0].updatedBy))
+        .limit(1);
+      
+      if (worker && worker.length > 0) {
+        await notifyOwner({
+          title: "Marcação MQT aprovada",
+          content: `A marcação de ${worker[0].name} para o item "${item[0].item}" (${marcation[0].quantity} ${item[0].unit}) foi aprovada.`,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to send notification:", error);
+    }
+  }
+  
   return true;
 }
 
 export async function rejectMarcation(progressId: number, approvedBy: number, reason: string) {
-  const { siteQuantityProgress } = await import("../drizzle/schema");
+  const { siteQuantityProgress, siteQuantityMap, users } = await import("../drizzle/schema");
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
+  // Get marcation details before updating
+  const marcation = await db
+    .select({
+      updatedBy: siteQuantityProgress.updatedBy,
+      quantity: siteQuantityProgress.quantity,
+      quantityMapId: siteQuantityProgress.quantityMapId,
+    })
+    .from(siteQuantityProgress)
+    .where(eq(siteQuantityProgress.id, progressId))
+    .limit(1);
+  
+  if (!marcation || marcation.length === 0) {
+    throw new Error("Marcation not found");
+  }
+  
+  // Get item details
+  const item = await db
+    .select({
+      item: siteQuantityMap.item,
+      unit: siteQuantityMap.unit,
+    })
+    .from(siteQuantityMap)
+    .where(eq(siteQuantityMap.id, marcation[0].quantityMapId))
+    .limit(1);
+  
+  // Update marcation status
   await db
     .update(siteQuantityProgress)
     .set({
@@ -874,6 +947,27 @@ export async function rejectMarcation(progressId: number, approvedBy: number, re
       rejectionReason: reason,
     })
     .where(eq(siteQuantityProgress.id, progressId));
+  
+  // Send notification to worker
+  if (marcation[0].updatedBy && item && item.length > 0) {
+    try {
+      const { notifyOwner } = await import("./_core/notification");
+      const worker = await db
+        .select({ name: users.name })
+        .from(users)
+        .where(eq(users.id, marcation[0].updatedBy))
+        .limit(1);
+      
+      if (worker && worker.length > 0) {
+        await notifyOwner({
+          title: "Marcação MQT rejeitada",
+          content: `A marcação de ${worker[0].name} para o item "${item[0].item}" (${marcation[0].quantity} ${item[0].unit}) foi rejeitada. Motivo: ${reason}`,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to send notification:", error);
+    }
+  }
   
   return true;
 }

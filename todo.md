@@ -1391,3 +1391,24 @@
 - [ ] Trabalhadores podem criar marcações mas não podem aprovar
 - [ ] Gestores podem criar e aprovar marcações
 - [ ] Adicionar mensagem de erro se trabalhador tentar aprovar
+
+
+## Melhorias Finais do Sistema de Aprovação MQT
+
+### Contador de Pendentes no Dashboard
+- [x] Adicionar query de contagem de marcações pendentes no SiteDashboard.tsx
+- [x] Adicionar badge com número de pendentes no card de MQT
+- [x] Estilizar badge com cor laranja para destaque visual
+
+### Permissões por Role
+- [x] Criar middleware `managerProcedure` em siteManagementRouter.ts
+- [x] Verificar se usuário tem role 'admin' ou 'manager'
+- [x] Aplicar middleware aos endpoints quantityMap.approve e quantityMap.reject
+- [x] Retornar erro 403 FORBIDDEN se usuário não tiver permissão
+- [x] Ocultar botões de aprovação/rejeição no frontend se usuário não for gestor
+
+### Notificações aos Trabalhadores
+- [x] Adicionar notificação na função approveMarcation (notificar trabalhador que marcou)
+- [x] Adicionar notificação na função rejectMarcation (incluir motivo da rejeição)
+- [x] Buscar informações do trabalhador (nome, email) para personalizar notificação
+- [x] Testar envio de notificações em ambos os cenários (aprovação e rejeição)

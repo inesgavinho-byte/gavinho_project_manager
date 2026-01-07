@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import * as siteDb from "./siteManagementDb";
 import { storagePut } from "./storage";
@@ -561,7 +562,13 @@ export const siteManagementRouter = router({
         progressId: z.number(),
       }))
       .mutation(async ({ input, ctx }) => {
-        // TODO: Check if user has permission (admin/manager role)
+        // Check if user has permission (admin role only)
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Apenas administradores podem aprovar marcações',
+          });
+        }
         return await siteDb.approveMarcation(input.progressId, ctx.user.id);
       }),
 
@@ -571,7 +578,13 @@ export const siteManagementRouter = router({
         reason: z.string(),
       }))
       .mutation(async ({ input, ctx }) => {
-        // TODO: Check if user has permission (admin/manager role)
+        // Check if user has permission (admin role only)
+        if (ctx.user.role !== 'admin') {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'Apenas administradores podem rejeitar marcações',
+          });
+        }
         return await siteDb.rejectMarcation(input.progressId, ctx.user.id, input.reason);
       }),
 

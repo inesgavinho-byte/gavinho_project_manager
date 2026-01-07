@@ -63,12 +63,19 @@ export default function SiteDashboard() {
       { enabled: !!constructionId, refetchInterval: autoRefresh ? 30000 : false }
     );
 
+  const { data: pendingMarcationsCount = 0, refetch: refetchPendingCount } =
+    trpc.siteManagement.quantityMap.getPendingCount.useQuery(
+      { constructionId: Number(constructionId) },
+      { enabled: !!constructionId, refetchInterval: autoRefresh ? 30000 : false }
+    );
+
   const handleManualRefresh = () => {
     refetchAttendance();
     refetchWorkHours();
     refetchMaterials();
     refetchNonCompliances();
     refetchMqtStats();
+    refetchPendingCount();
   };
 
   // Calculate metrics
@@ -172,7 +179,14 @@ export default function SiteDashboard() {
         <Card className="p-6 border-[#C9A882]/30 bg-[#C9A882]/10">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-[#C9A882] mb-1">Progresso MQT</p>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-sm text-[#C9A882]">Progresso MQT</p>
+                {pendingMarcationsCount > 0 && (
+                  <Badge className="bg-orange-500 text-white hover:bg-orange-600">
+                    {pendingMarcationsCount} pendente{pendingMarcationsCount > 1 ? 's' : ''}
+                  </Badge>
+                )}
+              </div>
               <p className="text-3xl font-bold text-[#5F5C59]">
                 {mqtStats?.overallProgress.toFixed(0) || 0}%
               </p>

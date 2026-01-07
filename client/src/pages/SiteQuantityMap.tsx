@@ -23,11 +23,13 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Search, History, TrendingUp, CheckCircle2, Circle, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function SiteQuantityMap() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { user } = useAuth();
   const constructionId = parseInt(params.id || "0");
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -298,28 +300,30 @@ export default function SiteQuantityMap() {
                         )}
                       </div>
                     </div>
-                    <div className="flex gap-2 ml-4">
-                      <Button
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700"
-                        onClick={() => approveMutation.mutate({ progressId: marcation.id })}
-                        disabled={approveMutation.isPending}
-                      >
-                        <CheckCircle2 className="h-4 w-4 mr-1" />
-                        Aprovar
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-red-300 text-red-600 hover:bg-red-50"
-                        onClick={() => {
-                          setSelectedMarcationId(marcation.id);
-                          setRejectDialogOpen(true);
-                        }}
-                      >
-                        Rejeitar
-                      </Button>
-                    </div>
+                    {user?.role === 'admin' && (
+                      <div className="flex gap-2 ml-4">
+                        <Button
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700"
+                          onClick={() => approveMutation.mutate({ progressId: marcation.id })}
+                          disabled={approveMutation.isPending}
+                        >
+                          <CheckCircle2 className="h-4 w-4 mr-1" />
+                          Aprovar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-300 text-red-600 hover:bg-red-50"
+                          onClick={() => {
+                            setSelectedMarcationId(marcation.id);
+                            setRejectDialogOpen(true);
+                          }}
+                        >
+                          Rejeitar
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
