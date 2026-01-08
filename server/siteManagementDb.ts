@@ -295,7 +295,9 @@ export async function rejectMaterialRequest(id: number, approvedBy: number) {
 }
 
 export async function markMaterialRequestDelivered(id: number) {
-  await db
+  const database = await getDb();
+  if (!database) throw new Error("Database not available");
+  await database
     .update(siteMaterialRequests)
     .set({
       status: "delivered",
@@ -311,7 +313,9 @@ export async function markMaterialRequestDelivered(id: number) {
 // ============================================================================
 
 export async function createMaterialUsage(data: InsertSiteMaterialUsage) {
-  const [usage] = await db.insert(siteMaterialUsage).values(data);
+  const database = await getDb();
+  if (!database) throw new Error("Database not available");
+  const [usage] = await database.insert(siteMaterialUsage).values(data);
   return usage;
 }
 
@@ -320,6 +324,8 @@ export async function getMaterialUsageByConstruction(
   startDate?: Date,
   endDate?: Date
 ) {
+  const database = await getDb();
+  if (!database) return [];
   const conditions = [eq(siteMaterialUsage.constructionId, constructionId)];
   
   if (startDate) {
@@ -329,7 +335,7 @@ export async function getMaterialUsageByConstruction(
     conditions.push(sql`${siteMaterialUsage.date} <= ${endDate.toISOString().split('T')[0]}`);
   }
 
-  return await db
+  return await database
     .select()
     .from(siteMaterialUsage)
     .where(and(...conditions))

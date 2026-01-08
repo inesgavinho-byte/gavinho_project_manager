@@ -382,3 +382,43 @@ export async function updateUser(userId: number, data: { name?: string }) {
   await db.update(users).set({ ...data, updatedAt: new Date() })
     .where(eq(users.id, userId));
 }
+
+
+// Project Phases
+export async function createProjectPhase(data: InsertProjectPhase) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(projectPhases).values(data);
+  return result.insertId;
+}
+
+export async function getProjectPhases(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(projectPhases)
+    .where(eq(projectPhases.projectId, projectId))
+    .orderBy(projectPhases.order);
+}
+
+export async function updateProjectPhase(phaseId: number, data: Partial<InsertProjectPhase>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(projectPhases)
+    .set({ ...data, updatedAt: new Date() })
+    .where(eq(projectPhases.id, phaseId));
+}
+
+export async function deleteProjectPhase(phaseId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(projectPhases).where(eq(projectPhases.id, phaseId));
+}
+
+export async function getProjectPhaseById(phaseId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(projectPhases)
+    .where(eq(projectPhases.id, phaseId))
+    .limit(1);
+  return result[0] || null;
+}

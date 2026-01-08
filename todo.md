@@ -1548,3 +1548,35 @@
 - [x] Adicionar informações de custos de referência (895 €/m²)
 - [x] Adicionar fases do projeto (Estudo Prévio, Projeto Base, Projeto de Execução)
 - [x] Verificar atualização no frontend
+
+
+## Sistema de Fases Configuráveis para Projetos
+
+### Schema e Backend
+- [ ] Criar tabela projectPhases (id, projectId, name, description, status, startDate, endDate, assignedTo, progress, order, createdAt, updatedAt)
+- [ ] Executar db:push para criar tabela no banco de dados
+- [ ] Criar funções CRUD em db.ts (createPhase, updatePhase, deletePhase, getPhasesByProject)
+- [ ] Criar endpoints tRPC (phases.create, phases.update, phases.delete, phases.list)
+- [ ] Adicionar validação de permissões (apenas criador do projeto ou admin pode gerenciar fases)
+
+### Interface de Gestão de Fases
+- [ ] Criar componente ProjectPhasesSection.tsx para exibir fases do projeto
+- [ ] Implementar modal CreatePhaseDialog.tsx para criar nova fase
+- [ ] Implementar modal EditPhaseDialog.tsx para editar fase existente
+- [ ] Adicionar visualização de linha do tempo com fases ordenadas
+- [ ] Mostrar progresso individual de cada fase com barra visual
+- [ ] Adicionar badges de status (Não Iniciado, Em Andamento, Concluído, Atrasado)
+- [ ] Implementar drag-and-drop para reordenar fases
+- [ ] Adicionar botões de ação (Editar, Excluir) em cada fase
+
+### Integração na Página do Projeto
+- [ ] Adicionar seção de fases na página ProjectDetails.tsx
+- [ ] Mostrar contador de fases no card de resumo do projeto
+- [ ] Adicionar filtro de fases na lista de tarefas do projeto
+- [ ] Calcular progresso geral do projeto baseado nas fases
+
+### Fases do Projeto MYRIAD
+- [ ] Criar fase "Estudo Prévio" com datas e responsável
+- [ ] Criar fase "Projeto Base" com datas e responsável
+- [ ] Criar fase "Projeto de Execução" com datas e responsável
+- [ ] Criar fase "Acompanhamento de Obra" com datas e responsável

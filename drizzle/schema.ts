@@ -61,6 +61,7 @@ export const projectPhases = mysqlTable("projectPhases", {
   endDate: timestamp("endDate"),
   status: mysqlEnum("status", ["not_started", "in_progress", "completed", "on_hold"]).default("not_started").notNull(),
   progress: int("progress").default(0).notNull(),
+  assignedTo: int("assignedTo"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
@@ -1672,3 +1673,4 @@ export const siteProductivityAlerts = mysqlTable("siteProductivityAlerts", {
 
 export type SiteProductivityAlert = typeof siteProductivityAlerts.$inferSelect;
 export type InsertSiteProductivityAlert = typeof siteProductivityAlerts.$inferInsert;
+

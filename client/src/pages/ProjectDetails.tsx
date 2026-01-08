@@ -44,6 +44,7 @@ import { DeliveryCenter } from "@/components/DeliveryCenter";
 import { ProjectGanttChart } from "@/components/ProjectGanttChart";
 import { ProjectArchvizGallery } from "@/components/ProjectArchvizGallery";
 import EditProjectDialog from "@/components/EditProjectDialog";
+import { ProjectPhasesSection } from "@/components/ProjectPhasesSection";
 
 export default function ProjectDetails() {
   const [, params] = useRoute("/projects/:id");
@@ -445,62 +446,9 @@ export default function ProjectDetails() {
 
             {/* Sub-tab: Fases */}
             <TabsContent value="phases" className="space-y-6">
-          {/* Phases */}
-          <Card className="p-6 border-[#C3BAAF]/20 bg-white">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-serif text-2xl text-[#5F5C59]">Fases do Projeto</h3>
-              <Button className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white">
-                Adicionar Fase
-              </Button>
-            </div>
+              <ProjectPhasesSection projectId={projectId} />
 
-            {phases && phases.length > 0 ? (
-              <div className="space-y-4">
-                {phases.map((phase, index) => (
-                  <div key={phase.id} className="flex items-start gap-4 p-4 rounded-lg border border-[#C3BAAF]/20 hover:border-[#C9A882]/40 transition-colors">
-                    <div className="flex flex-col items-center">
-                      {getPhaseStatusIcon(phase.status)}
-                      {index < phases.length - 1 && (
-                        <div className="w-0.5 h-12 bg-[#C3BAAF]/20 mt-2" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium text-[#5F5C59]">{phase.name}</h4>
-                        <Badge className={`${getStatusColor(phase.status)} border`}>
-                          {getStatusLabel(phase.status)}
-                        </Badge>
-                      </div>
-                      {phase.description && (
-                        <p className="text-sm text-[#5F5C59]/60 mb-3">{phase.description}</p>
-                      )}
-                      <div className="flex items-center gap-6 text-sm text-[#5F5C59]/60">
-                        {phase.startDate && (
-                          <span>Início: {new Date(phase.startDate).toLocaleDateString('pt-PT')}</span>
-                        )}
-                        {phase.endDate && (
-                          <span>Fim: {new Date(phase.endDate).toLocaleDateString('pt-PT')}</span>
-                        )}
-                        <span>Progresso: {phase.progress}%</span>
-                      </div>
-                      <div className="mt-3 h-2 bg-[#EEEAE5] rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-[#C9A882] transition-all"
-                          style={{ width: `${phase.progress}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 text-[#5F5C59]/60">
-                Nenhuma fase criada ainda
-              </div>
-            )}
-          </Card>
-
-          {/* Milestones */}
+              {/* Milestones */}
           <Card className="p-6 border-[#C3BAAF]/20 bg-white">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-serif text-2xl text-[#5F5C59]">Marcos Importantes</h3>
