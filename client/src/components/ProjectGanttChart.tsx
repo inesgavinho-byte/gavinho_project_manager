@@ -236,10 +236,10 @@ export function ProjectGanttChart({ projectId }: ProjectGanttChartProps) {
   return (
     <div className="space-y-4">
       {/* Controls */}
-      <div className="flex items-center justify-between gap-4 bg-white p-4 rounded-lg border border-gray-200">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4 bg-white p-3 md:p-4 rounded-lg border border-gray-200">
         {/* View Mode */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-700">Vista:</span>
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <span className="text-xs md:text-sm font-medium text-gray-700">Vista:</span>
           <div className="flex gap-1">
             <button
               onClick={() => setViewMode(ViewMode.Day)}
@@ -282,13 +282,13 @@ export function ProjectGanttChart({ projectId }: ProjectGanttChartProps) {
             onChange={(e) => setShowCriticalPath(e.target.checked)}
             className="w-4 h-4 text-[#C9A882] border-gray-300 rounded focus:ring-[#C9A882]"
           />
-          <span className="text-sm text-gray-700">Mostrar Caminho Crítico</span>
+          <span className="text-xs md:text-sm text-gray-700">Caminho Crítico</span>
         </label>
 
         {/* View Toggle */}
         <button
           onClick={() => setShowGantt(!showGantt)}
-          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded hover:bg-gray-200"
+          className="flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm text-gray-700 bg-gray-100 rounded hover:bg-gray-200 whitespace-nowrap"
         >
           {showGantt ? (
             <>
@@ -306,7 +306,7 @@ export function ProjectGanttChart({ projectId }: ProjectGanttChartProps) {
 
       {/* Gantt Chart or List View */}
       {showGantt ? (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
           <Gantt
             tasks={tasks}
             viewMode={viewMode}

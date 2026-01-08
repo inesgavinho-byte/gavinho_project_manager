@@ -222,6 +222,24 @@ export async function reorderTeamMembers(updates: Array<{ memberId: number; disp
   }
 }
 
+export async function getAllUniqueTeamMembers() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Get all unique users who have been in any project team
+  const result = await db
+    .selectDistinct({
+      userId: users.id,
+      name: users.name,
+      email: users.email,
+    })
+    .from(users)
+    .innerJoin(projectTeam, eq(users.id, projectTeam.userId))
+    .orderBy(users.name);
+  
+  return result;
+}
+
 // ============= PROJECT DOCUMENTS =============
 
 export async function getProjectDocuments(projectId: number) {

@@ -201,6 +201,11 @@ export const projectsRouter = router({
         return await projectsDb.getProjectTeam(input.projectId);
       }),
 
+    listAllMembers: protectedProcedure
+      .query(async () => {
+        return await projectsDb.getAllUniqueTeamMembers();
+      }),
+
     add: protectedProcedure
       .input(z.object({
         projectId: z.number(),

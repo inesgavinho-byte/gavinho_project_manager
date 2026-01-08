@@ -2123,3 +2123,35 @@
 - [x] Reduzir altura dos cards de estatísticas (padding menor, fontes mais compactas)
 - [x] Corrigir tamanho de fonte excessivo no Gantt Chart
 - [x] Corrigir sobreposição/corte de informação no Gantt Chart
+
+
+## Responsividade Mobile
+- [ ] Testar layout dos cards de estatísticas em mobile
+- [ ] Ajustar grid dos cards para mobile (1 coluna)
+- [ ] Testar Gantt Chart em tablets e smartphones
+- [ ] Implementar scroll horizontal responsivo no Gantt
+- [ ] Ajustar controles do Gantt para touch devices
+
+## Filtros no Dashboard Executivo
+- [ ] Criar componente de filtros no Dashboard
+- [ ] Implementar filtro por estado (Em Andamento, Concluídos, Atrasados)
+- [ ] Implementar filtro por período temporal
+- [ ] Adicionar backend API para filtros
+- [ ] Atualizar cards de estatísticas com dados filtrados
+- [ ] Atualizar lista de projetos recentes com filtros
+
+## Exportação do Gantt Chart
+- [ ] Adicionar botão de exportação no Gantt
+- [ ] Implementar exportação para PDF
+- [ ] Implementar exportação para PNG
+- [ ] Adicionar opções de configuração de exportação
+- [ ] Testar qualidade das exportações
+
+
+## Dropdown de Seleção de Membros de Equipa
+- [x] Criar API para listar todos os membros únicos de todos os projetos
+- [x] Atualizar interface de adição de equipa com dropdown
+- [x] Implementar busca/filtro no dropdown de membros
+- [x] Permitir adicionar novo membro se não existir
+- [x] Preencher automaticamente dados ao selecionar membro existente
+- [x] Testar funcionalidade completa

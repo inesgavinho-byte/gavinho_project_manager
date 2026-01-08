@@ -57,6 +57,8 @@ export default function ProjectDetails() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
+  const [selectedExistingMember, setSelectedExistingMember] = useState<number | null>(null);
+  const [isAddingNewMember, setIsAddingNewMember] = useState(false);
   const [newMember, setNewMember] = useState({
     name: "",
     email: "",
@@ -82,6 +84,7 @@ export default function ProjectDetails() {
   const { data: phases } = trpc.projects.phases.list.useQuery({ projectId });
   const { data: milestones } = trpc.projects.milestones.list.useQuery({ projectId });
   const { data: teamMembers, refetch: refetchTeam } = trpc.projects.team.list.useQuery({ projectId });
+  const { data: allMembers } = trpc.projects.team.listAllMembers.useQuery();
   const { data: documents, refetch: refetchDocuments } = trpc.projects.documents.list.useQuery({ projectId });
   const { data: gallery, refetch: refetchGallery } = trpc.projects.gallery.list.useQuery({ projectId });
 
@@ -89,6 +92,8 @@ export default function ProjectDetails() {
     onSuccess: () => {
       toast.success("Membro adicionado com sucesso!");
       setIsAddMemberOpen(false);
+      setSelectedExistingMember(null);
+      setIsAddingNewMember(false);
       setNewMember({ name: "", email: "", phone: "", role: "engineer" });
       refetchTeam();
     },
@@ -124,11 +129,29 @@ export default function ProjectDetails() {
   };
 
   const handleAddMember = () => {
-    if (!newMember.name || !newMember.email) {
-      toast.error("Nome e email são obrigatórios");
-      return;
+    if (selectedExistingMember) {
+      // Adding existing member
+      const member = allMembers?.find(m => m.userId === selectedExistingMember);
+      if (!member) {
+        toast.error("Membro não encontrado");
+        return;
+      }
+      addTeamMember.mutate({ 
+        projectId, 
+        userId: member.userId,
+        role: newMember.role,
+      });
+    } else if (isAddingNewMember) {
+      // Adding new member - need to create user first
+      if (!newMember.name || !newMember.email) {
+        toast.error("Nome e email são obrigatórios");
+        return;
+      }
+      // For now, show message that this feature requires user creation
+      toast.error("Funcionalidade de criar novo utilizador ainda não implementada. Por favor, selecione um membro existente.");
+    } else {
+      toast.error("Selecione um membro ou escolha adicionar novo");
     }
-    addTeamMember.mutate({ projectId, ...newMember });
   };
 
   const reorderTeamMembers = trpc.projects.team.reorder.useMutation({
@@ -272,7 +295,7 @@ export default function ProjectDetails() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <Card className="p-4 border-[#C3BAAF]/20 bg-white">
           <div className="flex items-center justify-between mb-2">
             <div className="w-10 h-10 bg-[#C9A882]/10 rounded-lg flex items-center justify-center">
@@ -642,41 +665,98 @@ export default function ProjectDetails() {
                   <DialogHeader>
                     <DialogTitle className="font-serif text-2xl text-[#5F5C59]">Adicionar Membro à Equipa</DialogTitle>
                     <DialogDescription className="text-[#5F5C59]/60">
-                      Preencha os dados do novo membro da equipa
+                      Selecione um membro existente ou adicione um novo
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-[#5F5C59]">Nome *</Label>
-                      <Input
-                        id="name"
-                        value={newMember.name}
-                        onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                        placeholder="Nome completo"
-                        className="border-[#C3BAAF]/20 focus:border-[#C9A882]"
-                      />
+                      <Label htmlFor="member-select" className="text-[#5F5C59]">Selecionar Membro</Label>
+                      <Select 
+                        value={selectedExistingMember?.toString() || "new"} 
+                        onValueChange={(value) => {
+                          if (value === "new") {
+                            setSelectedExistingMember(null);
+                            setIsAddingNewMember(true);
+                          } else {
+                            setSelectedExistingMember(parseInt(value));
+                            setIsAddingNewMember(false);
+                            // Pre-fill name and email from selected member
+                            const member = allMembers?.find(m => m.userId === parseInt(value));
+                            if (member) {
+                              setNewMember(prev => ({
+                                ...prev,
+                                name: member.name || "",
+                                email: member.email || "",
+                              }));
+                            }
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="border-[#C3BAAF]/20 focus:border-[#C9A882]">
+                          <SelectValue placeholder="Selecione um membro..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {allMembers && allMembers.length > 0 && (
+                            <>
+                              {allMembers.map((member) => (
+                                <SelectItem key={member.userId} value={member.userId.toString()}>
+                                  {member.name} ({member.email})
+                                </SelectItem>
+                              ))}
+                              <SelectItem value="new">+ Adicionar Novo Membro</SelectItem>
+                            </>
+                          )}
+                          {(!allMembers || allMembers.length === 0) && (
+                            <SelectItem value="new">+ Adicionar Novo Membro</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-[#5F5C59]">Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={newMember.email}
-                        onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-                        placeholder="email@exemplo.com"
-                        className="border-[#C3BAAF]/20 focus:border-[#C9A882]"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-[#5F5C59]">Telefone</Label>
-                      <Input
-                        id="phone"
-                        value={newMember.phone}
-                        onChange={(e) => setNewMember({ ...newMember, phone: e.target.value })}
-                        placeholder="+351 912 345 678"
-                        className="border-[#C3BAAF]/20 focus:border-[#C9A882]"
-                      />
-                    </div>
+
+                    {isAddingNewMember && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="name" className="text-[#5F5C59]">Nome *</Label>
+                          <Input
+                            id="name"
+                            value={newMember.name}
+                            onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
+                            placeholder="Nome completo"
+                            className="border-[#C3BAAF]/20 focus:border-[#C9A882]"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="email" className="text-[#5F5C59]">Email *</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            value={newMember.email}
+                            onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
+                            placeholder="email@exemplo.com"
+                            className="border-[#C3BAAF]/20 focus:border-[#C9A882]"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone" className="text-[#5F5C59]">Telefone</Label>
+                          <Input
+                            id="phone"
+                            value={newMember.phone}
+                            onChange={(e) => setNewMember({ ...newMember, phone: e.target.value })}
+                            placeholder="+351 912 345 678"
+                            className="border-[#C3BAAF]/20 focus:border-[#C9A882]"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {selectedExistingMember && (
+                      <div className="p-3 bg-[#EEEAE5] rounded-lg">
+                        <p className="text-sm text-[#5F5C59]">
+                          <strong>Nome:</strong> {newMember.name}<br />
+                          <strong>Email:</strong> {newMember.email}
+                        </p>
+                      </div>
+                    )}
                     <div className="space-y-2">
                       <Label htmlFor="role" className="text-[#5F5C59]">Função *</Label>
                       <Select value={newMember.role} onValueChange={(value: any) => setNewMember({ ...newMember, role: value })}>
@@ -697,7 +777,12 @@ export default function ProjectDetails() {
                   <DialogFooter>
                     <Button
                       variant="outline"
-                      onClick={() => setIsAddMemberOpen(false)}
+                      onClick={() => {
+                        setIsAddMemberOpen(false);
+                        setSelectedExistingMember(null);
+                        setIsAddingNewMember(false);
+                        setNewMember({ name: "", email: "", phone: "", role: "engineer" });
+                      }}
                       className="border-[#C3BAAF]/20"
                     >
                       Cancelar
