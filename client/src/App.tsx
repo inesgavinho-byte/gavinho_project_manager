@@ -40,6 +40,16 @@ import SiteMaterials from "./pages/SiteMaterials";
 import SiteAttendance from "./pages/SiteAttendance";
 import SiteWorkers from "./pages/SiteWorkers";
 import SiteManagement from "./pages/SiteManagement";
+import WorksDashboard from "./pages/WorksDashboard";
+import Works from "./pages/Works";
+import WorksChat from "./pages/WorksChat";
+import WorksDiary from "./pages/WorksDiary";
+import WorksDirection from "./pages/WorksDirection";
+import WorksInspection from "./pages/WorksInspection";
+import WorksLicenses from "./pages/WorksLicenses";
+import ProjectsChat from "./pages/ProjectsChat";
+import ProposalsContracts from "./pages/ProposalsContracts";
+import Purchases from "./pages/Purchases";
 
 function Router() {
   return (
@@ -199,6 +209,69 @@ function Router() {
       <Route path="/mentions">
         <DashboardLayout>
           <Mentions />
+        </DashboardLayout>
+      </Route>
+
+      {/* Works Module Routes */}
+      <Route path="/works-dashboard">
+        <DashboardLayout>
+          <WorksDashboard />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/works">
+        <DashboardLayout>
+          <Works />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/works-chat">
+        <DashboardLayout>
+          <WorksChat />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/works-diary">
+        <DashboardLayout>
+          <WorksDiary />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/works-direction">
+        <DashboardLayout>
+          <WorksDirection />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/works-inspection">
+        <DashboardLayout>
+          <WorksInspection />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/works-licenses">
+        <DashboardLayout>
+          <WorksLicenses />
+        </DashboardLayout>
+      </Route>
+
+      {/* Projects Module Routes */}
+      <Route path="/projects-chat">
+        <DashboardLayout>
+          <ProjectsChat />
+        </DashboardLayout>
+      </Route>
+
+      {/* Management Module Routes */}
+      <Route path="/proposals-contracts">
+        <DashboardLayout>
+          <ProposalsContracts />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/purchases">
+        <DashboardLayout>
+          <Purchases />
         </DashboardLayout>
       </Route>
       

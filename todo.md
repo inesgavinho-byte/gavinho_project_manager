@@ -1635,3 +1635,42 @@
 - [x] Integrar nova sidebar no DashboardLayout
 - [ ] Criar rotas para novos menus
 - [x] Testar navegação completa
+
+
+## Criação de Páginas para Novos Menus da Sidebar
+
+### Módulo Obras
+- [x] Criar schema de obras (sites) no banco de dados (já existia)
+- [x] Criar schema de timesheets (já existia)
+- [x] Criar schema de requisições (já existia)
+- [x] Criar schema de diário de obra (já existia)
+- [x] Criar schema de licenças (já existia)
+- [x] Implementar backend (tRPC) para obras (já existia - siteManagementRouter)
+- [x] Criar página Dashboard Obras
+- [x] Criar página Lista de Obras
+- [x] Criar página Chat Obras (tipo WhatsApp)
+- [x] Criar página Timesheets (já existia - reutilizada)
+- [x] Criar página Requisições (já existia - SiteMaterials)
+- [x] Criar página Diário de Obra
+- [x] Criar página Direção Obra
+- [x] Criar página Fiscalização
+- [x] Criar página Licenças
+
+### Módulo Projetos
+- [x] Criar página Chat Projetos (tipo Teams)
+- [ ] Melhorar Dashboard Projetos com tabs (Planning, Tarefas, Bloqueios)
+
+### Módulo Gestão
+- [ ] Criar schema de propostas contrato
+- [ ] Criar schema de compras
+- [ ] Implementar backend para propostas e compras
+- [x] Criar página Propostas Contrato
+- [x] Criar página Compras
+
+### Rotas
+- [x] Adicionar todas as rotas no App.tsx
+- [x] Testar navegação completa
+- [x] Corrigir rotas na ModularSidebar para corresponder ao App.tsx
+- [x] Testar Dashboard Obras (funcionando)
+- [x] Testar Chat Obras (funcionando)
+- [x] Testar Propostas & Contratos (funcionando)
