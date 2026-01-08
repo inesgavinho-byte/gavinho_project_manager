@@ -1622,3 +1622,16 @@
 - [ ] Adicionar exportação de relatórios financeiros
 - [x] Integrar com tab Financeiro existente
 - [ ] Criar testes unitários para orçamentos
+
+
+## Reorganização Modular da Sidebar - 4 Módulos
+- [x] Criar componente ModularSidebar com estrutura hierárquica
+- [x] Implementar Módulo 1 - Projetos (Dashboard, Projetos, Chat, Biblioteca, Calendário, Sugestões IA)
+- [x] Implementar Módulo 2 - Obras (Dashboard, Obras, Calendário, Chat, Timesheets, Requisições, Diário de Obra, Licenças)
+- [x] Implementar Módulo 3 - Gestão (RH, Clientes, Fornecedores, Propostas, Compras)
+- [x] Implementar Módulo 4 - Perfil (Menções & Notificações)
+- [x] Adicionar menus expansíveis com ícones e hierarquia visual
+- [x] Implementar submenus do Diário de Obra (Diário, Direção, Fiscalização)
+- [x] Integrar nova sidebar no DashboardLayout
+- [ ] Criar rotas para novos menus
+- [x] Testar navegação completa

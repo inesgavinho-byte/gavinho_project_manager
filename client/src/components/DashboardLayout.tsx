@@ -21,37 +21,14 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users, FolderKanban, Package, ListTodo, DollarSign, FileText, Mail, Brain, Bell, TrendingUp, Lightbulb, Activity, AtSign, Building2, Trash2, UserCircle, Shield, Clock, BarChart, HardHat } from "lucide-react";
+import { LogOut, PanelLeft } from "lucide-react";
+import { ModularSidebar } from "@/components/ModularSidebar";
 import { CSSProperties, useEffect, useRef, useState } from "react";
-import { Badge } from "./ui/badge";
-import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
-const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: FolderKanban, label: "Projetos", path: "/projects" },
-  { icon: Building2, label: "Obras", path: "/constructions" },
-  { icon: Users, label: "Fornecedores", path: "/suppliers" },
-  { icon: Package, label: "Encomendas", path: "/orders" },
-  { icon: ListTodo, label: "Tarefas", path: "/tasks" },
-  { icon: DollarSign, label: "Orçamentos", path: "/budgets" },
-  { icon: Mail, label: "E-mails", path: "/emails" },
-  { icon: Brain, label: "Sugestões de IA", path: "/ai-suggestions" },
-  { icon: TrendingUp, label: "Análise Preditiva", path: "/predictions" },
-  { icon: Lightbulb, label: "Simulação What-If", path: "/what-if" },
-  { icon: Activity, label: "Atividades", path: "/activity-feed" },
-  { icon: AtSign, label: "Menções", path: "/mentions" },
-  { icon: Bell, label: "Notificações", path: "/notifications" },
-  { icon: UserCircle, label: "Portal da Equipa", path: "/team-access" },
-  { icon: Clock, label: "Timesheets", path: "/timesheets" },
-  { icon: Shield, label: "Recursos Humanos", path: "/hr", adminOnly: true },
-  { icon: BarChart, label: "Relatórios RH", path: "/hr-reports", adminOnly: true },
-  { icon: HardHat, label: "Gestão de Obra", path: "/site-management" },
-  { icon: Trash2, label: "Lixeira", path: "/trash" },
-  { icon: FileText, label: "Relatórios", path: "/reports" },
-];
+
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
@@ -134,11 +111,8 @@ function DashboardLayoutContent({
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const activeMenuItem = menuItems.find(item => item.path === location);
+
   const isMobile = useIsMobile();
-  
-  // Get unread mentions count
-  const { data: unreadMentionsCount } = trpc.mentions.getUnreadMentionsCount.useQuery();
 
   useEffect(() => {
     if (isCollapsed) {
@@ -203,34 +177,8 @@ function DashboardLayoutContent({
             </div>
           </SidebarHeader>
 
-          <SidebarContent className="gap-0">
-            <SidebarMenu className="px-2 py-1">
-              {menuItems
-                .filter(item => !item.adminOnly || user?.role === "admin")
-                .map(item => {
-                const isActive = location === item.path;
-                return (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      onClick={() => setLocation(item.path)}
-                      tooltip={item.label}
-                      className={`h-10 transition-all font-normal`}
-                    >
-                      <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
-                      />
-                      <span className="flex-1">{item.label}</span>
-                      {item.path === "/mentions" && unreadMentionsCount !== undefined && unreadMentionsCount > 0 && (
-                        <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs">
-                          {unreadMentionsCount > 99 ? "99+" : unreadMentionsCount}
-                        </Badge>
-                      )}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
+          <SidebarContent className="gap-0 p-0">
+            <ModularSidebar onNavigate={() => isMobile && toggleSidebar()} />
           </SidebarContent>
 
           <SidebarFooter className="p-3">
@@ -282,7 +230,7 @@ function DashboardLayoutContent({
               <div className="flex items-center gap-3">
                 <div className="flex flex-col gap-1">
                   <span className="tracking-tight text-foreground">
-                    {activeMenuItem?.label ?? "Menu"}
+                    Menu
                   </span>
                 </div>
               </div>
