@@ -9,6 +9,9 @@ import {
   materialSuggestions,
   projects,
   projectMaterials,
+  materialCollections,
+  collectionMaterials,
+  favoriteMaterials,
 } from "../drizzle/schema.js";
 
 // ============================================================================
@@ -1297,4 +1300,326 @@ export function generateImportTemplate(): MaterialImportRow[] {
       tags: "tinta,branco,interior",
     },
   ];
+}
+
+// ============================================================================
+// FAVORITES
+// ============================================================================
+
+export async function toggleFavorite(userId: number, materialId: number): Promise<{ isFavorite: boolean }> {
+  const db = await getDb();
+  
+  // Check if already favorited
+  const existing = await db
+    .select()
+    .from(favoriteMaterials)
+    .where(and(eq(favoriteMaterials.userId, userId), eq(favoriteMaterials.materialId, materialId)))
+    .limit(1);
+
+  if (existing.length > 0) {
+    // Remove from favorites
+    await db
+      .delete(favoriteMaterials)
+      .where(and(eq(favoriteMaterials.userId, userId), eq(favoriteMaterials.materialId, materialId)));
+    return { isFavorite: false };
+  } else {
+    // Add to favorites
+    await db.insert(favoriteMaterials).values({
+      userId,
+      materialId,
+    });
+    return { isFavorite: true };
+  }
+}
+
+export async function getUserFavorites(userId: number) {
+  const db = await getDb();
+  
+  const favorites = await db
+    .select({
+      id: favoriteMaterials.id,
+      materialId: favoriteMaterials.materialId,
+      createdAt: favoriteMaterials.createdAt,
+      material: libraryMaterials,
+    })
+    .from(favoriteMaterials)
+    .innerJoin(libraryMaterials, eq(favoriteMaterials.materialId, libraryMaterials.id))
+    .where(eq(favoriteMaterials.userId, userId))
+    .orderBy(desc(favoriteMaterials.createdAt));
+
+  return favorites;
+}
+
+export async function isMaterialFavorited(userId: number, materialId: number): Promise<boolean> {
+  const db = await getDb();
+  
+  const result = await db
+    .select({ id: favoriteMaterials.id })
+    .from(favoriteMaterials)
+    .where(and(eq(favoriteMaterials.userId, userId), eq(favoriteMaterials.materialId, materialId)))
+    .limit(1);
+
+  return result.length > 0;
+}
+
+export async function getFavoriteStatusForMaterials(userId: number, materialIds: number[]): Promise<Record<number, boolean>> {
+  if (materialIds.length === 0) return {};
+  
+  const db = await getDb();
+  
+  const favorites = await db
+    .select({ materialId: favoriteMaterials.materialId })
+    .from(favoriteMaterials)
+    .where(and(
+      eq(favoriteMaterials.userId, userId),
+      inArray(favoriteMaterials.materialId, materialIds)
+    ));
+
+  const favoriteMap: Record<number, boolean> = {};
+  materialIds.forEach(id => favoriteMap[id] = false);
+  favorites.forEach(fav => favoriteMap[fav.materialId] = true);
+  
+  return favoriteMap;
+}
+
+// ============================================================================
+// COLLECTIONS
+// ============================================================================
+
+export async function createCollection(
+  userId: number,
+  data: { name: string; description?: string; color?: string; icon?: string }
+) {
+  const db = await getDb();
+  
+  const [result] = await db.insert(materialCollections).values({
+    userId,
+    name: data.name,
+    description: data.description || null,
+    color: data.color || null,
+    icon: data.icon || null,
+  });
+
+  return { id: result.insertId };
+}
+
+export async function getUserCollections(userId: number) {
+  const db = await getDb();
+  
+  const collections = await db
+    .select({
+      id: materialCollections.id,
+      name: materialCollections.name,
+      description: materialCollections.description,
+      color: materialCollections.color,
+      icon: materialCollections.icon,
+      createdAt: materialCollections.createdAt,
+      updatedAt: materialCollections.updatedAt,
+    })
+    .from(materialCollections)
+    .where(eq(materialCollections.userId, userId))
+    .orderBy(desc(materialCollections.createdAt));
+
+  // Get material count for each collection
+  const collectionsWithCounts = await Promise.all(
+    collections.map(async (collection) => {
+      const countResult = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(collectionMaterials)
+        .where(eq(collectionMaterials.collectionId, collection.id));
+      
+      return {
+        ...collection,
+        materialCount: countResult[0]?.count || 0,
+      };
+    })
+  );
+
+  return collectionsWithCounts;
+}
+
+export async function getCollection(collectionId: number, userId: number) {
+  const db = await getDb();
+  
+  const [collection] = await db
+    .select()
+    .from(materialCollections)
+    .where(and(
+      eq(materialCollections.id, collectionId),
+      eq(materialCollections.userId, userId)
+    ))
+    .limit(1);
+
+  if (!collection) return null;
+
+  // Get materials in this collection
+  const materials = await db
+    .select({
+      id: collectionMaterials.id,
+      notes: collectionMaterials.notes,
+      addedAt: collectionMaterials.addedAt,
+      material: libraryMaterials,
+    })
+    .from(collectionMaterials)
+    .innerJoin(libraryMaterials, eq(collectionMaterials.materialId, libraryMaterials.id))
+    .where(eq(collectionMaterials.collectionId, collectionId))
+    .orderBy(desc(collectionMaterials.addedAt));
+
+  return {
+    ...collection,
+    materials,
+  };
+}
+
+export async function updateCollection(
+  collectionId: number,
+  userId: number,
+  data: { name?: string; description?: string; color?: string; icon?: string }
+) {
+  const db = await getDb();
+  
+  await db
+    .update(materialCollections)
+    .set(data)
+    .where(and(
+      eq(materialCollections.id, collectionId),
+      eq(materialCollections.userId, userId)
+    ));
+
+  return { success: true };
+}
+
+export async function deleteCollection(collectionId: number, userId: number) {
+  const db = await getDb();
+  
+  await db
+    .delete(materialCollections)
+    .where(and(
+      eq(materialCollections.id, collectionId),
+      eq(materialCollections.userId, userId)
+    ));
+
+  return { success: true };
+}
+
+export async function addMaterialToCollection(
+  collectionId: number,
+  materialId: number,
+  userId: number,
+  notes?: string
+) {
+  const db = await getDb();
+  
+  // Verify collection belongs to user
+  const [collection] = await db
+    .select()
+    .from(materialCollections)
+    .where(and(
+      eq(materialCollections.id, collectionId),
+      eq(materialCollections.userId, userId)
+    ))
+    .limit(1);
+
+  if (!collection) {
+    throw new Error("Collection not found or access denied");
+  }
+
+  // Check if material already in collection
+  const existing = await db
+    .select()
+    .from(collectionMaterials)
+    .where(and(
+      eq(collectionMaterials.collectionId, collectionId),
+      eq(collectionMaterials.materialId, materialId)
+    ))
+    .limit(1);
+
+  if (existing.length > 0) {
+    throw new Error("Material already in collection");
+  }
+
+  const [result] = await db.insert(collectionMaterials).values({
+    collectionId,
+    materialId,
+    notes: notes || null,
+  });
+
+  return { id: result.insertId };
+}
+
+export async function removeMaterialFromCollection(
+  collectionId: number,
+  materialId: number,
+  userId: number
+) {
+  const db = await getDb();
+  
+  // Verify collection belongs to user
+  const [collection] = await db
+    .select()
+    .from(materialCollections)
+    .where(and(
+      eq(materialCollections.id, collectionId),
+      eq(materialCollections.userId, userId)
+    ))
+    .limit(1);
+
+  if (!collection) {
+    throw new Error("Collection not found or access denied");
+  }
+
+  await db
+    .delete(collectionMaterials)
+    .where(and(
+      eq(collectionMaterials.collectionId, collectionId),
+      eq(collectionMaterials.materialId, materialId)
+    ));
+
+  return { success: true };
+}
+
+export async function getCollectionsForMaterial(materialId: number, userId: number) {
+  const db = await getDb();
+  
+  const collections = await db
+    .select({
+      id: materialCollections.id,
+      name: materialCollections.name,
+      color: materialCollections.color,
+      icon: materialCollections.icon,
+    })
+    .from(collectionMaterials)
+    .innerJoin(materialCollections, eq(collectionMaterials.collectionId, materialCollections.id))
+    .where(and(
+      eq(collectionMaterials.materialId, materialId),
+      eq(materialCollections.userId, userId)
+    ));
+
+  return collections;
+}
+
+export async function getCollectionStats(userId: number) {
+  const db = await getDb();
+  
+  const totalCollections = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(materialCollections)
+    .where(eq(materialCollections.userId, userId));
+
+  const totalMaterialsInCollections = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(collectionMaterials)
+    .innerJoin(materialCollections, eq(collectionMaterials.collectionId, materialCollections.id))
+    .where(eq(materialCollections.userId, userId));
+
+  const totalFavorites = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(favoriteMaterials)
+    .where(eq(favoriteMaterials.userId, userId));
+
+  return {
+    totalCollections: totalCollections[0]?.count || 0,
+    totalMaterialsInCollections: totalMaterialsInCollections[0]?.count || 0,
+    totalFavorites: totalFavorites[0]?.count || 0,
+  };
 }

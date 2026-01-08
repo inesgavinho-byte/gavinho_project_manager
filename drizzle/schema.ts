@@ -1990,3 +1990,59 @@ export const materialSuggestions = mysqlTable("materialSuggestions", {
 
 export type MaterialSuggestion = typeof materialSuggestions.$inferSelect;
 export type InsertMaterialSuggestion = typeof materialSuggestions.$inferInsert;
+
+/**
+ * Material Collections - User-created collections to organize materials
+ */
+export const materialCollections = mysqlTable("materialCollections", {
+  id: int("id").primaryKey().autoincrement(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  color: varchar("color", { length: 50 }), // Hex color for visual identification
+  icon: varchar("icon", { length: 50 }), // Icon name from lucide-react
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("materialCollection_user_idx").on(table.userId),
+}));
+
+export type MaterialCollection = typeof materialCollections.$inferSelect;
+export type InsertMaterialCollection = typeof materialCollections.$inferInsert;
+
+/**
+ * Collection Materials - Materials within collections
+ */
+export const collectionMaterials = mysqlTable("collectionMaterials", {
+  id: int("id").primaryKey().autoincrement(),
+  collectionId: int("collectionId").notNull().references(() => materialCollections.id, { onDelete: "cascade" }),
+  materialId: int("materialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  notes: text("notes"), // User notes about why this material is in this collection
+  addedAt: timestamp("addedAt").defaultNow().notNull(),
+}, (table) => ({
+  collectionIdIdx: index("collectionMaterial_collection_idx").on(table.collectionId),
+  materialIdIdx: index("collectionMaterial_material_idx").on(table.materialId),
+  // Unique constraint: same material can't be added twice to same collection
+  uniqueCollectionMaterial: index("unique_collection_material").on(table.collectionId, table.materialId),
+}));
+
+export type CollectionMaterial = typeof collectionMaterials.$inferSelect;
+export type InsertCollectionMaterial = typeof collectionMaterials.$inferInsert;
+
+/**
+ * Favorite Materials - User's favorite materials for quick access
+ */
+export const favoriteMaterials = mysqlTable("favoriteMaterials", {
+  id: int("id").primaryKey().autoincrement(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  materialId: int("materialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("favoriteMaterial_user_idx").on(table.userId),
+  materialIdIdx: index("favoriteMaterial_material_idx").on(table.materialId),
+  // Unique constraint: same material can't be favorited twice by same user
+  uniqueUserMaterial: index("unique_user_material").on(table.userId, table.materialId),
+}));
+
+export type FavoriteMaterial = typeof favoriteMaterials.$inferSelect;
+export type InsertFavoriteMaterial = typeof favoriteMaterials.$inferInsert;

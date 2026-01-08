@@ -1864,3 +1864,27 @@
 - [x] Mostrar resumo de importação com sucesso/erros detalhados
 - [x] Adicionar botão "Importar CSV/Excel" na página Library
 - [ ] Testar importação com ficheiros reais de múltiplos materiais
+
+
+## Sistema de Favoritos e Coleções Personalizadas
+### Backend
+- [x] Criar tabela materialCollections (id, userId, name, description, color, icon, createdAt, updatedAt)
+- [x] Criar tabela collectionMaterials (id, collectionId, materialId, addedAt, notes)
+- [x] Criar tabela favoriteMaterials (id, userId, materialId, createdAt)
+- [x] Implementar funções de CRUD de coleções (create, get, update, delete)
+- [x] Implementar funções de adicionar/remover materiais de coleções
+- [x] Implementar funções de favoritos (toggleFavorite, getUserFavorites, isMaterialFavorited, getFavoriteStatusForMaterials)
+- [x] Criar endpoints tRPC para coleções (createCollection, getUserCollections, getCollection, updateCollection, deleteCollection, addMaterialToCollection, removeMaterialFromCollection, getCollectionsForMaterial)
+- [x] Criar endpoints tRPC para favoritos (toggleFavorite, getUserFavorites, isMaterialFavorited, getFavoriteStatusForMaterials)
+- [x] Adicionar estatísticas de uso de coleções (getCollectionStats)
+### Frontend
+- [x] Criar componente de botão "Adicionar aos Favoritos" nos cards de materiais (estrela preenchida/vazia)
+- [x] Criar dialog de gestão de coleções (ManageCollectionsDialog) com criar, editar, deletar
+- [x] Criar dialog de adicionar material a coleção (AddToCollectionDialog)
+- [x] Implementar filtro de "Favoritos" na página Library (botão toggle)
+- [x] Adicionar botões "Gerir Coleções" e "Favoritos" no header da Library
+- [x] Adicionar botões de favorito (estrela) e coleção nos cards de materiais
+- [x] Criar estatísticas visuais de coleções (total coleções, materiais em coleções, favoritos)
+- [x] Implementar seleção de cor e ícone para coleções
+- [x] Mostrar materiais já adicionados em cada coleção
+- [ ] Testar fluxo completo de favoritos e coleções

@@ -43,6 +43,19 @@ import {
   bulkImportMaterials,
   generateImportTemplate,
   type MaterialImportRow,
+  toggleFavorite,
+  getUserFavorites,
+  isMaterialFavorited,
+  getFavoriteStatusForMaterials,
+  createCollection,
+  getUserCollections,
+  getCollection,
+  updateCollection,
+  deleteCollection,
+  addMaterialToCollection,
+  removeMaterialFromCollection,
+  getCollectionsForMaterial,
+  getCollectionStats,
 } from "./libraryDb.js";
 import { storagePut } from "./storage.js";
 import { TRPCError } from "@trpc/server";
@@ -724,5 +737,145 @@ export const libraryRouter = router({
 
   getImportTemplate: protectedProcedure.query(async () => {
     return generateImportTemplate();
+  }),
+
+  // ============================================================================
+  // FAVORITES
+  // ============================================================================
+
+  toggleFavorite: protectedProcedure
+    .input(
+      z.object({
+        materialId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return toggleFavorite(ctx.user.id, input.materialId);
+    }),
+
+  getUserFavorites: protectedProcedure.query(async ({ ctx }) => {
+    return getUserFavorites(ctx.user.id);
+  }),
+
+  isMaterialFavorited: protectedProcedure
+    .input(
+      z.object({
+        materialId: z.number(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      return isMaterialFavorited(ctx.user.id, input.materialId);
+    }),
+
+  getFavoriteStatusForMaterials: protectedProcedure
+    .input(
+      z.object({
+        materialIds: z.array(z.number()),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      return getFavoriteStatusForMaterials(ctx.user.id, input.materialIds);
+    }),
+
+  // ============================================================================
+  // COLLECTIONS
+  // ============================================================================
+
+  createCollection: protectedProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        description: z.string().optional(),
+        color: z.string().optional(),
+        icon: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return createCollection(ctx.user.id, input);
+    }),
+
+  getUserCollections: protectedProcedure.query(async ({ ctx }) => {
+    return getUserCollections(ctx.user.id);
+  }),
+
+  getCollection: protectedProcedure
+    .input(
+      z.object({
+        collectionId: z.number(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      return getCollection(input.collectionId, ctx.user.id);
+    }),
+
+  updateCollection: protectedProcedure
+    .input(
+      z.object({
+        collectionId: z.number(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        color: z.string().optional(),
+        icon: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { collectionId, ...data } = input;
+      return updateCollection(collectionId, ctx.user.id, data);
+    }),
+
+  deleteCollection: protectedProcedure
+    .input(
+      z.object({
+        collectionId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return deleteCollection(input.collectionId, ctx.user.id);
+    }),
+
+  addMaterialToCollection: protectedProcedure
+    .input(
+      z.object({
+        collectionId: z.number(),
+        materialId: z.number(),
+        notes: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return addMaterialToCollection(
+        input.collectionId,
+        input.materialId,
+        ctx.user.id,
+        input.notes
+      );
+    }),
+
+  removeMaterialFromCollection: protectedProcedure
+    .input(
+      z.object({
+        collectionId: z.number(),
+        materialId: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return removeMaterialFromCollection(
+        input.collectionId,
+        input.materialId,
+        ctx.user.id
+      );
+    }),
+
+  getCollectionsForMaterial: protectedProcedure
+    .input(
+      z.object({
+        materialId: z.number(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      return getCollectionsForMaterial(input.materialId, ctx.user.id);
+    }),
+
+  getCollectionStats: protectedProcedure.query(async ({ ctx }) => {
+    return getCollectionStats(ctx.user.id);
   }),
 });

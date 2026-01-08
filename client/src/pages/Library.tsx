@@ -35,6 +35,8 @@ import {
   FolderPlus,
   TrendingUp,
   Upload,
+  Star,
+  Folder,
 } from "lucide-react";
 import { AddMaterialDialog } from "../components/library/AddMaterialDialog";
 import { Add3DModelDialog } from "../components/library/Add3DModelDialog";
@@ -43,6 +45,8 @@ import { ManageTagsDialog } from "../components/library/ManageTagsDialog";
 import { AddToProjectDialog } from "../components/library/AddToProjectDialog";
 import { PriceHistoryDialog } from "../components/library/PriceHistoryDialog";
 import { BulkImportDialog } from "../components/BulkImportDialog";
+import { ManageCollectionsDialog } from "../components/ManageCollectionsDialog";
+import { AddToCollectionDialog } from "../components/AddToCollectionDialog";
 
 // Categorias predefinidas para materiais
 const MATERIAL_CATEGORIES = [
@@ -87,11 +91,25 @@ export default function Library() {
     materialId: number;
     materialName: string;
   }>({ open: false, materialId: 0, materialName: "" });
-  const [bulkImportOpen, setBulkImportOpen] = useState(false);  // Queries
+  const [bulkImportOpen, setBulkImportOpen] = useState(false);
+  const [manageCollectionsOpen, setManageCollectionsOpen] = useState(false);
+  const [addToCollectionDialog, setAddToCollectionDialog] = useState<{
+    open: boolean;
+    materialId: number;
+    materialName: string;
+  }>({ open: false, materialId: 0, materialName: "" });
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+
+  // Queries
   const { data: materials = [], refetch: refetchMaterials } = trpc.library.materials.list.useQuery();
   const { data: models3D = [], refetch: refetchModels } = trpc.library.models3D.list.useQuery();
   const { data: inspiration = [], refetch: refetchInspiration } = trpc.library.inspiration.list.useQuery();
   const { data: tags = [] } = trpc.library.tags.list.useQuery();
+  const { data: favorites = [] } = trpc.library.getUserFavorites.useQuery();
+  const { data: favoriteStatus = {} } = trpc.library.getFavoriteStatusForMaterials.useQuery(
+    { materialIds: materials.map(m => m.id) },
+    { enabled: materials.length > 0 }
+  );
 
   // Mutations
   const deleteMaterial = trpc.library.materials.delete.useMutation({
@@ -103,9 +121,19 @@ export default function Library() {
   const deleteInspiration = trpc.library.inspiration.delete.useMutation({
     onSuccess: () => refetchInspiration(),
   });
+  const toggleFavorite = trpc.library.toggleFavorite.useMutation({
+    onSuccess: () => {
+      refetchMaterials();
+    },
+  });
 
   // Filtrar dados
   const filteredMaterials = materials.filter((item) => {
+    // Filter by favorites if enabled
+    if (showFavoritesOnly && !favoriteStatus[item.id]) {
+      return false;
+    }
+    
     const matchesSearch = searchQuery
       ? item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.description?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -181,6 +209,28 @@ export default function Library() {
                 <Tag className="w-4 h-4 mr-2" />
                 Gerir Tags
               </Button>
+              {activeTab === "materials" && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setManageCollectionsOpen(true)}
+                    className="border-[#C9A882] text-[#C9A882] hover:bg-[#C9A882]/10"
+                  >
+                    <Folder className="w-4 h-4 mr-2" />
+                    Gerir Coleções
+                  </Button>
+                  <Button
+                    variant={showFavoritesOnly ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                    className={showFavoritesOnly ? "bg-[#C9A882] hover:bg-[#B8976F]" : ""}
+                  >
+                    <Star className={`w-4 h-4 mr-2 ${showFavoritesOnly ? "fill-current" : ""}`} />
+                    Favoritos {showFavoritesOnly && `(${favorites.length})`}
+                  </Button>
+                </>  
+              )}
               {activeTab === "materials" && (
                 <Button
                   variant="outline"
@@ -313,13 +363,25 @@ export default function Library() {
                     )}
                     <CardHeader>
                       <div className="flex items-start justify-between">
-                        <div>
+                        <div className="flex-1">
                           <CardTitle className="text-lg font-serif text-[#5F5C59]">
                             {material.name}
                           </CardTitle>
                           <CardDescription>{material.description}</CardDescription>
                         </div>
-                        <Badge className="bg-[#C9A882]">{material.category}</Badge>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleFavorite.mutate({ materialId: material.id })}
+                            disabled={toggleFavorite.isPending}
+                          >
+                            <Star
+                              className={`w-5 h-5 ${favoriteStatus[material.id] ? "fill-[#C9A882] text-[#C9A882]" : "text-[#C3BAAF]"}`}
+                            />
+                          </Button>
+                          <Badge className="bg-[#C9A882]">{material.category}</Badge>
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -361,6 +423,20 @@ export default function Library() {
                         variant="outline"
                         size="sm"
                         onClick={() =>
+                          setAddToCollectionDialog({
+                            open: true,
+                            materialId: material.id,
+                            materialName: material.name,
+                          })
+                        }
+                      >
+                        <Folder className="w-4 h-4 mr-2" />
+                        Coleção
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
                           setAddToProjectDialog({
                             open: true,
                             itemType: "material",
@@ -371,7 +447,7 @@ export default function Library() {
                         className="flex-1"
                       >
                         <FolderPlus className="w-4 h-4 mr-2" />
-                        Adicionar a Projeto
+                        Projeto
                       </Button>
                       <Button
                         variant="ghost"
@@ -608,6 +684,21 @@ export default function Library() {
         open={bulkImportOpen}
         onOpenChange={setBulkImportOpen}
         onImportComplete={() => {
+          refetchMaterials();
+        }}
+      />
+      <ManageCollectionsDialog
+        open={manageCollectionsOpen}
+        onOpenChange={setManageCollectionsOpen}
+      />
+      <AddToCollectionDialog
+        open={addToCollectionDialog.open}
+        onOpenChange={(open) =>
+          setAddToCollectionDialog({ ...addToCollectionDialog, open })
+        }
+        materialId={addToCollectionDialog.materialId}
+        materialName={addToCollectionDialog.materialName}
+        onSuccess={() => {
           refetchMaterials();
         }}
       />
