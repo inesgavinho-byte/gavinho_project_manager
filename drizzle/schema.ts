@@ -378,7 +378,7 @@ export const notifications = mysqlTable("notifications", {
   link: varchar("link", { length: 500 }),
   projectId: int("projectId"),
   taskId: int("taskId"),
-  isRead: int("isRead").default(0).notNull(), // 0 = not read, 1 = read
+  isRead: boolean("isRead").default(false).notNull(),
   readAt: timestamp("readAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
@@ -604,7 +604,7 @@ export const commentMentions = mysqlTable("commentMentions", {
   mentionedUserId: int("mentionedUserId").notNull(), // User who was mentioned
   mentionedBy: int("mentionedBy").notNull(), // User who created the mention
   scenarioId: int("scenarioId").notNull(), // For context
-  isRead: int("isRead").default(0).notNull(), // 0 = not read, 1 = read
+  isRead: boolean("isRead").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, (table) => ({
   commentIdx: index("comment_idx").on(table.commentId),

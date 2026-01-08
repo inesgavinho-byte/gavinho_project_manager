@@ -2080,3 +2080,15 @@
 
 ## Correção de Erro - Query de Notificações
 - [x] Corrigir query de notificações que usa isRead = 0 em vez de false
+
+## Melhorias no Sistema de Notificações
+- [x] Padronizar tipo isRead para boolean na tabela notifications
+- [x] Atualizar queries em db.ts e notificationDb.ts para usar boolean
+- [x] Atualizar queries em mentionDb.ts para usar boolean
+- [x] Executar migration do schema
+- [x] Criar testes unitários para getNotificationsByUser
+- [x] Criar testes unitários para markNotificationAsRead
+- [x] Criar testes unitários para getUnreadCount
+- [x] Implementar endpoint tRPC para polling de notificações
+- [x] Adicionar hook useNotifications no frontend com auto-refresh
+- [x] Atualizar componente de notificações para usar polling
