@@ -102,3 +102,52 @@ export async function deleteSupplierEvaluation(evaluationId: number) {
     .delete(supplierEvaluations)
     .where(eq(supplierEvaluations.id, evaluationId));
 }
+
+
+// Supplier-Project Associations
+export async function associateSupplierProjects(
+  supplierId: number,
+  projectIds: number[],
+  category?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Import supplierProjects from schema
+  const { supplierProjects } = await import("../drizzle/schema");
+
+  // Delete existing associations
+  await db.delete(supplierProjects).where(eq(supplierProjects.supplierId, supplierId));
+
+  // Insert new associations
+  if (projectIds.length > 0) {
+    await db.insert(supplierProjects).values(
+      projectIds.map(projectId => ({
+        supplierId,
+        projectId,
+        category: category || null,
+        totalValue: null,
+      }))
+    );
+  }
+}
+
+export async function getSupplierProjects(supplierId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const { supplierProjects, projects } = await import("../drizzle/schema");
+
+  return await db
+    .select({
+      id: supplierProjects.id,
+      projectId: projects.id,
+      projectName: projects.name,
+      projectStatus: projects.status,
+      category: supplierProjects.category,
+      totalValue: supplierProjects.totalValue,
+    })
+    .from(supplierProjects)
+    .innerJoin(projects, eq(supplierProjects.projectId, projects.id))
+    .where(eq(supplierProjects.supplierId, supplierId));
+}

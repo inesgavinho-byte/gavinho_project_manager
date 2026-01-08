@@ -1772,3 +1772,38 @@ export const budgetAlerts = mysqlTable("budgetAlerts", {
 
 export type BudgetAlert = typeof budgetAlerts.$inferSelect;
 export type InsertBudgetAlert = typeof budgetAlerts.$inferInsert;
+
+
+/**
+ * Client Company-Project relationship (many-to-many)
+ * Links client companies (from suppliers table with category="client") to projects
+ */
+export const clientCompanyProjects = mysqlTable("clientCompanyProjects", {
+  id: int("id").autoincrement().primaryKey(),
+  clientId: int("clientId").notNull().references(() => suppliers.id, { onDelete: "cascade" }),
+  projectId: int("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  role: varchar("role", { length: 100 }), // e.g., "Cliente Final", "Investidor", "Promotor"
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  clientProjectIdx: index("clientCompanyProject_idx").on(table.clientId, table.projectId),
+}));
+
+export type ClientCompanyProject = typeof clientCompanyProjects.$inferSelect;
+export type InsertClientCompanyProject = typeof clientCompanyProjects.$inferInsert;
+
+/**
+ * Supplier-Project relationship (many-to-many)
+ */
+export const supplierProjects = mysqlTable("supplierProjects", {
+  id: int("id").autoincrement().primaryKey(),
+  supplierId: int("supplierId").notNull().references(() => suppliers.id, { onDelete: "cascade" }),
+  projectId: int("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  category: varchar("category", { length: 100 }), // e.g., "Materiais", "Mão de Obra", "Equipamentos"
+  totalValue: decimal("totalValue", { precision: 15, scale: 2 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  supplierProjectIdx: index("supplierProject_idx").on(table.supplierId, table.projectId),
+}));
+
+export type SupplierProject = typeof supplierProjects.$inferSelect;
+export type InsertSupplierProject = typeof supplierProjects.$inferInsert;

@@ -163,6 +163,24 @@ export const appRouter = router({
         await db.updateSupplier(id, data);
         return { success: true };
       }),
+    
+    // Associate projects with supplier
+    associateProjects: protectedProcedure
+      .input(z.object({
+        supplierId: z.number(),
+        projectIds: z.array(z.number()),
+        category: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.associateSupplierProjects(input.supplierId, input.projectIds, input.category);
+        return { success: true };
+      }),
+    
+    getProjects: protectedProcedure
+      .input(z.object({ supplierId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getSupplierProjects(input.supplierId);
+      }),
   }),
 
   // Orders

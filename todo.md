@@ -1674,3 +1674,15 @@
 - [x] Testar Dashboard Obras (funcionando)
 - [x] Testar Chat Obras (funcionando)
 - [x] Testar Propostas & Contratos (funcionando)
+
+
+## Projetos Associados em Clientes e Fornecedores
+- [x] Criar tabela clientCompanyProjects no schema (many-to-many)
+- [x] Criar tabela supplierProjects no schema (many-to-many)
+- [x] Aplicar mudanças no banco de dados
+- [x] Adicionar procedures no backend para associar/desassociar projetos
+- [x] Criar componente SupplierProjectsManager com multi-seleção
+- [x] Criar página Clients com listagem e botão de associar projetos
+- [x] Adicionar visualização de projetos nas listagens (badge com contador)
+- [ ] Adicionar filtro por projeto nas páginas
+- [x] Testar funcionalidade completa
