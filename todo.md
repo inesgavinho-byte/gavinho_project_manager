@@ -1915,3 +1915,49 @@
 - [x] Mostrar "(editado)" quando comentário foi atualizado
 - [x] Adicionar avatares de utilizadores (imagem ou inicial do nome)
 - [ ] Testar fluxo completo de comentários
+
+
+## Contador de Comentários nos Cards
+- [x] Adicionar query para obter contagens de comentários de múltiplos materiais (getMaterialCommentCounts)
+- [x] Adicionar badge com contador de comentários nos cards de materiais
+- [x] Atualizar contador após adicionar/eliminar comentário (refetch ao fechar dialog)
+- [x] Estilizar badge com cor [#C9A882] e número
+
+## Notificações de Comentários
+### Backend
+- [x] Criar tabela commentNotifications (id, userId, materialId, commentId, read, createdAt)
+- [x] Implementar função createCommentNotification (automática ao criar comentário)
+- [x] Criar função getUserNotifications (com filtro unreadOnly)
+- [x] Criar função getUnreadNotificationCount
+- [x] Criar função markNotificationAsRead
+- [x] Criar função markAllNotificationsAsRead
+- [x] Adicionar lógica: notificar utilizadores que têm o material nos favoritos (excluindo autor)
+- [x] Criar endpoints tRPC (getUserNotifications, getUnreadNotificationCount, markNotificationAsRead, markAllNotificationsAsRead)
+
+### Frontend
+- [x] Criar componente NotificationsPopover
+- [x] Adicionar indicador de notificações não lidas no header (badge com número)
+- [x] Criar dropdown/popover de notificações com Bell icon
+- [x] Mostrar lista de notificações com avatar, nome, material, comentário e timestamp
+- [x] Implementar marcar como lida ao clicar na notificação
+- [x] Adicionar botão "Marcar todas como lidas" no header do popover
+- [x] Adicionar NotificationsPopover no DashboardLayout (mobile e desktop)
+- [x] Mostrar estado vazio quando não há notificações
+- [x] Destacar notificações não lidas com fundo colorido e ponto indicador
+
+## Sistema de Reações Rápidas
+### Backend
+- [ ] Criar tabela commentReactions (id, commentId, userId, emoji, createdAt)
+- [ ] Criar função para adicionar/remover reação
+- [ ] Criar função para obter reações de um comentário (agrupadas por emoji)
+- [ ] Criar função para obter reações de múltiplos comentários
+- [ ] Adicionar constraint unique (commentId, userId, emoji)
+- [ ] Criar endpoints tRPC para reações
+
+### Frontend
+- [ ] Adicionar botões de reação (👍 ❤️ 💡) em cada comentário
+- [ ] Mostrar contagem de cada reação
+- [ ] Destacar reações do utilizador atual
+- [ ] Implementar toggle de reação (adicionar/remover ao clicar)
+- [ ] Mostrar tooltip com nomes dos utilizadores que reagiram
+- [ ] Adicionar animação ao reagir

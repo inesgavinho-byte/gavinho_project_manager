@@ -2068,3 +2068,24 @@ export const materialComments = mysqlTable("materialComments", {
 
 export type MaterialComment = typeof materialComments.$inferSelect;
 export type InsertMaterialComment = typeof materialComments.$inferInsert;
+
+
+export const commentNotifications = mysqlTable("commentNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  materialId: int("material_id").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  commentId: int("comment_id").notNull().references(() => materialComments.id, { onDelete: "cascade" }),
+  read: boolean("read").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+
+export const commentReactions = mysqlTable("commentReactions", {
+  id: int("id").autoincrement().primaryKey(),
+  commentId: int("comment_id").notNull().references(() => materialComments.id, { onDelete: "cascade" }),
+  userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  emoji: varchar("emoji", { length: 10 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  uniqueReaction: unique().on(table.commentId, table.userId, table.emoji),
+}));

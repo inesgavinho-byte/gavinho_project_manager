@@ -13,6 +13,8 @@ import {
   collectionMaterials,
   favoriteMaterials,
   materialComments,
+  commentNotifications,
+  commentReactions,
 } from "../drizzle/schema.js";
 
 // ============================================================================
@@ -1681,22 +1683,22 @@ export async function createMaterialComment(
   content: string
 ) {
   const db = await getDb();
-  
-  const [result] = await db.insert(materialComments).values({
-    materialId,
-    userId,
-    content,
-  });
 
-  return { id: result.insertId };
-}
+  const [comment] = await db
+    .insert(materialComments)
+    .values({
+      materialId,
+      userId,
+      content,
+      isPinned: false,
+    })
+    .$returningId();
 
-export async function getMaterialComments(materialId: number) {
-  const db = await getDb();
-  
-  const comments = await db
+  // Get the created comment with user info
+  const createdComment = await db
     .select({
       id: materialComments.id,
+      materialId: materialComments.materialId,
       content: materialComments.content,
       isPinned: materialComments.isPinned,
       createdAt: materialComments.createdAt,
@@ -1704,7 +1706,34 @@ export async function getMaterialComments(materialId: number) {
       user: {
         id: users.id,
         name: users.name,
-        email: users.email,
+        avatarUrl: users.avatarUrl,
+      },
+    })
+    .from(materialComments)
+    .innerJoin(users, eq(materialComments.userId, users.id))
+    .where(eq(materialComments.id, comment.id))
+    .limit(1);
+
+  // Create notifications for users who have this material in favorites
+  await createCommentNotification(materialId, comment.id, userId);
+
+  return createdComment[0];
+}
+
+export async function getMaterialComments(materialId: number) {
+  const db = await getDb();
+
+  const comments = await db
+    .select({
+      id: materialComments.id,
+      materialId: materialComments.materialId,
+      content: materialComments.content,
+      isPinned: materialComments.isPinned,
+      createdAt: materialComments.createdAt,
+      updatedAt: materialComments.updatedAt,
+      user: {
+        id: users.id,
+        name: users.name,
         avatarUrl: users.avatarUrl,
       },
     })
@@ -1832,4 +1861,206 @@ export async function getMaterialCommentCounts(materialIds: number[]) {
     acc[row.materialId] = row.count;
     return acc;
   }, {} as Record<number, number>);
+}
+
+
+// ============================================================================
+// Comment Notifications
+// ============================================================================
+
+export async function createCommentNotification(
+  materialId: number,
+  commentId: number,
+  commentAuthorId: number
+) {
+  const db = await getDb();
+  
+  // Get all users who have this material in favorites (excluding the comment author)
+  const usersToNotify = await db
+    .select({ userId: favoriteMaterials.userId })
+    .from(favoriteMaterials)
+    .where(
+      and(
+        eq(favoriteMaterials.materialId, materialId),
+        ne(favoriteMaterials.userId, commentAuthorId)
+      )
+    );
+
+  // Create notifications for each user
+  if (usersToNotify.length > 0) {
+    await db.insert(commentNotifications).values(
+      usersToNotify.map((user) => ({
+        userId: user.userId,
+        materialId,
+        commentId,
+        read: false,
+      }))
+    );
+  }
+
+  return { notified: usersToNotify.length };
+}
+
+export async function getUserNotifications(userId: number, unreadOnly: boolean = false) {
+  const db = await getDb();
+  
+  const conditions = unreadOnly
+    ? and(eq(commentNotifications.userId, userId), eq(commentNotifications.read, false))
+    : eq(commentNotifications.userId, userId);
+
+  const notifications = await db
+    .select({
+      id: commentNotifications.id,
+      materialId: commentNotifications.materialId,
+      materialName: libraryMaterials.name,
+      commentId: commentNotifications.commentId,
+      commentContent: materialComments.content,
+      commentAuthor: users.name,
+      commentAuthorAvatar: users.avatarUrl,
+      read: commentNotifications.read,
+      createdAt: commentNotifications.createdAt,
+    })
+    .from(commentNotifications)
+    .innerJoin(libraryMaterials, eq(commentNotifications.materialId, libraryMaterials.id))
+    .innerJoin(materialComments, eq(commentNotifications.commentId, materialComments.id))
+    .innerJoin(users, eq(materialComments.userId, users.id))
+    .where(conditions)
+    .orderBy(desc(commentNotifications.createdAt))
+    .limit(50);
+
+  return notifications;
+}
+
+export async function getUnreadNotificationCount(userId: number) {
+  const db = await getDb();
+  
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(commentNotifications)
+    .where(
+      and(
+        eq(commentNotifications.userId, userId),
+        eq(commentNotifications.read, false)
+      )
+    );
+
+  return result[0]?.count || 0;
+}
+
+export async function markNotificationAsRead(notificationId: number, userId: number) {
+  const db = await getDb();
+  
+  await db
+    .update(commentNotifications)
+    .set({ read: true })
+    .where(
+      and(
+        eq(commentNotifications.id, notificationId),
+        eq(commentNotifications.userId, userId)
+      )
+    );
+
+  return { success: true };
+}
+
+export async function markAllNotificationsAsRead(userId: number) {
+  const db = await getDb();
+  
+  await db
+    .update(commentNotifications)
+    .set({ read: true })
+    .where(
+      and(
+        eq(commentNotifications.userId, userId),
+        eq(commentNotifications.read, false)
+      )
+    );
+
+  return { success: true };
+}
+
+
+// ============================================================================
+// Comment Reactions
+// ============================================================================
+
+export async function toggleCommentReaction(
+  commentId: number,
+  userId: number,
+  emoji: string
+) {
+  const db = await getDb();
+
+  // Check if reaction already exists
+  const existing = await db
+    .select()
+    .from(commentReactions)
+    .where(
+      and(
+        eq(commentReactions.commentId, commentId),
+        eq(commentReactions.userId, userId),
+        eq(commentReactions.emoji, emoji)
+      )
+    )
+    .limit(1);
+
+  if (existing.length > 0) {
+    // Remove reaction
+    await db
+      .delete(commentReactions)
+      .where(
+        and(
+          eq(commentReactions.commentId, commentId),
+          eq(commentReactions.userId, userId),
+          eq(commentReactions.emoji, emoji)
+        )
+      );
+    return { action: "removed" };
+  } else {
+    // Add reaction
+    await db.insert(commentReactions).values({
+      commentId,
+      userId,
+      emoji,
+    });
+    return { action: "added" };
+  }
+}
+
+export async function getCommentReactions(commentId: number) {
+  const db = await getDb();
+
+  const reactions = await db
+    .select({
+      emoji: commentReactions.emoji,
+      count: sql<number>`count(*)`,
+      users: sql<string>`GROUP_CONCAT(${users.name} SEPARATOR ', ')`,
+    })
+    .from(commentReactions)
+    .innerJoin(users, eq(commentReactions.userId, users.id))
+    .where(eq(commentReactions.commentId, commentId))
+    .groupBy(commentReactions.emoji);
+
+  return reactions;
+}
+
+export async function getUserReactionsForComments(userId: number, commentIds: number[]) {
+  if (commentIds.length === 0) return [];
+  
+  const db = await getDb();
+
+  const reactions = await db
+    .select({
+      commentId: commentReactions.commentId,
+      emoji: commentReactions.emoji,
+    })
+    .from(commentReactions)
+    .where(
+      and(
+        eq(commentReactions.userId, userId),
+        inArray(commentReactions.commentId, commentIds)
+      )
+    );
+
+  return reactions;
 }

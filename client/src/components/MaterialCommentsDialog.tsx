@@ -42,10 +42,27 @@ export function MaterialCommentsDialog({
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editContent, setEditContent] = useState("");
 
+  const REACTION_EMOJIS = ["👍", "❤️", "💡"];
+
   const { data: comments = [], refetch } = trpc.library.getMaterialComments.useQuery(
     { materialId },
     { enabled: open }
   );
+
+  const commentIds = comments.map((c) => c.id);
+  const { data: userReactions = [] } = trpc.library.getUserReactionsForComments.useQuery(
+    { commentIds },
+    { enabled: commentIds.length > 0 }
+  );
+
+  const toggleReactionMutation = trpc.library.toggleCommentReaction.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+    onError: (error) => {
+      toast.error("Erro: " + error.message);
+    },
+  });
 
   const createMutation = trpc.library.createMaterialComment.useMutation({
     onSuccess: () => {
@@ -290,9 +307,38 @@ export function MaterialCommentsDialog({
                               </div>
                             </div>
                           ) : (
-                            <p className="text-[#5F5C59] whitespace-pre-wrap break-words">
-                              {comment.content}
-                            </p>
+                            <div>
+                              <p className="text-[#5F5C59] whitespace-pre-wrap break-words">
+                                {comment.content}
+                              </p>
+
+                              {/* Reactions */}
+                              <div className="flex items-center gap-2 mt-3">
+                                {REACTION_EMOJIS.map((emoji) => {
+                                  const hasReacted = userReactions.some(
+                                    (r) => r.commentId === comment.id && r.emoji === emoji
+                                  );
+                                  return (
+                                    <Button
+                                      key={emoji}
+                                      variant="outline"
+                                      size="sm"
+                                      className={`h-7 px-2 text-sm ${
+                                        hasReacted ? "bg-[#C9A882]/10 border-[#C9A882]" : ""
+                                      }`}
+                                      onClick={() =>
+                                        toggleReactionMutation.mutate({
+                                          commentId: comment.id,
+                                          emoji,
+                                        })
+                                      }
+                                    >
+                                      <span>{emoji}</span>
+                                    </Button>
+                                  );
+                                })}
+                              </div>
+                            </div>
                           )}
                         </div>
                       </div>

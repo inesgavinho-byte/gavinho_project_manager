@@ -117,6 +117,10 @@ export default function Library() {
     { materialIds: materials.map(m => m.id) },
     { enabled: materials.length > 0 }
   );
+  const { data: commentCounts = {} } = trpc.library.getMaterialCommentCounts.useQuery(
+    { materialIds: materials.map(m => m.id) },
+    { enabled: materials.length > 0 }
+  );
 
   // Mutations
   const deleteMaterial = trpc.library.materials.delete.useMutation({
@@ -450,9 +454,18 @@ export default function Library() {
                             materialName: material.name,
                           })
                         }
+                        className="relative"
                       >
                         <MessageSquare className="w-4 h-4 mr-2" />
                         Comentários
+                        {commentCounts[material.id] > 0 && (
+                          <Badge
+                            variant="secondary"
+                            className="ml-2 bg-[#C9A882] text-white text-xs px-1.5 py-0"
+                          >
+                            {commentCounts[material.id]}
+                          </Badge>
+                        )}
                       </Button>
                       <Button
                         variant="outline"
@@ -725,9 +738,13 @@ export default function Library() {
       />
       <MaterialCommentsDialog
         open={commentsDialog.open}
-        onOpenChange={(open) =>
-          setCommentsDialog({ ...commentsDialog, open })
-        }
+        onOpenChange={(open) => {
+          setCommentsDialog({ ...commentsDialog, open });
+          if (!open) {
+            // Refetch comment counts when dialog closes
+            refetchMaterials();
+          }
+        }}
         materialId={commentsDialog.materialId}
         materialName={commentsDialog.materialName}
       />

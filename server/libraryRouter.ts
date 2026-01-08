@@ -64,6 +64,13 @@ import {
   togglePinMaterialComment,
   getMaterialCommentCount,
   getMaterialCommentCounts,
+  getUserNotifications,
+  getUnreadNotificationCount,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  toggleCommentReaction,
+  getCommentReactions,
+  getUserReactionsForComments,
 } from "./libraryDb.js";
 import { storagePut } from "./storage.js";
 import { TRPCError } from "@trpc/server";
@@ -958,5 +965,47 @@ export const libraryRouter = router({
     .input(z.object({ materialIds: z.array(z.number()) }))
     .query(async ({ input }) => {
       return getMaterialCommentCounts(input.materialIds);
+    }),
+
+  // Comment Notifications
+  getUserNotifications: protectedProcedure
+    .input(z.object({ unreadOnly: z.boolean().optional() }).optional())
+    .query(async ({ input, ctx }) => {
+      return getUserNotifications(ctx.user.id, input?.unreadOnly);
+    }),
+
+  getUnreadNotificationCount: protectedProcedure
+    .query(async ({ ctx }) => {
+      return getUnreadNotificationCount(ctx.user.id);
+    }),
+
+  markNotificationAsRead: protectedProcedure
+    .input(z.object({ notificationId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      return markNotificationAsRead(input.notificationId, ctx.user.id);
+    }),
+
+  markAllNotificationsAsRead: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      return markAllNotificationsAsRead(ctx.user.id);
+    }),
+
+  // Comment Reactions
+  toggleCommentReaction: protectedProcedure
+    .input(z.object({ commentId: z.number(), emoji: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      return toggleCommentReaction(input.commentId, ctx.user.id, input.emoji);
+    }),
+
+  getCommentReactions: protectedProcedure
+    .input(z.object({ commentId: z.number() }))
+    .query(async ({ input }) => {
+      return getCommentReactions(input.commentId);
+    }),
+
+  getUserReactionsForComments: protectedProcedure
+    .input(z.object({ commentIds: z.array(z.number()) }))
+    .query(async ({ input, ctx }) => {
+      return getUserReactionsForComments(ctx.user.id, input.commentIds);
     }),
 });
