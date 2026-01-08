@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
+import { useWebSocket } from "./useWebSocket";
 
 /**
  * Hook para gerenciar notificações com auto-refresh
@@ -8,20 +9,35 @@ import { trpc } from "@/lib/trpc";
 export function useNotifications() {
   const utils = trpc.useUtils();
 
-  // Query para obter contador de notificações não lidas
+  // Query para obter contador de notificações não lidas (sem polling)
   const { data: unreadCount = 0 } = trpc.notifications.unreadCount.useQuery(undefined, {
-    refetchInterval: 30000, // Atualiza a cada 30 segundos
     refetchOnWindowFocus: true, // Atualiza quando a janela recebe foco
   });
 
-  // Query para obter lista de notificações
+  // Query para obter lista de notificações (sem polling)
   const { data: notifications = [] } = trpc.notifications.list.useQuery(
     { unreadOnly: false },
     {
-      refetchInterval: 30000,
       refetchOnWindowFocus: true,
     }
   );
+
+  // Handle WebSocket messages
+  const handleWebSocketMessage = useCallback((message: any) => {
+    if (message.type === "notification") {
+      // Invalidate queries to refresh data
+      utils.notifications.unreadCount.invalidate();
+      utils.notifications.list.invalidate();
+    }
+  }, [utils]);
+
+  // Connect to WebSocket
+  const { isConnected } = useWebSocket({
+    url: window.location.origin + "/ws/notifications",
+    onMessage: handleWebSocketMessage,
+    onConnect: () => console.log("[Notifications] WebSocket connected"),
+    onDisconnect: () => console.log("[Notifications] WebSocket disconnected"),
+  });
 
   // Mutation para marcar notificação como lida
   const markAsRead = trpc.notifications.markAsRead.useMutation({
@@ -55,5 +71,6 @@ export function useNotifications() {
     markAllAsRead: markAllAsRead.mutate,
     deleteNotification: deleteNotification.mutate,
     isLoading: markAsRead.isPending || markAllAsRead.isPending || deleteNotification.isPending,
+    isWebSocketConnected: isConnected,
   };
 }

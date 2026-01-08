@@ -2092,3 +2092,28 @@
 - [x] Implementar endpoint tRPC para polling de notificações
 - [x] Adicionar hook useNotifications no frontend com auto-refresh
 - [x] Atualizar componente de notificações para usar polling
+
+## Funcionalidades Avançadas de Notificações
+
+### WebSocket para Notificações Push
+- [x] Instalar dependências WebSocket (ws)
+- [x] Criar servidor WebSocket no backend
+- [x] Implementar autenticação WebSocket
+- [x] Criar hook useWebSocket no frontend
+- [x] Substituir polling por WebSocket no useNotifications
+- [x] Adicionar reconexão automática
+
+### Painel de Configurações de Notificações
+- [x] Adicionar campos de preferências na tabela user ou criar tabela notificationPreferences
+- [x] Criar endpoint tRPC para obter preferências
+- [x] Criar endpoint tRPC para atualizar preferências
+- [x] Criar página de configurações de notificações
+- [x] Adicionar toggles para tipos de alertas
+- [x] Implementar lógica de filtragem baseada em preferências
+
+### Sistema de Priorização Visual
+- [x] Adicionar campo priority na tabela notifications
+- [x] Atualizar queries para incluir priority
+- [x] Criar componente NotificationBadge com cores por prioridade
+- [x] Atualizar NotificationsPopover para usar priorização visual
+- [x] Adicionar ícones distintos por tipo de notificação

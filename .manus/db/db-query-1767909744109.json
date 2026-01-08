@@ -1,0 +1,25 @@
+{
+  "query": "SELECT * FROM notificationPreferences WHERE userId = 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute SELECT * FROM notificationPreferences WHERE userId = 1",
+  "rows": [
+    {
+      "id": "1",
+      "userId": "1",
+      "aiAlerts": "0",
+      "deadlineWarnings": "1",
+      "budgetAlerts": "1",
+      "projectDelays": "1",
+      "taskOverdue": "1",
+      "orderPending": "1",
+      "systemNotifications": "1",
+      "deadlineWarningDays": "7",
+      "budgetThreshold": "90",
+      "createdAt": "2026-01-08 22:01:38",
+      "updatedAt": "2026-01-08 22:01:38"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tuserId\taiAlerts\tdeadlineWarnings\tbudgetAlerts\tprojectDelays\ttaskOverdue\torderPending\tsystemNotifications\tdeadlineWarningDays\tbudgetThreshold\tcreatedAt\tupdatedAt\n1\t1\t0\t1\t1\t1\t1\t1\t1\t7\t90\t2026-01-08 22:01:38\t2026-01-08 22:01:38\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

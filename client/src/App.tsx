@@ -16,6 +16,7 @@ import Reports from "./pages/Reports";
 import Emails from "./pages/Emails";
 import AISuggestions from "./pages/AISuggestions";
 import Notifications from "./pages/Notifications";
+import NotificationSettings from "./pages/NotificationSettings";
 import Predictions from "./pages/Predictions";
 import WhatIfSimulation from "./pages/WhatIfSimulation";
 import ActivityFeed from "./pages/ActivityFeed";
@@ -206,6 +207,12 @@ function Router() {
       <Route path="/notifications">
         <DashboardLayout>
           <Notifications />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/notification-settings">
+        <DashboardLayout>
+          <NotificationSettings />
         </DashboardLayout>
       </Route>
 
