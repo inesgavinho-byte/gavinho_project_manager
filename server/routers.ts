@@ -29,6 +29,7 @@ import { archvizRouter } from "./archvizRouter";
 import { mqtRouter } from "./mqtRouter";
 import { hrRouter } from "./hrRouter";
 import { siteManagementRouter } from "./siteManagementRouter";
+import { budgetsRouter } from "./budgetsRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -51,6 +52,9 @@ export const appRouter = router({
 
   // Projects - Full router with phases, milestones, team, documents, gallery
   projects: projectsRouter,
+
+  // Budgets - Budget management, expenses, alerts
+  budgets: budgetsRouter,
 
   // Deliveries - Central de Entregas
   deliveries: deliveriesRouter,

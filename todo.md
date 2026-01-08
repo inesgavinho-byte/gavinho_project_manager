@@ -1607,3 +1607,18 @@
 - [ ] Implementar filtros e organização por categoria
 - [ ] Testar controlo de acesso
 - [ ] Criar checkpoint
+
+
+## Gestão de Orçamentos - Implementação Completa
+- [x] Criar schema de budgets (orçamentos) com categorias
+- [x] Criar schema de budgetItems (itens de orçamento)
+- [x] Criar schema de expenses (despesas reais)
+- [x] Implementar tRPC procedures para CRUD de orçamentos
+- [x] Implementar cálculo de orçado vs realizado
+- [x] Criar formulário de criação de orçamento
+- [x] Criar formulário de registro de despesas
+- [x] Desenvolver dashboard financeiro com gráficos
+- [x] Implementar sistema de alertas de desvios
+- [ ] Adicionar exportação de relatórios financeiros
+- [x] Integrar com tab Financeiro existente
+- [ ] Criar testes unitários para orçamentos

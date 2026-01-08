@@ -41,6 +41,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ProjectDocuments from "@/components/ProjectDocuments";
 import ProjectManagementDocs from "@/components/ProjectManagementDocs";
+import { BudgetManagement } from "@/components/BudgetManagement";
 import ProjectGallery from "@/components/ProjectGallery";
 import { DeliveryCenter } from "@/components/DeliveryCenter";
 import { ProjectGanttChart } from "@/components/ProjectGanttChart";
@@ -868,9 +869,7 @@ export default function ProjectDetails() {
 
         {/* Financial Tab */}
         <TabsContent value="financial">
-          <Card className="p-12 text-center border-[#C3BAAF]/20 bg-white">
-            <p className="text-[#5F5C59]/60">Tab Financeiro em desenvolvimento...</p>
-          </Card>
+          <BudgetManagement projectId={projectId} />
         </TabsContent>
       </Tabs>
 

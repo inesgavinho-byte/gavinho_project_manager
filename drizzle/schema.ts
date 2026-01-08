@@ -252,16 +252,26 @@ export type InsertTask = typeof tasks.$inferInsert;
  */
 export const budgets = mysqlTable("budgets", {
   id: int("id").autoincrement().primaryKey(),
-  projectId: int("projectId").notNull(),
+  projectId: int("projectId").notNull().references(() => projects.id),
+  name: varchar("name", { length: 255 }).notNull(),
   category: varchar("category", { length: 255 }).notNull(),
   description: text("description"),
   budgetedAmount: decimal("budgetedAmount", { precision: 15, scale: 2 }).notNull(),
   actualAmount: decimal("actualAmount", { precision: 15, scale: 2 }).default("0.00").notNull(),
   variance: decimal("variance", { precision: 15, scale: 2 }).default("0.00").notNull(),
   variancePercent: decimal("variancePercent", { precision: 10, scale: 2 }).default("0.00"),
+  status: mysqlEnum("status", ["draft", "approved", "active", "closed"]).default("draft").notNull(),
+  startDate: timestamp("startDate"),
+  endDate: timestamp("endDate"),
+  createdById: int("createdById").notNull().references(() => users.id),
+  approvedById: int("approvedById").references(() => users.id),
+  approvedAt: timestamp("approvedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  statusIdx: index("status_idx").on(table.status),
+}));
 
 export type Budget = typeof budgets.$inferSelect;
 export type InsertBudget = typeof budgets.$inferInsert;
@@ -1683,3 +1693,82 @@ export const siteProductivityAlerts = mysqlTable("siteProductivityAlerts", {
 export type SiteProductivityAlert = typeof siteProductivityAlerts.$inferSelect;
 export type InsertSiteProductivityAlert = typeof siteProductivityAlerts.$inferInsert;
 
+
+
+/**
+ * Budget Items - Itens Detalhados de Orçamento
+ */
+export const budgetItems = mysqlTable("budgetItems", {
+  id: int("id").autoincrement().primaryKey(),
+  budgetId: int("budgetId").notNull().references(() => budgets.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  quantity: decimal("quantity", { precision: 10, scale: 2 }).default("1.00").notNull(),
+  unitPrice: decimal("unitPrice", { precision: 15, scale: 2 }).notNull(),
+  totalPrice: decimal("totalPrice", { precision: 15, scale: 2 }).notNull(),
+  unit: varchar("unit", { length: 50 }),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  budgetIdIdx: index("budgetId_idx").on(table.budgetId),
+}));
+
+export type BudgetItem = typeof budgetItems.$inferSelect;
+export type InsertBudgetItem = typeof budgetItems.$inferInsert;
+
+/**
+ * Expenses - Despesas Reais
+ */
+export const expenses = mysqlTable("expenses", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => projects.id),
+  budgetId: int("budgetId").references(() => budgets.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
+  expenseDate: timestamp("expenseDate").notNull(),
+  supplier: varchar("supplier", { length: 255 }),
+  invoiceNumber: varchar("invoiceNumber", { length: 100 }),
+  paymentStatus: mysqlEnum("paymentStatus", ["pending", "paid", "overdue", "cancelled"]).default("pending").notNull(),
+  paymentDate: timestamp("paymentDate"),
+  receiptUrl: text("receiptUrl"),
+  receiptKey: text("receiptKey"),
+  notes: text("notes"),
+  createdById: int("createdById").notNull().references(() => users.id),
+  approvedById: int("approvedById").references(() => users.id),
+  approvedAt: timestamp("approvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  budgetIdIdx: index("budgetId_idx").on(table.budgetId),
+  expenseDateIdx: index("expenseDate_idx").on(table.expenseDate),
+  paymentStatusIdx: index("paymentStatus_idx").on(table.paymentStatus),
+}));
+
+export type Expense = typeof expenses.$inferSelect;
+export type InsertExpense = typeof expenses.$inferInsert;
+
+/**
+ * Budget Alerts - Alertas de Desvios Orçamentários
+ */
+export const budgetAlerts = mysqlTable("budgetAlerts", {
+  id: int("id").autoincrement().primaryKey(),
+  budgetId: int("budgetId").notNull().references(() => budgets.id, { onDelete: "cascade" }),
+  alertType: mysqlEnum("alertType", ["warning", "critical", "exceeded"]).notNull(),
+  threshold: int("threshold").notNull(), // Percentage threshold (e.g., 80, 90, 100)
+  currentPercentage: int("currentPercentage").notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("isRead").default(false).notNull(),
+  readById: int("readById").references(() => users.id),
+  readAt: timestamp("readAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  budgetIdIdx: index("budgetId_idx").on(table.budgetId),
+  alertTypeIdx: index("alertType_idx").on(table.alertType),
+  isReadIdx: index("isRead_idx").on(table.isRead),
+}));
+
+export type BudgetAlert = typeof budgetAlerts.$inferSelect;
+export type InsertBudgetAlert = typeof budgetAlerts.$inferInsert;
