@@ -438,3 +438,241 @@ export async function deleteInspiration(id: number) {
   const db = await getDb();
   await db.delete(libraryInspiration).where(eq(libraryInspiration.id, id));
 }
+
+
+// ============================================================================
+// PROJECT-LIBRARY ASSOCIATIONS
+// ============================================================================
+
+import {
+  projectMaterials,
+  projectModels3D,
+  projectInspirationLinks,
+} from "../drizzle/schema";
+
+/**
+ * Add material to project
+ */
+export async function addMaterialToProject(data: {
+  projectId: number;
+  materialId: number;
+  quantity: string;
+  unitPrice?: string;
+  notes?: string;
+  addedById: number;
+}) {
+  const db = await getDb();
+  
+  // Calculate total price
+  const quantity = parseFloat(data.quantity);
+  const unitPrice = data.unitPrice ? parseFloat(data.unitPrice) : null;
+  const totalPrice = unitPrice ? (quantity * unitPrice).toFixed(2) : null;
+  
+  await db.insert(projectMaterials).values({
+    projectId: data.projectId,
+    materialId: data.materialId,
+    quantity: data.quantity,
+    unitPrice: data.unitPrice,
+    totalPrice,
+    notes: data.notes,
+    status: "planned",
+    addedById: data.addedById,
+  });
+}
+
+/**
+ * List materials for a project
+ */
+export async function listProjectMaterials(projectId: number) {
+  const db = await getDb();
+  return db
+    .select({
+      id: projectMaterials.id,
+      quantity: projectMaterials.quantity,
+      unitPrice: projectMaterials.unitPrice,
+      totalPrice: projectMaterials.totalPrice,
+      notes: projectMaterials.notes,
+      status: projectMaterials.status,
+      addedAt: projectMaterials.addedAt,
+      material: {
+        id: libraryMaterials.id,
+        name: libraryMaterials.name,
+        description: libraryMaterials.description,
+        category: libraryMaterials.category,
+        imageUrl: libraryMaterials.imageUrl,
+        supplier: libraryMaterials.supplier,
+        price: libraryMaterials.price,
+        unit: libraryMaterials.unit,
+      },
+      addedBy: {
+        id: users.id,
+        name: users.name,
+      },
+    })
+    .from(projectMaterials)
+    .leftJoin(libraryMaterials, eq(projectMaterials.materialId, libraryMaterials.id))
+    .leftJoin(users, eq(projectMaterials.addedById, users.id))
+    .where(eq(projectMaterials.projectId, projectId))
+    .orderBy(desc(projectMaterials.addedAt));
+}
+
+/**
+ * Update project material
+ */
+export async function updateProjectMaterial(id: number, data: {
+  quantity?: string;
+  unitPrice?: string;
+  notes?: string;
+  status?: "planned" | "ordered" | "delivered" | "installed";
+}) {
+  const db = await getDb();
+  
+  // Recalculate total price if quantity or unitPrice changed
+  if (data.quantity || data.unitPrice) {
+    const current = await db
+      .select()
+      .from(projectMaterials)
+      .where(eq(projectMaterials.id, id))
+      .limit(1);
+    
+    if (current.length > 0) {
+      const quantity = data.quantity ? parseFloat(data.quantity) : parseFloat(current[0].quantity);
+      const unitPrice = data.unitPrice ? parseFloat(data.unitPrice) : (current[0].unitPrice ? parseFloat(current[0].unitPrice) : null);
+      
+      if (unitPrice) {
+        (data as any).totalPrice = (quantity * unitPrice).toFixed(2);
+      }
+    }
+  }
+  
+  await db.update(projectMaterials).set(data).where(eq(projectMaterials.id, id));
+}
+
+/**
+ * Remove material from project
+ */
+export async function removeProjectMaterial(id: number) {
+  const db = await getDb();
+  await db.delete(projectMaterials).where(eq(projectMaterials.id, id));
+}
+
+/**
+ * Get total materials cost for project
+ */
+export async function getProjectMaterialsCost(projectId: number) {
+  const db = await getDb();
+  const materials = await db
+    .select({ totalPrice: projectMaterials.totalPrice })
+    .from(projectMaterials)
+    .where(eq(projectMaterials.projectId, projectId));
+  
+  const total = materials.reduce((sum, m) => {
+    return sum + (m.totalPrice ? parseFloat(m.totalPrice) : 0);
+  }, 0);
+  
+  return total.toFixed(2);
+}
+
+/**
+ * Add 3D model to project
+ */
+export async function addModelToProject(data: {
+  projectId: number;
+  modelId: number;
+  location?: string;
+  notes?: string;
+  addedById: number;
+}) {
+  const db = await getDb();
+  await db.insert(projectModels3D).values(data);
+}
+
+/**
+ * List 3D models for a project
+ */
+export async function listProjectModels(projectId: number) {
+  const db = await getDb();
+  return db
+    .select({
+      id: projectModels3D.id,
+      location: projectModels3D.location,
+      notes: projectModels3D.notes,
+      addedAt: projectModels3D.addedAt,
+      model: {
+        id: library3DModels.id,
+        name: library3DModels.name,
+        description: library3DModels.description,
+        category: library3DModels.category,
+        thumbnailUrl: library3DModels.thumbnailUrl,
+        modelUrl: library3DModels.modelUrl,
+        fileFormat: library3DModels.fileFormat,
+      },
+      addedBy: {
+        id: users.id,
+        name: users.name,
+      },
+    })
+    .from(projectModels3D)
+    .leftJoin(library3DModels, eq(projectModels3D.modelId, library3DModels.id))
+    .leftJoin(users, eq(projectModels3D.addedById, users.id))
+    .where(eq(projectModels3D.projectId, projectId))
+    .orderBy(desc(projectModels3D.addedAt));
+}
+
+/**
+ * Remove 3D model from project
+ */
+export async function removeProjectModel(id: number) {
+  const db = await getDb();
+  await db.delete(projectModels3D).where(eq(projectModels3D.id, id));
+}
+
+/**
+ * Add inspiration to project
+ */
+export async function addInspirationToProject(data: {
+  projectId: number;
+  inspirationId: number;
+  notes?: string;
+  addedById: number;
+}) {
+  const db = await getDb();
+  await db.insert(projectInspirationLinks).values(data);
+}
+
+/**
+ * List inspirations for a project
+ */
+export async function listProjectInspiration(projectId: number) {
+  const db = await getDb();
+  return db
+    .select({
+      id: projectInspirationLinks.id,
+      notes: projectInspirationLinks.notes,
+      addedAt: projectInspirationLinks.addedAt,
+      inspiration: {
+        id: libraryInspiration.id,
+        title: libraryInspiration.title,
+        description: libraryInspiration.description,
+        imageUrl: libraryInspiration.imageUrl,
+        sourceUrl: libraryInspiration.sourceUrl,
+      },
+      addedBy: {
+        id: users.id,
+        name: users.name,
+      },
+    })
+    .from(projectInspirationLinks)
+    .leftJoin(libraryInspiration, eq(projectInspirationLinks.inspirationId, libraryInspiration.id))
+    .leftJoin(users, eq(projectInspirationLinks.addedById, users.id))
+    .where(eq(projectInspirationLinks.projectId, projectId))
+    .orderBy(desc(projectInspirationLinks.addedAt));
+}
+
+/**
+ * Remove inspiration from project
+ */
+export async function removeProjectInspiration(id: number) {
+  const db = await getDb();
+  await db.delete(projectInspirationLinks).where(eq(projectInspirationLinks.id, id));
+}

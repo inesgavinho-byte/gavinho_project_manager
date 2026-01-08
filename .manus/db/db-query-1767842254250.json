@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS projectModels3D (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  projectId INT NOT NULL,\n  modelId INT NOT NULL,\n  location VARCHAR(255),\n  notes TEXT,\n  addedById INT NOT NULL,\n  addedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE CASCADE,\n  FOREIGN KEY (modelId) REFERENCES library3DModels(id) ON DELETE CASCADE,\n  FOREIGN KEY (addedById) REFERENCES users(id),\n  INDEX projectModel_project_idx (projectId),\n  INDEX projectModel_model_idx (modelId)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute CREATE TABLE IF NOT EXISTS projectModels3D (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  projectId INT NOT NULL,\n  modelId INT NOT NULL,\n  location VARCHAR(255),\n  notes TEXT,\n  addedById INT NOT NULL,\n  addedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE CASCADE,\n  FOREIGN KEY (modelId) REFERENCES library3DModels(id) ON DELETE CASCADE,\n  FOREIGN KEY (addedById) REFERENCES users(id),\n  INDEX projectModel_project_idx (projectId),\n  INDEX projectModel_model_idx (modelId)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 258
+}

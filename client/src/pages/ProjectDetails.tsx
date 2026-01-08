@@ -33,7 +33,8 @@ import {
   Eye,
   Filter,
   X,
-  Folder
+  Folder,
+  Package
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -48,6 +49,7 @@ import { ProjectGanttChart } from "@/components/ProjectGanttChart";
 import { ProjectArchvizGallery } from "@/components/ProjectArchvizGallery";
 import EditProjectDialog from "@/components/EditProjectDialog";
 import { ProjectPhasesSection } from "@/components/ProjectPhasesSection";
+import { ProjectLibraryTab } from "@/components/ProjectLibraryTab";
 
 export default function ProjectDetails() {
   const [, params] = useRoute("/projects/:id");
@@ -356,6 +358,10 @@ export default function ProjectDetails() {
           <TabsTrigger value="financial" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <Euro className="w-4 h-4 mr-2" />
             Financeiro
+          </TabsTrigger>
+          <TabsTrigger value="library" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
+            <Package className="w-4 h-4 mr-2" />
+            Biblioteca
           </TabsTrigger>
         </TabsList>
 
@@ -870,6 +876,11 @@ export default function ProjectDetails() {
         {/* Financial Tab */}
         <TabsContent value="financial">
           <BudgetManagement projectId={projectId} />
+        </TabsContent>
+
+        {/* Library Tab */}
+        <TabsContent value="library">
+          <ProjectLibraryTab projectId={projectId} />
         </TabsContent>
       </Tabs>
 

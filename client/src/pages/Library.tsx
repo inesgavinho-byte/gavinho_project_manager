@@ -32,11 +32,13 @@ import {
   Edit,
   Tag,
   Settings,
+  FolderPlus,
 } from "lucide-react";
 import { AddMaterialDialog } from "../components/library/AddMaterialDialog";
 import { Add3DModelDialog } from "../components/library/Add3DModelDialog";
 import { AddInspirationDialog } from "../components/library/AddInspirationDialog";
 import { ManageTagsDialog } from "../components/library/ManageTagsDialog";
+import { AddToProjectDialog } from "../components/library/AddToProjectDialog";
 
 // Categorias predefinidas para materiais
 const MATERIAL_CATEGORIES = [
@@ -70,8 +72,12 @@ export default function Library() {
   const [add3DModelOpen, setAdd3DModelOpen] = useState(false);
   const [addInspirationOpen, setAddInspirationOpen] = useState(false);
   const [manageTagsOpen, setManageTagsOpen] = useState(false);
-
-  // Queries
+  const [addToProjectDialog, setAddToProjectDialog] = useState<{
+    open: boolean;
+    itemType: "material" | "model" | "inspiration";
+    itemId: number;
+    itemName: string;
+  }>({ open: false, itemType: "material", itemId: 0, itemName: "" });  // Queries
   const { data: materials = [], refetch: refetchMaterials } = trpc.library.materials.list.useQuery();
   const { data: models3D = [], refetch: refetchModels } = trpc.library.models3D.list.useQuery();
   const { data: inspiration = [], refetch: refetchInspiration } = trpc.library.inspiration.list.useQuery();
@@ -317,6 +323,22 @@ export default function Library() {
                         </Button>
                       )}
                       <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setAddToProjectDialog({
+                            open: true,
+                            itemType: "material",
+                            itemId: material.id,
+                            itemName: material.name,
+                          })
+                        }
+                        className="flex-1"
+                      >
+                        <FolderPlus className="w-4 h-4 mr-2" />
+                        Adicionar a Projeto
+                      </Button>
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => deleteMaterial.mutate({ id: material.id })}
@@ -390,6 +412,22 @@ export default function Library() {
                         </a>
                       </Button>
                       <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setAddToProjectDialog({
+                            open: true,
+                            itemType: "model",
+                            itemId: model.id,
+                            itemName: model.name,
+                          })
+                        }
+                        className="flex-1"
+                      >
+                        <FolderPlus className="w-4 h-4 mr-2" />
+                        Adicionar a Projeto
+                      </Button>
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => delete3DModel.mutate({ id: model.id })}
@@ -451,6 +489,22 @@ export default function Library() {
                         </Button>
                       )}
                       <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setAddToProjectDialog({
+                            open: true,
+                            itemType: "inspiration",
+                            itemId: item.id,
+                            itemName: item.title,
+                          })
+                        }
+                        className="flex-1"
+                      >
+                        <FolderPlus className="w-4 h-4 mr-2" />
+                        Adicionar a Projeto
+                      </Button>
+                      <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => deleteInspiration.mutate({ id: item.id })}
@@ -494,6 +548,18 @@ export default function Library() {
       <ManageTagsDialog
         open={manageTagsOpen}
         onOpenChange={setManageTagsOpen}
+      />
+      <AddToProjectDialog
+        open={addToProjectDialog.open}
+        onOpenChange={(open) =>
+          setAddToProjectDialog({ ...addToProjectDialog, open })
+        }
+        itemType={addToProjectDialog.itemType}
+        itemId={addToProjectDialog.itemId}
+        itemName={addToProjectDialog.itemName}
+        onSuccess={() => {
+          setAddToProjectDialog({ ...addToProjectDialog, open: false });
+        }}
       />
     </div>
   );

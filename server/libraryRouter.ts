@@ -1,6 +1,40 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "./_core/trpc.js";
-import * as libraryDb from "./libraryDb.js";
+import {
+  getAllTags,
+  getTagsByCategory,
+  createTag,
+  deleteTag,
+  getAllMaterials,
+  getMaterialById,
+  searchMaterials,
+  createMaterial,
+  updateMaterial,
+  deleteMaterial,
+  getAll3DModels,
+  get3DModelById,
+  search3DModels,
+  create3DModel,
+  update3DModel,
+  delete3DModel,
+  getAllInspiration,
+  getInspirationById,
+  searchInspiration,
+  createInspiration,
+  updateInspiration,
+  deleteInspiration,
+  addMaterialToProject,
+  listProjectMaterials,
+  updateProjectMaterial,
+  removeProjectMaterial,
+  getProjectMaterialsCost,
+  addModelToProject,
+  listProjectModels,
+  removeProjectModel,
+  addInspirationToProject,
+  listProjectInspiration,
+  removeProjectInspiration,
+} from "./libraryDb.js";
 import { storagePut } from "./storage.js";
 
 export const libraryRouter = router({
@@ -8,10 +42,136 @@ export const libraryRouter = router({
   // TAGS
   // ============================================================================
   
+  // ============================================================================
+  // PROJECT-LIBRARY ASSOCIATIONS
+  // ============================================================================
+
+  projectMaterials: router({
+    add: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.number(),
+          materialId: z.number(),
+          quantity: z.string(),
+          unitPrice: z.string().optional(),
+          notes: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        await addMaterialToProject({
+          ...input,
+          addedById: ctx.user.id,
+        });
+        return { success: true };
+      }),
+
+    list: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await listProjectMaterials(input.projectId);
+      }),
+
+    update: protectedProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          quantity: z.string().optional(),
+          unitPrice: z.string().optional(),
+          notes: z.string().optional(),
+          status: z.enum(["planned", "ordered", "delivered", "installed"]).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        await updateProjectMaterial(id, data);
+        return { success: true };
+      }),
+
+    remove: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await removeProjectMaterial(input.id);
+        return { success: true };
+      }),
+
+    totalCost: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await getProjectMaterialsCost(input.projectId);
+      }),
+  }),
+
+  projectModels: router({
+    add: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.number(),
+          modelId: z.number(),
+          location: z.string().optional(),
+          notes: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        await addModelToProject({
+          ...input,
+          addedById: ctx.user.id,
+        });
+        return { success: true };
+      }),
+
+    list: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await listProjectModels(input.projectId);
+      }),
+
+    remove: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await removeProjectModel(input.id);
+        return { success: true };
+      }),
+  }),
+
+  projectInspiration: router({
+    add: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.number(),
+          inspirationId: z.number(),
+          notes: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        await addInspirationToProject({
+          ...input,
+          addedById: ctx.user.id,
+        });
+        return { success: true };
+      }),
+
+    list: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        return await listProjectInspiration(input.projectId);
+      }),
+
+    remove: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await removeProjectInspiration(input.id);
+        return { success: true };
+      }),
+  }),
+
+  // ============================================================================
+  // TAGS
+  // ============================================================================
+  
   tags: router({
     list: protectedProcedure
       .query(async () => {
-        return await libraryDb.getAllTags();
+        return await getAllTags();
       }),
     
     listByCategory: protectedProcedure
@@ -19,7 +179,7 @@ export const libraryRouter = router({
         category: z.enum(["material", "model", "inspiration", "general"]),
       }))
       .query(async ({ input }) => {
-        return await libraryDb.getTagsByCategory(input.category);
+        return await getTagsByCategory(input.category);
       }),
     
     create: protectedProcedure
@@ -29,7 +189,7 @@ export const libraryRouter = router({
         color: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
-        return await libraryDb.createTag(input);
+        return await createTag(input);
       }),
     
     delete: protectedProcedure
@@ -37,7 +197,7 @@ export const libraryRouter = router({
         id: z.number(),
       }))
       .mutation(async ({ input }) => {
-        await libraryDb.deleteTag(input.id);
+        await deleteTag(input.id);
         return { success: true };
       }),
   }),
@@ -49,7 +209,7 @@ export const libraryRouter = router({
   materials: router({
     list: protectedProcedure
       .query(async () => {
-        return await libraryDb.getAllMaterials();
+        return await getAllMaterials();
       }),
     
     getById: protectedProcedure
@@ -57,7 +217,7 @@ export const libraryRouter = router({
         id: z.number(),
       }))
       .query(async ({ input }) => {
-        return await libraryDb.getMaterialById(input.id);
+        return await getMaterialById(input.id);
       }),
     
     search: protectedProcedure
@@ -67,7 +227,7 @@ export const libraryRouter = router({
         tags: z.array(z.number()).optional(),
       }))
       .query(async ({ input }) => {
-        return await libraryDb.searchMaterials(input);
+        return await searchMaterials(input);
       }),
     
     create: protectedProcedure
@@ -102,7 +262,7 @@ export const libraryRouter = router({
           fileUrl = fileResult.url;
         }
         
-        return await libraryDb.createMaterial({
+        return await createMaterial({
           name: input.name,
           description: input.description,
           category: input.category,
@@ -129,7 +289,7 @@ export const libraryRouter = router({
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
-        await libraryDb.updateMaterial(id, data);
+        await updateMaterial(id, data);
         return { success: true };
       }),
     
@@ -138,7 +298,7 @@ export const libraryRouter = router({
         id: z.number(),
       }))
       .mutation(async ({ input }) => {
-        await libraryDb.deleteMaterial(input.id);
+        await deleteMaterial(input.id);
         return { success: true };
       }),
   }),
@@ -150,7 +310,7 @@ export const libraryRouter = router({
   models3D: router({
     list: protectedProcedure
       .query(async () => {
-        return await libraryDb.getAll3DModels();
+        return await getAll3DModels();
       }),
     
     getById: protectedProcedure
@@ -158,7 +318,7 @@ export const libraryRouter = router({
         id: z.number(),
       }))
       .query(async ({ input }) => {
-        return await libraryDb.get3DModelById(input.id);
+        return await get3DModelById(input.id);
       }),
     
     search: protectedProcedure
@@ -168,7 +328,7 @@ export const libraryRouter = router({
         fileFormat: z.string().optional(),
       }))
       .query(async ({ input }) => {
-        return await libraryDb.search3DModels(input);
+        return await search3DModels(input);
       }),
     
     create: protectedProcedure
@@ -198,7 +358,7 @@ export const libraryRouter = router({
         const modelKey = `library/models/${Date.now()}-${Math.random().toString(36).substring(7)}${input.fileFormat}`;
         const modelResult = await storagePut(modelKey, modelBuffer, "application/octet-stream");
         
-        return await libraryDb.create3DModel({
+        return await create3DModel({
           name: input.name,
           description: input.description,
           category: input.category,
@@ -221,7 +381,7 @@ export const libraryRouter = router({
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
-        await libraryDb.update3DModel(id, data);
+        await update3DModel(id, data);
         return { success: true };
       }),
     
@@ -230,7 +390,7 @@ export const libraryRouter = router({
         id: z.number(),
       }))
       .mutation(async ({ input }) => {
-        await libraryDb.delete3DModel(input.id);
+        await delete3DModel(input.id);
         return { success: true };
       }),
   }),
@@ -242,7 +402,7 @@ export const libraryRouter = router({
   inspiration: router({
     list: protectedProcedure
       .query(async () => {
-        return await libraryDb.getAllInspiration();
+        return await getAllInspiration();
       }),
     
     getById: protectedProcedure
@@ -250,7 +410,7 @@ export const libraryRouter = router({
         id: z.number(),
       }))
       .query(async ({ input }) => {
-        return await libraryDb.getInspirationById(input.id);
+        return await getInspirationById(input.id);
       }),
     
     search: protectedProcedure
@@ -260,7 +420,7 @@ export const libraryRouter = router({
         projectId: z.number().optional(),
       }))
       .query(async ({ input }) => {
-        return await libraryDb.searchInspiration(input);
+        return await searchInspiration(input);
       }),
     
     create: protectedProcedure
@@ -278,7 +438,7 @@ export const libraryRouter = router({
         const imageKey = `library/inspiration/${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
         const imageResult = await storagePut(imageKey, imageBuffer, "image/jpeg");
         
-        return await libraryDb.createInspiration({
+        return await createInspiration({
           title: input.title,
           description: input.description,
           tags: input.tags,
@@ -300,7 +460,7 @@ export const libraryRouter = router({
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
-        await libraryDb.updateInspiration(id, data);
+        await updateInspiration(id, data);
         return { success: true };
       }),
     
@@ -309,7 +469,7 @@ export const libraryRouter = router({
         id: z.number(),
       }))
       .mutation(async ({ input }) => {
-        await libraryDb.deleteInspiration(input.id);
+        await deleteInspiration(input.id);
         return { success: true };
       }),
   }),

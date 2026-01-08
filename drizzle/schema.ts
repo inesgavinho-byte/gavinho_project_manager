@@ -1893,3 +1893,61 @@ export const libraryInspiration = mysqlTable("libraryInspiration", {
 }));
 export type LibraryInspiration = typeof libraryInspiration.$inferSelect;
 export type InsertLibraryInspiration = typeof libraryInspiration.$inferInsert;
+
+/**
+ * Project Materials - Materials from library associated with projects
+ */
+export const projectMaterials = mysqlTable("projectMaterials", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  materialId: int("materialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  quantity: decimal("quantity", { precision: 10, scale: 2 }).notNull(),
+  unitPrice: decimal("unitPrice", { precision: 15, scale: 2 }), // Can override library price
+  totalPrice: decimal("totalPrice", { precision: 15, scale: 2 }), // quantity * unitPrice
+  notes: text("notes"),
+  status: mysqlEnum("status", ["planned", "ordered", "delivered", "installed"]).default("planned").notNull(),
+  addedById: int("addedById").notNull().references(() => users.id),
+  addedAt: timestamp("addedAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectMaterial_project_idx").on(table.projectId),
+  materialIdIdx: index("projectMaterial_material_idx").on(table.materialId),
+  statusIdx: index("projectMaterial_status_idx").on(table.status),
+}));
+export type ProjectMaterial = typeof projectMaterials.$inferSelect;
+export type InsertProjectMaterial = typeof projectMaterials.$inferInsert;
+
+/**
+ * Project 3D Models - 3D models from library associated with projects
+ */
+export const projectModels3D = mysqlTable("projectModels3D", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  modelId: int("modelId").notNull().references(() => library3DModels.id, { onDelete: "cascade" }),
+  location: varchar("location", { length: 255 }), // Where in the project this model is used
+  notes: text("notes"),
+  addedById: int("addedById").notNull().references(() => users.id),
+  addedAt: timestamp("addedAt").defaultNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectModel_project_idx").on(table.projectId),
+  modelIdIdx: index("projectModel_model_idx").on(table.modelId),
+}));
+export type ProjectModel3D = typeof projectModels3D.$inferSelect;
+export type InsertProjectModel3D = typeof projectModels3D.$inferInsert;
+
+/**
+ * Project Inspiration - Inspiration images from library associated with projects
+ */
+export const projectInspirationLinks = mysqlTable("projectInspirationLinks", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  inspirationId: int("inspirationId").notNull().references(() => libraryInspiration.id, { onDelete: "cascade" }),
+  notes: text("notes"),
+  addedById: int("addedById").notNull().references(() => users.id),
+  addedAt: timestamp("addedAt").defaultNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectInspiration_project_idx").on(table.projectId),
+  inspirationIdIdx: index("projectInspiration_inspiration_idx").on(table.inspirationId),
+}));
+export type ProjectInspirationLink = typeof projectInspirationLinks.$inferSelect;
+export type InsertProjectInspirationLink = typeof projectInspirationLinks.$inferInsert;

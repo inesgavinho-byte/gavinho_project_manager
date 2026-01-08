@@ -1740,3 +1740,34 @@
 - [x] Implementar filtros por categoria e tags
 - [x] Testar upload de ficheiros para S3
 - [x] Testar funcionalidade completa
+
+
+## Associação Biblioteca-Projetos
+
+### Backend
+- [x] Criar tabela projectMaterials (id, projectId, materialId, quantity, unitPrice, totalPrice, notes, addedById, addedAt)
+- [x] Criar tabela projectModels3D (id, projectId, modelId, location, notes, addedById, addedAt)
+- [x] Criar tabela projectInspiration (id, projectId, inspirationId, notes, addedById, addedAt)
+- [x] Adicionar funções de base de dados em libraryDb.ts para associações
+- [x] Criar endpoints tRPC para adicionar/remover/listar itens por projeto
+- [x] Adicionar endpoint para calcular custo total de materiais por projeto
+
+### Frontend - Biblioteca
+- [x] Adicionar botão "Adicionar a Projeto" nos cards de materiais
+- [x] Criar modal de seleção de projeto ao adicionar item
+- [x] Adicionar campo de quantidade e notas no modal
+- [ ] Mostrar badge nos itens já associados a projetos
+
+### Frontend - Página de Projeto
+- [x] Criar tab "Materiais" na página ProjectDetails
+- [x] Listar materiais associados ao projeto com quantidades
+- [x] Mostrar custo total estimado dos materiais
+- [x] Permitir editar quantidade e remover materiais
+- [x] Criar tab "Modelos 3D" com lista de modelos utilizados
+- [x] Criar tab "Inspiração" com referências visuais do projeto
+
+### Testes
+- [x] Testar associação de materiais a projetos
+- [x] Testar cálculo de custos
+- [x] Testar remoção de associações
+- [x] Validar UI completa
