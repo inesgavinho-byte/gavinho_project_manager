@@ -1,4 +1,5 @@
 import { trpc } from "@/lib/trpc";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart3, FolderKanban, AlertCircle, CheckCircle2, Clock, PauseCircle, Plus } from "lucide-react";
@@ -6,11 +7,41 @@ import { Link } from "wouter";
 import NewProjectModal from "@/components/NewProjectModal";
 
 export default function Dashboard() {
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [periodFilter, setPeriodFilter] = useState<string>("all");
+  
   const { data: stats, isLoading: statsLoading } = trpc.dashboard.stats.useQuery();
   const { data: projects, isLoading: projectsLoading } = trpc.projects.list.useQuery();
   const { data: notifications } = trpc.notifications.list.useQuery({ unreadOnly: true });
 
-  const recentProjects = projects?.slice(0, 5) || [];
+  // Apply filters
+  const filteredProjects = projects?.filter(project => {
+    // Status filter
+    if (statusFilter !== "all" && project.status !== statusFilter) {
+      return false;
+    }
+    
+    // Period filter
+    if (periodFilter !== "all" && project.createdAt) {
+      const projectDate = new Date(project.createdAt);
+      const now = new Date();
+      
+      if (periodFilter === "last_month") {
+        const lastMonth = new Date(now.setMonth(now.getMonth() - 1));
+        if (projectDate < lastMonth) return false;
+      } else if (periodFilter === "last_quarter") {
+        const lastQuarter = new Date(now.setMonth(now.getMonth() - 3));
+        if (projectDate < lastQuarter) return false;
+      } else if (periodFilter === "last_year") {
+        const lastYear = new Date(now.setFullYear(now.getFullYear() - 1));
+        if (projectDate < lastYear) return false;
+      }
+    }
+    
+    return true;
+  }) || [];
+  
+  const recentProjects = filteredProjects.slice(0, 5);
   const urgentNotifications = notifications?.slice(0, 3) || [];
 
   const getStatusIcon = (status: string) => {
@@ -57,6 +88,54 @@ export default function Dashboard() {
         </div>
         <NewProjectModal />
       </div>
+
+      {/* Filters */}
+      <Card className="p-4">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-foreground">Estado:</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-1.5 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="all">Todos</option>
+              <option value="in_progress">Em Andamento</option>
+              <option value="completed">Concluídos</option>
+              <option value="on_hold">Pausados</option>
+              <option value="planning">Planejamento</option>
+            </select>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-foreground">Período:</label>
+            <select
+              value={periodFilter}
+              onChange={(e) => setPeriodFilter(e.target.value)}
+              className="px-3 py-1.5 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="all">Todos</option>
+              <option value="last_month">Último Mês</option>
+              <option value="last_quarter">Último Trimestre</option>
+              <option value="last_year">Último Ano</option>
+            </select>
+          </div>
+          
+          {(statusFilter !== "all" || periodFilter !== "all") && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setStatusFilter("all");
+                setPeriodFilter("all");
+              }}
+              className="text-xs"
+            >
+              Limpar Filtros
+            </Button>
+          )}
+        </div>
+      </Card>
 
       {/* Stats Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">

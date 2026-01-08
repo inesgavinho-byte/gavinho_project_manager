@@ -647,11 +647,11 @@ export default function ProjectDetails() {
                                 >
                                   <div className="w-8 h-8 rounded-full bg-[#C9A882]/20 flex items-center justify-center">
                                     <span className="text-xs font-medium text-[#C9A882]">
-                                      {member.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                                      {member.userName ? member.userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '??'}
                                     </span>
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-[#5F5C59] truncate">{member.name}</p>
+                                    <p className="text-sm text-[#5F5C59] truncate">{member.userName || 'Nome não disponível'}</p>
                                   </div>
                                 </div>
                               ))}

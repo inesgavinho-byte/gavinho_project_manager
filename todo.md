@@ -2167,3 +2167,28 @@
 - [x] Testar fluxo completo de criação de novo utilizador (backend validado com vitest)
 - [x] Testar busca no dropdown com múltiplos membros
 - [x] Testar visualização de histórico de projetos
+
+
+## Correção Bug Botão Adicionar Membro
+- [x] Investigar por que botão não responde ao clique
+- [x] Verificar validação de formulário
+- [x] Verificar estado de loading das mutations
+- [x] Testar fluxo completo de adicionar membro
+- [x] Validar com console do browser
+
+## Responsividade Mobile Completa
+- [x] Ajustar grid dos cards de estatísticas para 1 coluna em mobile
+- [x] Implementar scroll horizontal no Gantt Chart para mobile
+- [x] Otimizar controles do Gantt para touch devices
+- [x] Testar em diferentes tamanhos de tela (mobile, tablet, desktop)
+- [x] Ajustar sidebar navigation para mobile
+
+## Filtros no Dashboard Executivo
+- [x] Criar componente de filtros com dropdown de estado
+- [x] Implementar filtro por estado (Em Andamento, Concluídos, Atrasados)
+- [x] Adicionar filtro por período temporal (último mês, trimestre, ano)
+- [x] Criar backend API para filtros (filtros aplicados no frontend)
+- [x] Atualizar cards de estatísticas com dados filtrados
+- [x] Atualizar lista de projetos recentes com filtros aplicados
+- [x] Adicionar indicador visual de filtros ativos (botão Limpar Filtros)
+- [x] Testar performance com filtros

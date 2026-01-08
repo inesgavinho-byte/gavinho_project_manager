@@ -236,7 +236,7 @@ export function ProjectGanttChart({ projectId }: ProjectGanttChartProps) {
   return (
     <div className="space-y-4">
       {/* Controls */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4 bg-white p-3 md:p-4 rounded-lg border border-gray-200">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 bg-white p-3 sm:p-4 rounded-lg border border-gray-200 flex-wrap">
         {/* View Mode */}
         <div className="flex items-center gap-2 w-full md:w-auto">
           <span className="text-xs md:text-sm font-medium text-gray-700">Vista:</span>
@@ -306,7 +306,7 @@ export function ProjectGanttChart({ projectId }: ProjectGanttChartProps) {
 
       {/* Gantt Chart or List View */}
       {showGantt ? (
-        <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto touch-pan-x">
           <Gantt
             tasks={tasks}
             viewMode={viewMode}
