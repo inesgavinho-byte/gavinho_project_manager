@@ -33,12 +33,14 @@ import {
   Tag,
   Settings,
   FolderPlus,
+  TrendingUp,
 } from "lucide-react";
 import { AddMaterialDialog } from "../components/library/AddMaterialDialog";
 import { Add3DModelDialog } from "../components/library/Add3DModelDialog";
 import { AddInspirationDialog } from "../components/library/AddInspirationDialog";
 import { ManageTagsDialog } from "../components/library/ManageTagsDialog";
 import { AddToProjectDialog } from "../components/library/AddToProjectDialog";
+import { PriceHistoryDialog } from "../components/library/PriceHistoryDialog";
 
 // Categorias predefinidas para materiais
 const MATERIAL_CATEGORIES = [
@@ -77,7 +79,12 @@ export default function Library() {
     itemType: "material" | "model" | "inspiration";
     itemId: number;
     itemName: string;
-  }>({ open: false, itemType: "material", itemId: 0, itemName: "" });  // Queries
+  }>({ open: false, itemType: "material", itemId: 0, itemName: "" });
+  const [priceHistoryDialog, setPriceHistoryDialog] = useState<{
+    open: boolean;
+    materialId: number;
+    materialName: string;
+  }>({ open: false, materialId: 0, materialName: "" });  // Queries
   const { data: materials = [], refetch: refetchMaterials } = trpc.library.materials.list.useQuery();
   const { data: models3D = [], refetch: refetchModels } = trpc.library.models3D.list.useQuery();
   const { data: inspiration = [], refetch: refetchInspiration } = trpc.library.inspiration.list.useQuery();
@@ -313,7 +320,7 @@ export default function Library() {
                         </p>
                       )}
                     </CardContent>
-                    <CardFooter className="flex gap-2">
+                    <CardFooter className="flex gap-2 flex-wrap">
                       {material.fileUrl && (
                         <Button variant="outline" size="sm" asChild>
                           <a href={material.fileUrl} target="_blank" rel="noopener noreferrer">
@@ -322,6 +329,20 @@ export default function Library() {
                           </a>
                         </Button>
                       )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setPriceHistoryDialog({
+                            open: true,
+                            materialId: material.id,
+                            materialName: material.name,
+                          })
+                        }
+                      >
+                        <TrendingUp className="w-4 h-4 mr-2" />
+                        Histórico
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
@@ -560,6 +581,14 @@ export default function Library() {
         onSuccess={() => {
           setAddToProjectDialog({ ...addToProjectDialog, open: false });
         }}
+      />
+      <PriceHistoryDialog
+        open={priceHistoryDialog.open}
+        onOpenChange={(open) =>
+          setPriceHistoryDialog({ ...priceHistoryDialog, open })
+        }
+        materialId={priceHistoryDialog.materialId}
+        materialName={priceHistoryDialog.materialName}
       />
     </div>
   );

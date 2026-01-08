@@ -1788,22 +1788,21 @@
 - [x] Adicionar loading state durante geração
 - [x] Testar exportação completa
 
-## Histórico de Preços de Materiais
+### Histórico de Preços de Materiais
 ### Backend
-- [ ] Criar tabela materialPriceHistory (id, materialId, price, unit, supplierName, recordedAt, recordedById)
-- [ ] Adicionar trigger/função para registar mudanças de preço automaticamente
-- [ ] Criar endpoint tRPC para obter histórico de preços de um material
-- [ ] Implementar cálculo de variação percentual de preços
-- [ ] Criar endpoint para análise de tendências (subida/descida)
-- [ ] Implementar alertas automáticos para variações > 10%
-
+- [x] Criar tabela materialPriceHistory (id, materialId, price, unit, supplierName, recordedAt, recordedById)
+- [x] Adicionar trigger/função para registar mudanças de preço automaticamente
+- [x] Criar endpoint tRPC para obter histórico de preços de um material
+- [x] Implementar cálculo de variação percentual de preços
+- [x] Criar endpoint para análise de tendências (subida/descida)
+- [x] Implementar alertas automáticos para variações > 10%
 ### Frontend
-- [ ] Adicionar botão "Ver Histórico de Preços" nos cards de materiais
-- [ ] Criar modal com gráfico de evolução de preços (Recharts)
-- [ ] Mostrar variação percentual e tendência
-- [ ] Adicionar tabela com histórico detalhado
-- [ ] Implementar alertas visuais para materiais com preços em alta
-- [ ] Testar visualização completa
+- [x] Adicionar botão "Ver Histórico de Preços" nos cards de materiais
+- [x] Criar modal com gráfico de evolução de preços (Recharts)
+- [x] Mostrar variação percentual e tendência
+- [x] Adicionar tabela com histórico detalhado
+- [x] Implementar alertas visuais para materiais com preços em alta
+- [x] Testar visualização completa
 
 ## Sugestões Automáticas de Materiais com IA
 ### Backend

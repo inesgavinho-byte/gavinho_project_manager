@@ -554,4 +554,64 @@ export const libraryRouter = router({
         mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       };
     }),
+
+  // ============================================================================
+  // PRICE HISTORY
+  // ============================================================================
+
+  addPriceRecord: protectedProcedure
+      .input(
+        z.object({
+          materialId: z.number(),
+          price: z.string(),
+          unit: z.string(),
+          supplierName: z.string().optional(),
+          notes: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        await addPriceRecord({
+          ...input,
+          recordedById: ctx.user.id,
+        });
+        return { success: true };
+      }),
+
+  getMaterialPriceHistory: protectedProcedure
+    .input(
+      z.object({
+        materialId: z.number(),
+        limit: z.number().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return getPriceHistory(input.materialId, input.limit);
+    }),
+
+  getLatestMaterialPrice: protectedProcedure
+    .input(z.object({ materialId: z.number() }))
+    .query(async ({ input }) => {
+      return getLatestPrice(input.materialId);
+    }),
+
+  getMaterialPriceTrend: protectedProcedure
+    .input(
+      z.object({
+        materialId: z.number(),
+        days: z.number().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return calculatePriceTrend(input.materialId, input.days);
+    }),
+
+  getMaterialPriceAlerts: protectedProcedure
+    .input(
+      z.object({
+        thresholdPercent: z.number().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return getMaterialsWithPriceAlerts(input.thresholdPercent);
+    }),
 });
