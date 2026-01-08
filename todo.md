@@ -1980,7 +1980,58 @@
 
 ## Dashboard de Análise de Materiais
 ### Backend
-- [ ] Criar função getMaterialsUsageStats (materiais mais usados por projeto)
+- [x] Criar função getMaterialsUsageStats (top 10 materiais mais usados)
+- [x] Criar função getMaterialsCategoryDistribution (distribuição por categoria)
+- [x] Criar função getMaterialsPriceEvolution (evolução de preços ao longo do tempo)
+- [x] Criar função getProjectMaterialsComparison (comparação de custos entre projetos)
+- [x] Criar função getMaterialsOverview (estatísticas gerais: total, média preço, fornecedores)
+- [x] Criar endpoints tRPC para todas as estatísticas
+### Frontend
+- [x] Criar página MaterialsAnalytics.tsx dedicada
+- [x] Adicionar item "Análise de Materiais" no menu lateral (ModularSidebar)
+- [x] Adicionar rota /analise-materiais no App.tsx
+- [x] Criar gráfico de barras (materiais mais usados) com Recharts
+- [x] Criar gráfico de pizza (distribuição por categoria) com Recharts
+- [x] Criar gráfico de linha (evolução de preços) com Recharts
+- [x] Criar gráfico de barras comparativo (custos por projeto) com Recharts
+- [x] Adicionar cards de resumo (total materiais, preço médio, fornecedores, materiais em uso)
+- [ ] Implementar exportação para PDF (botão criado, lógica pendente)
+- [ ] Implementar exportação para Excel (botão criado, lógica pendente)
+- [ ] Testar dashboard com dados reais
+
+## Sistema de Aprovação de Materiais
+### Backend
+- [ ] Adicionar campo approvalStatus à tabela libraryMaterials (pending, approved, rejected)
+- [ ] Adicionar campo approvedBy e approvedAt à tabela libraryMaterials
+- [ ] Criar tabela materialApprovalHistory (id, materialId, userId, action, reason, createdAt)
+- [ ] Criar função getPendingMaterials (materiais aguardando aprovação)
+- [ ] Criar função approveMaterial (aprovar material e registar histórico)
+- [ ] Criar função rejectMaterial (rejeitar material com motivo)
+- [ ] Criar função getMaterialApprovalHistory (histórico de aprovações)
+- [ ] Adicionar notificação automática ao criar material (notificar gestores)
+- [ ] Adicionar notificação automática ao aprovar/rejeitar (notificar criador)
+- [ ] Criar endpoints tRPC para workflow de aprovação
+### Frontend
+- [ ] Adicionar badge de status nos cards de materiais (Pendente/Aprovado/Rejeitado)
+- [ ] Criar seção "Materiais Pendentes" na página Library
+- [ ] Adicionar botões "Aprovar" e "Rejeitar" para gestores
+- [ ] Criar dialog de rejeição com campo de motivo
+- [ ] Mostrar histórico de aprovações no detalhe do material
+- [ ] Adicionar filtro por status de aprovação
+- [ ] Implementar notificações de aprovação/rejeição
+- [ ] Testar workflow completo
+
+## Ordenação Personalizável na Biblioteca
+### Backend
+- [ ] Atualizar getAllMaterials para aceitar parâmetro sortBy (name, price, createdAt, supplier)
+- [ ] Atualizar getAllMaterials para aceitar parâmetro sortOrder (asc, desc)
+- [ ] Implementar lógica de ordenação dinâmica no SQL
+### Frontend
+- [ ] Adicionar dropdown de ordenação na barra de filtros
+- [ ] Implementar opções: Nome (A-Z), Nome (Z-A), Preço (crescente), Preço (decrescente), Mais recente, Mais antigo, Fornecedor (A-Z)
+- [ ] Adicionar indicador visual da ordenação ativa
+- [ ] Persistir preferência de ordenação no localStorage
+- [ ] Testar todas as opções de ordenação
 - [ ] Criar função getMaterialsCategoryDistribution (distribuição por categoria)
 - [ ] Criar função getMaterialsPriceEvolution (evolução de preços ao longo do tempo)
 - [ ] Criar função getMaterialsProjectComparison (comparação entre projetos)

@@ -2105,3 +2105,104 @@ export async function getUserReactionsForComments(userId: number, commentIds: nu
 
   return reactions;
 }
+
+
+// ============================================================================
+// MATERIALS ANALYTICS
+// ============================================================================
+
+export async function getMaterialsUsageStats() {
+  const db = await getDb();
+  
+  // Get top 10 most used materials across all projects
+  const results = await db
+    .select({
+      materialId: projectMaterials.materialId,
+      materialName: libraryMaterials.name,
+      usageCount: sql<number>`COUNT(${projectMaterials.id})`,
+      projectCount: sql<number>`COUNT(DISTINCT ${projectMaterials.projectId})`,
+    })
+    .from(projectMaterials)
+    .leftJoin(libraryMaterials, eq(projectMaterials.materialId, libraryMaterials.id))
+    .groupBy(projectMaterials.materialId, libraryMaterials.name)
+    .orderBy(desc(sql`COUNT(${projectMaterials.id})`))
+    .limit(10);
+
+  return results;
+}
+
+export async function getMaterialsCategoryDistribution() {
+  const db = await getDb();
+  
+  // Get distribution of materials by category
+  const results = await db
+    .select({
+      category: libraryMaterials.category,
+      count: sql<number>`COUNT(*)`,
+      avgPrice: sql<number>`AVG(${libraryMaterials.price})`,
+    })
+    .from(libraryMaterials)
+    .groupBy(libraryMaterials.category)
+    .orderBy(desc(sql`COUNT(*)`));
+
+  return results;
+}
+
+export async function getMaterialsPriceEvolution() {
+  const db = await getDb();
+  
+  // Get price evolution over time (last 12 months)
+  const twelveMonthsAgo = new Date();
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+  const results = await db
+    .select({
+      month: sql<string>`DATE_FORMAT(${libraryMaterials.createdAt}, '%Y-%m')`,
+      avgPrice: sql<number>`AVG(${libraryMaterials.price})`,
+      materialCount: sql<number>`COUNT(*)`,
+    })
+    .from(libraryMaterials)
+    .where(sql`${libraryMaterials.createdAt} >= ${twelveMonthsAgo}`)
+    .groupBy(sql`DATE_FORMAT(${libraryMaterials.createdAt}, '%Y-%m')`)
+    .orderBy(sql`DATE_FORMAT(${libraryMaterials.createdAt}, '%Y-%m')`);
+
+  return results;
+}
+
+export async function getProjectMaterialsComparison() {
+  const db = await getDb();
+  
+  // Get material costs comparison between projects
+  const results = await db
+    .select({
+      projectId: projects.id,
+      projectCode: projects.code,
+      projectName: projects.name,
+      materialCount: sql<number>`COUNT(DISTINCT ${projectMaterials.materialId})`,
+      totalCost: sql<number>`SUM(${libraryMaterials.price} * ${projectMaterials.quantity})`,
+    })
+    .from(projectMaterials)
+    .leftJoin(projects, eq(projectMaterials.projectId, projects.id))
+    .leftJoin(libraryMaterials, eq(projectMaterials.materialId, libraryMaterials.id))
+    .groupBy(projects.id, projects.code, projects.name)
+    .orderBy(desc(sql`SUM(${libraryMaterials.price} * ${projectMaterials.quantity})`))
+    .limit(10);
+
+  return results;
+}
+
+export async function getMaterialsOverview() {
+  const db = await getDb();
+  
+  // Get general statistics
+  const [stats] = await db
+    .select({
+      totalMaterials: sql<number>`COUNT(*)`,
+      avgPrice: sql<number>`AVG(${libraryMaterials.price})`,
+      totalSuppliers: sql<number>`COUNT(DISTINCT ${libraryMaterials.supplier})`,
+      totalCategories: sql<number>`COUNT(DISTINCT ${libraryMaterials.category})`,
+    })
+    .from(libraryMaterials);
+
+  return stats || { totalMaterials: 0, avgPrice: 0, totalSuppliers: 0, totalCategories: 0 };
+}

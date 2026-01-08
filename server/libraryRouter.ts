@@ -71,6 +71,11 @@ import {
   toggleCommentReaction,
   getCommentReactions,
   getUserReactionsForComments,
+  getMaterialsUsageStats,
+  getMaterialsCategoryDistribution,
+  getMaterialsPriceEvolution,
+  getProjectMaterialsComparison,
+  getMaterialsOverview,
 } from "./libraryDb.js";
 import { storagePut } from "./storage.js";
 import { TRPCError } from "@trpc/server";
@@ -1013,5 +1018,31 @@ export const libraryRouter = router({
     .input(z.object({ commentIds: z.array(z.number()) }))
     .query(async ({ input, ctx }) => {
       return getUserReactionsForComments(ctx.user.id, input.commentIds);
+    }),
+
+  // Materials Analytics
+  getMaterialsUsageStats: protectedProcedure
+    .query(async () => {
+      return getMaterialsUsageStats();
+    }),
+
+  getMaterialsCategoryDistribution: protectedProcedure
+    .query(async () => {
+      return getMaterialsCategoryDistribution();
+    }),
+
+  getMaterialsPriceEvolution: protectedProcedure
+    .query(async () => {
+      return getMaterialsPriceEvolution();
+    }),
+
+  getProjectMaterialsComparison: protectedProcedure
+    .query(async () => {
+      return getProjectMaterialsComparison();
+    }),
+
+  getMaterialsOverview: protectedProcedure
+    .query(async () => {
+      return getMaterialsOverview();
     }),
 });

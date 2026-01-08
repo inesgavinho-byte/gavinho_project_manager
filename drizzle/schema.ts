@@ -1841,6 +1841,10 @@ export const libraryMaterials = mysqlTable("libraryMaterials", {
   createdById: int("createdById").notNull().references(() => users.id),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  approvalStatus: mysqlEnum("approvalStatus", ["pending", "approved", "rejected"]).default("approved"),
+  approvedBy: int("approvedBy"),
+  approvedAt: timestamp("approvedAt"),
+  rejectionReason: text("rejectionReason"),
 }, (table) => ({
   categoryIdx: index("libraryMaterial_category_idx").on(table.category),
   supplierIdx: index("libraryMaterial_supplier_idx").on(table.supplier),
@@ -2089,3 +2093,18 @@ export const commentReactions = mysqlTable("commentReactions", {
 }, (table) => ({
   uniqueReaction: unique().on(table.commentId, table.userId, table.emoji),
 }));
+
+
+/**
+ * Material Approval History - Track approval/rejection actions
+ */
+export const materialApprovalHistory = mysqlTable("materialApprovalHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  materialId: int("materialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  action: mysqlEnum("action", ["approved", "rejected"]).notNull(),
+  reason: text("reason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type MaterialApprovalHistory = typeof materialApprovalHistory.$inferSelect;
+export type InsertMaterialApprovalHistory = typeof materialApprovalHistory.$inferInsert;

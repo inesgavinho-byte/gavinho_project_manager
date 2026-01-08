@@ -6,6 +6,7 @@ import {
   MessageSquare,
   Library,
   Folder,
+  TrendingUp,
   Calendar,
   Sparkles,
   HardHat,
@@ -86,6 +87,12 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           label: "Coleções",
           icon: Folder,
           path: "/colecoes",
+        },
+        {
+          id: "analise-materiais",
+          label: "Análise de Materiais",
+          icon: TrendingUp,
+          path: "/analise-materiais",
         },
         {
           id: "calendario-projetos",
