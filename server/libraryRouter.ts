@@ -246,8 +246,14 @@ export const libraryRouter = router({
   
   materials: router({
     list: protectedProcedure
-      .query(async () => {
-        return await getAllMaterials();
+      .input(z.object({
+        searchTerm: z.string().optional(),
+        category: z.string().optional(),
+        supplier: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        return await getAllMaterials(input);
       }),
     
     getById: protectedProcedure

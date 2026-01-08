@@ -78,6 +78,8 @@ export default function Library() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedSupplier, setSelectedSupplier] = useState<string>("all");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [addMaterialOpen, setAddMaterialOpen] = useState(false);
   const [add3DModelOpen, setAdd3DModelOpen] = useState(false);
   const [addInspirationOpen, setAddInspirationOpen] = useState(false);
@@ -108,7 +110,12 @@ export default function Library() {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   // Queries
-  const { data: materials = [], refetch: refetchMaterials } = trpc.library.materials.list.useQuery();
+  const { data: materials = [], refetch: refetchMaterials } = trpc.library.materials.list.useQuery({
+    searchTerm: searchQuery || undefined,
+    category: selectedCategory !== "all" ? selectedCategory : undefined,
+    supplier: selectedSupplier !== "all" ? selectedSupplier : undefined,
+    tags: selectedTags.length > 0 ? selectedTags : undefined,
+  });
   const { data: models3D = [], refetch: refetchModels } = trpc.library.models3D.list.useQuery();
   const { data: inspiration = [], refetch: refetchInspiration } = trpc.library.inspiration.list.useQuery();
   const { data: tags = [] } = trpc.library.tags.list.useQuery();
@@ -144,13 +151,7 @@ export default function Library() {
     if (showFavoritesOnly && !favoriteStatus[item.id]) {
       return false;
     }
-    
-    const matchesSearch = searchQuery
-      ? item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      : true;
-    const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    return true;
   });
 
   const filteredModels = models3D.filter((item) => {
@@ -282,7 +283,55 @@ export default function Library() {
                 />
               </div>
 
-              {activeTab !== "inspiration" && (
+              {activeTab === "materials" && (
+                <>
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas as categorias</SelectItem>
+                      {MATERIAL_CATEGORIES.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Fornecedor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os fornecedores</SelectItem>
+                      {Array.from(new Set(materials.map(m => m.supplier).filter(Boolean))).map((supplier) => (
+                        <SelectItem key={supplier} value={supplier!}>
+                          {supplier}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {(selectedCategory !== "all" || selectedSupplier !== "all" || selectedTags.length > 0 || searchQuery) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSelectedCategory("all");
+                        setSelectedSupplier("all");
+                        setSelectedTags([]);
+                      }}
+                      className="text-[#C9A882]"
+                    >
+                      Limpar filtros
+                    </Button>
+                  )}
+                </>
+              )}
+              
+              {activeTab === "models" && (
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder="Todas as categorias" />

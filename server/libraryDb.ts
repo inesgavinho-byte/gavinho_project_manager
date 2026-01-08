@@ -1,4 +1,4 @@
-import { eq, like, and, or, desc, sql, inArray, ne, isNotNull } from "drizzle-orm";
+import { eq, and, or, desc, sql, inArray, ne, isNotNull, like } from "drizzle-orm";
 import { getDb } from "./db.js";
 import {
   libraryTags,
@@ -54,9 +54,15 @@ export async function deleteTag(id: number) {
 // LIBRARY MATERIALS
 // ============================================================================
 
-export async function getAllMaterials() {
+export async function getAllMaterials(filters?: {
+  searchTerm?: string;
+  category?: string;
+  supplier?: string;
+  tags?: string[];
+}) {
   const db = await getDb();
-  return db
+  
+  let query = db
     .select({
       id: libraryMaterials.id,
       name: libraryMaterials.name,
@@ -74,8 +80,43 @@ export async function getAllMaterials() {
       createdByName: users.name,
     })
     .from(libraryMaterials)
-    .leftJoin(users, eq(libraryMaterials.createdById, users.id))
-    .orderBy(desc(libraryMaterials.createdAt));
+    .leftJoin(users, eq(libraryMaterials.createdById, users.id));
+
+  // Apply filters
+  const conditions = [];
+  
+  if (filters?.searchTerm) {
+    const searchPattern = `%${filters.searchTerm}%`;
+    conditions.push(
+      or(
+        like(libraryMaterials.name, searchPattern),
+        like(libraryMaterials.description, searchPattern),
+        like(libraryMaterials.supplier, searchPattern)
+      )
+    );
+  }
+
+  if (filters?.category) {
+    conditions.push(eq(libraryMaterials.category, filters.category));
+  }
+
+  if (filters?.supplier) {
+    conditions.push(eq(libraryMaterials.supplier, filters.supplier));
+  }
+
+  if (filters?.tags && filters.tags.length > 0) {
+    // Filter by tags (tags is a JSON array in the database)
+    const tagConditions = filters.tags.map(tag => 
+      like(libraryMaterials.tags, `%"${tag}"%`)
+    );
+    conditions.push(or(...tagConditions));
+  }
+
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions)) as any;
+  }
+
+  return query.orderBy(desc(libraryMaterials.createdAt));
 }
 
 export async function getMaterialById(id: number) {

@@ -1961,3 +1961,65 @@
 - [ ] Implementar toggle de reação (adicionar/remover ao clicar)
 - [ ] Mostrar tooltip com nomes dos utilizadores que reagiram
 - [ ] Adicionar animação ao reagir
+
+
+## Filtro de Pesquisa Avançado na Biblioteca
+### Backend
+- [x] Atualizar função getAllMaterials para aceitar parâmetros de pesquisa (searchTerm, category, supplier, tags)
+- [x] Implementar lógica de filtragem com LIKE para busca textual (nome, descrição, fornecedor)
+- [x] Adicionar suporte para filtros múltiplos combinados com AND
+- [x] Atualizar endpoint tRPC materials.list para aceitar filtros
+
+### Frontend
+- [x] Campo de pesquisa já existe no header da Library
+- [x] Adicionar filtros dropdown para categoria e fornecedor
+- [x] Conectar filtros aos parâmetros da query tRPC
+- [x] Adicionar botão "Limpar filtros" (aparece quando há filtros ativos)
+- [x] Mostrar dropdown dinâmico de fornecedores baseado nos materiais existentes
+- [ ] Testar pesquisa com múltiplos critérios em dados reais
+
+## Dashboard de Análise de Materiais
+### Backend
+- [ ] Criar função getMaterialsUsageStats (materiais mais usados por projeto)
+- [ ] Criar função getMaterialsCategoryDistribution (distribuição por categoria)
+- [ ] Criar função getMaterialsPriceEvolution (evolução de preços ao longo do tempo)
+- [ ] Criar função getMaterialsProjectComparison (comparação entre projetos)
+- [ ] Criar função getMaterialsSupplierStats (estatísticas por fornecedor)
+- [ ] Criar endpoints tRPC para todas as estatísticas
+
+### Frontend
+- [ ] Criar página MaterialsAnalytics.tsx dedicada
+- [ ] Adicionar item "Análise de Materiais" no menu lateral
+- [ ] Criar gráfico de barras para materiais mais usados (Recharts)
+- [ ] Criar gráfico de pizza para distribuição por categoria
+- [ ] Criar gráfico de linha para evolução de preços
+- [ ] Criar tabela comparativa entre projetos
+- [ ] Adicionar cards de resumo (total materiais, valor médio, fornecedores ativos)
+- [ ] Implementar filtros por período de tempo
+- [ ] Adicionar botão de exportar relatório (PDF/Excel)
+- [ ] Testar visualizações com dados reais
+
+## Sistema de Aprovação de Materiais
+### Backend
+- [ ] Adicionar campo approvalStatus à tabela libraryMaterials (pending, approved, rejected)
+- [ ] Adicionar campos approvedBy, approvedAt, rejectionReason
+- [ ] Criar tabela materialApprovalHistory (id, materialId, userId, action, reason, createdAt)
+- [ ] Criar função submitMaterialForApproval
+- [ ] Criar função approveMaterial (apenas para gestores/admins)
+- [ ] Criar função rejectMaterial (apenas para gestores/admins)
+- [ ] Criar função getPendingApprovals
+- [ ] Criar função getApprovalHistory
+- [ ] Adicionar notificações quando material é aprovado/rejeitado
+- [ ] Criar endpoints tRPC para workflow de aprovação
+
+### Frontend
+- [ ] Adicionar campo de status de aprovação no formulário de criar material
+- [ ] Criar página PendingApprovals.tsx para gestores
+- [ ] Adicionar badge de status nos cards de materiais (Pendente, Aprovado, Rejeitado)
+- [ ] Criar dialog de aprovação/rejeição com campo de motivo
+- [ ] Adicionar filtro por status de aprovação na Library
+- [ ] Mostrar histórico de aprovações no detalhe do material
+- [ ] Adicionar notificação quando material é submetido para aprovação
+- [ ] Implementar permissões (apenas gestores podem aprovar/rejeitar)
+- [ ] Adicionar contador de aprovações pendentes no menu
+- [ ] Testar workflow completo de aprovação
