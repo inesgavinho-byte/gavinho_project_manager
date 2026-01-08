@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "../lib/trpc";
+import { exportMaterialsToPDF, exportMaterialsToExcel } from "@/lib/exportService";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -22,7 +23,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { Package, Box, Sparkles, Trash2, Edit, Download, Euro } from "lucide-react";
+import { Package, Box, Sparkles, Trash2, Edit, Download, Euro, FileDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { toast } from "sonner";
 
 interface ProjectLibraryTabProps {
@@ -81,6 +88,46 @@ export function ProjectLibraryTab({ projectId }: ProjectLibraryTabProps) {
     },
   });
 
+  // Export handlers
+  const [isExporting, setIsExporting] = useState(false);
+  const { data: project } = trpc.projects.getById.useQuery({ id: projectId });
+
+  const handleExportPDF = async (includePrice: boolean) => {
+    if (!project || !materials) return;
+    setIsExporting(true);
+    try {
+      await exportMaterialsToPDF({
+        projectCode: project.code || `PROJ_${projectId}`,
+        projectName: project.name || "Projeto Sem Nome",
+        materials,
+        includePrice,
+      });
+      toast.success("PDF exportado com sucesso!");
+    } catch (error) {
+      toast.error(`Erro ao exportar PDF: ${error instanceof Error ? error.message : "Erro desconhecido"}`);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportExcel = async (includePrice: boolean) => {
+    if (!project || !materials) return;
+    setIsExporting(true);
+    try {
+      await exportMaterialsToExcel({
+        projectCode: project.code || `PROJ_${projectId}`,
+        projectName: project.name || "Projeto Sem Nome",
+        materials,
+        includePrice,
+      });
+      toast.success("Excel exportado com sucesso!");
+    } catch (error) {
+      toast.error(`Erro ao exportar Excel: ${error instanceof Error ? error.message : "Erro desconhecido"}`);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const handleUpdateMaterial = () => {
     if (!editMaterialDialog) return;
 
@@ -122,6 +169,56 @@ export function ProjectLibraryTab({ projectId }: ProjectLibraryTabProps) {
 
         {/* Materials Tab */}
         <TabsContent value="materials" className="space-y-4">
+          {/* Header with Export Button */}
+          <div className="flex items-center justify-between">
+            <div />
+            {materials.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-white border-[#C9A882] text-[#5F5C59] hover:bg-[#C9A882]/10"
+                    disabled={isExporting}
+                  >
+                    <FileDown className="w-4 h-4 mr-2" />
+                    {isExporting ? "A exportar..." : "Exportar"}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => handleExportPDF(true)}
+                    disabled={isExporting}
+                  >
+                    <FileDown className="w-4 h-4 mr-2" />
+                    Exportar PDF (com preços)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleExportPDF(false)}
+                    disabled={isExporting}
+                  >
+                    <FileDown className="w-4 h-4 mr-2" />
+                    Exportar PDF (sem preços)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleExportExcel(true)}
+                    disabled={isExporting}
+                  >
+                    <FileDown className="w-4 h-4 mr-2" />
+                    Exportar Excel (com preços)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => handleExportExcel(false)}
+                    disabled={isExporting}
+                  >
+                    <FileDown className="w-4 h-4 mr-2" />
+                    Exportar Excel (sem preços)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+
           {/* Cost Summary */}
           {totalCost && parseFloat(totalCost) > 0 && (
             <Card className="bg-[#C9A882]/10 border-[#C9A882]/30">

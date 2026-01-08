@@ -1951,3 +1951,16 @@ export const projectInspirationLinks = mysqlTable("projectInspirationLinks", {
 }));
 export type ProjectInspirationLink = typeof projectInspirationLinks.$inferSelect;
 export type InsertProjectInspirationLink = typeof projectInspirationLinks.$inferInsert;
+
+
+// Material Price History
+export const materialPriceHistory = mysqlTable("materialPriceHistory", {
+  id: int("id").primaryKey().autoincrement(),
+  materialId: int("materialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  unit: varchar("unit", { length: 50 }).notNull(), // m², m, un, kg, l
+  supplierName: varchar("supplierName", { length: 255 }),
+  notes: text("notes"),
+  recordedAt: timestamp("recordedAt").notNull().defaultNow(),
+  recordedById: int("recordedById").notNull().references(() => user.id),
+});

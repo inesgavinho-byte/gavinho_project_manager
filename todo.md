@@ -1771,3 +1771,53 @@
 - [x] Testar cálculo de custos
 - [x] Testar remoção de associações
 - [x] Validar UI completa
+
+
+## Exportação de Lista de Materiais
+### Backend
+- [x] Criar endpoint tRPC para gerar PDF de lista de materiais
+- [x] Criar endpoint tRPC para gerar Excel de lista de materiais
+- [x] Implementar formatação de PDF com logo, cabeçalho e tabela
+- [x] Implementar geração de Excel com fórmulas de totais
+- [x] Adicionar opção de incluir/excluir preços na exportação
+
+### Frontend
+- [x] Adicionar botão "Exportar" no tab Materiais do projeto
+- [x] Criar dropdown com opções PDF/Excel
+- [x] Implementar download automático do ficheiro gerado
+- [x] Adicionar loading state durante geração
+- [x] Testar exportação completa
+
+## Histórico de Preços de Materiais
+### Backend
+- [ ] Criar tabela materialPriceHistory (id, materialId, price, unit, supplierName, recordedAt, recordedById)
+- [ ] Adicionar trigger/função para registar mudanças de preço automaticamente
+- [ ] Criar endpoint tRPC para obter histórico de preços de um material
+- [ ] Implementar cálculo de variação percentual de preços
+- [ ] Criar endpoint para análise de tendências (subida/descida)
+- [ ] Implementar alertas automáticos para variações > 10%
+
+### Frontend
+- [ ] Adicionar botão "Ver Histórico de Preços" nos cards de materiais
+- [ ] Criar modal com gráfico de evolução de preços (Recharts)
+- [ ] Mostrar variação percentual e tendência
+- [ ] Adicionar tabela com histórico detalhado
+- [ ] Implementar alertas visuais para materiais com preços em alta
+- [ ] Testar visualização completa
+
+## Sugestões Automáticas de Materiais com IA
+### Backend
+- [ ] Criar tabela materialSuggestions (id, projectId, suggestedMaterialId, reason, confidence, createdAt)
+- [ ] Implementar serviço de análise de projetos similares
+- [ ] Criar prompt de IA para sugerir materiais baseado em contexto do projeto
+- [ ] Implementar cálculo de score de relevância
+- [ ] Criar endpoint tRPC para obter sugestões de materiais
+- [ ] Adicionar filtros por orçamento e categoria
+
+### Frontend
+- [ ] Adicionar secção "Materiais Sugeridos" no tab Biblioteca do projeto
+- [ ] Criar cards de sugestões com razão e confiança
+- [ ] Implementar botão "Adicionar ao Projeto" direto das sugestões
+- [ ] Adicionar botão "Recusar Sugestão" com feedback
+- [ ] Mostrar badge "Sugerido por IA" nos materiais recomendados
+- [ ] Testar sugestões em diferentes tipos de projetos

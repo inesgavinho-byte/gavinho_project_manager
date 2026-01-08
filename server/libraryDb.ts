@@ -676,3 +676,100 @@ export async function removeProjectInspiration(id: number) {
   const db = await getDb();
   await db.delete(projectInspirationLinks).where(eq(projectInspirationLinks.id, id));
 }
+
+
+// ============================================================================
+// MATERIAL PRICE HISTORY
+// ============================================================================
+
+import { materialPriceHistory } from "../drizzle/schema";
+import { asc } from "drizzle-orm";
+
+export async function addPriceRecord(data: {
+  materialId: number;
+  price: string;
+  unit: string;
+  supplierName?: string;
+  notes?: string;
+  recordedById: number;
+}) {
+  const db = await getDb();
+  return db.insert(materialPriceHistory).values(data);
+}
+
+export async function getPriceHistory(materialId: number, limit = 50) {
+  const db = await getDb();
+  return db
+    .select()
+    .from(materialPriceHistory)
+    .where(eq(materialPriceHistory.materialId, materialId))
+    .orderBy(desc(materialPriceHistory.recordedAt))
+    .limit(limit);
+}
+
+export async function getLatestPrice(materialId: number) {
+  const db = await getDb();
+  const result = await db
+    .select()
+    .from(materialPriceHistory)
+    .where(eq(materialPriceHistory.materialId, materialId))
+    .orderBy(desc(materialPriceHistory.recordedAt))
+    .limit(1);
+  return result[0] || null;
+}
+
+export async function calculatePriceTrend(materialId: number, days = 90) {
+  const db = await getDb();
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+  
+  const history = await db
+    .select()
+    .from(materialPriceHistory)
+    .where(eq(materialPriceHistory.materialId, materialId))
+    .orderBy(asc(materialPriceHistory.recordedAt));
+  
+  if (history.length < 2) {
+    return {
+      trend: "stable" as const,
+      changePercent: 0,
+      oldestPrice: history[0]?.price || "0",
+      latestPrice: history[0]?.price || "0",
+      dataPoints: history.length,
+    };
+  }
+  
+  const oldest = parseFloat(history[0].price);
+  const latest = parseFloat(history[history.length - 1].price);
+  const changePercent = ((latest - oldest) / oldest) * 100;
+  
+  let trend: "rising" | "falling" | "stable" = "stable";
+  if (changePercent > 5) trend = "rising";
+  else if (changePercent < -5) trend = "falling";
+  
+  return {
+    trend,
+    changePercent: Math.round(changePercent * 10) / 10,
+    oldestPrice: history[0].price,
+    latestPrice: history[history.length - 1].price,
+    dataPoints: history.length,
+  };
+}
+
+export async function getMaterialsWithPriceAlerts(thresholdPercent = 10) {
+  const db = await getDb();
+  const materials = await db.select().from(libraryMaterials);
+  
+  const alerts = [];
+  for (const material of materials) {
+    const trend = await calculatePriceTrend(material.id, 90);
+    if (trend.trend === "rising" && trend.changePercent >= thresholdPercent) {
+      alerts.push({
+        material,
+        trend,
+      });
+    }
+  }
+  
+  return alerts;
+}

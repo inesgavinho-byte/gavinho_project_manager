@@ -36,6 +36,7 @@ import {
   removeProjectInspiration,
 } from "./libraryDb.js";
 import { storagePut } from "./storage.js";
+import { TRPCError } from "@trpc/server";
 
 export const libraryRouter = router({
   // ============================================================================
@@ -473,4 +474,84 @@ export const libraryRouter = router({
         return { success: true };
       }),
   }),
+
+  // ============================================================================
+  // EXPORTAÇÃO DE MATERIAIS
+  // ============================================================================
+
+  exportMaterialsPDF: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        includePrice: z.boolean().default(true),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        console.log("[exportMaterialsPDF] Starting export for project:", input.projectId);
+        
+        const { generateMaterialsPDF } = await import("./materialExportService.js");
+        const { getProjectById } = await import("./projectsDb.js");
+
+        const project = await getProjectById(input.projectId);
+        if (!project) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+        }
+        
+        console.log("[exportMaterialsPDF] Project found:", project.name);
+
+        const pdfBuffer = await generateMaterialsPDF({
+          projectId: input.projectId,
+          projectName: project.name,
+          projectCode: project.code,
+          includePrice: input.includePrice,
+        });
+        
+        console.log("[exportMaterialsPDF] PDF generated successfully, size:", pdfBuffer.length);
+
+        // Retornar base64 para o frontend fazer download
+        return {
+          filename: `${project.code}_materiais.pdf`,
+          data: pdfBuffer.toString("base64"),
+          mimeType: "application/pdf",
+        };
+      } catch (error) {
+        console.error("[exportMaterialsPDF] Error:", error);
+        throw new TRPCError({ 
+          code: "INTERNAL_SERVER_ERROR", 
+          message: error instanceof Error ? error.message : "Erro ao gerar PDF" 
+        });
+      }
+    }),
+
+  exportMaterialsExcel: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        includePrice: z.boolean().default(true),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { generateMaterialsExcel } = await import("./materialExportService.js");
+      const { getProjectById } = await import("./projectsDb.js");
+
+      const project = await getProjectById(input.projectId);
+      if (!project) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Projeto não encontrado" });
+      }
+
+      const excelBuffer = await generateMaterialsExcel({
+        projectId: input.projectId,
+        projectName: project.name,
+        projectCode: project.code,
+        includePrice: input.includePrice,
+      });
+
+      // Retornar base64 para o frontend fazer download
+      return {
+        filename: `${project.code}_materiais.xlsx`,
+        data: excelBuffer.toString("base64"),
+        mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      };
+    }),
 });
