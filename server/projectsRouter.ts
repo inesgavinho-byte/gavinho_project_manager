@@ -266,12 +266,13 @@ export const projectsRouter = router({
     upload: protectedProcedure
       .input(z.object({
         projectId: z.number(),
+        phaseId: z.number().nullable().optional(),
         name: z.string().min(1),
         description: z.string().optional(),
         fileData: z.string(), // base64
         fileType: z.string(),
         fileSize: z.number(),
-        category: z.enum(["contract", "plan", "license", "invoice", "other"]).default("other"),
+        category: z.enum(["contract", "plan", "license", "invoice", "drawing", "specification", "photo", "report", "render", "approval", "other"]).default("other"),
       }))
       .mutation(async ({ input, ctx }) => {
         // Decode base64 and upload to S3
@@ -281,6 +282,7 @@ export const projectsRouter = router({
 
         const documentId = await projectsDb.createDocument({
           projectId: input.projectId,
+          phaseId: input.phaseId || null,
           name: input.name,
           description: input.description,
           fileUrl: url,

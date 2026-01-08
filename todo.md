@@ -1580,3 +1580,19 @@
 - [ ] Criar fase "Projeto Base" com datas e responsável
 - [ ] Criar fase "Projeto de Execução" com datas e responsável
 - [ ] Criar fase "Acompanhamento de Obra" com datas e responsável
+
+
+## Upload de Documentos por Fase - Implementação Completa
+- [x] Adicionar campo phaseId à tabela projectDocuments
+- [x] Expandir categorias de documentos (renders, aprovações, desenhos técnicos, especificações)
+- [x] Atualizar schema do banco de dados com novo campo e categorias
+- [x] Aplicar migrations SQL no banco de dados
+- [x] Atualizar endpoint documents.upload para aceitar phaseId
+- [x] Criar modal de upload com seleção de fase
+- [x] Implementar dropdown de fases no modal
+- [x] Criar filtro de fases na visualização de documentos
+- [x] Implementar agrupamento de documentos por fase
+- [x] Adicionar visualização hierárquica (fase > documentos)
+- [x] Aumentar limite de tamanho de arquivo para 20MB
+- [x] Adicionar suporte para múltiplos tipos de arquivo (PDF, imagens, Office)
+- [x] Testar funcionalidade completa no navegador

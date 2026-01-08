@@ -123,18 +123,20 @@ export type InsertProjectTeamMember = typeof projectTeam.$inferInsert;
 export const projectDocuments = mysqlTable("projectDocuments", {
   id: int("id").autoincrement().primaryKey(),
   projectId: int("projectId").notNull(),
+  phaseId: int("phaseId"), // Optional: associate document with specific phase
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   fileUrl: text("fileUrl").notNull(),
   fileKey: varchar("fileKey", { length: 500 }).notNull(),
   fileType: varchar("fileType", { length: 100 }), // e.g., "application/pdf", "image/jpeg"
   fileSize: int("fileSize"), // in bytes
-  category: mysqlEnum("category", ["contract", "plan", "license", "invoice", "drawing", "specification", "photo", "report", "other"]).default("other").notNull(),
+  category: mysqlEnum("category", ["contract", "plan", "license", "invoice", "drawing", "specification", "photo", "report", "render", "approval", "other"]).default("other").notNull(),
   uploadedById: int("uploadedById").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
   projectIdIdx: index("projectId_idx").on(table.projectId),
+  phaseIdIdx: index("phaseId_idx").on(table.phaseId),
   categoryIdx: index("category_idx").on(table.category),
 }));
 
