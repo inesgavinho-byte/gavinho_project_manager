@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE materialComments (\n  id INT PRIMARY KEY AUTO_INCREMENT,\n  materialId INT NOT NULL,\n  userId INT NOT NULL,\n  content TEXT NOT NULL,\n  isPinned BOOLEAN NOT NULL DEFAULT FALSE,\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  FOREIGN KEY (materialId) REFERENCES libraryMaterials(id) ON DELETE CASCADE,\n  FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,\n  INDEX materialComment_material_idx (materialId),\n  INDEX materialComment_user_idx (userId),\n  INDEX materialComment_pinned_idx (isPinned)\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute CREATE TABLE materialComments (\n  id INT PRIMARY KEY AUTO_INCREMENT,\n  materialId INT NOT NULL,\n  userId INT NOT NULL,\n  content TEXT NOT NULL,\n  isPinned BOOLEAN NOT NULL DEFAULT FALSE,\n  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  updatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  FOREIGN KEY (materialId) REFERENCES libraryMaterials(id) ON DELETE CASCADE,\n  FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,\n  INDEX materialComment_material_idx (materialId),\n  INDEX materialComment_user_idx (userId),\n  INDEX materialComment_pinned_idx (isPinned)\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 670
+}

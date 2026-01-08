@@ -2047,3 +2047,24 @@ export const favoriteMaterials = mysqlTable("favoriteMaterials", {
 
 export type FavoriteMaterial = typeof favoriteMaterials.$inferSelect;
 export type InsertFavoriteMaterial = typeof favoriteMaterials.$inferInsert;
+
+
+/**
+ * Material Comments - User comments and discussions on materials
+ */
+export const materialComments = mysqlTable("materialComments", {
+  id: int("id").primaryKey().autoincrement(),
+  materialId: int("materialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  isPinned: boolean("isPinned").notNull().default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull().onUpdateNow(),
+}, (table) => ({
+  materialIdIdx: index("materialComment_material_idx").on(table.materialId),
+  userIdIdx: index("materialComment_user_idx").on(table.userId),
+  pinnedIdx: index("materialComment_pinned_idx").on(table.isPinned),
+}));
+
+export type MaterialComment = typeof materialComments.$inferSelect;
+export type InsertMaterialComment = typeof materialComments.$inferInsert;

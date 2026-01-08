@@ -12,6 +12,7 @@ import {
   materialCollections,
   collectionMaterials,
   favoriteMaterials,
+  materialComments,
 } from "../drizzle/schema.js";
 
 // ============================================================================
@@ -1667,4 +1668,168 @@ export async function reorderMaterialsInCollection(
   }
 
   return { success: true };
+}
+
+
+// ============================================================================
+// MATERIAL COMMENTS
+// ============================================================================
+
+export async function createMaterialComment(
+  materialId: number,
+  userId: number,
+  content: string
+) {
+  const db = await getDb();
+  
+  const [result] = await db.insert(materialComments).values({
+    materialId,
+    userId,
+    content,
+  });
+
+  return { id: result.insertId };
+}
+
+export async function getMaterialComments(materialId: number) {
+  const db = await getDb();
+  
+  const comments = await db
+    .select({
+      id: materialComments.id,
+      content: materialComments.content,
+      isPinned: materialComments.isPinned,
+      createdAt: materialComments.createdAt,
+      updatedAt: materialComments.updatedAt,
+      user: {
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        avatarUrl: users.avatarUrl,
+      },
+    })
+    .from(materialComments)
+    .innerJoin(users, eq(materialComments.userId, users.id))
+    .where(eq(materialComments.materialId, materialId))
+    .orderBy(desc(materialComments.isPinned), desc(materialComments.createdAt));
+
+  return comments;
+}
+
+export async function updateMaterialComment(
+  commentId: number,
+  userId: number,
+  content: string
+) {
+  const db = await getDb();
+  
+  // Verify comment belongs to user
+  const [comment] = await db
+    .select()
+    .from(materialComments)
+    .where(eq(materialComments.id, commentId))
+    .limit(1);
+
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+
+  if (comment.userId !== userId) {
+    throw new Error("You can only edit your own comments");
+  }
+
+  await db
+    .update(materialComments)
+    .set({ content, updatedAt: new Date() })
+    .where(eq(materialComments.id, commentId));
+
+  return { success: true };
+}
+
+export async function deleteMaterialComment(
+  commentId: number,
+  userId: number
+) {
+  const db = await getDb();
+  
+  // Verify comment belongs to user
+  const [comment] = await db
+    .select()
+    .from(materialComments)
+    .where(eq(materialComments.id, commentId))
+    .limit(1);
+
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+
+  if (comment.userId !== userId) {
+    throw new Error("You can only delete your own comments");
+  }
+
+  await db
+    .delete(materialComments)
+    .where(eq(materialComments.id, commentId));
+
+  return { success: true };
+}
+
+export async function togglePinMaterialComment(
+  commentId: number,
+  userId: number
+) {
+  const db = await getDb();
+  
+  // Verify comment belongs to user
+  const [comment] = await db
+    .select()
+    .from(materialComments)
+    .where(eq(materialComments.id, commentId))
+    .limit(1);
+
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+
+  if (comment.userId !== userId) {
+    throw new Error("You can only pin your own comments");
+  }
+
+  await db
+    .update(materialComments)
+    .set({ isPinned: !comment.isPinned })
+    .where(eq(materialComments.id, commentId));
+
+  return { success: true, isPinned: !comment.isPinned };
+}
+
+export async function getMaterialCommentCount(materialId: number) {
+  const db = await getDb();
+  
+  const result = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(materialComments)
+    .where(eq(materialComments.materialId, materialId));
+
+  return result[0]?.count || 0;
+}
+
+export async function getMaterialCommentCounts(materialIds: number[]) {
+  if (materialIds.length === 0) return {};
+  
+  const db = await getDb();
+  
+  const results = await db
+    .select({
+      materialId: materialComments.materialId,
+      count: sql<number>`COUNT(*)`,
+    })
+    .from(materialComments)
+    .where(sql`${materialComments.materialId} IN (${sql.join(materialIds.map(id => sql`${id}`), sql`, `)})`)
+    .groupBy(materialComments.materialId);
+
+  return results.reduce((acc, row) => {
+    acc[row.materialId] = row.count;
+    return acc;
+  }, {} as Record<number, number>);
 }

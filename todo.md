@@ -1888,3 +1888,30 @@
 - [x] Implementar seleção de cor e ícone para coleções
 - [x] Mostrar materiais já adicionados em cada coleção
 - [ ] Testar fluxo completo de favoritos e coleções
+
+
+## Sistema de Comentários para Materiais
+### Backend
+- [x] Criar tabela materialComments (id, materialId, userId, content, isPinned, createdAt, updatedAt)
+- [x] Criar funções CRUD de comentários (create, get, update, delete)
+- [x] Implementar função para fixar/desafixar comentários (togglePinMaterialComment)
+- [x] Criar endpoint para obter comentários de um material (ordenados por isPinned e createdAt)
+- [x] Criar endpoint para contar comentários por material (getMaterialCommentCount, getMaterialCommentCounts)
+- [x] Adicionar validação de permissões (só o autor pode editar/eliminar)
+- [x] Criar endpoints tRPC para todas as operações (createMaterialComment, getMaterialComments, updateMaterialComment, deleteMaterialComment, togglePinMaterialComment, getMaterialCommentCount, getMaterialCommentCounts)
+
+### Frontend
+- [x] Criar componente MaterialCommentsDialog
+- [x] Implementar formulário de adicionar comentário com textarea
+- [x] Criar lista de comentários com avatar, nome, data e conteúdo
+- [x] Adicionar botões de editar/eliminar (visíveis só para o autor)
+- [x] Implementar botão de fixar comentário (ícone de pin preenchido quando fixado)
+- [x] Adicionar botão "Comentários" nos cards de materiais
+- [x] Criar dialog/modal de comentários MaterialCommentsDialog
+- [x] Implementar edição inline de comentários com textarea
+- [x] Adicionar confirmação antes de eliminar comentário
+- [x] Mostrar indicador visual de comentários fixados (border [#C9A882], bg [#C9A882]/5, badge "Fixado")
+- [x] Adicionar timestamp relativo com date-fns ("há 2 horas", "há 3 dias") em português
+- [x] Mostrar "(editado)" quando comentário foi atualizado
+- [x] Adicionar avatares de utilizadores (imagem ou inicial do nome)
+- [ ] Testar fluxo completo de comentários

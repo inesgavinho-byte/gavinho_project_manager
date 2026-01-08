@@ -57,6 +57,13 @@ import {
   getCollectionsForMaterial,
   getCollectionStats,
   reorderMaterialsInCollection,
+  createMaterialComment,
+  getMaterialComments,
+  updateMaterialComment,
+  deleteMaterialComment,
+  togglePinMaterialComment,
+  getMaterialCommentCount,
+  getMaterialCommentCounts,
 } from "./libraryDb.js";
 import { storagePut } from "./storage.js";
 import { TRPCError } from "@trpc/server";
@@ -898,5 +905,58 @@ export const libraryRouter = router({
         ctx.user.id,
         input.materialOrders
       );
+    }),
+
+  // Material Comments
+  createMaterialComment: protectedProcedure
+    .input(
+      z.object({
+        materialId: z.number(),
+        content: z.string().min(1),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return createMaterialComment(input.materialId, ctx.user.id, input.content);
+    }),
+
+  getMaterialComments: protectedProcedure
+    .input(z.object({ materialId: z.number() }))
+    .query(async ({ input }) => {
+      return getMaterialComments(input.materialId);
+    }),
+
+  updateMaterialComment: protectedProcedure
+    .input(
+      z.object({
+        commentId: z.number(),
+        content: z.string().min(1),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return updateMaterialComment(input.commentId, ctx.user.id, input.content);
+    }),
+
+  deleteMaterialComment: protectedProcedure
+    .input(z.object({ commentId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      return deleteMaterialComment(input.commentId, ctx.user.id);
+    }),
+
+  togglePinMaterialComment: protectedProcedure
+    .input(z.object({ commentId: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      return togglePinMaterialComment(input.commentId, ctx.user.id);
+    }),
+
+  getMaterialCommentCount: protectedProcedure
+    .input(z.object({ materialId: z.number() }))
+    .query(async ({ input }) => {
+      return getMaterialCommentCount(input.materialId);
+    }),
+
+  getMaterialCommentCounts: protectedProcedure
+    .input(z.object({ materialIds: z.array(z.number()) }))
+    .query(async ({ input }) => {
+      return getMaterialCommentCounts(input.materialIds);
     }),
 });

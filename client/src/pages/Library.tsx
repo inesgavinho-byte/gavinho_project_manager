@@ -37,6 +37,7 @@ import {
   Upload,
   Star,
   Folder,
+  MessageSquare,
 } from "lucide-react";
 import { AddMaterialDialog } from "../components/library/AddMaterialDialog";
 import { Add3DModelDialog } from "../components/library/Add3DModelDialog";
@@ -47,6 +48,7 @@ import { PriceHistoryDialog } from "../components/library/PriceHistoryDialog";
 import { BulkImportDialog } from "../components/BulkImportDialog";
 import { ManageCollectionsDialog } from "../components/ManageCollectionsDialog";
 import { AddToCollectionDialog } from "../components/AddToCollectionDialog";
+import { MaterialCommentsDialog } from "../components/MaterialCommentsDialog";
 
 // Categorias predefinidas para materiais
 const MATERIAL_CATEGORIES = [
@@ -94,6 +96,11 @@ export default function Library() {
   const [bulkImportOpen, setBulkImportOpen] = useState(false);
   const [manageCollectionsOpen, setManageCollectionsOpen] = useState(false);
   const [addToCollectionDialog, setAddToCollectionDialog] = useState<{
+    open: boolean;
+    materialId: number;
+    materialName: string;
+  }>({ open: false, materialId: 0, materialName: "" });
+  const [commentsDialog, setCommentsDialog] = useState<{
     open: boolean;
     materialId: number;
     materialName: string;
@@ -437,6 +444,20 @@ export default function Library() {
                         variant="outline"
                         size="sm"
                         onClick={() =>
+                          setCommentsDialog({
+                            open: true,
+                            materialId: material.id,
+                            materialName: material.name,
+                          })
+                        }
+                      >
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Comentários
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
                           setAddToProjectDialog({
                             open: true,
                             itemType: "material",
@@ -701,6 +722,14 @@ export default function Library() {
         onSuccess={() => {
           refetchMaterials();
         }}
+      />
+      <MaterialCommentsDialog
+        open={commentsDialog.open}
+        onOpenChange={(open) =>
+          setCommentsDialog({ ...commentsDialog, open })
+        }
+        materialId={commentsDialog.materialId}
+        materialName={commentsDialog.materialName}
       />
     </div>
   );
