@@ -31,6 +31,7 @@ import { hrRouter } from "./hrRouter";
 import { siteManagementRouter } from "./siteManagementRouter";
 import { budgetsRouter } from "./budgetsRouter";
 import { relationshipsRouter } from "./relationshipsRouter";
+import { libraryRouter } from "./libraryRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -70,6 +71,9 @@ export const appRouter = router({
   // HR - Recursos Humanos
   hr: hrRouter,
   siteManagement: siteManagementRouter,
+
+  // Library - Biblioteca de Materiais, Modelos 3D e Inspiração
+  library: libraryRouter,
 
   // MQT - Mapa de Quantidades
   mqt: mqtRouter,

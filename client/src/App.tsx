@@ -52,6 +52,7 @@ import ProposalsContracts from "./pages/ProposalsContracts";
 import Purchases from "./pages/Purchases";
 import RelationshipsDashboard from "./pages/RelationshipsDashboard";
 import Clients from "./pages/Clients";
+import Library from "./pages/Library";
 
 function Router() {
   return (
@@ -163,6 +164,12 @@ function Router() {
       <Route path="/budgets">
         <DashboardLayout>
           <Budgets />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/biblioteca">
+        <DashboardLayout>
+          <Library />
         </DashboardLayout>
       </Route>
       

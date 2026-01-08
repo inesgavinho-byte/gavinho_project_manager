@@ -1807,3 +1807,89 @@ export const supplierProjects = mysqlTable("supplierProjects", {
 
 export type SupplierProject = typeof supplierProjects.$inferSelect;
 export type InsertSupplierProject = typeof supplierProjects.$inferInsert;
+
+
+/**
+ * Library Tags - Centralized tag management for all library items
+ */
+export const libraryTags = mysqlTable("libraryTags", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 100 }).notNull().unique(),
+  category: mysqlEnum("category", ["material", "model", "inspiration", "general"]).default("general").notNull(),
+  color: varchar("color", { length: 20 }).default("#C9A882"), // Default GAVINHO gold
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  categoryIdx: index("libraryTag_category_idx").on(table.category),
+}));
+export type LibraryTag = typeof libraryTags.$inferSelect;
+export type InsertLibraryTag = typeof libraryTags.$inferInsert;
+
+/**
+ * Library Materials - Physical materials, finishes, and products
+ */
+export const libraryMaterials = mysqlTable("libraryMaterials", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 100 }).notNull(), // e.g., "Art Deco", "Clássico", "Contemporâneo", etc.
+  tags: text("tags"), // JSON array of tag IDs
+  imageUrl: text("imageUrl"),
+  fileUrl: text("fileUrl"), // PDF specs, technical sheets
+  supplier: varchar("supplier", { length: 255 }),
+  price: decimal("price", { precision: 15, scale: 2 }),
+  unit: varchar("unit", { length: 50 }), // e.g., "m²", "unidade", "kg"
+  createdById: int("createdById").notNull().references(() => users.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  categoryIdx: index("libraryMaterial_category_idx").on(table.category),
+  supplierIdx: index("libraryMaterial_supplier_idx").on(table.supplier),
+  createdByIdx: index("libraryMaterial_createdBy_idx").on(table.createdById),
+}));
+export type LibraryMaterial = typeof libraryMaterials.$inferSelect;
+export type InsertLibraryMaterial = typeof libraryMaterials.$inferInsert;
+
+/**
+ * Library 3D Models - 3D models, BIM objects, and digital assets
+ */
+export const library3DModels = mysqlTable("library3DModels", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 100 }).notNull(),
+  tags: text("tags"), // JSON array of tag IDs
+  thumbnailUrl: text("thumbnailUrl"),
+  modelUrl: text("modelUrl").notNull(), // S3 URL to 3D model file
+  fileFormat: varchar("fileFormat", { length: 50 }), // e.g., ".skp", ".3ds", ".obj", ".fbx"
+  fileSize: int("fileSize"), // Size in bytes
+  createdById: int("createdById").notNull().references(() => users.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  categoryIdx: index("library3DModel_category_idx").on(table.category),
+  fileFormatIdx: index("library3DModel_fileFormat_idx").on(table.fileFormat),
+  createdByIdx: index("library3DModel_createdBy_idx").on(table.createdById),
+}));
+export type Library3DModel = typeof library3DModels.$inferSelect;
+export type InsertLibrary3DModel = typeof library3DModels.$inferInsert;
+
+/**
+ * Library Inspiration - Inspiration images, mood boards, and references
+ */
+export const libraryInspiration = mysqlTable("libraryInspiration", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  tags: text("tags"), // JSON array of tag IDs
+  imageUrl: text("imageUrl").notNull(),
+  sourceUrl: text("sourceUrl"), // Original source URL if applicable
+  projectId: int("projectId").references(() => projects.id), // Optional link to project
+  createdById: int("createdById").notNull().references(() => users.id),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("libraryInspiration_project_idx").on(table.projectId),
+  createdByIdx: index("libraryInspiration_createdBy_idx").on(table.createdById),
+}));
+export type LibraryInspiration = typeof libraryInspiration.$inferSelect;
+export type InsertLibraryInspiration = typeof libraryInspiration.$inferInsert;

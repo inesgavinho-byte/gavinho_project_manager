@@ -1714,3 +1714,29 @@
 - [x] Implementar botões de upload de ficheiros/imagens
 - [x] Adicionar suporte para menções com @
 - [ ] Testar layout completo
+
+
+
+## Módulo Biblioteca - Backend e Schema
+- [x] Criar tabela libraryMaterials (id, name, description, category, tags, imageUrl, fileUrl, supplier, price, unit, createdBy, createdAt)
+- [x] Criar tabela library3DModels (id, name, description, category, tags, thumbnailUrl, modelUrl, fileFormat, fileSize, createdBy, createdAt)
+- [x] Criar tabela libraryInspiration (id, title, description, tags, imageUrl, sourceUrl, projectId, createdBy, createdAt)
+- [x] Criar tabela libraryTags (id, name, category, color)
+- [x] Criar índices para pesquisa rápida
+- [x] Implementar funções de base de dados em libraryDb.ts
+- [x] Criar router tRPC libraryRouter.ts com endpoints CRUD
+- [x] Adicionar procedures para pesquisa e filtros
+
+## Módulo Biblioteca - Frontend
+- [x] Implementar modal de adicionar material com upload de imagem
+- [x] Implementar modal de adicionar modelo 3D com upload de ficheiro
+- [x] Implementar modal de adicionar inspiração com upload de imagem
+- [x] Criar componente de card de material com preview
+- [x] Criar componente de card de modelo 3D com preview
+- [x] Criar componente de card de inspiração com preview
+- [x] Implementar sistema de gestão de tags
+- [x] Adicionar funcionalidade de editar/apagar itens
+- [x] Implementar pesquisa em tempo real
+- [x] Implementar filtros por categoria e tags
+- [x] Testar upload de ficheiros para S3
+- [x] Testar funcionalidade completa
