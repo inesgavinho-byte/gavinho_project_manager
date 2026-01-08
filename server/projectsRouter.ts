@@ -304,6 +304,70 @@ export const projectsRouter = router({
       }),
   }),
 
+  // ============= MANAGEMENT DOCUMENTS (RESTRICTED ACCESS) =============
+
+  managementDocs: router({
+    list: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input, ctx }) => {
+        // Only admin and project managers can access
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Acesso restrito a Gestores de Projeto e Administração" });
+        }
+        return await projectsDb.getManagementDocuments(input.projectId);
+      }),
+
+    upload: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        phaseId: z.number().nullable().optional(),
+        name: z.string().min(1),
+        description: z.string().optional(),
+        fileData: z.string(), // base64
+        fileType: z.string(),
+        fileSize: z.number(),
+        category: z.enum(["contract", "invoice", "receipt", "meeting_minutes", "correspondence", "legal_document", "other"]).default("other"),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Only admin and project managers can upload
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Acesso restrito a Gestores de Projeto e Administração" });
+        }
+
+        // Decode base64 and upload to S3
+        const buffer = Buffer.from(input.fileData, 'base64');
+        const fileKey = `projects/${input.projectId}/management/${Date.now()}-${input.name}`;
+        const { url } = await storagePut(fileKey, buffer, input.fileType);
+
+        const documentId = await projectsDb.createManagementDocument({
+          projectId: input.projectId,
+          phaseId: input.phaseId || null,
+          documentType: "project_management",
+          name: input.name,
+          description: input.description,
+          fileUrl: url,
+          fileKey,
+          fileType: input.fileType,
+          fileSize: input.fileSize,
+          category: input.category,
+          uploadedById: ctx.user.id,
+        });
+
+        return { id: documentId, url };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ documentId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        // Only admin and project managers can delete
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Acesso restrito a Gestores de Projeto e Administração" });
+        }
+        await projectsDb.deleteDocument(input.documentId);
+        return { success: true };
+      }),
+  }),
+
   // ============= TRASH (SOFT DELETE) =============
 
   trash: router({

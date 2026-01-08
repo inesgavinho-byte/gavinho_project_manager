@@ -1596,3 +1596,14 @@
 - [x] Aumentar limite de tamanho de arquivo para 20MB
 - [x] Adicionar suporte para múltiplos tipos de arquivo (PDF, imagens, Office)
 - [x] Testar funcionalidade completa no navegador
+
+
+## Separador "Gestão de Projeto" - Documentos Administrativos
+- [ ] Adicionar campo documentType ao schema projectDocuments (design_review, project_management)
+- [ ] Criar categorias específicas para documentos administrativos (contratos, faturas, recibos, atas, correspondência, documentos legais)
+- [ ] Implementar controlo de acesso baseado em roles (gestor de projeto + admin)
+- [ ] Criar componente ProjectManagementDocs.tsx
+- [ ] Adicionar tab "Gestão de Projeto" ao ProjectDetails.tsx
+- [ ] Implementar filtros e organização por categoria
+- [ ] Testar controlo de acesso
+- [ ] Criar checkpoint

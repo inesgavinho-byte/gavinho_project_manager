@@ -231,6 +231,8 @@ export async function getProjectDocuments(projectId: number) {
     .select({
       id: projectDocuments.id,
       projectId: projectDocuments.projectId,
+      phaseId: projectDocuments.phaseId,
+      documentType: projectDocuments.documentType,
       name: projectDocuments.name,
       description: projectDocuments.description,
       fileUrl: projectDocuments.fileUrl,
@@ -245,7 +247,10 @@ export async function getProjectDocuments(projectId: number) {
     })
     .from(projectDocuments)
     .leftJoin(users, eq(projectDocuments.uploadedById, users.id))
-    .where(eq(projectDocuments.projectId, projectId))
+    .where(and(
+      eq(projectDocuments.projectId, projectId),
+      eq(projectDocuments.documentType, "design_review")
+    ))
     .orderBy(desc(projectDocuments.createdAt));
 }
 
@@ -272,7 +277,10 @@ export async function getDocumentById(documentId: number) {
 export async function createDocument(data: InsertProjectDocument) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(projectDocuments).values(data);
+  const result = await db.insert(projectDocuments).values({
+    ...data,
+    documentType: data.documentType || "design_review",
+  });
   return result[0].insertId;
 }
 
@@ -286,6 +294,46 @@ export async function deleteDocument(documentId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(projectDocuments).where(eq(projectDocuments.id, documentId));
+}
+
+// ============= MANAGEMENT DOCUMENTS (RESTRICTED) =============
+
+export async function getManagementDocuments(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db
+    .select({
+      id: projectDocuments.id,
+      projectId: projectDocuments.projectId,
+      phaseId: projectDocuments.phaseId,
+      documentType: projectDocuments.documentType,
+      name: projectDocuments.name,
+      description: projectDocuments.description,
+      fileUrl: projectDocuments.fileUrl,
+      fileKey: projectDocuments.fileKey,
+      fileType: projectDocuments.fileType,
+      fileSize: projectDocuments.fileSize,
+      category: projectDocuments.category,
+      uploadedById: projectDocuments.uploadedById,
+      createdAt: projectDocuments.createdAt,
+      updatedAt: projectDocuments.updatedAt,
+    })
+    .from(projectDocuments)
+    .where(and(
+      eq(projectDocuments.projectId, projectId),
+      eq(projectDocuments.documentType, "project_management")
+    ))
+    .orderBy(desc(projectDocuments.createdAt));
+}
+
+export async function createManagementDocument(data: InsertProjectDocument) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(projectDocuments).values({
+    ...data,
+    documentType: "project_management",
+  });
+  return result[0].insertId;
 }
 
 // ============= PROJECT GALLERY =============

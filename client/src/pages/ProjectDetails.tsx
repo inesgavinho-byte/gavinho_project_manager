@@ -32,13 +32,15 @@ import {
   Download,
   Eye,
   Filter,
-  X
+  X,
+  Folder
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ProjectDocuments from "@/components/ProjectDocuments";
+import ProjectManagementDocs from "@/components/ProjectManagementDocs";
 import ProjectGallery from "@/components/ProjectGallery";
 import { DeliveryCenter } from "@/components/DeliveryCenter";
 import { ProjectGanttChart } from "@/components/ProjectGanttChart";
@@ -337,6 +339,10 @@ export default function ProjectDetails() {
           <TabsTrigger value="documents" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <FileText className="w-4 h-4 mr-2" />
             Design Review
+          </TabsTrigger>
+          <TabsTrigger value="management" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
+            <Folder className="w-4 h-4 mr-2" />
+            Gestão de Projeto
           </TabsTrigger>
           <TabsTrigger value="gallery" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <ImageIcon className="w-4 h-4 mr-2" />
@@ -813,6 +819,11 @@ export default function ProjectDetails() {
 
         <TabsContent value="documents">
           <ProjectDocuments projectId={projectId} />
+        </TabsContent>
+
+        {/* Management Tab - Restricted Access */}
+        <TabsContent value="management">
+          <ProjectManagementDocs projectId={projectId} />
         </TabsContent>
 
         {/* Briefing Tab with Sub-tabs */}
