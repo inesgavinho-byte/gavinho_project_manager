@@ -23,7 +23,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { Package, Box, Sparkles, Trash2, Edit, Download, Euro, FileDown } from "lucide-react";
+import { Package, Box, Sparkles, Trash2, Edit, Download, Euro, FileDown, Lightbulb, BarChart3 } from "lucide-react";
+import { MaterialSuggestionsSection } from "./MaterialSuggestionsSection";
+import { SupplierComparisonDialog } from "./SupplierComparisonDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +46,12 @@ export function ProjectLibraryTab({ projectId }: ProjectLibraryTabProps) {
     unitPrice: string;
     notes: string;
     status: string;
+  } | null>(null);
+
+  const [supplierComparisonDialog, setSupplierComparisonDialog] = useState<{
+    open: boolean;
+    materialId: number;
+    materialName: string;
   } | null>(null);
 
   // Queries
@@ -164,6 +172,13 @@ export function ProjectLibraryTab({ projectId }: ProjectLibraryTabProps) {
           >
             <Sparkles className="w-4 h-4 mr-2" />
             Inspiração ({inspirations.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="suggestions"
+            className="data-[state=active]:bg-white data-[state=active]:text-[#5F5C59]"
+          >
+            <Lightbulb className="w-4 h-4 mr-2" />
+            Sugestões IA
           </TabsTrigger>
         </TabsList>
 
@@ -314,6 +329,21 @@ export function ProjectLibraryTab({ projectId }: ProjectLibraryTabProps) {
                       <Edit className="w-4 h-4 mr-2" />
                       Editar
                     </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setSupplierComparisonDialog({
+                          open: true,
+                          materialId: item.material.id,
+                          materialName: item.material.name,
+                        })
+                      }
+                      className="bg-[#C9A882]/10 border-[#C9A882] text-[#5F5C59] hover:bg-[#C9A882]/20"
+                    >
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Comparar
+                    </Button>
                     {item.material?.fileUrl && (
                       <Button variant="outline" size="sm" asChild>
                         <a href={item.material.fileUrl} target="_blank" rel="noopener noreferrer">
@@ -460,6 +490,11 @@ export function ProjectLibraryTab({ projectId }: ProjectLibraryTabProps) {
             </div>
           )}
         </TabsContent>
+
+        {/* Suggestions Tab */}
+        <TabsContent value="suggestions" className="space-y-4">
+          <MaterialSuggestionsSection projectId={projectId} />
+        </TabsContent>
       </Tabs>
 
       {/* Edit Material Dialog */}
@@ -550,6 +585,20 @@ export function ProjectLibraryTab({ projectId }: ProjectLibraryTabProps) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+      )}
+
+      {/* Supplier Comparison Dialog */}
+      {supplierComparisonDialog && (
+        <SupplierComparisonDialog
+          materialId={supplierComparisonDialog.materialId}
+          materialName={supplierComparisonDialog.materialName}
+          open={supplierComparisonDialog.open}
+          onOpenChange={(open) =>
+            open
+              ? null
+              : setSupplierComparisonDialog(null)
+          }
+        />
       )}
     </div>
   );

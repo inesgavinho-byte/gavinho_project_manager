@@ -1806,17 +1806,61 @@
 
 ## Sugestões Automáticas de Materiais com IA
 ### Backend
-- [ ] Criar tabela materialSuggestions (id, projectId, suggestedMaterialId, reason, confidence, createdAt)
-- [ ] Implementar serviço de análise de projetos similares
-- [ ] Criar prompt de IA para sugerir materiais baseado em contexto do projeto
-- [ ] Implementar cálculo de score de relevância
-- [ ] Criar endpoint tRPC para obter sugestões de materiais
-- [ ] Adicionar filtros por orçamento e categoria
-
+- [x] Criar tabela materialSuggestions (id, projectId, suggestedMaterialId, reason, confidence, createdAt)
+- [x] Implementar serviço de análise de projetos similares
+- [x] Criar lógica para sugerir materiais baseado em contexto do projeto (histórico, orçamento, prioridade)
+- [x] Implementar cálculo de score de relevância (confidence 0-100)
+- [x] Criar endpoints tRPC para obter sugestões de materiais (generateSuggestions, getProjectSuggestions, respondToSuggestion, getSuggestionStats)
+- [x] Adicionar filtros por status (pending, accepted, rejected)
 ### Frontend
-- [ ] Adicionar secção "Materiais Sugeridos" no tab Biblioteca do projeto
-- [ ] Criar cards de sugestões com razão e confiança
-- [ ] Implementar botão "Adicionar ao Projeto" direto das sugestões
-- [ ] Adicionar botão "Recusar Sugestão" com feedback
+- [x] Adicionar tab "Sugestões IA" no tab Biblioteca do projeto
+- [x] Criar componente MaterialSuggestionsSection com cards de sugestões
+- [x] Mostrar razão e confiança de cada sugestão
+- [x] Implementar botão "Aceitar" que adiciona material ao projeto automaticamente
+- [x] Adicionar botão "Rejeitar" com feedback
+- [x] Adicionar estatísticas de sugestões (total, pendentes, aceites, rejeitadas, confiança média)
+- [x] Implementar tabs para filtrar por status (Pendentes, Aceites, Rejeitadas)
+- [x] Mostrar match factors (histórico, orçamento, prioridade) com badges
+- [ ] Testar geração de sugestões em projeto realk
 - [ ] Mostrar badge "Sugerido por IA" nos materiais recomendados
 - [ ] Testar sugestões em diferentes tipos de projetos
+
+
+## Comparação de Fornecedores
+### Backend
+- [x] Criar função getSupplierComparison para obter histórico de preços por fornecedor
+- [x] Implementar lógica de comparação de preços entre fornecedores (média, mín, máx, último preço)
+- [x] Calcular variação percentual e tendência de preços (últimos 30 dias)
+- [x] Criar função getSupplierPriceAlerts para alertas de desvios significativos
+- [x] Adicionar endpoints tRPC (getSupplierComparison, getSupplierPriceAlerts)
+### Frontend
+- [x] Instalar biblioteca Recharts para gráficos
+- [x] Criar componente SupplierComparisonDialog com gráficos
+- [x] Mostrar evolução de preços ao longo do tempo (LineChart multi-fornecedor)
+- [x] Implementar cards comparativos de fornecedores com métricas detalhadas
+- [x] Adicionar badges de tendência (subida/descida/estável) e melhor oferta
+- [x] Adicionar botão "Comparar" nos cards de materiais do projeto
+- [x] Mostrar summary cards (total fornecedores, melhor oferta, preço médio)
+- [ ] Testar comparação com dados reais de múltiplos fornecedores
+
+## Importação em Massa de Materiais
+### Backend
+- [x] Instalar bibliotecas papaparse (CSV) e xlsx (Excel)
+- [x] Criar interface MaterialImportRow e ImportValidationError
+- [x] Implementar função validateMaterialImportRow com validação completa
+- [x] Criar função bulkImportMaterials para importação em batch
+- [x] Adicionar suporte para histórico de preços na importação (priceHistory array)
+- [x] Criar função generateImportTemplate com dados de exemplo
+- [x] Adicionar endpoints tRPC (bulkImportMaterials, getImportTemplate)
+### Frontend
+- [x] Criar componente BulkImportDialog com 3 steps (upload, preview, result)
+- [x] Implementar upload de ficheiros com suporte a CSV e Excel
+- [x] Adicionar parser de CSV com papaparse
+- [x] Adicionar parser de Excel com xlsx
+- [x] Implementar preview dos dados com tabela
+- [x] Adicionar validação visual de erros por linha (destaque vermelho)
+- [x] Criar summary cards (total, válidas, com erros)
+- [x] Implementar botão de download de template CSV
+- [x] Mostrar resumo de importação com sucesso/erros detalhados
+- [x] Adicionar botão "Importar CSV/Excel" na página Library
+- [ ] Testar importação com ficheiros reais de múltiplos materiais

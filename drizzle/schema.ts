@@ -1962,5 +1962,31 @@ export const materialPriceHistory = mysqlTable("materialPriceHistory", {
   supplierName: varchar("supplierName", { length: 255 }),
   notes: text("notes"),
   recordedAt: timestamp("recordedAt").notNull().defaultNow(),
-  recordedById: int("recordedById").notNull().references(() => user.id),
+  recordedById: int("recordedById").notNull().references(() => users.id),
 });
+
+export type MaterialPriceHistory = typeof materialPriceHistory.$inferSelect;
+export type InsertMaterialPriceHistory = typeof materialPriceHistory.$inferInsert;
+
+/**
+ * Material Suggestions - AI-powered material suggestions for projects
+ */
+export const materialSuggestions = mysqlTable("materialSuggestions", {
+  id: int("id").primaryKey().autoincrement(),
+  projectId: int("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  suggestedMaterialId: int("suggestedMaterialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  reason: text("reason").notNull(), // Why this material was suggested
+  confidence: decimal("confidence", { precision: 5, scale: 2 }).notNull(), // 0-100 score
+  status: mysqlEnum("status", ["pending", "accepted", "rejected"]).default("pending").notNull(),
+  matchFactors: text("matchFactors"), // JSON: {budget: true, style: true, history: false}
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  respondedAt: timestamp("respondedAt"),
+  respondedById: int("respondedById").references(() => users.id),
+}, (table) => ({
+  projectIdIdx: index("materialSuggestion_project_idx").on(table.projectId),
+  materialIdIdx: index("materialSuggestion_material_idx").on(table.suggestedMaterialId),
+  statusIdx: index("materialSuggestion_status_idx").on(table.status),
+}));
+
+export type MaterialSuggestion = typeof materialSuggestions.$inferSelect;
+export type InsertMaterialSuggestion = typeof materialSuggestions.$inferInsert;

@@ -34,6 +34,15 @@ import {
   addInspirationToProject,
   listProjectInspiration,
   removeProjectInspiration,
+  generateSuggestionsForProject,
+  getProjectSuggestions,
+  respondToSuggestion,
+  getSuggestionStats,
+  getSupplierComparison,
+  getSupplierPriceAlerts,
+  bulkImportMaterials,
+  generateImportTemplate,
+  type MaterialImportRow,
 } from "./libraryDb.js";
 import { storagePut } from "./storage.js";
 import { TRPCError } from "@trpc/server";
@@ -614,4 +623,106 @@ export const libraryRouter = router({
     .query(async ({ input }) => {
       return getMaterialsWithPriceAlerts(input.thresholdPercent);
     }),
+
+  // ============================================================================
+  // MATERIAL SUGGESTIONS (AI-powered)
+  // ============================================================================
+
+  generateSuggestions: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const count = await generateSuggestionsForProject(input.projectId);
+      return { success: true, count };
+    }),
+
+  getProjectSuggestions: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+        status: z.enum(["pending", "accepted", "rejected"]).optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return getProjectSuggestions(input.projectId, input.status);
+    }),
+
+  respondToSuggestion: protectedProcedure
+    .input(
+      z.object({
+        suggestionId: z.number(),
+        status: z.enum(["accepted", "rejected"]),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      await respondToSuggestion(input.suggestionId, input.status, ctx.user.id);
+      return { success: true };
+    }),
+
+  getSuggestionStats: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number(),
+      })
+    )
+    .query(async ({ input }) => {
+      return getSuggestionStats(input.projectId);
+    }),
+
+  // ============================================================================
+  // SUPPLIER COMPARISON
+  // ============================================================================
+
+  getSupplierComparison: protectedProcedure
+    .input(
+      z.object({
+        materialId: z.number(),
+      })
+    )
+    .query(async ({ input }) => {
+      return getSupplierComparison(input.materialId);
+    }),
+
+  getSupplierPriceAlerts: protectedProcedure
+    .input(
+      z.object({
+        thresholdPercent: z.number().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return getSupplierPriceAlerts(input.thresholdPercent);
+    }),
+
+  // ============================================================================
+  // BULK IMPORT
+  // ============================================================================
+
+  bulkImportMaterials: protectedProcedure
+    .input(
+      z.object({
+        materials: z.array(
+          z.object({
+            name: z.string(),
+            description: z.string().optional(),
+            category: z.string(),
+            supplier: z.string().optional(),
+            price: z.string().optional(),
+            unit: z.string().optional(),
+            tags: z.string().optional(),
+            imageUrl: z.string().optional(),
+            fileUrl: z.string().optional(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return bulkImportMaterials(input.materials, ctx.user.id);
+    }),
+
+  getImportTemplate: protectedProcedure.query(async () => {
+    return generateImportTemplate();
+  }),
 });

@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS materialSuggestions (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  projectId INT NOT NULL,\n  suggestedMaterialId INT NOT NULL,\n  reason TEXT NOT NULL,\n  confidence DECIMAL(5, 2) NOT NULL,\n  status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending' NOT NULL,\n  matchFactors TEXT,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  respondedAt TIMESTAMP NULL,\n  respondedById INT NULL,\n  FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE CASCADE,\n  FOREIGN KEY (suggestedMaterialId) REFERENCES libraryMaterials(id) ON DELETE CASCADE,\n  FOREIGN KEY (respondedById) REFERENCES users(id),\n  INDEX materialSuggestion_project_idx (projectId),\n  INDEX materialSuggestion_material_idx (suggestedMaterialId),\n  INDEX materialSuggestion_status_idx (status)\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute CREATE TABLE IF NOT EXISTS materialSuggestions (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  projectId INT NOT NULL,\n  suggestedMaterialId INT NOT NULL,\n  reason TEXT NOT NULL,\n  confidence DECIMAL(5, 2) NOT NULL,\n  status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending' NOT NULL,\n  matchFactors TEXT,\n  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,\n  respondedAt TIMESTAMP NULL,\n  respondedById INT NULL,\n  FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE CASCADE,\n  FOREIGN KEY (suggestedMaterialId) REFERENCES libraryMaterials(id) ON DELETE CASCADE,\n  FOREIGN KEY (respondedById) REFERENCES users(id),\n  INDEX materialSuggestion_project_idx (projectId),\n  INDEX materialSuggestion_material_idx (suggestedMaterialId),\n  INDEX materialSuggestion_status_idx (status)\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 407
+}

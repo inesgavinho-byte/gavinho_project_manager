@@ -34,6 +34,7 @@ import {
   Settings,
   FolderPlus,
   TrendingUp,
+  Upload,
 } from "lucide-react";
 import { AddMaterialDialog } from "../components/library/AddMaterialDialog";
 import { Add3DModelDialog } from "../components/library/Add3DModelDialog";
@@ -41,6 +42,7 @@ import { AddInspirationDialog } from "../components/library/AddInspirationDialog
 import { ManageTagsDialog } from "../components/library/ManageTagsDialog";
 import { AddToProjectDialog } from "../components/library/AddToProjectDialog";
 import { PriceHistoryDialog } from "../components/library/PriceHistoryDialog";
+import { BulkImportDialog } from "../components/BulkImportDialog";
 
 // Categorias predefinidas para materiais
 const MATERIAL_CATEGORIES = [
@@ -84,7 +86,8 @@ export default function Library() {
     open: boolean;
     materialId: number;
     materialName: string;
-  }>({ open: false, materialId: 0, materialName: "" });  // Queries
+  }>({ open: false, materialId: 0, materialName: "" });
+  const [bulkImportOpen, setBulkImportOpen] = useState(false);  // Queries
   const { data: materials = [], refetch: refetchMaterials } = trpc.library.materials.list.useQuery();
   const { data: models3D = [], refetch: refetchModels } = trpc.library.models3D.list.useQuery();
   const { data: inspiration = [], refetch: refetchInspiration } = trpc.library.inspiration.list.useQuery();
@@ -178,6 +181,17 @@ export default function Library() {
                 <Tag className="w-4 h-4 mr-2" />
                 Gerir Tags
               </Button>
+              {activeTab === "materials" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setBulkImportOpen(true)}
+                  className="border-[#C9A882] text-[#C9A882] hover:bg-[#C9A882]/10"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Importar CSV/Excel
+                </Button>
+              )}
               <Button
                 variant="default"
                 size="sm"
@@ -589,6 +603,13 @@ export default function Library() {
         }
         materialId={priceHistoryDialog.materialId}
         materialName={priceHistoryDialog.materialName}
+      />
+      <BulkImportDialog
+        open={bulkImportOpen}
+        onOpenChange={setBulkImportOpen}
+        onImportComplete={() => {
+          refetchMaterials();
+        }}
       />
     </div>
   );

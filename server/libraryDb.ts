@@ -1,4 +1,4 @@
-import { eq, like, and, or, desc, sql, inArray } from "drizzle-orm";
+import { eq, like, and, or, desc, sql, inArray, ne, isNotNull } from "drizzle-orm";
 import { getDb } from "./db.js";
 import {
   libraryTags,
@@ -6,6 +6,9 @@ import {
   library3DModels,
   libraryInspiration,
   users,
+  materialSuggestions,
+  projects,
+  projectMaterials,
 } from "../drizzle/schema.js";
 
 // ============================================================================
@@ -772,4 +775,526 @@ export async function getMaterialsWithPriceAlerts(thresholdPercent = 10) {
   }
   
   return alerts;
+}
+
+// ============================================================================
+// MATERIAL SUGGESTIONS (AI-powered)
+// ============================================================================
+
+export async function createMaterialSuggestion(data: {
+  projectId: number;
+  suggestedMaterialId: number;
+  reason: string;
+  confidence: number;
+  matchFactors?: string;
+}) {
+  const db = await getDb();
+  const [suggestion] = await db.insert(materialSuggestions).values(data);
+  return suggestion;
+}
+
+export async function getProjectSuggestions(projectId: number, status?: "pending" | "accepted" | "rejected") {
+  const db = await getDb();
+  let query = db
+    .select({
+      id: materialSuggestions.id,
+      projectId: materialSuggestions.projectId,
+      suggestedMaterialId: materialSuggestions.suggestedMaterialId,
+      reason: materialSuggestions.reason,
+      confidence: materialSuggestions.confidence,
+      status: materialSuggestions.status,
+      matchFactors: materialSuggestions.matchFactors,
+      createdAt: materialSuggestions.createdAt,
+      respondedAt: materialSuggestions.respondedAt,
+      respondedById: materialSuggestions.respondedById,
+      // Material details
+      materialName: libraryMaterials.name,
+      materialDescription: libraryMaterials.description,
+      materialCategory: libraryMaterials.category,
+      materialImageUrl: libraryMaterials.imageUrl,
+      materialPrice: libraryMaterials.price,
+      materialUnit: libraryMaterials.unit,
+      materialSupplier: libraryMaterials.supplier,
+    })
+    .from(materialSuggestions)
+    .leftJoin(libraryMaterials, eq(materialSuggestions.suggestedMaterialId, libraryMaterials.id))
+    .where(eq(materialSuggestions.projectId, projectId));
+
+  if (status) {
+    query = query.where(eq(materialSuggestions.status, status));
+  }
+
+  return query.orderBy(desc(materialSuggestions.confidence), desc(materialSuggestions.createdAt));
+}
+
+export async function respondToSuggestion(
+  suggestionId: number,
+  status: "accepted" | "rejected",
+  userId: number
+) {
+  const db = await getDb();
+  await db
+    .update(materialSuggestions)
+    .set({
+      status,
+      respondedAt: new Date(),
+      respondedById: userId,
+    })
+    .where(eq(materialSuggestions.id, suggestionId));
+}
+
+export async function getSuggestionStats(projectId: number) {
+  const db = await getDb();
+  const suggestions = await db
+    .select()
+    .from(materialSuggestions)
+    .where(eq(materialSuggestions.projectId, projectId));
+
+  return {
+    total: suggestions.length,
+    pending: suggestions.filter((s) => s.status === "pending").length,
+    accepted: suggestions.filter((s) => s.status === "accepted").length,
+    rejected: suggestions.filter((s) => s.status === "rejected").length,
+    avgConfidence:
+      suggestions.length > 0
+        ? suggestions.reduce((sum, s) => sum + Number(s.confidence), 0) / suggestions.length
+        : 0,
+  };
+}
+
+/**
+ * Generate AI suggestions for a project based on:
+ * - Similar projects (same category, budget range)
+ * - Material usage history
+ * - Budget constraints
+ */
+export async function generateSuggestionsForProject(projectId: number) {
+  const db = await getDb();
+
+  // Get project details
+  const [project] = await db
+    .select()
+    .from(projects)
+    .where(eq(projects.id, projectId))
+    .limit(1);
+
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
+  // Get materials already associated with this project
+  const existingMaterials = await db
+    .select({ materialId: projectMaterials.materialId })
+    .from(projectMaterials)
+    .where(eq(projectMaterials.projectId, projectId));
+
+  const existingMaterialIds = existingMaterials.map((m) => m.materialId);
+
+  // Find similar projects (same priority, similar budget)
+  const similarProjects = await db
+    .select()
+    .from(projects)
+    .where(
+      and(
+        eq(projects.priority, project.priority),
+        ne(projects.id, projectId),
+        isNotNull(projects.budget)
+      )
+    )
+    .limit(10);
+
+  // Get materials used in similar projects
+  const materialUsageMap = new Map<number, number>(); // materialId -> usage count
+
+  for (const simProject of similarProjects) {
+    const materials = await db
+      .select({ materialId: projectMaterials.materialId })
+      .from(projectMaterials)
+      .where(eq(projectMaterials.projectId, simProject.id));
+
+    materials.forEach((m) => {
+      materialUsageMap.set(m.materialId, (materialUsageMap.get(m.materialId) || 0) + 1);
+    });
+  }
+
+  // Sort materials by usage frequency
+  const sortedMaterials = Array.from(materialUsageMap.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10); // Top 10 most used
+
+  // Filter out materials already in the project
+  const candidateMaterials = sortedMaterials.filter(
+    ([materialId]) => !existingMaterialIds.includes(materialId)
+  );
+
+  // Create suggestions
+  const suggestions = [];
+  for (const [materialId, usageCount] of candidateMaterials) {
+    const [material] = await db
+      .select()
+      .from(libraryMaterials)
+      .where(eq(libraryMaterials.id, materialId))
+      .limit(1);
+
+    if (!material) continue;
+
+    // Calculate confidence based on usage frequency and budget match
+    let confidence = Math.min((usageCount / similarProjects.length) * 100, 95);
+
+    // Adjust confidence based on budget
+    const projectBudget = Number(project.budget || 0);
+    const materialPrice = Number(material.price || 0);
+    
+    const matchFactors = {
+      history: usageCount > 2,
+      budget: projectBudget > 0 && materialPrice > 0 && materialPrice < projectBudget * 0.1,
+      priority: true,
+    };
+
+    if (matchFactors.budget) {
+      confidence = Math.min(confidence + 10, 98);
+    }
+
+    const reason = `Este material foi utilizado em ${usageCount} de ${similarProjects.length} projetos similares com prioridade ${project.priority}. ${
+      matchFactors.budget
+        ? "O preço está dentro do orçamento do projeto."
+        : "Considere verificar o orçamento disponível."
+    }`;
+
+    suggestions.push({
+      projectId,
+      suggestedMaterialId: materialId,
+      reason,
+      confidence: Math.round(confidence),
+      matchFactors: JSON.stringify(matchFactors),
+    });
+  }
+
+  // Insert suggestions into database
+  if (suggestions.length > 0) {
+    await db.insert(materialSuggestions).values(suggestions);
+  }
+
+  return suggestions.length;
+}
+
+// ============================================================================
+// SUPPLIER COMPARISON
+// ============================================================================
+
+import { materialPriceHistory } from "../drizzle/schema.js";
+
+export async function getSupplierComparison(materialId: number) {
+  const db = await getDb();
+  
+  // Obter histórico de preços agrupado por fornecedor
+  const priceHistory = await db
+    .select({
+      supplierName: materialPriceHistory.supplierName,
+      prices: sql<string>`GROUP_CONCAT(CONCAT(${materialPriceHistory.price}, ':', ${materialPriceHistory.recordedAt}) ORDER BY ${materialPriceHistory.recordedAt} SEPARATOR ',')`,
+      avgPrice: sql<number>`AVG(${materialPriceHistory.price})`,
+      minPrice: sql<number>`MIN(${materialPriceHistory.price})`,
+      maxPrice: sql<number>`MAX(${materialPriceHistory.price})`,
+      lastPrice: sql<number>`(SELECT price FROM ${materialPriceHistory} mph2 WHERE mph2.materialId = ${materialPriceHistory.materialId} AND mph2.supplierName = ${materialPriceHistory.supplierName} ORDER BY recordedAt DESC LIMIT 1)`,
+      lastUpdate: sql<Date>`MAX(${materialPriceHistory.recordedAt})`,
+      recordCount: sql<number>`COUNT(*)`,
+    })
+    .from(materialPriceHistory)
+    .where(eq(materialPriceHistory.materialId, materialId))
+    .groupBy(materialPriceHistory.supplierName);
+
+  // Calcular variação percentual e tendência para cada fornecedor
+  const suppliers = priceHistory.map((supplier) => {
+    const pricesData = supplier.prices.split(',').map((p) => {
+      const [price, date] = p.split(':');
+      return { price: parseFloat(price), date: new Date(date) };
+    });
+
+    // Calcular tendência (últimos 30 dias vs anteriores)
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    
+    const recentPrices = pricesData.filter(p => p.date >= thirtyDaysAgo);
+    const olderPrices = pricesData.filter(p => p.date < thirtyDaysAgo);
+    
+    let trend: 'up' | 'down' | 'stable' = 'stable';
+    let trendPercent = 0;
+    
+    if (recentPrices.length > 0 && olderPrices.length > 0) {
+      const recentAvg = recentPrices.reduce((sum, p) => sum + p.price, 0) / recentPrices.length;
+      const olderAvg = olderPrices.reduce((sum, p) => sum + p.price, 0) / olderPrices.length;
+      trendPercent = ((recentAvg - olderAvg) / olderAvg) * 100;
+      
+      if (trendPercent > 5) trend = 'up';
+      else if (trendPercent < -5) trend = 'down';
+    }
+
+    // Variação entre min e max
+    const priceVariation = supplier.maxPrice && supplier.minPrice
+      ? ((supplier.maxPrice - supplier.minPrice) / supplier.minPrice) * 100
+      : 0;
+
+    return {
+      supplierName: supplier.supplierName,
+      avgPrice: supplier.avgPrice,
+      minPrice: supplier.minPrice,
+      maxPrice: supplier.maxPrice,
+      lastPrice: supplier.lastPrice,
+      lastUpdate: supplier.lastUpdate,
+      recordCount: supplier.recordCount,
+      trend,
+      trendPercent: Math.abs(trendPercent),
+      priceVariation,
+      priceHistory: pricesData,
+    };
+  });
+
+  // Ordenar por preço médio (do menor para o maior)
+  suppliers.sort((a, b) => a.avgPrice - b.avgPrice);
+
+  // Identificar melhor oferta atual
+  const bestCurrentOffer = suppliers.length > 0 
+    ? suppliers.reduce((best, current) => 
+        current.lastPrice < best.lastPrice ? current : best
+      )
+    : null;
+
+  return {
+    suppliers,
+    bestCurrentOffer: bestCurrentOffer?.supplierName || null,
+    totalSuppliers: suppliers.length,
+  };
+}
+
+export async function getSupplierPriceAlerts(thresholdPercent: number = 10) {
+  const db = await getDb();
+  
+  // Obter todos os materiais com histórico de preços
+  const materials = await db
+    .select({
+      materialId: materialPriceHistory.materialId,
+      materialName: libraryMaterials.name,
+    })
+    .from(materialPriceHistory)
+    .innerJoin(libraryMaterials, eq(materialPriceHistory.materialId, libraryMaterials.id))
+    .groupBy(materialPriceHistory.materialId, libraryMaterials.name);
+
+  const alerts = [];
+
+  for (const material of materials) {
+    const comparison = await getSupplierComparison(material.materialId);
+    
+    if (comparison.suppliers.length === 0) continue;
+    
+    // Verificar se há fornecedores com diferença significativa
+    const avgPrice = comparison.suppliers.reduce((sum, s) => sum + s.avgPrice, 0) / comparison.suppliers.length;
+    
+    for (const supplier of comparison.suppliers) {
+      const deviation = Math.abs(((supplier.lastPrice - avgPrice) / avgPrice) * 100);
+      
+      if (deviation > thresholdPercent) {
+        alerts.push({
+          materialId: material.materialId,
+          materialName: material.materialName,
+          supplierName: supplier.supplierName,
+          currentPrice: supplier.lastPrice,
+          avgMarketPrice: avgPrice,
+          deviation,
+          type: supplier.lastPrice > avgPrice ? 'expensive' : 'cheap',
+        });
+      }
+    }
+  }
+
+  return alerts;
+}
+
+// ============================================================================
+// BULK IMPORT
+// ============================================================================
+
+export interface MaterialImportRow {
+  name: string;
+  description?: string;
+  category: string;
+  supplier?: string;
+  price?: string;
+  unit?: string;
+  tags?: string;
+  imageUrl?: string;
+  fileUrl?: string;
+  // For price history import
+  priceHistory?: Array<{
+    price: number;
+    supplierName: string;
+    recordedAt: Date;
+  }>;
+}
+
+export interface ImportValidationError {
+  row: number;
+  field: string;
+  message: string;
+}
+
+export function validateMaterialImportRow(
+  row: MaterialImportRow,
+  rowIndex: number
+): ImportValidationError[] {
+  const errors: ImportValidationError[] = [];
+
+  // Required fields
+  if (!row.name || row.name.trim() === "") {
+    errors.push({
+      row: rowIndex,
+      field: "name",
+      message: "Nome é obrigatório",
+    });
+  }
+
+  if (!row.category || row.category.trim() === "") {
+    errors.push({
+      row: rowIndex,
+      field: "category",
+      message: "Categoria é obrigatória",
+    });
+  }
+
+  // Validate price format if provided
+  if (row.price && row.price.trim() !== "") {
+    const priceNum = parseFloat(row.price);
+    if (isNaN(priceNum) || priceNum < 0) {
+      errors.push({
+        row: rowIndex,
+        field: "price",
+        message: "Preço deve ser um número válido",
+      });
+    }
+  }
+
+  // Validate URLs if provided
+  if (row.imageUrl && !isValidUrl(row.imageUrl)) {
+    errors.push({
+      row: rowIndex,
+      field: "imageUrl",
+      message: "URL de imagem inválida",
+    });
+  }
+
+  if (row.fileUrl && !isValidUrl(row.fileUrl)) {
+    errors.push({
+      row: rowIndex,
+      field: "fileUrl",
+      message: "URL de ficheiro inválida",
+    });
+  }
+
+  return errors;
+}
+
+function isValidUrl(url: string): boolean {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function bulkImportMaterials(
+  materials: MaterialImportRow[],
+  createdById: number
+): Promise<{
+  success: number;
+  failed: number;
+  errors: ImportValidationError[];
+}> {
+  const db = await getDb();
+  let successCount = 0;
+  let failedCount = 0;
+  const allErrors: ImportValidationError[] = [];
+
+  for (let i = 0; i < materials.length; i++) {
+    const material = materials[i];
+    const rowIndex = i + 2; // +2 because row 1 is header, and arrays are 0-indexed
+
+    // Validate row
+    const errors = validateMaterialImportRow(material, rowIndex);
+    if (errors.length > 0) {
+      allErrors.push(...errors);
+      failedCount++;
+      continue;
+    }
+
+    try {
+      // Insert material
+      const [inserted] = await db.insert(libraryMaterials).values({
+        name: material.name,
+        description: material.description || null,
+        category: material.category,
+        supplier: material.supplier || null,
+        price: material.price || null,
+        unit: material.unit || null,
+        tags: material.tags || null,
+        imageUrl: material.imageUrl || null,
+        fileUrl: material.fileUrl || null,
+        createdById,
+      });
+
+      // If price history is provided, insert it
+      if (material.priceHistory && material.priceHistory.length > 0) {
+        const materialId = inserted.insertId;
+        const priceHistoryRecords = material.priceHistory.map((ph) => ({
+          materialId,
+          price: ph.price.toString(),
+          unit: material.unit || "un",
+          supplierName: ph.supplierName,
+          recordedAt: ph.recordedAt,
+          recordedById: createdById,
+        }));
+
+        await db.insert(materialPriceHistory).values(priceHistoryRecords);
+      }
+
+      successCount++;
+    } catch (error) {
+      allErrors.push({
+        row: rowIndex,
+        field: "general",
+        message: error instanceof Error ? error.message : "Erro ao inserir material",
+      });
+      failedCount++;
+    }
+  }
+
+  return {
+    success: successCount,
+    failed: failedCount,
+    errors: allErrors,
+  };
+}
+
+export function generateImportTemplate(): MaterialImportRow[] {
+  return [
+    {
+      name: "Mármore Carrara",
+      description: "Mármore branco de alta qualidade",
+      category: "Pedra Natural",
+      supplier: "Mármores Portugal",
+      price: "120.50",
+      unit: "m²",
+      tags: "mármore,pedra,branco",
+      imageUrl: "https://exemplo.com/imagem.jpg",
+      fileUrl: "https://exemplo.com/ficha-tecnica.pdf",
+    },
+    {
+      name: "Tinta Acrílica Branca",
+      description: "Tinta lavável para interiores",
+      category: "Tintas",
+      supplier: "CIN",
+      price: "45.00",
+      unit: "L",
+      tags: "tinta,branco,interior",
+    },
+  ];
 }
