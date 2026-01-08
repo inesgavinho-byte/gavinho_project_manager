@@ -56,6 +56,7 @@ import {
   removeMaterialFromCollection,
   getCollectionsForMaterial,
   getCollectionStats,
+  reorderMaterialsInCollection,
 } from "./libraryDb.js";
 import { storagePut } from "./storage.js";
 import { TRPCError } from "@trpc/server";
@@ -878,4 +879,24 @@ export const libraryRouter = router({
   getCollectionStats: protectedProcedure.query(async ({ ctx }) => {
     return getCollectionStats(ctx.user.id);
   }),
+
+  reorderMaterialsInCollection: protectedProcedure
+    .input(
+      z.object({
+        collectionId: z.number(),
+        materialOrders: z.array(
+          z.object({
+            materialId: z.number(),
+            displayOrder: z.number(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      return reorderMaterialsInCollection(
+        input.collectionId,
+        ctx.user.id,
+        input.materialOrders
+      );
+    }),
 });

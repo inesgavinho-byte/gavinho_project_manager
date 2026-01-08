@@ -5,6 +5,7 @@ import {
   FolderKanban,
   MessageSquare,
   Library,
+  Folder,
   Calendar,
   Sparkles,
   HardHat,
@@ -79,6 +80,12 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           label: "Biblioteca",
           icon: Library,
           path: "/biblioteca",
+        },
+        {
+          id: "colecoes",
+          label: "Coleções",
+          icon: Folder,
+          path: "/colecoes",
         },
         {
           id: "calendario-projetos",

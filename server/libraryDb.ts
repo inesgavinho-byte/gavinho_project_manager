@@ -1457,13 +1457,14 @@ export async function getCollection(collectionId: number, userId: number) {
     .select({
       id: collectionMaterials.id,
       notes: collectionMaterials.notes,
+      displayOrder: collectionMaterials.displayOrder,
       addedAt: collectionMaterials.addedAt,
       material: libraryMaterials,
     })
     .from(collectionMaterials)
     .innerJoin(libraryMaterials, eq(collectionMaterials.materialId, libraryMaterials.id))
     .where(eq(collectionMaterials.collectionId, collectionId))
-    .orderBy(desc(collectionMaterials.addedAt));
+    .orderBy(collectionMaterials.displayOrder, desc(collectionMaterials.addedAt));
 
   return {
     ...collection,
@@ -1538,10 +1539,19 @@ export async function addMaterialToCollection(
     throw new Error("Material already in collection");
   }
 
+  // Get max displayOrder in collection
+  const maxOrderResult = await db
+    .select({ maxOrder: sql<number>`COALESCE(MAX(${collectionMaterials.displayOrder}), -1)` })
+    .from(collectionMaterials)
+    .where(eq(collectionMaterials.collectionId, collectionId));
+
+  const nextOrder = (maxOrderResult[0]?.maxOrder ?? -1) + 1;
+
   const [result] = await db.insert(collectionMaterials).values({
     collectionId,
     materialId,
     notes: notes || null,
+    displayOrder: nextOrder,
   });
 
   return { id: result.insertId };
@@ -1622,4 +1632,39 @@ export async function getCollectionStats(userId: number) {
     totalMaterialsInCollections: totalMaterialsInCollections[0]?.count || 0,
     totalFavorites: totalFavorites[0]?.count || 0,
   };
+}
+
+export async function reorderMaterialsInCollection(
+  collectionId: number,
+  userId: number,
+  materialOrders: { materialId: number; displayOrder: number }[]
+) {
+  const db = await getDb();
+  
+  // Verify collection belongs to user
+  const [collection] = await db
+    .select()
+    .from(materialCollections)
+    .where(and(
+      eq(materialCollections.id, collectionId),
+      eq(materialCollections.userId, userId)
+    ))
+    .limit(1);
+
+  if (!collection) {
+    throw new Error("Collection not found or access denied");
+  }
+
+  // Update display order for each material
+  for (const { materialId, displayOrder } of materialOrders) {
+    await db
+      .update(collectionMaterials)
+      .set({ displayOrder })
+      .where(and(
+        eq(collectionMaterials.collectionId, collectionId),
+        eq(collectionMaterials.materialId, materialId)
+      ));
+  }
+
+  return { success: true };
 }

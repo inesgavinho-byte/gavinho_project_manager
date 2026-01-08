@@ -2018,6 +2018,7 @@ export const collectionMaterials = mysqlTable("collectionMaterials", {
   collectionId: int("collectionId").notNull().references(() => materialCollections.id, { onDelete: "cascade" }),
   materialId: int("materialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
   notes: text("notes"), // User notes about why this material is in this collection
+  displayOrder: int("displayOrder").notNull().default(0),
   addedAt: timestamp("addedAt").defaultNow().notNull(),
 }, (table) => ({
   collectionIdIdx: index("collectionMaterial_collection_idx").on(table.collectionId),

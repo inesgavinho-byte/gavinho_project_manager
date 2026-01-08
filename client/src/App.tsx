@@ -53,6 +53,7 @@ import Purchases from "./pages/Purchases";
 import RelationshipsDashboard from "./pages/RelationshipsDashboard";
 import Clients from "./pages/Clients";
 import Library from "./pages/Library";
+import Collections from "./pages/Collections";
 
 function Router() {
   return (
@@ -170,6 +171,11 @@ function Router() {
       <Route path="/biblioteca">
         <DashboardLayout>
           <Library />
+        </DashboardLayout>
+      </Route>
+      <Route path="/colecoes">
+        <DashboardLayout>
+          <Collections />
         </DashboardLayout>
       </Route>
       
