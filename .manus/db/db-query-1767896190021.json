@@ -1,0 +1,13 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'libraryMaterials' AND COLUMN_NAME = 'approvalStatus';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'libraryMaterials' AND COLUMN_NAME = 'approvalStatus';",
+  "rows": [
+    {
+      "COLUMN_NAME": "approvalStatus"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\napprovalStatus\n",
+  "stderr": "",
+  "execution_time_ms": 412
+}

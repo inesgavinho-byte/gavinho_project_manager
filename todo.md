@@ -2074,3 +2074,6 @@
 - [ ] Implementar permissões (apenas gestores podem aprovar/rejeitar)
 - [ ] Adicionar contador de aprovações pendentes no menu
 - [ ] Testar workflow completo de aprovação
+
+## Correção de Erro - Adicionar Material
+- [x] Corrigir erro de inserção de materiais na Biblioteca (campos obrigatórios em falta)

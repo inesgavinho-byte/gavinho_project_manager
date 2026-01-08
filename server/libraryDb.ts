@@ -207,7 +207,22 @@ export async function createMaterial(data: {
   createdById: number;
 }) {
   const db = await getDb();
-  const [material] = await db.insert(libraryMaterials).values(data);
+  const result = await db.insert(libraryMaterials).values({
+    ...data,
+    approvalStatus: "approved", // Default to approved for now
+  });
+  
+  // Get the inserted material by ID
+  const insertId = Number(result[0].insertId);
+  if (isNaN(insertId) || insertId <= 0) {
+    throw new Error(`Failed to get insertId from database. Result: ${JSON.stringify(result)}`);
+  }
+  
+  const material = await getMaterialById(insertId);
+  if (!material) {
+    throw new Error(`Material with id ${insertId} not found after insertion`);
+  }
+  
   return material;
 }
 
