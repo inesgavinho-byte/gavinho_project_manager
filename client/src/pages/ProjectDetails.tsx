@@ -273,15 +273,15 @@ export default function ProjectDetails() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="p-6 border-[#C3BAAF]/20 bg-white">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-[#C9A882]/10 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-[#C9A882]" />
+        <Card className="p-4 border-[#C3BAAF]/20 bg-white">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-10 h-10 bg-[#C9A882]/10 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-[#C9A882]" />
             </div>
-            <span className="text-2xl font-serif text-[#5F5C59]">{project.progress}%</span>
+            <span className="text-xl font-serif text-[#5F5C59]">{project.progress}%</span>
           </div>
-          <p className="text-sm text-[#5F5C59]/60">Progresso Geral</p>
-          <div className="mt-3 h-2 bg-[#EEEAE5] rounded-full overflow-hidden">
+          <p className="text-xs text-[#5F5C59]/60">Progresso Geral</p>
+          <div className="mt-2 h-1.5 bg-[#EEEAE5] rounded-full overflow-hidden">
             <div
               className="h-full bg-[#C9A882] transition-all"
               style={{ width: `${project.progress}%` }}
@@ -289,38 +289,38 @@ export default function ProjectDetails() {
           </div>
         </Card>
 
-        <Card className="p-6 border-[#C3BAAF]/20 bg-white">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-[#C3BAAF]/10 rounded-lg flex items-center justify-center">
-              <Clock className="w-6 h-6 text-[#5F5C59]" />
+        <Card className="p-4 border-[#C3BAAF]/20 bg-white">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-10 h-10 bg-[#C3BAAF]/10 rounded-lg flex items-center justify-center">
+              <Clock className="w-5 h-5 text-[#5F5C59]" />
             </div>
-            <span className="text-2xl font-serif text-[#5F5C59]">
+            <span className="text-xl font-serif text-[#5F5C59]">
               {stats?.completedPhases}/{stats?.totalPhases}
             </span>
           </div>
-          <p className="text-sm text-[#5F5C59]/60">Fases Concluídas</p>
+          <p className="text-xs text-[#5F5C59]/60">Fases Concluídas</p>
         </Card>
 
-        <Card className="p-6 border-[#C3BAAF]/20 bg-white">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
-              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+        <Card className="p-4 border-[#C3BAAF]/20 bg-white">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
             </div>
-            <span className="text-2xl font-serif text-[#5F5C59]">
+            <span className="text-xl font-serif text-[#5F5C59]">
               {stats?.completedMilestones}/{stats?.totalMilestones}
             </span>
           </div>
-          <p className="text-sm text-[#5F5C59]/60">Marcos Concluídos</p>
+          <p className="text-xs text-[#5F5C59]/60">Marcos Concluídos</p>
         </Card>
 
-        <Card className="p-6 border-[#C3BAAF]/20 bg-white">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-              <Users className="w-6 h-6 text-blue-600" />
+        <Card className="p-4 border-[#C3BAAF]/20 bg-white">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+              <Users className="w-5 h-5 text-blue-600" />
             </div>
-            <span className="text-2xl font-serif text-[#5F5C59]">{stats?.teamSize}</span>
+            <span className="text-xl font-serif text-[#5F5C59]">{stats?.teamSize}</span>
           </div>
-          <p className="text-sm text-[#5F5C59]/60">Membros da Equipa</p>
+          <p className="text-xs text-[#5F5C59]/60">Membros da Equipa</p>
         </Card>
       </div>
 

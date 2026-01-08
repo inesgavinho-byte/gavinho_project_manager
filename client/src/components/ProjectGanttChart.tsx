@@ -314,14 +314,14 @@ export function ProjectGanttChart({ projectId }: ProjectGanttChartProps) {
             onSelect={handleTaskSelect}
             onDoubleClick={handleTaskDoubleClick}
             locale="pt"
-            listCellWidth="200px"
-            columnWidth={viewMode === ViewMode.Month ? 60 : viewMode === ViewMode.Week ? 80 : 40}
-            rowHeight={50}
-            barCornerRadius={4}
+            listCellWidth="180px"
+            columnWidth={viewMode === ViewMode.Month ? 50 : viewMode === ViewMode.Week ? 70 : 35}
+            rowHeight={36}
+            barCornerRadius={3}
             todayColor="rgba(201, 168, 130, 0.2)"
             arrowColor="#C9A882"
-            arrowIndent={20}
-            fontSize="14px"
+            arrowIndent={15}
+            fontSize="11px"
             fontFamily="Inter, sans-serif"
           />
         </div>

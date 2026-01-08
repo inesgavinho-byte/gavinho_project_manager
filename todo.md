@@ -2117,3 +2117,9 @@
 - [x] Criar componente NotificationBadge com cores por prioridade
 - [x] Atualizar NotificationsPopover para usar priorização visual
 - [x] Adicionar ícones distintos por tipo de notificação
+
+
+## Ajustes Visuais (Design)
+- [x] Reduzir altura dos cards de estatísticas (padding menor, fontes mais compactas)
+- [x] Corrigir tamanho de fonte excessivo no Gantt Chart
+- [x] Corrigir sobreposição/corte de informação no Gantt Chart
