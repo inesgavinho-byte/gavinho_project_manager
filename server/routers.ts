@@ -30,6 +30,7 @@ import { mqtRouter } from "./mqtRouter";
 import { hrRouter } from "./hrRouter";
 import { siteManagementRouter } from "./siteManagementRouter";
 import { budgetsRouter } from "./budgetsRouter";
+import { relationshipsRouter } from "./relationshipsRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -55,6 +56,7 @@ export const appRouter = router({
 
   // Budgets - Budget management, expenses, alerts
   budgets: budgetsRouter,
+  relationships: relationshipsRouter,
 
   // Deliveries - Central de Entregas
   deliveries: deliveriesRouter,

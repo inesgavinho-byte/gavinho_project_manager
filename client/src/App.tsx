@@ -50,6 +50,7 @@ import WorksLicenses from "./pages/WorksLicenses";
 import ProjectsChat from "./pages/ProjectsChat";
 import ProposalsContracts from "./pages/ProposalsContracts";
 import Purchases from "./pages/Purchases";
+import RelationshipsDashboard from "./pages/RelationshipsDashboard";
 import Clients from "./pages/Clients";
 
 function Router() {
@@ -273,6 +274,12 @@ function Router() {
       <Route path="/purchases">
         <DashboardLayout>
           <Purchases />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/relationships">
+        <DashboardLayout>
+          <RelationshipsDashboard />
         </DashboardLayout>
       </Route>
       

@@ -1686,3 +1686,31 @@
 - [x] Adicionar visualização de projetos nas listagens (badge com contador)
 - [ ] Adicionar filtro por projeto nas páginas
 - [x] Testar funcionalidade completa
+
+
+## Dashboard de Relacionamentos com Gráfico de Rede
+- [x] Criar endpoint tRPC para obter dados de relacionamentos (projetos, clientes, fornecedores)
+- [x] Instalar biblioteca React Flow (reactflow)
+- [x] Criar componente NetworkGraph com nós coloridos por tipo
+- [x] Implementar conexões entre nós (edges)
+- [x] Criar página RelationshipsDashboard com gráfico
+- [x] Adicionar painel de estatísticas (total de conexões, nós por tipo)
+- [x] Implementar filtros por tipo de entidade
+- [x] Adicionar zoom e pan no gráfico (React Flow built-in)
+- [x] Adicionar click em nós para navegar para detalhes
+- [ ] Criar layout automático de nós (dagre ou force-directed)
+- [x] Adicionar rota no App.tsx
+- [ ] Testar funcionalidade completa
+
+
+## Melhoria do Chat Projetos (tipo Teams)
+- [x] Remover segundo "GAVINHO" desnecessário do layout (já não existe)
+- [x] Expandir chat para ocupar todo o espaço disponível
+- [x] Manter lista de canais à esquerda e mensagens à direita
+- [x] Adicionar tabs "Canais" e "Diretas"
+- [x] Implementar botão "Novo Canal"
+- [x] Organizar canais por projeto
+- [x] Adicionar badges de notificações não lidas
+- [x] Implementar botões de upload de ficheiros/imagens
+- [x] Adicionar suporte para menções com @
+- [ ] Testar layout completo
