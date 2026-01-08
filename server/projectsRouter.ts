@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { protectedProcedure, router } from "./_core/trpc";
 import * as projectsDb from "./projectsDb";
+import * as db from "./db";
 import { storagePut } from "./storage";
 
 // ============= PROJECTS ROUTER =============
@@ -206,6 +207,12 @@ export const projectsRouter = router({
         return await projectsDb.getAllUniqueTeamMembers();
       }),
 
+    getMemberHistory: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return await projectsDb.getMemberProjectHistory(input.userId);
+      }),
+
     add: protectedProcedure
       .input(z.object({
         projectId: z.number(),
@@ -216,6 +223,34 @@ export const projectsRouter = router({
       .mutation(async ({ input }) => {
         const memberId = await projectsDb.addTeamMember(input);
         return { id: memberId };
+      }),
+
+    createAndAdd: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        name: z.string().min(1),
+        email: z.string().email(),
+        phone: z.string().optional(),
+        role: z.string().min(1),
+        responsibilities: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        // Create new user first
+        const userId = await db.createSimpleUser({
+          name: input.name,
+          email: input.email,
+          phone: input.phone,
+        });
+        
+        // Then add to project team
+        const memberId = await projectsDb.addTeamMember({
+          projectId: input.projectId,
+          userId,
+          role: input.role,
+          responsibilities: input.responsibilities,
+        });
+        
+        return { id: memberId, userId };
       }),
 
     update: protectedProcedure

@@ -240,6 +240,28 @@ export async function getAllUniqueTeamMembers() {
   return result;
 }
 
+export async function getMemberProjectHistory(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Get all projects where this user has been a team member
+  const result = await db
+    .select({
+      projectId: projectTeam.projectId,
+      projectName: projects.name,
+      role: projectTeam.role,
+      joinedAt: projectTeam.joinedAt,
+      leftAt: projectTeam.leftAt,
+      isActive: projectTeam.isActive,
+    })
+    .from(projectTeam)
+    .innerJoin(projects, eq(projectTeam.projectId, projects.id))
+    .where(eq(projectTeam.userId, userId))
+    .orderBy(desc(projectTeam.joinedAt));
+  
+  return result;
+}
+
 // ============= PROJECT DOCUMENTS =============
 
 export async function getProjectDocuments(projectId: number) {

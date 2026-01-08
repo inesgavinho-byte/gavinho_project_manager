@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import Lightbox from "yet-another-react-lightbox";
@@ -59,6 +59,20 @@ export default function ProjectDetails() {
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [selectedExistingMember, setSelectedExistingMember] = useState<number | null>(null);
   const [isAddingNewMember, setIsAddingNewMember] = useState(false);
+  const [memberSearchQuery, setMemberSearchQuery] = useState("");
+  
+  // Get member history when a member is selected
+  const { data: memberHistory } = trpc.projects.team.getMemberHistory.useQuery(
+    { userId: selectedExistingMember! },
+    { enabled: !!selectedExistingMember }
+  );
+
+  // Sync isAddingNewMember when dialog opens
+  useEffect(() => {
+    if (isAddMemberOpen && !selectedExistingMember) {
+      setIsAddingNewMember(true);
+    }
+  }, [isAddMemberOpen, selectedExistingMember]);
   const [newMember, setNewMember] = useState({
     name: "",
     email: "",
@@ -94,11 +108,27 @@ export default function ProjectDetails() {
       setIsAddMemberOpen(false);
       setSelectedExistingMember(null);
       setIsAddingNewMember(false);
+      setMemberSearchQuery("");
       setNewMember({ name: "", email: "", phone: "", role: "engineer" });
       refetchTeam();
     },
     onError: (error) => {
       toast.error("Erro ao adicionar membro: " + error.message);
+    },
+  });
+
+  const createAndAddMember = trpc.projects.team.createAndAdd.useMutation({
+    onSuccess: () => {
+      toast.success("Novo membro criado e adicionado com sucesso!");
+      setIsAddMemberOpen(false);
+      setSelectedExistingMember(null);
+      setIsAddingNewMember(false);
+      setMemberSearchQuery("");
+      setNewMember({ name: "", email: "", phone: "", role: "engineer" });
+      refetchTeam();
+    },
+    onError: (error) => {
+      toast.error("Erro ao criar membro: " + error.message);
     },
   });
 
@@ -142,13 +172,18 @@ export default function ProjectDetails() {
         role: newMember.role,
       });
     } else if (isAddingNewMember) {
-      // Adding new member - need to create user first
+      // Creating new member
       if (!newMember.name || !newMember.email) {
         toast.error("Nome e email são obrigatórios");
         return;
       }
-      // For now, show message that this feature requires user creation
-      toast.error("Funcionalidade de criar novo utilizador ainda não implementada. Por favor, selecione um membro existente.");
+      createAndAddMember.mutate({
+        projectId,
+        name: newMember.name,
+        email: newMember.email,
+        phone: newMember.phone || undefined,
+        role: newMember.role,
+      });
     } else {
       toast.error("Selecione um membro ou escolha adicionar novo");
     }
@@ -669,10 +704,24 @@ export default function ProjectDetails() {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    {/* Search field */}
+                    {allMembers && allMembers.length > 0 && (
+                      <div className="space-y-2">
+                        <Label htmlFor="member-search" className="text-[#5F5C59]">Pesquisar Membro</Label>
+                        <Input
+                          id="member-search"
+                          value={memberSearchQuery}
+                          onChange={(e) => setMemberSearchQuery(e.target.value)}
+                          placeholder="Digite nome ou email..."
+                          className="border-[#C3BAAF]/20 focus:border-[#C9A882]"
+                        />
+                      </div>
+                    )}
+
                     <div className="space-y-2">
                       <Label htmlFor="member-select" className="text-[#5F5C59]">Selecionar Membro</Label>
                       <Select 
-                        value={selectedExistingMember?.toString() || "new"} 
+                        value={selectedExistingMember?.toString() || (isAddingNewMember ? "new" : "new")} 
                         onValueChange={(value) => {
                           if (value === "new") {
                             setSelectedExistingMember(null);
@@ -698,11 +747,20 @@ export default function ProjectDetails() {
                         <SelectContent>
                           {allMembers && allMembers.length > 0 && (
                             <>
-                              {allMembers.map((member) => (
-                                <SelectItem key={member.userId} value={member.userId.toString()}>
-                                  {member.name} ({member.email})
-                                </SelectItem>
-                              ))}
+                              {allMembers
+                                .filter(member => {
+                                  if (!memberSearchQuery) return true;
+                                  const query = memberSearchQuery.toLowerCase();
+                                  return (
+                                    member.name?.toLowerCase().includes(query) ||
+                                    member.email?.toLowerCase().includes(query)
+                                  );
+                                })
+                                .map((member) => (
+                                  <SelectItem key={member.userId} value={member.userId.toString()}>
+                                    {member.name} ({member.email})
+                                  </SelectItem>
+                                ))}
                               <SelectItem value="new">+ Adicionar Novo Membro</SelectItem>
                             </>
                           )}
@@ -750,11 +808,30 @@ export default function ProjectDetails() {
                     )}
 
                     {selectedExistingMember && (
-                      <div className="p-3 bg-[#EEEAE5] rounded-lg">
-                        <p className="text-sm text-[#5F5C59]">
-                          <strong>Nome:</strong> {newMember.name}<br />
-                          <strong>Email:</strong> {newMember.email}
-                        </p>
+                      <div className="p-4 bg-[#EEEAE5] rounded-lg space-y-3">
+                        <div>
+                          <p className="text-sm text-[#5F5C59]">
+                            <strong>Nome:</strong> {newMember.name}<br />
+                            <strong>Email:</strong> {newMember.email}
+                          </p>
+                        </div>
+                        
+                        {memberHistory && memberHistory.length > 0 && (
+                          <div className="border-t border-[#C3BAAF]/20 pt-3">
+                            <p className="text-xs font-semibold text-[#5F5C59] mb-2">Histórico de Projetos:</p>
+                            <div className="space-y-2 max-h-32 overflow-y-auto">
+                              {memberHistory.map((project, idx) => (
+                                <div key={idx} className="text-xs text-[#5F5C59]/80">
+                                  <span className="font-medium">{project.projectName}</span>
+                                  {" "}- {project.role}
+                                  {project.isActive === 1 && (
+                                    <span className="ml-2 text-emerald-600 font-medium">(Ativo)</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                     <div className="space-y-2">
@@ -781,6 +858,7 @@ export default function ProjectDetails() {
                         setIsAddMemberOpen(false);
                         setSelectedExistingMember(null);
                         setIsAddingNewMember(false);
+                        setMemberSearchQuery("");
                         setNewMember({ name: "", email: "", phone: "", role: "engineer" });
                       }}
                       className="border-[#C3BAAF]/20"
@@ -789,7 +867,7 @@ export default function ProjectDetails() {
                     </Button>
                     <Button
                       onClick={handleAddMember}
-                      disabled={addTeamMember.isPending}
+                      disabled={addTeamMember.isPending || createAndAddMember.isPending}
                       className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white"
                     >
                       {addTeamMember.isPending ? "A adicionar..." : "Adicionar"}

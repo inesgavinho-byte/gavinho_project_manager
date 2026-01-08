@@ -383,6 +383,25 @@ export async function updateUser(userId: number, data: { name?: string }) {
     .where(eq(users.id, userId));
 }
 
+export async function createSimpleUser(data: { name: string; email: string; phone?: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Generate a simple openId for non-OAuth users
+  const openId = `simple_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+  
+  const result = await db.insert(users).values({
+    openId,
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    role: "user",
+    loginMethod: "manual",
+  });
+  
+  return result[0].insertId;
+}
+
 
 // Project Phases
 export async function createProjectPhase(data: InsertProjectPhase) {

@@ -2155,3 +2155,15 @@
 - [x] Permitir adicionar novo membro se não existir
 - [x] Preencher automaticamente dados ao selecionar membro existente
 - [x] Testar funcionalidade completa
+
+
+## Melhorias na Gestão de Equipas
+- [x] Criar endpoint backend para criar novos utilizadores
+- [x] Integrar criação de utilizador no fluxo de adicionar membro
+- [x] Adicionar campo de busca/filtro no dropdown de membros
+- [x] Implementar busca por nome e email
+- [x] Criar query para obter histórico de projetos de um membro
+- [x] Mostrar histórico de projetos ao selecionar membro existente
+- [x] Testar fluxo completo de criação de novo utilizador (backend validado com vitest)
+- [x] Testar busca no dropdown com múltiplos membros
+- [x] Testar visualização de histórico de projetos
