@@ -2077,3 +2077,6 @@
 
 ## Correção de Erro - Adicionar Material
 - [x] Corrigir erro de inserção de materiais na Biblioteca (campos obrigatórios em falta)
+
+## Correção de Erro - Query de Notificações
+- [x] Corrigir query de notificações que usa isRead = 0 em vez de false
