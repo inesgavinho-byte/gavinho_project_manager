@@ -2585,3 +2585,10 @@
 - [ ] Testar responsividade do header
 - [ ] Validar contraste e legibilidade
 - [ ] Confirmar identidade visual completa
+
+
+## Correção de Duplicação de Logo
+- [x] Remover logo GAVINHO do header mobile (DashboardLayout)
+- [x] Manter apenas logo no sidebar (ModularSidebar)
+- [x] Simplificar header mobile para mostrar apenas menu toggle e notificações
+- [ ] Testar visualização em mobile e desktop
