@@ -2204,3 +2204,44 @@
 - [ ] Adicionar equipa e responsáveis
 - [ ] Configurar progresso atual (74-76%)
 - [ ] Testar visualização completa do projeto
+
+## Requisição de Materiais GA00464
+- [x] Verificar se existe obra associada ao projeto GA00464
+- [x] Registar 15 materiais no módulo de Gestão de Obra
+- [x] Registar 1 ferramenta no módulo de Gestão de Obra
+- [x] Validar dados inseridos
+
+## Documentos Projeto MYRIAD
+- [ ] Analisar 469_MYRIAD_diariobordo.pdf
+- [ ] Analisar 469_MYRIAD_ESCOPO.pdf
+- [ ] Analisar 469_MYRIAD_notebook-GoogleDocs.pdf
+- [ ] Analisar 469_MYRIAD_notebook(1).pdf
+- [ ] Extrair informações relevantes do diário de bordo
+- [ ] Extrair informações do escopo do projeto
+- [ ] Integrar notas na plataforma
+
+
+## Implementação do Novo Design System (Warm Beige/Soft Cream)
+- [x] Analisar HTML de referência fornecido
+- [x] Atualizar paleta de cores no index.css (Warm Beige #ADAA96, Soft Cream #F2F0E7, Olive Gray #8B8670)
+- [x] Integrar fonte Quattrocento Sans do Google Fonts
+- [x] Atualizar componentes de cards com novos espaçamentos (padding 14px, gap 16px, border-radius 10px)
+- [x] Implementar tags de prioridade com cores específicas (Urgente, Alta, Média, Baixa)
+- [x] Estilizar barra de progresso (altura 3px, cores Progress BG #DCD9CF)
+- [x] Atualizar tipografia conforme guia (tamanhos e pesos específicos)
+- [x] Aplicar Border Light #E5E2D9 em cards e inputs
+- [ ] Testar design em todas as páginas principais
+- [ ] Validar responsividade do novo design
+
+## Finalização Documentos MYRIAD
+- [x] Preparar ficheiros Markdown consolidados dos 4 PDFs
+- [x] Disponibilizar documentos para integração na plataforma
+
+## Aplicação do Novo Design aos Componentes
+- [ ] Atualizar DashboardLayout com novo design
+- [x] Atualizar cards de projetos (Projects.tsx)
+- [ ] Atualizar cards de alertas e menções
+- [ ] Atualizar formulários e inputs
+- [ ] Atualizar botões e badges em todos os componentes
+- [ ] Testar design em todas as páginas principais
+- [ ] Validar responsividade do novo design

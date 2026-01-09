@@ -39,12 +39,12 @@ export default function Projects() {
 
   const getPriorityColor = (priority: string) => {
     const colors: Record<string, string> = {
-      low: "bg-blue-50 text-blue-700 border-blue-200",
-      medium: "bg-[#C9A882]/10 text-[#C9A882] border-[#C9A882]/20",
-      high: "bg-orange-50 text-orange-700 border-orange-200",
-      urgent: "bg-red-50 text-red-700 border-red-200",
+      low: "priority-baixa",
+      medium: "priority-media",
+      high: "priority-alta",
+      urgent: "priority-urgente",
     };
-    return colors[priority] || "bg-gray-50 text-gray-700 border-gray-200";
+    return colors[priority] || "priority-media";
   };
 
   const getStatusLabel = (status: string) => {
@@ -139,20 +139,20 @@ export default function Projects() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProjects.map((project) => (
             <Link key={project.id} href={`/projects/${project.id}`}>
-              <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer border-[#C3BAAF]/20 hover:border-[#C9A882]/40 bg-white group">
+              <Card className="gavinho-project-card group">
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="font-serif text-xl text-[#5F5C59] mb-1 group-hover:text-[#C9A882] transition-colors">
+                    <h3 className="gavinho-text-code mb-1">
                       {project.name}
                     </h3>
                     {project.clientName && (
-                      <p className="text-sm text-[#5F5C59]/60">{project.clientName}</p>
+                      <p className="gavinho-text-client mt-2">{project.clientName}</p>
                     )}
                   </div>
-                  <Badge className={`${getPriorityColor(project.priority)} border`}>
+                  <span className={getPriorityColor(project.priority)}>
                     {getPriorityLabel(project.priority)}
-                  </Badge>
+                  </span>
                 </div>
 
                 {/* Description */}
@@ -187,9 +187,9 @@ export default function Projects() {
                     <span className="text-[#5F5C59]/60">Progresso</span>
                     <span className="font-medium text-[#5F5C59]">{project.progress}%</span>
                   </div>
-                  <div className="h-2 bg-[#EEEAE5] rounded-full overflow-hidden">
+                  <div className="gavinho-progress-bar">
                     <div
-                      className="h-full bg-[#C9A882] transition-all duration-300"
+                      className="gavinho-progress-fill"
                       style={{ width: `${project.progress}%` }}
                     />
                   </div>

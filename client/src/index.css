@@ -1,8 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* GAVINHO Typography - Cormorant Garamond for headings */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+/* GAVINHO Typography - Quattrocento Sans */
+@import url('https://fonts.googleapis.com/css2?family=Quattrocento+Sans:wght@400;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -46,57 +46,56 @@
 }
 
 :root {
-  /* GAVINHO Brand Colors - Minimalista, Editorial, Premium
-   * Inspirado em Kinfolk e Cereal Magazine
-   * Princípio: Clareza sobre decoração, função sobre forma
+  /* GAVINHO Brand Colors - Warm Beige & Soft Cream Design System
+   * Paleta elegante e sofisticada com tons terrosos
    */
   
-  /* Primary: Brown #5F5C59 - Sofisticado, confiável */
-  --primary: oklch(0.40 0.01 60);
-  --primary-foreground: oklch(0.98 0.002 60);
+  /* Primary: Warm Beige #ADAA96 - Botões, tags, elementos de destaque */
+  --primary: oklch(0.70 0.02 85);
+  --primary-foreground: oklch(0.99 0.002 60);
   
-  /* Secondary: Blush #C3BAAF - Elegante, suave */
-  --secondary: oklch(0.78 0.015 50);
-  --secondary-foreground: oklch(0.25 0.01 60);
+  /* Secondary: Olive Gray #8B8670 - Ícones, texto secundário */
+  --secondary: oklch(0.57 0.02 85);
+  --secondary-foreground: oklch(0.99 0.002 60);
   
-  /* Background: Sandy Beach #EEEAE5 - Calmo, acolhedor */
-  --background: oklch(0.93 0.008 60);
-  --foreground: oklch(0.25 0.01 60);
+  /* Background: White #FFFFFF - Fundo principal da aplicação */
+  --background: oklch(0.99 0.002 60);
+  --foreground: oklch(0.27 0.01 60);
   
-  /* Accent: Warning/Gold #C9A882 - Premium, destaque */
-  --accent: oklch(0.73 0.05 70);
-  --accent-foreground: oklch(0.25 0.01 60);
+  /* Accent: Soft Cream #F2F0E7 - Fundo de cards, áreas secundárias */
+  --accent: oklch(0.95 0.01 80);
+  --accent-foreground: oklch(0.27 0.01 60);
   
-  /* Cards: Branco puro para contraste editorial */
-  --card: oklch(0.99 0.002 60);
-  --card-foreground: oklch(0.25 0.01 60);
+  /* Cards: Soft Cream para contraste suave */
+  --card: oklch(0.95 0.01 80);
+  --card-foreground: oklch(0.27 0.01 60);
   
-  /* Popover: Branco com leve warmth */
+  /* Popover: White */
   --popover: oklch(0.99 0.002 60);
-  --popover-foreground: oklch(0.25 0.01 60);
+  --popover-foreground: oklch(0.27 0.01 60);
   
-  /* Muted: Tons suaves para elementos secundários */
-  --muted: oklch(0.88 0.01 60);
-  --muted-foreground: oklch(0.50 0.01 60);
+  /* Muted: Text Muted #6B6B6B - Texto secundário, placeholders */
+  --muted: oklch(0.95 0.01 80);
+  --muted-foreground: oklch(0.47 0.005 60);
   
-  /* Destructive: Vermelho suave, editorial */
-  --destructive: oklch(0.55 0.15 25);
-  --destructive-foreground: oklch(0.98 0.002 60);
+  /* Destructive: Urgente #9A6B5B */
+  --destructive: oklch(0.52 0.06 40);
+  --destructive-foreground: oklch(0.99 0.002 60);
   
-  /* Borders: Sutis, minimalistas */
-  --border: oklch(0.85 0.01 60);
-  --input: oklch(0.85 0.01 60);
-  --ring: oklch(0.40 0.01 60);
+  /* Borders: Border Light #E5E2D9 */
+  --border: oklch(0.90 0.01 80);
+  --input: oklch(0.90 0.01 80);
+  --ring: oklch(0.70 0.02 85);
   
-  /* Sidebar: Sandy Beach com Brown para texto */
-  --sidebar: oklch(0.93 0.008 60);
-  --sidebar-foreground: oklch(0.25 0.01 60);
-  --sidebar-primary: oklch(0.40 0.01 60);
-  --sidebar-primary-foreground: oklch(0.98 0.002 60);
-  --sidebar-accent: oklch(0.88 0.01 60);
-  --sidebar-accent-foreground: oklch(0.25 0.01 60);
-  --sidebar-border: oklch(0.85 0.01 60);
-  --sidebar-ring: oklch(0.40 0.01 60);
+  /* Sidebar: White com Warm Beige para elementos ativos */
+  --sidebar: oklch(0.99 0.002 60);
+  --sidebar-foreground: oklch(0.27 0.01 60);
+  --sidebar-primary: oklch(0.70 0.02 85);
+  --sidebar-primary-foreground: oklch(0.99 0.002 60);
+  --sidebar-accent: oklch(0.95 0.01 80);
+  --sidebar-accent-foreground: oklch(0.27 0.01 60);
+  --sidebar-border: oklch(0.90 0.01 80);
+  --sidebar-ring: oklch(0.70 0.02 85);
   
   /* Charts: Paleta harmoniosa com cores GAVINHO */
   --chart-1: oklch(0.73 0.05 70);  /* Gold */
@@ -108,9 +107,24 @@
   /* Radius: Suave, não muito arredondado - editorial */
   --radius: 0.375rem; /* 6px - mais minimalista */
   
-  /* Typography: Inter para UI */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  /* Typography: Quattrocento Sans para UI */
+  --font-sans: 'Quattrocento Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'Quattrocento Sans', Georgia, serif;
+  
+  /* Custom GAVINHO Variables */
+  --warm-beige: #ADAA96;
+  --soft-cream: #F2F0E7;
+  --olive-gray: #8B8670;
+  --text-dark: #3D3D3D;
+  --text-muted: #6B6B6B;
+  --border-light: #E5E2D9;
+  --progress-bg: #DCD9CF;
+  
+  /* Priority Colors */
+  --priority-urgent: #9A6B5B;
+  --priority-high: #C9A86C;
+  --priority-medium: #ADAA96;
+  --priority-low: #8B8670;
 }
 
 .dark {
@@ -172,32 +186,32 @@
     -moz-osx-font-smoothing: grayscale;
   }
   
-  /* Tipografia GAVINHO - Cormorant Garamond para títulos */
+  /* Tipografia GAVINHO - Quattrocento Sans */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-serif);
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    letter-spacing: 0;
+    line-height: 1.3;
   }
   
   h1 {
-    @apply text-4xl md:text-5xl;
-    font-weight: 400;
+    font-size: 28px;
+    font-weight: 700;
   }
   
   h2 {
-    @apply text-3xl md:text-4xl;
-    font-weight: 400;
+    font-size: 20px;
+    font-weight: 700;
   }
   
   h3 {
-    @apply text-2xl md:text-3xl;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 700;
   }
   
   h4 {
-    @apply text-xl md:text-2xl;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 700;
   }
   
   h5 {
@@ -326,21 +340,102 @@
     @apply bg-destructive/10 text-destructive border border-destructive/20;
   }
   
-  /* Priority badges - GAVINHO Style */
+  /* Priority badges - GAVINHO Style (Warm Beige Design) */
+  .priority-baixa {
+    background-color: var(--priority-low);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: none;
+  }
+  
+  .priority-media {
+    background-color: var(--priority-medium);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: none;
+  }
+  
+  .priority-alta {
+    background-color: var(--priority-high);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: none;
+  }
+  
+  .priority-urgente {
+    background-color: var(--priority-urgent);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: none;
+  }
+  
+  /* Legacy priority classes for compatibility */
   .priority-low {
-    @apply bg-muted text-muted-foreground border border-border;
+    background-color: var(--priority-low);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: none;
   }
   
   .priority-medium {
-    @apply bg-secondary/20 text-secondary-foreground border border-secondary/30;
+    background-color: var(--priority-medium);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: none;
   }
   
   .priority-high {
-    @apply bg-accent/20 text-accent-foreground border border-accent/30;
+    background-color: var(--priority-high);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: none;
   }
   
   .priority-urgent {
-    @apply bg-destructive/15 text-destructive border border-destructive/25;
+    background-color: var(--priority-urgent);
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: none;
   }
   
   /* Alert badges - GAVINHO Style */
@@ -383,4 +478,132 @@
   .prose-gavinho h3 {
     @apply mb-4 mt-8 first:mt-0;
   }
+}
+
+
+/* GAVINHO Warm Beige Design System - Additional Styles */
+
+/* Progress Bar - 3px height */
+.gavinho-progress-bar {
+  height: 3px;
+  background-color: var(--progress-bg);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.gavinho-progress-fill {
+  height: 100%;
+  background-color: var(--olive-gray);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Status Dot - 5px × 5px */
+.gavinho-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--warm-beige);
+}
+
+/* Card Styles - Soft Cream Background */
+.gavinho-project-card {
+  background: var(--soft-cream);
+  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gavinho-project-card:hover {
+  box-shadow: 0 8px 24px rgba(139, 134, 112, 0.12);
+  transform: translateY(-2px);
+  border-color: var(--warm-beige);
+}
+
+/* Typography Sizes */
+.gavinho-text-code {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dark);
+  letter-spacing: 0.3px;
+}
+
+.gavinho-text-client {
+  font-size: 11px;
+  color: var(--olive-gray);
+}
+
+.gavinho-text-meta {
+  font-size: 10px;
+  color: var(--olive-gray);
+}
+
+.gavinho-text-status {
+  font-size: 11px;
+  color: var(--olive-gray);
+}
+
+.gavinho-text-value {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+/* Button Styles */
+.gavinho-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background-color: var(--warm-beige);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.gavinho-btn-primary:hover {
+  background-color: var(--olive-gray);
+}
+
+/* Input Styles */
+.gavinho-input {
+  padding: 10px 14px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  background-color: white;
+}
+
+.gavinho-input:focus {
+  outline: none;
+  border-color: var(--warm-beige);
+}
+
+.gavinho-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Select Styles */
+.gavinho-select {
+  padding: 10px 36px 10px 14px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  background-color: white;
+  color: var(--text-dark);
+  cursor: pointer;
+}
+
+.gavinho-select:focus {
+  outline: none;
+  border-color: var(--warm-beige);
 }
