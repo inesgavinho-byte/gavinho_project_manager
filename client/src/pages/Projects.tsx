@@ -80,18 +80,18 @@ export default function Projects() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 min-h-screen" style={{ backgroundColor: 'var(--soft-cream)' }}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-4xl text-[#5F5C59] mb-2">Projetos</h1>
-          <p className="text-[#5F5C59]/60">Gestão completa de projetos de design & build</p>
+          <h1 style={{ color: 'var(--text-dark)' }}>Projetos</h1>
+          <p className="gavinho-text-meta">Gestão completa de projetos de design & build</p>
         </div>
         <NewProjectModal />
       </div>
 
       {/* Filters */}
-      <Card className="p-6 bg-white border-[#C3BAAF]/20">
+      <Card className="p-6 bg-white" style={{ borderColor: 'var(--border-light)' }}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
             <div className="relative">
@@ -100,13 +100,13 @@ export default function Projects() {
                 placeholder="Procurar por nome, cliente ou localização..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 border-[#C3BAAF]/20 focus:border-[#C9A882]"
+                className="pl-10 gavinho-input"
               />
             </div>
           </div>
           
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="border-[#C3BAAF]/20 focus:border-[#C9A882]">
+            <SelectTrigger className="gavinho-select">
               <SelectValue placeholder="Estado" />
             </SelectTrigger>
             <SelectContent>
@@ -120,7 +120,7 @@ export default function Projects() {
           </Select>
 
           <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-            <SelectTrigger className="border-[#C3BAAF]/20 focus:border-[#C9A882]">
+            <SelectTrigger className="gavinho-select">
               <SelectValue placeholder="Prioridade" />
             </SelectTrigger>
             <SelectContent>
