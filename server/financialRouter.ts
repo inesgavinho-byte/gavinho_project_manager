@@ -2,28 +2,48 @@ import { router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import * as financialDb from "./financialDb";
 
+const filterSchema = z.object({
+  period: z.enum(['monthly', 'quarterly', 'yearly', 'all']).optional(),
+  status: z.string().optional(),
+  clientName: z.string().optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+}).optional();
+
 export const financialRouter = router({
-  getFinancialKPIs: protectedProcedure.query(async () => {
-    return await financialDb.getFinancialKPIs();
-  }),
+  getFinancialKPIs: protectedProcedure
+    .input(filterSchema)
+    .query(async ({ input }) => {
+      return await financialDb.getFinancialKPIs(input);
+    }),
 
-  getBudgetEvolution: protectedProcedure.query(async () => {
-    return await financialDb.getBudgetEvolution();
-  }),
+  getBudgetEvolution: protectedProcedure
+    .input(filterSchema)
+    .query(async ({ input }) => {
+      return await financialDb.getBudgetEvolution(input);
+    }),
 
-  getCostComparison: protectedProcedure.query(async () => {
-    return await financialDb.getCostComparison();
-  }),
+  getCostComparison: protectedProcedure
+    .input(filterSchema)
+    .query(async ({ input }) => {
+      return await financialDb.getCostComparison(input);
+    }),
 
-  getProjectProfitability: protectedProcedure.query(async () => {
-    return await financialDb.getProjectProfitability();
-  }),
+  getProjectProfitability: protectedProcedure
+    .input(filterSchema)
+    .query(async ({ input }) => {
+      return await financialDb.getProjectProfitability(input);
+    }),
 
-  getBudgetAlerts: protectedProcedure.query(async () => {
-    return await financialDb.getBudgetAlerts();
-  }),
+  getBudgetAlerts: protectedProcedure
+    .input(filterSchema)
+    .query(async ({ input }) => {
+      return await financialDb.getBudgetAlerts(input);
+    }),
 
-  getExpenseTrends: protectedProcedure.query(async () => {
-    return await financialDb.getExpenseTrends();
-  }),
+  getExpenseTrends: protectedProcedure
+    .input(filterSchema)
+    .query(async ({ input }) => {
+      return await financialDb.getExpenseTrends(input);
+    }),
 });

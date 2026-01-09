@@ -34,6 +34,7 @@ import { relationshipsRouter } from "./relationshipsRouter";
 import { libraryRouter } from "./libraryRouter";
 import { financialRouter } from "./financialRouter";
 import { teamManagementRouter } from "./teamManagementRouter";
+import { productivityRouter } from "./productivityRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -82,6 +83,9 @@ export const appRouter = router({
 
   // Team Management - Gestão de Equipa, Tracking de Horas e Disponibilidade
   teamManagement: teamManagementRouter,
+
+  // Productivity - Dashboard de Produtividade da Equipa
+  productivity: productivityRouter,
 
   // MQT - Mapa de Quantidades
   mqt: mqtRouter,

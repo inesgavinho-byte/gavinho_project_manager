@@ -27,6 +27,7 @@ import {
   ChevronRight,
   DollarSign,
   UserCog,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -199,6 +200,12 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           label: "Gestão de Equipa",
           icon: UserCog,
           path: "/team-management",
+        },
+        {
+          id: "team-productivity",
+          label: "Produtividade Equipa",
+          icon: BarChart3,
+          path: "/team-productivity",
         },
         {
           id: "recursos-humanos",

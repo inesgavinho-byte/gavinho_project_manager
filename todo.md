@@ -2378,3 +2378,30 @@
 - [ ] Executar k6 run tests/load-test.js
 - [ ] Analisar resultados de performance
 - [ ] Criar relatório final
+
+
+## Melhorias Avançadas (09/01/2026 - Parte 2)
+
+### Filtros Avançados Dashboard Financeiro
+- [x] Adicionar filtros de período (mensal/trimestral/anual)
+- [x] Adicionar filtro por estado do projeto
+- [x] Adicionar filtro por cliente
+- [x] Atualizar queries financialDb para suportar filtros
+- [x] Atualizar financialRouter com parâmetros de filtro
+- [x] Atualizar FinancialDashboard.tsx com UI de filtros
+
+### Exportação de Relatórios
+- [x] Instalar biblioteca xlsx para exportação Excel
+- [x] Instalar biblioteca jsPDF para exportação PDF
+- [x] Criar função de exportação Excel no frontend
+- [x] Criar função de exportação PDF no frontend
+- [x] Adicionar botões de exportação no FinancialDashboard
+- [x] Adicionar botões de exportação no TeamManagement
+
+### Dashboard de Produtividade
+- [x] Criar productivityDb.ts com queries de métricas
+- [x] Criar productivityRouter.ts com endpoints tRPC
+- [x] Criar TeamProductivityDashboard.tsx com gráficos
+- [x] Adicionar comparação entre membros da equipa
+- [x] Adicionar métricas de eficiência (horas/tarefa, taxa conclusão)
+- [x] Adicionar rota e link no sidebar

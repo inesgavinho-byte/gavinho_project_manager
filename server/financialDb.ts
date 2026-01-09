@@ -2,10 +2,40 @@ import { getDb } from "./db";
 import { projects, budgets } from "../drizzle/schema";
 import { eq, sql, and, gte, lte, isNull } from "drizzle-orm";
 
+export interface FinancialFilters {
+  period?: 'monthly' | 'quarterly' | 'yearly' | 'all';
+  status?: string;
+  clientName?: string;
+  startDate?: Date;
+  endDate?: Date;
+}
+
+function buildFilterConditions(filters?: FinancialFilters) {
+  const conditions = [isNull(projects.deletedAt)];
+  
+  if (filters?.status) {
+    conditions.push(eq(projects.status, filters.status as any));
+  }
+  
+  if (filters?.clientName) {
+    conditions.push(sql`${projects.clientName} LIKE ${`%${filters.clientName}%`}`);
+  }
+  
+  if (filters?.startDate) {
+    conditions.push(gte(projects.createdAt, filters.startDate));
+  }
+  
+  if (filters?.endDate) {
+    conditions.push(lte(projects.createdAt, filters.endDate));
+  }
+  
+  return conditions;
+}
+
 /**
  * Get financial KPIs across all projects
  */
-export async function getFinancialKPIs() {
+export async function getFinancialKPIs(filters?: FinancialFilters) {
   const db = await getDb();
   
   const result = await db
@@ -15,7 +45,7 @@ export async function getFinancialKPIs() {
       projectCount: sql<number>`COUNT(*)`,
     })
     .from(projects)
-    .where(isNull(projects.deletedAt));
+    .where(and(...buildFilterConditions(filters)));
 
   const row = result[0];
   
@@ -31,7 +61,7 @@ export async function getFinancialKPIs() {
     })
     .from(projects)
     .where(and(
-      isNull(projects.deletedAt),
+      ...buildFilterConditions(filters),
       sql`${projects.budget} > 0`
     ));
 
@@ -61,7 +91,7 @@ export async function getFinancialKPIs() {
 /**
  * Get budget evolution over time (monthly aggregation)
  */
-export async function getBudgetEvolution() {
+export async function getBudgetEvolution(filters?: FinancialFilters) {
   const db = await getDb();
   
   const result = await db
@@ -71,7 +101,7 @@ export async function getBudgetEvolution() {
       actualCost: sql<number>`COALESCE(SUM(${projects.actualCost}), 0)`,
     })
     .from(projects)
-    .where(isNull(projects.deletedAt))
+    .where(and(...buildFilterConditions(filters)))
     .groupBy(sql`DATE_FORMAT(${projects.createdAt}, '%Y-%m')`)
     .orderBy(sql`DATE_FORMAT(${projects.createdAt}, '%Y-%m')`);
 
@@ -85,7 +115,7 @@ export async function getBudgetEvolution() {
 /**
  * Get cost comparison by project
  */
-export async function getCostComparison() {
+export async function getCostComparison(filters?: FinancialFilters) {
   const db = await getDb();
   
   const result = await db
@@ -98,7 +128,7 @@ export async function getCostComparison() {
     })
     .from(projects)
     .where(and(
-      isNull(projects.deletedAt),
+      ...buildFilterConditions(filters),
       sql`${projects.budget} IS NOT NULL`
     ))
     .orderBy(sql`ABS(${projects.actualCost} - ${projects.budget}) DESC`)
@@ -116,7 +146,7 @@ export async function getCostComparison() {
 /**
  * Get project profitability analysis
  */
-export async function getProjectProfitability() {
+export async function getProjectProfitability(filters?: FinancialFilters) {
   const db = await getDb();
   
   const result = await db
@@ -138,7 +168,7 @@ export async function getProjectProfitability() {
     })
     .from(projects)
     .where(and(
-      isNull(projects.deletedAt),
+      ...buildFilterConditions(filters),
       sql`${projects.budget} IS NOT NULL`,
       sql`${projects.budget} > 0`
     ))
@@ -158,7 +188,7 @@ export async function getProjectProfitability() {
 /**
  * Get budget alerts (projects over 90% budget)
  */
-export async function getBudgetAlerts() {
+export async function getBudgetAlerts(filters?: FinancialFilters) {
   const db = await getDb();
   
   const result = await db
@@ -171,7 +201,7 @@ export async function getBudgetAlerts() {
     })
     .from(projects)
     .where(and(
-      isNull(projects.deletedAt),
+      ...buildFilterConditions(filters),
       sql`${projects.budget} IS NOT NULL`,
       sql`${projects.budget} > 0`,
       sql`(${projects.actualCost} / ${projects.budget}) >= 0.9`
@@ -191,7 +221,7 @@ export async function getBudgetAlerts() {
 /**
  * Get expense trends (last 6 months)
  */
-export async function getExpenseTrends() {
+export async function getExpenseTrends(filters?: FinancialFilters) {
   const db = await getDb();
   
   const sixMonthsAgo = new Date();
@@ -205,7 +235,7 @@ export async function getExpenseTrends() {
     })
     .from(projects)
     .where(and(
-      isNull(projects.deletedAt),
+      ...buildFilterConditions(filters),
       gte(projects.updatedAt, sixMonthsAgo)
     ))
     .groupBy(sql`DATE_FORMAT(${projects.updatedAt}, '%Y-%m')`)

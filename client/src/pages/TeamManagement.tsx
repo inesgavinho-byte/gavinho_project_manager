@@ -8,6 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { exportToExcel, exportToPDF, formatTeamDataForExport } from "@/lib/exportUtils";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FileDown } from "lucide-react";
 
 export default function TeamManagement() {
   const { toast } = useToast();
@@ -43,9 +46,33 @@ export default function TeamManagement() {
 
   return (
     <div className="container py-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Gestão de Equipa</h1>
-        <p className="text-muted-foreground">Tracking de horas, tarefas e disponibilidade</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Gestão de Equipa</h1>
+          <p className="text-muted-foreground">Tracking de horas, tarefas e disponibilidade</p>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">
+              <FileDown className="mr-2 h-4 w-4" />
+              Exportar
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => {
+              const data = formatTeamDataForExport([], timeSummary);
+              exportToExcel(data);
+            }}>
+              Exportar para Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              const data = formatTeamDataForExport([], timeSummary);
+              exportToPDF(data);
+            }}>
+              Exportar para PDF
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

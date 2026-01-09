@@ -1,16 +1,40 @@
+import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { TrendingUp, TrendingDown, AlertTriangle, DollarSign } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, DollarSign, Filter, FileDown } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { exportToExcel, exportToPDF, formatFinancialDataForExport } from "@/lib/exportUtils";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function FinancialDashboard() {
-  const { data: kpis, isLoading: kpisLoading } = trpc.financial.getFinancialKPIs.useQuery();
-  const { data: budgetEvolution, isLoading: evolutionLoading } = trpc.financial.getBudgetEvolution.useQuery();
-  const { data: costComparison, isLoading: comparisonLoading } = trpc.financial.getCostComparison.useQuery();
-  const { data: profitability, isLoading: profitabilityLoading } = trpc.financial.getProjectProfitability.useQuery();
-  const { data: budgetAlerts, isLoading: alertsLoading } = trpc.financial.getBudgetAlerts.useQuery();
-  const { data: expenseTrends, isLoading: trendsLoading } = trpc.financial.getExpenseTrends.useQuery();
+  const [period, setPeriod] = useState<'monthly' | 'quarterly' | 'yearly' | 'all'>('all');
+  const [status, setStatus] = useState<string>('');
+  const [clientName, setClientName] = useState<string>('');
+  const [showFilters, setShowFilters] = useState(false);
+
+  const filters = {
+    period: period !== 'all' ? period : undefined,
+    status: status || undefined,
+    clientName: clientName || undefined,
+  };
+
+  const { data: kpis, isLoading: kpisLoading } = trpc.financial.getFinancialKPIs.useQuery(filters);
+  const { data: budgetEvolution, isLoading: evolutionLoading } = trpc.financial.getBudgetEvolution.useQuery(filters);
+  const { data: costComparison, isLoading: comparisonLoading } = trpc.financial.getCostComparison.useQuery(filters);
+  const { data: profitability, isLoading: profitabilityLoading } = trpc.financial.getProjectProfitability.useQuery(filters);
+  const { data: budgetAlerts, isLoading: alertsLoading } = trpc.financial.getBudgetAlerts.useQuery(filters);
+  const { data: expenseTrends, isLoading: trendsLoading } = trpc.financial.getExpenseTrends.useQuery(filters);
+
+  const handleClearFilters = () => {
+    setPeriod('all');
+    setStatus('');
+    setClientName('');
+  };
 
   if (kpisLoading) {
     return (
@@ -37,10 +61,98 @@ export default function FinancialDashboard() {
   return (
     <div className="container py-8 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard Financeiro</h1>
-        <p className="text-muted-foreground">Análise de KPIs, orçamentos e rentabilidade dos projetos</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard Financeiro</h1>
+          <p className="text-muted-foreground">Análise de KPIs, orçamentos e rentabilidade dos projetos</p>
+        </div>
+        <div className="flex gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <FileDown className="mr-2 h-4 w-4" />
+                Exportar
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => {
+                const data = formatFinancialDataForExport(kpis, profitability || []);
+                exportToExcel(data);
+              }}>
+                Exportar para Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => {
+                const data = formatFinancialDataForExport(kpis, profitability || []);
+                exportToPDF(data);
+              }}>
+                Exportar para PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
+            <Filter className="mr-2 h-4 w-4" />
+            {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
+          </Button>
+        </div>
       </div>
+
+      {/* Filters */}
+      {showFilters && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Filtros Avançados</CardTitle>
+            <CardDescription>Filtre os dados por período, estado e cliente</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="period">Período</Label>
+                <Select value={period} onValueChange={(v: any) => setPeriod(v)}>
+                  <SelectTrigger id="period">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos</SelectItem>
+                    <SelectItem value="monthly">Mensal</SelectItem>
+                    <SelectItem value="quarterly">Trimestral</SelectItem>
+                    <SelectItem value="yearly">Anual</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Estado do Projeto</Label>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Todos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todos</SelectItem>
+                    <SelectItem value="planning">Planeamento</SelectItem>
+                    <SelectItem value="in_progress">Em Progresso</SelectItem>
+                    <SelectItem value="on_hold">Em Espera</SelectItem>
+                    <SelectItem value="completed">Concluído</SelectItem>
+                    <SelectItem value="cancelled">Cancelado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="client">Cliente</Label>
+                <Input
+                  id="client"
+                  placeholder="Nome do cliente..."
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                />
+              </div>
+              <div className="flex items-end">
+                <Button variant="outline" onClick={handleClearFilters} className="w-full">
+                  Limpar Filtros
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Budget Alerts */}
       {budgetAlerts && budgetAlerts.length > 0 && (

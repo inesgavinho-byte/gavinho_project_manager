@@ -50,6 +50,7 @@ import WorksDiary from "./pages/WorksDiary";
 import WorksDirection from "./pages/WorksDirection";
 import FinancialDashboard from "./pages/FinancialDashboard";
 import TeamManagement from "./pages/TeamManagement";
+import TeamProductivityDashboard from "./pages/TeamProductivityDashboard";
 import WorksInspection from "./pages/WorksInspection";
 import WorksLicenses from "./pages/WorksLicenses";
 import ProjectsChat from "./pages/ProjectsChat";
@@ -316,6 +317,12 @@ function Router() {
       <Route path="/team-management">
         <DashboardLayout>
           <TeamManagement />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/team-productivity">
+        <DashboardLayout>
+          <TeamProductivityDashboard />
         </DashboardLayout>
       </Route>
 
