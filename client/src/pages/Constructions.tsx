@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { Building2, Plus, Search, Filter } from "lucide-react";
+import { Building2, Plus, Search, Filter, LayoutGrid, Table } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import ConstructionCard from "@/components/ConstructionCard";
+import ConstructionsTable from "@/components/ConstructionsTable";
 import {
   Select,
   SelectContent,
@@ -18,6 +19,8 @@ export default function Constructions() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("date_desc");
+  const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
 
   const { data: constructions, isLoading } = trpc.constructions.list.useQuery();
 
@@ -31,6 +34,25 @@ export default function Constructions() {
     const matchesPriority = priorityFilter === "all" || construction.priority === priorityFilter;
 
     return matchesSearch && matchesStatus && matchesPriority;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case "name_asc":
+        return a.name.localeCompare(b.name);
+      case "name_desc":
+        return b.name.localeCompare(a.name);
+      case "progress_asc":
+        return (a.progress || 0) - (b.progress || 0);
+      case "progress_desc":
+        return (b.progress || 0) - (a.progress || 0);
+      case "priority_high":
+        const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+        return (priorityOrder[b.priority as keyof typeof priorityOrder] || 0) - (priorityOrder[a.priority as keyof typeof priorityOrder] || 0);
+      case "date_asc":
+        return new Date(a.startDate || 0).getTime() - new Date(b.startDate || 0).getTime();
+      case "date_desc":
+      default:
+        return new Date(b.startDate || 0).getTime() - new Date(a.startDate || 0).getTime();
+    }
   });
 
   // Funções auxiliares movidas para ConstructionCard.tsx
@@ -52,20 +74,36 @@ export default function Constructions() {
                 Gestão de obras em curso (GB)
               </p>
             </div>
-            <Link href="/constructions/new">
-              <Button
-                size="lg"
-                className="gap-2"
-                style={{
-                  backgroundColor: "#C9A882",
-                  color: "#5F5C59",
-                  borderColor: "#C9A882",
-                }}
-              >
-                <Plus className="h-5 w-5" />
-                Nova Obra
-              </Button>
-            </Link>
+            <div className="flex items-center gap-3">
+              <Link href="/constructions/compare">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="gap-2"
+                  style={{
+                    borderColor: "#C9A882",
+                    color: "#5F5C59",
+                  }}
+                >
+                  <LayoutGrid className="h-5 w-5" />
+                  Comparar
+                </Button>
+              </Link>
+              <Link href="/constructions/new">
+                <Button
+                  size="lg"
+                  className="gap-2"
+                  style={{
+                    backgroundColor: "#C9A882",
+                    color: "#5F5C59",
+                    borderColor: "#C9A882",
+                  }}
+                >
+                  <Plus className="h-5 w-5" />
+                  Nova Obra
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Filters */}
@@ -105,6 +143,42 @@ export default function Constructions() {
                 <SelectItem value="urgent">Urgente</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-full md:w-48" style={{ backgroundColor: "white", borderColor: "#C3BAAF" }}>
+                <SelectValue placeholder="Ordenar por" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date_desc">Mais recentes</SelectItem>
+                <SelectItem value="date_asc">Mais antigos</SelectItem>
+                <SelectItem value="name_asc">Nome (A-Z)</SelectItem>
+                <SelectItem value="name_desc">Nome (Z-A)</SelectItem>
+                <SelectItem value="progress_desc">Maior progresso</SelectItem>
+                <SelectItem value="progress_asc">Menor progresso</SelectItem>
+                <SelectItem value="priority_high">Prioridade alta</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="flex rounded-lg border" style={{ borderColor: "#C3BAAF" }}>
+              <button
+                onClick={() => setViewMode("cards")}
+                className="p-2 transition-colors"
+                style={{
+                  backgroundColor: viewMode === "cards" ? "#C9A882" : "transparent",
+                  color: viewMode === "cards" ? "white" : "#5F5C59",
+                }}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("table")}
+                className="p-2 transition-colors"
+                style={{
+                  backgroundColor: viewMode === "table" ? "#C9A882" : "transparent",
+                  color: viewMode === "table" ? "white" : "#5F5C59",
+                }}
+              >
+                <Table className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -173,9 +247,10 @@ export default function Constructions() {
             <p style={{ color: "#5F5C59" }}>A carregar obras...</p>
           </div>
         ) : filteredConstructions && filteredConstructions.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredConstructions.map((construction) => (
-              <ConstructionCard
+          viewMode === "cards" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredConstructions.map((construction) => (
+                <ConstructionCard
                 key={construction.id}
                 id={construction.id}
                 code={construction.code}
@@ -189,8 +264,13 @@ export default function Constructions() {
                 priority={construction.priority}
                 budget={construction.budget?.toString()}
               />
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <Card className="p-6 bg-white" style={{ borderColor: "#C3BAAF" }}>
+              <ConstructionsTable constructions={filteredConstructions} />
+            </Card>
+          )
         ) : (
           <div className="text-center py-12">
             <Building2 className="h-16 w-16 mx-auto mb-4" style={{ color: "#C3BAAF" }} />

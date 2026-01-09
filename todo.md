@@ -2289,3 +2289,22 @@
 - [x] Implementar filtros rápidos visuais (chips) em Constructions.tsx
 - [x] Testar navegação e interação dos filtros
 - [x] Validar responsividade dos novos componentes
+
+
+## Ordenação e Visualização Avançada
+
+- [x] Adicionar dropdown de ordenação em Projects.tsx (data, nome, progresso, prioridade)
+- [x] Adicionar dropdown de ordenação em Constructions.tsx (data, nome, progresso, prioridade)
+- [x] Implementar lógica de ordenação para projetos
+- [x] Implementar lógica de ordenação para obras
+- [x] Criar componente ProjectsTable para vista de tabela
+- [x] Criar componente ConstructionsTable para vista de tabela
+- [x] Adicionar toggle cards/tabela em Projects.tsx
+- [x] Adicionar toggle cards/tabela em Constructions.tsx
+- [ ] Criar página ProjectComparison.tsx
+- [ ] Implementar seleção de 2-3 projetos/obras para comparação
+- [ ] Criar layout lado a lado com métricas comparativas
+- [ ] Adicionar gráficos de comparação (progresso, custos, timeline)
+- [ ] Testar ordenação em diferentes cenários
+- [ ] Testar toggle de vistas e responsividade
+- [ ] Validar página de comparação com dados reais

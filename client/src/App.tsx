@@ -8,6 +8,7 @@ import DashboardLayout from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
+import ProjectsCompare from "./pages/ProjectsCompare";
 import Suppliers from "./pages/Suppliers";
 import Orders from "./pages/Orders";
 import Tasks from "./pages/Tasks";
@@ -23,6 +24,7 @@ import ActivityFeed from "./pages/ActivityFeed";
 import Mentions from "./pages/Mentions";
 import Constructions from "./pages/Constructions";
 import ConstructionDetails from "./pages/ConstructionDetails";
+import ConstructionsCompare from "./pages/ConstructionsCompare";
 import MqtAnalyticsDashboard from "./pages/MqtAnalyticsDashboard";
 import SiteQuantityMap from "./pages/SiteQuantityMap";
 import SiteMobileQuantityMap from "./pages/SiteMobileQuantityMap";
@@ -72,6 +74,12 @@ function Router() {
         </DashboardLayout>
       </Route>
       
+      <Route path="/projects/compare">
+        <DashboardLayout>
+          <ProjectsCompare />
+        </DashboardLayout>
+      </Route>
+      
       <Route path="/projects/:id">
         <DashboardLayout>
           <ProjectDetails />
@@ -115,6 +123,12 @@ function Router() {
       <Route path="/constructions">
         <DashboardLayout>
           <Constructions />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/constructions/compare">
+        <DashboardLayout>
+          <ConstructionsCompare />
         </DashboardLayout>
       </Route>
       

@@ -5,18 +5,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, FolderOpen } from "lucide-react";
+import { Plus, Search, FolderOpen, LayoutGrid, Table } from "lucide-react";
 import NewProjectModal from "@/components/NewProjectModal";
 import ProjectCard from "@/components/ProjectCard";
+import ProjectsTable from "@/components/ProjectsTable";
 
 export default function Projects() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("date_desc");
+  const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
 
   const { data: projects, isLoading } = trpc.projects.list.useQuery();
 
-  // Filter projects
+  // Filter and sort projects
   const filteredProjects = projects?.filter((project) => {
     const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          project.clientName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -24,6 +27,25 @@ export default function Projects() {
     const matchesStatus = statusFilter === "all" || project.status === statusFilter;
     const matchesPriority = priorityFilter === "all" || project.priority === priorityFilter;
     return matchesSearch && matchesStatus && matchesPriority;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case "name_asc":
+        return a.name.localeCompare(b.name);
+      case "name_desc":
+        return b.name.localeCompare(a.name);
+      case "progress_asc":
+        return (a.progress || 0) - (b.progress || 0);
+      case "progress_desc":
+        return (b.progress || 0) - (a.progress || 0);
+      case "priority_high":
+        const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+        return (priorityOrder[b.priority as keyof typeof priorityOrder] || 0) - (priorityOrder[a.priority as keyof typeof priorityOrder] || 0);
+      case "date_asc":
+        return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+      case "date_desc":
+      default:
+        return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    }
   });
 
   // Funções auxiliares de cores e labels movidas para ProjectCard.tsx
@@ -47,11 +69,60 @@ export default function Projects() {
           <h1 style={{ color: 'var(--text-dark)' }}>Projetos</h1>
           <p className="gavinho-text-meta">Gestão completa de projetos de design & build</p>
         </div>
-        <NewProjectModal />
+        <div className="flex items-center gap-3">
+          <Link href="/projects/compare">
+            <Button variant="outline" className="gap-2">
+              <LayoutGrid className="h-4 w-4" />
+              Comparar
+            </Button>
+          </Link>
+          <NewProjectModal />
+        </div>
       </div>
 
       {/* Filters */}
       <Card className="p-6 bg-white" style={{ borderColor: 'var(--border-light)' }}>
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-sm font-medium" style={{ color: 'var(--text-dark)' }}>Filtros</span>
+          <div className="flex items-center gap-2">
+            <div className="flex rounded-lg border" style={{ borderColor: 'var(--border-light)' }}>
+              <button
+                onClick={() => setViewMode("cards")}
+                className="p-2 transition-colors"
+                style={{
+                  backgroundColor: viewMode === "cards" ? "var(--warm-beige)" : "transparent",
+                  color: viewMode === "cards" ? "white" : "var(--text-muted)",
+                }}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("table")}
+                className="p-2 transition-colors"
+                style={{
+                  backgroundColor: viewMode === "table" ? "var(--warm-beige)" : "transparent",
+                  color: viewMode === "table" ? "white" : "var(--text-muted)",
+                }}
+              >
+                <Table className="h-4 w-4" />
+              </button>
+            </div>
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[200px] gavinho-select">
+              <SelectValue placeholder="Ordenar por" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="date_desc">Mais recentes</SelectItem>
+              <SelectItem value="date_asc">Mais antigos</SelectItem>
+              <SelectItem value="name_asc">Nome (A-Z)</SelectItem>
+              <SelectItem value="name_desc">Nome (Z-A)</SelectItem>
+              <SelectItem value="progress_desc">Maior progresso</SelectItem>
+              <SelectItem value="progress_asc">Menor progresso</SelectItem>
+              <SelectItem value="priority_high">Prioridade alta</SelectItem>
+            </SelectContent>
+            </Select>
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="md:col-span-2">
             <div className="relative">
@@ -149,11 +220,12 @@ export default function Projects() {
         </div>
       )}
 
-      {/* Projects Grid */}
+      {/* Projects Grid/Table */}
       {filteredProjects && filteredProjects.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProjects.map((project) => (
-            <ProjectCard
+        viewMode === "cards" ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProjects.map((project) => (
+              <ProjectCard
               key={project.id}
               id={project.id}
               name={project.name}
@@ -169,6 +241,11 @@ export default function Projects() {
             />
           ))}
         </div>
+        ) : (
+          <Card className="p-6 bg-white" style={{ borderColor: 'var(--border-light)' }}>
+            <ProjectsTable projects={filteredProjects} />
+          </Card>
+        )
       ) : (
         <Card className="p-12 text-center border-[#C3BAAF]/20 bg-white">
           <div className="max-w-md mx-auto space-y-4">
