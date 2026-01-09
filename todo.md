@@ -2277,3 +2277,15 @@
 - [x] Aplicar design Soft Cream às páginas de Gestão (Clientes, Equipa, Fornecedores)
 - [x] Testar consistência visual em todas as páginas
 - [x] Validar responsividade e acessibilidade
+
+
+## Melhorias de UX e Consistência Visual
+
+- [x] Verificar se existe seção "Obras Recentes" no Dashboard
+- [x] Aplicar ConstructionCard compact no Dashboard (se existir seção)
+- [x] Criar página ConstructionDetails.tsx para detalhes de obra
+- [x] Usar ConstructionCard variant detailed na página de detalhes
+- [x] Implementar filtros rápidos visuais (chips) em Projects.tsx
+- [x] Implementar filtros rápidos visuais (chips) em Constructions.tsx
+- [x] Testar navegação e interação dos filtros
+- [x] Validar responsividade dos novos componentes

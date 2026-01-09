@@ -94,6 +94,61 @@ export default function Projects() {
         </div>
       </Card>
 
+      {/* Quick Filters (Chips) */}
+      {(statusFilter !== "all" || priorityFilter !== "all") && (
+        <div className="flex flex-wrap gap-2">
+          <span className="text-sm text-[#5F5C59]/60">Filtros ativos:</span>
+          {statusFilter !== "all" && (
+            <button
+              onClick={() => setStatusFilter("all")}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors"
+              style={{
+                backgroundColor: 'var(--warm-beige)',
+                color: 'white',
+                border: '1px solid var(--warm-beige)'
+              }}
+            >
+              Estado: {{
+                planning: "Planeamento",
+                in_progress: "Em Andamento",
+                on_hold: "Em Espera",
+                completed: "Concluído",
+                cancelled: "Cancelado"
+              }[statusFilter]}
+              <span className="text-white/80">×</span>
+            </button>
+          )}
+          {priorityFilter !== "all" && (
+            <button
+              onClick={() => setPriorityFilter("all")}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors"
+              style={{
+                backgroundColor: 'var(--warm-beige)',
+                color: 'white',
+                border: '1px solid var(--warm-beige)'
+              }}
+            >
+              Prioridade: {{
+                low: "Baixa",
+                medium: "Média",
+                high: "Alta",
+                urgent: "Urgente"
+              }[priorityFilter]}
+              <span className="text-white/80">×</span>
+            </button>
+          )}
+          <button
+            onClick={() => {
+              setStatusFilter("all");
+              setPriorityFilter("all");
+            }}
+            className="text-xs text-[#5F5C59]/60 hover:text-[#5F5C59] underline"
+          >
+            Limpar todos
+          </button>
+        </div>
+      )}
+
       {/* Projects Grid */}
       {filteredProjects && filteredProjects.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -15,6 +15,7 @@ import { ArchVizGallery } from '@/components/archviz/ArchVizGallery';
 import { MQTImportModal } from '@/components/mqt/MQTImportModal';
 import { MQTImportHistory } from '@/components/mqt/MQTImportHistory';
 import { MQTValidationRules } from '@/components/mqt/MQTValidationRules';
+import ConstructionCard from "@/components/ConstructionCard";
 
 export default function ConstructionDetails() {
   const [, params] = useRoute("/constructions/:id");
@@ -227,6 +228,24 @@ export default function ConstructionDetails() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Construction Card - Detailed View */}
+      <div className="container py-6">
+        <ConstructionCard
+          id={construction.id}
+          code={construction.code}
+          name={construction.name}
+          projectName={construction.projectName}
+          location={construction.location}
+          startDate={construction.startDate}
+          endDate={construction.endDate}
+          progress={construction.progress}
+          status={construction.status}
+          priority={construction.priority}
+          budget={construction.budget?.toString()}
+          variant="detailed"
+        />
       </div>
 
       {/* Tabs */}

@@ -6,6 +6,7 @@ import { BarChart3, FolderKanban, AlertCircle, CheckCircle2, Clock, PauseCircle,
 import { Link } from "wouter";
 import NewProjectModal from "@/components/NewProjectModal";
 import ProjectCard from "@/components/ProjectCard";
+import ConstructionCard from "@/components/ConstructionCard";
 
 export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -13,6 +14,7 @@ export default function Dashboard() {
   
   const { data: stats, isLoading: statsLoading } = trpc.dashboard.stats.useQuery();
   const { data: projects, isLoading: projectsLoading } = trpc.projects.list.useQuery();
+  const { data: constructions, isLoading: constructionsLoading } = trpc.constructions.list.useQuery();
   const { data: notifications } = trpc.notifications.list.useQuery({ unreadOnly: true });
 
   // Apply filters
@@ -43,6 +45,7 @@ export default function Dashboard() {
   }) || [];
   
   const recentProjects = filteredProjects.slice(0, 5);
+  const recentConstructions = constructions?.slice(0, 5) || [];
   const urgentNotifications = notifications?.slice(0, 3) || [];
 
   const getStatusIcon = (status: string) => {
@@ -265,6 +268,46 @@ export default function Dashboard() {
                       </div>
                     </div>
                   </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Recent Constructions */}
+        <Card className="card-shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FolderKanban className="h-5 w-5" />
+              Obras Recentes
+            </CardTitle>
+            <CardDescription>Últimas obras criadas ou atualizadas</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {constructionsLoading ? (
+              <div className="text-center py-8 text-muted-foreground">Carregando...</div>
+            ) : recentConstructions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Nenhuma obra encontrada
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {recentConstructions.map((construction) => (
+                  <ConstructionCard
+                    key={construction.id}
+                    id={construction.id}
+                    code={construction.code}
+                    name={construction.name}
+                    projectName={construction.projectName}
+                    location={construction.location}
+                    startDate={construction.startDate}
+                    endDate={construction.endDate}
+                    progress={construction.progress}
+                    status={construction.status}
+                    priority={construction.priority}
+                    budget={construction.budget?.toString()}
+                    variant="compact"
+                  />
                 ))}
               </div>
             )}

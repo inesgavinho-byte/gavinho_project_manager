@@ -109,6 +109,63 @@ export default function Constructions() {
         </div>
       </div>
 
+      {/* Quick Filters (Chips) */}
+      {(statusFilter !== "all" || priorityFilter !== "all") && (
+        <div className="container py-4">
+          <div className="flex flex-wrap gap-2">
+            <span className="text-sm text-[#5F5C59]/60">Filtros ativos:</span>
+            {statusFilter !== "all" && (
+              <button
+                onClick={() => setStatusFilter("all")}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors"
+                style={{
+                  backgroundColor: 'var(--warm-beige)',
+                  color: 'white',
+                  border: '1px solid var(--warm-beige)'
+                }}
+              >
+                Estado: {{
+                  not_started: "Não Iniciado",
+                  in_progress: "Em Curso",
+                  on_hold: "Pausado",
+                  completed: "Concluído",
+                  cancelled: "Cancelado"
+                }[statusFilter]}
+                <span className="text-white/80">×</span>
+              </button>
+            )}
+            {priorityFilter !== "all" && (
+              <button
+                onClick={() => setPriorityFilter("all")}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors"
+                style={{
+                  backgroundColor: 'var(--warm-beige)',
+                  color: 'white',
+                  border: '1px solid var(--warm-beige)'
+                }}
+              >
+                Prioridade: {{
+                  low: "Baixa",
+                  medium: "Média",
+                  high: "Alta",
+                  urgent: "Urgente"
+                }[priorityFilter]}
+                <span className="text-white/80">×</span>
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setStatusFilter("all");
+                setPriorityFilter("all");
+              }}
+              className="text-xs text-[#5F5C59]/60 hover:text-[#5F5C59] underline"
+            >
+              Limpar todos
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Construction Cards */}
       <div className="container py-8">
         {isLoading ? (
