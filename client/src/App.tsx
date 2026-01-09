@@ -64,6 +64,7 @@ import MaterialsAnalytics from "./pages/MaterialsAnalytics";
 import BudgetAlerts from "./pages/BudgetAlerts";
 import CostPredictionDashboard from "./pages/CostPredictionDashboard";
 import ReportBuilder from "./pages/ReportBuilder";
+import CalendarPage from "./pages/CalendarPage";
 
 function Router() {
   return (
@@ -332,6 +333,12 @@ function Router() {
       <Route path="/report-builder">
         <DashboardLayout>
           <ReportBuilder />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/calendario">
+        <DashboardLayout>
+          <CalendarPage />
         </DashboardLayout>
       </Route>
 

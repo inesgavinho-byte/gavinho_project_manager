@@ -2291,3 +2291,73 @@ export const reportExecutions = mysqlTable("reportExecutions", {
 
 export type ReportExecution = typeof reportExecutions.$inferSelect;
 export type InsertReportExecution = typeof reportExecutions.$inferInsert;
+
+
+/**
+ * Calendar Events table - Events, deadlines, and appointments
+ */
+export const calendarEvents = mysqlTable("calendarEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  
+  // Date and Time
+  startDate: timestamp("startDate").notNull(),
+  endDate: timestamp("endDate").notNull(),
+  allDay: int("allDay").default(0).notNull(), // 0 = specific time, 1 = all day event
+  
+  // Event Type and Category
+  eventType: mysqlEnum("eventType", [
+    "meeting",
+    "deadline",
+    "delivery",
+    "site_visit",
+    "presentation",
+    "milestone",
+    "personal",
+    "other"
+  ]).notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  
+  // Relations
+  projectId: int("projectId").references(() => projects.id, { onDelete: "cascade" }),
+  deliveryId: int("deliveryId").references(() => deliveries.id, { onDelete: "cascade" }),
+  constructionId: int("constructionId").references(() => constructions.id, { onDelete: "cascade" }),
+  createdById: int("createdById").notNull().references(() => users.id),
+  
+  // Location
+  location: varchar("location", { length: 255 }),
+  
+  // Recurrence
+  isRecurring: int("isRecurring").default(0).notNull(),
+  recurrenceRule: json("recurrenceRule").$type<{
+    frequency: "daily" | "weekly" | "monthly" | "yearly";
+    interval: number;
+    endDate?: string;
+    daysOfWeek?: number[]; // 0 = Sunday, 6 = Saturday
+  }>(),
+  
+  // Reminders
+  reminderMinutes: int("reminderMinutes"), // Minutes before event to send reminder
+  
+  // Status
+  status: mysqlEnum("status", ["scheduled", "completed", "cancelled", "postponed"]).default("scheduled").notNull(),
+  
+  // Color coding
+  color: varchar("color", { length: 7 }).default("#C9A882"), // Hex color for visual distinction
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  createdByIdIdx: index("createdById_idx").on(table.createdById),
+  startDateIdx: index("startDate_idx").on(table.startDate),
+  endDateIdx: index("endDate_idx").on(table.endDate),
+  eventTypeIdx: index("eventType_idx").on(table.eventType),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type CalendarEvent = typeof calendarEvents.$inferSelect;
+export type InsertCalendarEvent = typeof calendarEvents.$inferInsert;

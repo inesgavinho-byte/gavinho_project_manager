@@ -2452,3 +2452,43 @@
 - [x] Criar reportsRouter e registar em routers.ts
 - [ ] Adicionar exportação (PDF, Excel, CSV)
 - [ ] Testar builder com diferentes combinações de métricas
+
+
+## Sistema de Calendário
+
+### Estrutura de Base de Dados
+- [x] Criar tabela calendarEvents no schema
+- [x] Adicionar campos: título, descrição, data início, data fim, tipo de evento
+- [x] Criar relações com projetos, entregas e obras
+- [x] Adicionar suporte para eventos recorrentes
+
+### Backend - Gestão de Eventos
+- [x] Criar calendarDb.ts com funções CRUD de eventos
+- [x] Implementar função getEventsByDateRange()
+- [x] Criar função getProjectDeadlines() para prazos automáticos
+- [x] Implementar função getUpcomingEvents()
+- [x] Criar calendarRouter.ts com endpoints tRPC
+- [x] Registar calendarRouter em routers.ts
+
+### Frontend - Componente de Calendário
+- [x] Criar componente CalendarPage.tsx com visualização mensal
+- [x] Implementar navegação entre meses/anos
+- [x] Adicionar visualização de eventos por dia
+- [x] Criar modal de criação/edição de eventos
+- [x] Adicionar visualização de lista de próximos eventos
+- [x] Criar indicadores visuais para prazos urgentes
+- [x] Implementar sincronização com prazos de projetos
+- [x] Adicionar código de cores por tipo e prioridade
+
+### Funcionalidades Avançadas
+- [ ] Adicionar lembretes e notificações de eventos
+- [ ] Implementar drag & drop para reagendar eventos
+- [ ] Criar visualização semanal e diária
+- [ ] Adicionar exportação para iCal/Google Calendar
+- [ ] Implementar código de cores por tipo de evento
+
+### Integração
+- [x] Adicionar rota /calendario no App.tsx
+- [x] Atualizar link no ModularSidebar
+- [ ] Integrar com sistema de notificações
+- [ ] Testar calendário com dados reais

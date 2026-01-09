@@ -99,10 +99,10 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           path: "/analise-materiais",
         },
         {
-          id: "calendario-projetos",
+          id: "calendario",
           label: "Calendário",
           icon: Calendar,
-          path: "/calendario-projetos",
+          path: "/calendario",
         },
         {
           id: "sugestoes-ia",
