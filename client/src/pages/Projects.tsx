@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Calendar, MapPin, TrendingUp, FolderOpen } from "lucide-react";
+import { Plus, Search, FolderOpen } from "lucide-react";
 import NewProjectModal from "@/components/NewProjectModal";
+import ProjectCard from "@/components/ProjectCard";
 
 export default function Projects() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,47 +26,7 @@ export default function Projects() {
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      planning: "bg-[#C9A882]/10 text-[#C9A882] border-[#C9A882]/20",
-      in_progress: "bg-[#C3BAAF]/10 text-[#5F5C59] border-[#C3BAAF]/20",
-      on_hold: "bg-amber-50 text-amber-700 border-amber-200",
-      completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
-      cancelled: "bg-red-50 text-red-700 border-red-200",
-    };
-    return colors[status] || "bg-gray-50 text-gray-700 border-gray-200";
-  };
-
-  const getPriorityColor = (priority: string) => {
-    const colors: Record<string, string> = {
-      low: "priority-baixa",
-      medium: "priority-media",
-      high: "priority-alta",
-      urgent: "priority-urgente",
-    };
-    return colors[priority] || "priority-media";
-  };
-
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      planning: "Planeamento",
-      in_progress: "Em Andamento",
-      on_hold: "Em Espera",
-      completed: "Concluído",
-      cancelled: "Cancelado",
-    };
-    return labels[status] || status;
-  };
-
-  const getPriorityLabel = (priority: string) => {
-    const labels: Record<string, string> = {
-      low: "Baixa",
-      medium: "Média",
-      high: "Alta",
-      urgent: "Urgente",
-    };
-    return labels[priority] || priority;
-  };
+  // Funções auxiliares de cores e labels movidas para ProjectCard.tsx
 
   if (isLoading) {
     return (
@@ -138,77 +98,20 @@ export default function Projects() {
       {filteredProjects && filteredProjects.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProjects.map((project) => (
-            <Link key={project.id} href={`/projects/${project.id}`}>
-              <Card className="gavinho-project-card group">
-                {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="gavinho-text-code mb-1">
-                      {project.name}
-                    </h3>
-                    {project.clientName && (
-                      <p className="gavinho-text-client mt-2">{project.clientName}</p>
-                    )}
-                  </div>
-                  <span className={getPriorityColor(project.priority)}>
-                    {getPriorityLabel(project.priority)}
-                  </span>
-                </div>
-
-                {/* Description */}
-                {project.description && (
-                  <p className="text-sm text-[#5F5C59]/70 mb-4 line-clamp-2">
-                    {project.description}
-                  </p>
-                )}
-
-                {/* Info */}
-                <div className="space-y-2 mb-4">
-                  {project.location && (
-                    <div className="flex items-center gap-2 text-sm text-[#5F5C59]/60">
-                      <MapPin className="w-4 h-4" />
-                      <span>{project.location}</span>
-                    </div>
-                  )}
-                  {project.startDate && (
-                    <div className="flex items-center gap-2 text-sm text-[#5F5C59]/60">
-                      <Calendar className="w-4 h-4" />
-                      <span>
-                        {new Date(project.startDate).toLocaleDateString('pt-PT')}
-                        {project.endDate && ` - ${new Date(project.endDate).toLocaleDateString('pt-PT')}`}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Progress */}
-                <div className="mb-4">
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-[#5F5C59]/60">Progresso</span>
-                    <span className="font-medium text-[#5F5C59]">{project.progress}%</span>
-                  </div>
-                  <div className="gavinho-progress-bar">
-                    <div
-                      className="gavinho-progress-fill"
-                      style={{ width: `${project.progress}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Footer */}
-                <div className="flex items-center justify-between pt-4 border-t border-[#C3BAAF]/10">
-                  <Badge className={`${getStatusColor(project.status)} border`}>
-                    {getStatusLabel(project.status)}
-                  </Badge>
-                  {project.budget && (
-                    <div className="flex items-center gap-1 text-sm text-[#5F5C59]/60">
-                      <TrendingUp className="w-4 h-4" />
-                      <span>€{parseFloat(project.budget).toLocaleString('pt-PT')}</span>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            </Link>
+            <ProjectCard
+              key={project.id}
+              id={project.id}
+              name={project.name}
+              clientName={project.clientName}
+              description={project.description}
+              location={project.location}
+              startDate={project.startDate}
+              endDate={project.endDate}
+              progress={project.progress}
+              status={project.status}
+              priority={project.priority}
+              budget={project.budget}
+            />
           ))}
         </div>
       ) : (
