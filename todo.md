@@ -2192,3 +2192,15 @@
 - [x] Atualizar lista de projetos recentes com filtros aplicados
 - [x] Adicionar indicador visual de filtros ativos (botão Limpar Filtros)
 - [x] Testar performance com filtros
+
+
+## Criação Projeto Real GA00466
+- [ ] Criar projeto GA00466 - Penthouse Rua António Enes com dados reais
+- [ ] Adicionar informações do cliente e localização
+- [ ] Criar fases do projeto baseadas nos capítulos de trabalho
+- [ ] Adicionar marcos críticos (07-10 Jan, 13-17 Jan, 20-24 Jan, 28-31 Jan, 24-28 Fev)
+- [ ] Adicionar trabalhos executados e em curso
+- [ ] Adicionar materiais e equipamentos
+- [ ] Adicionar equipa e responsáveis
+- [ ] Configurar progresso atual (74-76%)
+- [ ] Testar visualização completa do projeto
