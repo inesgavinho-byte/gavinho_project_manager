@@ -2592,3 +2592,10 @@
 - [x] Manter apenas logo no sidebar (ModularSidebar)
 - [x] Simplificar header mobile para mostrar apenas menu toggle e notificações
 - [ ] Testar visualização em mobile e desktop
+
+
+## Logo Clicável no Sidebar
+- [x] Envolver logo GAVINHO com Link do wouter
+- [x] Redirecionar para /dashboard (Dashboard Executivo)
+- [x] Adicionar cursor pointer e hover effect (opacity-80)
+- [ ] Testar navegação em todas as páginas
