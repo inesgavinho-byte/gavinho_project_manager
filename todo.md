@@ -2266,3 +2266,14 @@
 - [x] Atualizar Projects.tsx para usar ProjectCard
 - [x] Testar componente em diferentes contextos
 - [x] Validar responsividade e acessibilidade
+
+
+## Consistência Visual Total - Design Soft Cream
+- [x] Adicionar variantes ao ProjectCard (compact, detailed, default)
+- [x] Atualizar Dashboard Executivo com fundo Soft Cream
+- [x] Usar ProjectCard no Dashboard para "Projetos Recentes"
+- [x] Criar componente ConstructionCard para obras
+- [x] Aplicar design Soft Cream à página Obras
+- [x] Aplicar design Soft Cream às páginas de Gestão (Clientes, Equipa, Fornecedores)
+- [x] Testar consistência visual em todas as páginas
+- [x] Validar responsividade e acessibilidade

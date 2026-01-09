@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { Building2, Plus, Search, Filter, Calendar, TrendingUp, AlertCircle } from "lucide-react";
+import { Building2, Plus, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import ConstructionCard from "@/components/ConstructionCard";
 import {
   Select,
   SelectContent,
@@ -33,57 +33,10 @@ export default function Constructions() {
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "in_progress":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "completed":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "on_hold":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "cancelled":
-        return "bg-red-100 text-red-800 border-red-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "urgent":
-        return "bg-red-100 text-red-800 border-red-200";
-      case "high":
-        return "bg-orange-100 text-orange-800 border-orange-200";
-      case "medium":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      not_started: "Não Iniciado",
-      in_progress: "Em Curso",
-      on_hold: "Pausado",
-      completed: "Concluído",
-      cancelled: "Cancelado",
-    };
-    return labels[status] || status;
-  };
-
-  const getPriorityLabel = (priority: string) => {
-    const labels: Record<string, string> = {
-      low: "Baixa",
-      medium: "Média",
-      high: "Alta",
-      urgent: "Urgente",
-    };
-    return labels[priority] || priority;
-  };
+  // Funções auxiliares movidas para ConstructionCard.tsx
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#EEEAE5" }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--soft-cream)' }}>
       {/* Header */}
       <div className="border-b" style={{ borderColor: "#C3BAAF" }}>
         <div className="container py-8">
@@ -165,88 +118,20 @@ export default function Constructions() {
         ) : filteredConstructions && filteredConstructions.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredConstructions.map((construction) => (
-              <Link key={construction.id} href={`/constructions/${construction.id}`}>
-                <Card
-                  className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                  style={{ backgroundColor: "white", borderColor: "#C3BAAF" }}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-12 h-12 rounded-lg flex items-center justify-center"
-                        style={{ backgroundColor: "#EEEAE5" }}
-                      >
-                        <Building2 className="h-6 w-6" style={{ color: "#C9A882" }} />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium" style={{ color: "#C9A882" }}>
-                          {construction.code}
-                        </p>
-                        <h3
-                          className="text-lg font-semibold"
-                          style={{ fontFamily: "Cormorant Garamond, serif", color: "#5F5C59" }}
-                        >
-                          {construction.name}
-                        </h3>
-                      </div>
-                    </div>
-                  </div>
-
-                  {construction.client && (
-                    <p className="text-sm mb-2" style={{ color: "#5F5C59" }}>
-                      <strong>Cliente:</strong> {construction.client}
-                    </p>
-                  )}
-
-                  {construction.location && (
-                    <p className="text-sm mb-4" style={{ color: "#5F5C59" }}>
-                      <strong>Localização:</strong> {construction.location}
-                    </p>
-                  )}
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge className={getStatusColor(construction.status)}>
-                      {getStatusLabel(construction.status)}
-                    </Badge>
-                    <Badge className={getPriorityColor(construction.priority)}>
-                      {getPriorityLabel(construction.priority)}
-                    </Badge>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm" style={{ color: "#5F5C59" }}>
-                        Progresso
-                      </span>
-                      <span className="text-sm font-semibold" style={{ color: "#C9A882" }}>
-                        {construction.progress}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div
-                        className="h-2 rounded-full transition-all"
-                        style={{
-                          width: `${construction.progress}%`,
-                          backgroundColor: "#C9A882",
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Budget */}
-                  {construction.budget && (
-                    <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: "#C3BAAF" }}>
-                      <span className="text-sm" style={{ color: "#5F5C59" }}>
-                        Orçamento
-                      </span>
-                      <span className="text-sm font-semibold" style={{ color: "#5F5C59" }}>
-                        €{parseFloat(construction.budget.toString()).toLocaleString("pt-PT")}
-                      </span>
-                    </div>
-                  )}
-                </Card>
-              </Link>
+              <ConstructionCard
+                key={construction.id}
+                id={construction.id}
+                code={construction.code}
+                name={construction.name}
+                projectName={construction.projectName}
+                location={construction.location}
+                startDate={construction.startDate}
+                endDate={construction.endDate}
+                progress={construction.progress}
+                status={construction.status}
+                priority={construction.priority}
+                budget={construction.budget?.toString()}
+              />
             ))}
           </div>
         ) : (

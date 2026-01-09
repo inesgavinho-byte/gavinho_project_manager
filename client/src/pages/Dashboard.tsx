@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { BarChart3, FolderKanban, AlertCircle, CheckCircle2, Clock, PauseCircle, Plus } from "lucide-react";
 import { Link } from "wouter";
 import NewProjectModal from "@/components/NewProjectModal";
+import ProjectCard from "@/components/ProjectCard";
 
 export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -79,7 +80,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 min-h-screen" style={{ backgroundColor: 'var(--soft-cream)' }}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -207,27 +208,23 @@ export default function Dashboard() {
                 Nenhum projeto encontrado
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {recentProjects.map((project) => (
-                  <Link key={project.id} href={`/projects/${project.id}`}>
-                    <div className="flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer">
-                      <div className="flex items-center gap-3">
-                        {getStatusIcon(project.status)}
-                        <div>
-                          <p className="font-medium">{project.name}</p>
-                          <p className="text-sm text-muted-foreground">{project.clientName || "Sem cliente"}</p>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <span className={`text-xs px-2 py-1 rounded-full ${getPriorityClass(project.priority)}`}>
-                          {project.priority}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {project.progress}% concluído
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
+                  <ProjectCard
+                    key={project.id}
+                    id={project.id}
+                    name={project.name}
+                    clientName={project.clientName}
+                    description={project.description}
+                    location={project.location}
+                    startDate={project.startDate}
+                    endDate={project.endDate}
+                    progress={project.progress}
+                    status={project.status}
+                    priority={project.priority}
+                    budget={project.budget}
+                    variant="compact"
+                  />
                 ))}
               </div>
             )}
