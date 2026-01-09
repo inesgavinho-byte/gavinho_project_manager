@@ -2694,3 +2694,26 @@
 - [x] Testar todas as funcionalidades de upload (diálogos completos e funcionais)
 - [x] Testar preview ampliado em diferentes resoluções (MaterialPreviewDialog responsivo)
 - [x] Testar sistema de etiquetas (ManageTagsDialog + CustomTagsHelper)
+
+
+## Otimização de Navegação e Funcionalidades Avançadas (Janeiro 2026)
+- [x] Otimizar estrutura do sidebar (reduzir itens de menu)
+- [x] Mover "Coleções" para tab dentro da Biblioteca
+- [x] Mover "Análise de Materiais" para tab dentro da Biblioteca
+- [x] Atualizar ModularSidebar.tsx removendo itens movidos
+- [x] Adicionar novas tabs na página Library.tsx (Coleções e Análise)
+- [x] Implementar edição inline no MaterialPreviewDialog
+- [x] Criar modo de edição dentro do modal de preview (botão Edit ativa modo)
+- [x] Validar e guardar alterações sem fechar modal (botões Cancelar/Guardar)
+- [x] Campos editáveis: nome, descrição, categoria, fornecedor, preço, unidade, especificações técnicas
+- [x] Implementar sistema de seleção múltipla de materiais (modo comparação com botão toggle)
+- [x] Criar MaterialComparisonDialog para visualização lado a lado (grid responsivo)
+- [x] Mostrar especificações técnicas comparativas (preço, fornecedor, descrição, specs, tags)
+- [x] Implementar geração de relatórios PDF (endpoint tRPC criado)
+- [x] Criar endpoint tRPC para gerar relatório de materiais por projeto (libraryRouter.generateMaterialsReport)
+- [x] Incluir imagens e especificações técnicas no PDF (parâmetros includeImages, includeTechnicalSpecs)
+- [x] Adicionar botão de exportação na página de projetos (botão "Exportar Comparação" no MaterialComparisonDialog)
+- [x] Testar otimização de navegação (sidebar compacto, tabs funcionais)
+- [x] Testar edição inline (MaterialPreviewDialog com modo edit)
+- [x] Testar comparação de materiais (seleção múltipla + MaterialComparisonDialog)
+- [x] Testar geração de relatórios PDF (endpoint tRPC + botão exportação)

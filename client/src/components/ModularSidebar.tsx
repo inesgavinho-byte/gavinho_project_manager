@@ -87,18 +87,6 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           path: "/biblioteca",
         },
         {
-          id: "colecoes",
-          label: "Coleções",
-          icon: Folder,
-          path: "/colecoes",
-        },
-        {
-          id: "analise-materiais",
-          label: "Análise de Materiais",
-          icon: TrendingUp,
-          path: "/analise-materiais",
-        },
-        {
           id: "calendario",
           label: "Calendário",
           icon: Calendar,

@@ -9,6 +9,15 @@ import {
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import {
   X,
   Star,
@@ -45,12 +54,33 @@ export function MaterialPreviewDialog({
 }: MaterialPreviewDialogProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const [imageZoomed, setImageZoomed] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState("");
+  const [editedDescription, setEditedDescription] = useState("");
+  const [editedCategory, setEditedCategory] = useState("");
+  const [editedSupplier, setEditedSupplier] = useState("");
+  const [editedPrice, setEditedPrice] = useState("");
+  const [editedUnit, setEditedUnit] = useState("");
+  const [editedTechnicalSpecs, setEditedTechnicalSpecs] = useState("");
 
   // Queries
-  const { data: material, isLoading } = trpc.library.materials.getById.useQuery(
+  const { data: material, isLoading, refetch: refetchMaterial } = trpc.library.materials.getById.useQuery(
     { id: materialId },
     { enabled: open && materialId > 0 }
   );
+
+  // Initialize edit fields when material loads
+  useState(() => {
+    if (material && !isEditing) {
+      setEditedName(material.name || "");
+      setEditedDescription(material.description || "");
+      setEditedCategory(material.category || "");
+      setEditedSupplier(material.supplier || "");
+      setEditedPrice(material.price?.toString() || "");
+      setEditedUnit(material.unit || "m²");
+      setEditedTechnicalSpecs(material.technicalSpecs || "");
+    }
+  });
 
   const { data: isFavorite = false, refetch: refetchFavoriteStatus } =
     trpc.library.getFavoriteStatusForMaterials.useQuery(
@@ -71,10 +101,60 @@ export function MaterialPreviewDialog({
     },
   });
 
+  const updateMaterial = trpc.library.materials.update.useMutation({
+    onSuccess: () => {
+      toast.success("Material atualizado com sucesso!");
+      setIsEditing(false);
+      refetchMaterial();
+    },
+    onError: (error) => {
+      toast.error("Erro ao atualizar material: " + error.message);
+    },
+  });
+
   const handleToggleFavorite = () => {
     toggleFavorite.mutate({
       materialId,
       itemType: "material",
+    });
+  };
+
+  const handleStartEdit = () => {
+    if (material) {
+      setEditedName(material.name || "");
+      setEditedDescription(material.description || "");
+      setEditedCategory(material.category || "");
+      setEditedSupplier(material.supplier || "");
+      setEditedPrice(material.price?.toString() || "");
+      setEditedUnit(material.unit || "m²");
+      setEditedTechnicalSpecs(material.technicalSpecs || "");
+      setIsEditing(true);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editedName) {
+      toast.error("Nome é obrigatório");
+      return;
+    }
+    if (!editedCategory) {
+      toast.error("Categoria é obrigatória");
+      return;
+    }
+
+    updateMaterial.mutate({
+      id: materialId,
+      name: editedName,
+      description: editedDescription || undefined,
+      category: editedCategory,
+      supplier: editedSupplier || undefined,
+      price: editedPrice ? parseFloat(editedPrice) : undefined,
+      unit: editedUnit || undefined,
+      technicalSpecs: editedTechnicalSpecs || undefined,
     });
   };
 
@@ -111,23 +191,97 @@ export function MaterialPreviewDialog({
         <DialogHeader className="p-6 pb-4 border-b border-[#E5E2D9] bg-white">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <DialogTitle className="text-2xl font-bold text-[#5F5C59] mb-2">
-                {material.name}
-              </DialogTitle>
+              {!isEditing ? (
+                <DialogTitle className="text-2xl font-bold text-[#5F5C59] mb-2">
+                  {material.name}
+                </DialogTitle>
+              ) : (
+                <Input
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  className="text-2xl font-bold text-[#5F5C59] mb-2 border-[#C9A882]"
+                  placeholder="Nome do material"
+                />
+              )}
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant="outline" className="border-[#C9A882] text-[#C9A882]">
-                  {material.category}
-                </Badge>
-                {material.supplier && (
-                  <div className="flex items-center gap-1 text-sm text-[#8B8670]">
-                    <Building2 className="w-3 h-3" />
-                    <span>{material.supplier}</span>
-                  </div>
+                {!isEditing ? (
+                  <Badge variant="outline" className="border-[#C9A882] text-[#C9A882]">
+                    {material.category}
+                  </Badge>
+                ) : (
+                  <Select value={editedCategory} onValueChange={setEditedCategory}>
+                    <SelectTrigger className="w-40 h-7 text-xs border-[#C9A882]">
+                      <SelectValue placeholder="Categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Art Deco">Art Deco</SelectItem>
+                      <SelectItem value="Branco">Branco</SelectItem>
+                      <SelectItem value="Clássico">Clássico</SelectItem>
+                      <SelectItem value="Contemporâneo">Contemporâneo</SelectItem>
+                      <SelectItem value="Dourado">Dourado</SelectItem>
+                      <SelectItem value="Económico">Económico</SelectItem>
+                      <SelectItem value="Escandinavo">Escandinavo</SelectItem>
+                      <SelectItem value="Indoor">Indoor</SelectItem>
+                      <SelectItem value="Industrial">Industrial</SelectItem>
+                      <SelectItem value="Luxo">Luxo</SelectItem>
+                      <SelectItem value="Madeira">Madeira</SelectItem>
+                      <SelectItem value="Mediterrâneo">Mediterrâneo</SelectItem>
+                      <SelectItem value="Minimalista">Minimalista</SelectItem>
+                      <SelectItem value="Neutro">Neutro</SelectItem>
+                      <SelectItem value="Outdoor">Outdoor</SelectItem>
+                      <SelectItem value="Premium">Premium</SelectItem>
+                      <SelectItem value="Preto">Preto</SelectItem>
+                      <SelectItem value="Rústico">Rústico</SelectItem>
+                      <SelectItem value="Sustentável">Sustentável</SelectItem>
+                    </SelectContent>
+                  </Select>
                 )}
-                {material.price && (
-                  <div className="flex items-center gap-1 text-sm font-semibold text-[#5F5C59]">
-                    <Euro className="w-3 h-3" />
-                    <span>{material.price}€/{material.unit || "m²"}</span>
+                {!isEditing ? (
+                  <>
+                    {material.supplier && (
+                      <div className="flex items-center gap-1 text-sm text-[#8B8670]">
+                        <Building2 className="w-3 h-3" />
+                        <span>{material.supplier}</span>
+                      </div>
+                    )}
+                    {material.price && (
+                      <div className="flex items-center gap-1 text-sm font-semibold text-[#5F5C59]">
+                        <Euro className="w-3 h-3" />
+                        <span>{material.price}€/{material.unit || "m²"}</span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={editedSupplier}
+                      onChange={(e) => setEditedSupplier(e.target.value)}
+                      placeholder="Fornecedor"
+                      className="w-32 h-7 text-xs border-[#C9A882]"
+                    />
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={editedPrice}
+                        onChange={(e) => setEditedPrice(e.target.value)}
+                        placeholder="Preço"
+                        className="w-20 h-7 text-xs border-[#C9A882]"
+                      />
+                      <span className="text-xs text-[#8B8670]">€/</span>
+                      <Select value={editedUnit} onValueChange={setEditedUnit}>
+                        <SelectTrigger className="w-16 h-7 text-xs border-[#C9A882]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="m²">m²</SelectItem>
+                          <SelectItem value="m">m</SelectItem>
+                          <SelectItem value="un">un</SelectItem>
+                          <SelectItem value="kg">kg</SelectItem>
+                          <SelectItem value="l">l</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 )}
               </div>
@@ -148,10 +302,30 @@ export function MaterialPreviewDialog({
                   )}
                 />
               </Button>
-              {onEdit && (
-                <Button variant="ghost" size="sm" onClick={onEdit}>
+              {!isEditing ? (
+                <Button variant="ghost" size="sm" onClick={handleStartEdit}>
                   <Edit className="w-4 h-4" />
                 </Button>
+              ) : (
+                <>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleCancelEdit}
+                    className="text-[#8B8670]"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleSaveEdit}
+                    disabled={updateMaterial.isPending}
+                    className="text-[#C9A882] font-semibold"
+                  >
+                    {updateMaterial.isPending ? "A guardar..." : "Guardar"}
+                  </Button>
+                </>
               )}
               {onDelete && (
                 <Button variant="ghost" size="sm" onClick={onDelete}>
@@ -286,9 +460,18 @@ export function MaterialPreviewDialog({
                     <h3 className="text-sm font-semibold text-[#5F5C59] mb-2">
                       Descrição
                     </h3>
-                    <p className="text-sm text-[#8B8670] leading-relaxed">
-                      {material.description || "Sem descrição disponível"}
-                    </p>
+                    {!isEditing ? (
+                      <p className="text-sm text-[#8B8670] leading-relaxed">
+                        {material.description || "Sem descrição disponível"}
+                      </p>
+                    ) : (
+                      <Textarea
+                        value={editedDescription}
+                        onChange={(e) => setEditedDescription(e.target.value)}
+                        placeholder="Descrição do material"
+                        className="min-h-20 border-[#C9A882]"
+                      />
+                    )}
                   </div>
 
                   <div className="bg-white rounded-lg p-4 border border-[#E5E2D9] space-y-3">
@@ -351,17 +534,26 @@ export function MaterialPreviewDialog({
                     <h3 className="text-sm font-semibold text-[#5F5C59] mb-3">
                       Especificações Técnicas
                     </h3>
-                    <div className="space-y-2 text-sm">
-                      {material.technicalSpecs ? (
-                        <div className="text-[#8B8670] whitespace-pre-wrap">
-                          {material.technicalSpecs}
-                        </div>
-                      ) : (
-                        <div className="text-[#8B8670] italic">
-                          Sem especificações técnicas disponíveis
-                        </div>
-                      )}
-                    </div>
+                    {!isEditing ? (
+                      <div className="space-y-2 text-sm">
+                        {material.technicalSpecs ? (
+                          <div className="text-[#8B8670] whitespace-pre-wrap">
+                            {material.technicalSpecs}
+                          </div>
+                        ) : (
+                          <div className="text-[#8B8670] italic">
+                            Sem especificações técnicas disponíveis
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Textarea
+                        value={editedTechnicalSpecs}
+                        onChange={(e) => setEditedTechnicalSpecs(e.target.value)}
+                        placeholder="Especificações técnicas detalhadas"
+                        className="min-h-32 border-[#C9A882]"
+                      />
+                    )}
                   </div>
 
                   {material.technicalSheetUrl && (

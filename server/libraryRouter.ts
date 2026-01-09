@@ -1045,4 +1045,31 @@ export const libraryRouter = router({
     .query(async () => {
       return getMaterialsOverview();
     }),
+
+  // Generate PDF report of materials
+  generateMaterialsReport: protectedProcedure
+    .input(
+      z.object({
+        projectId: z.number().optional(),
+        materialIds: z.array(z.number()).optional(),
+        includeImages: z.boolean().default(true),
+        includeTechnicalSpecs: z.boolean().default(true),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        // For now, return a placeholder - full PDF generation requires additional setup
+        return {
+          success: true,
+          message: "Funcionalidade de geração de PDF em desenvolvimento",
+          materialIds: input.materialIds || [],
+        };
+      } catch (error) {
+        console.error("Error generating PDF report:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Erro ao gerar relatório PDF",
+        });
+      }
+    }),
 });

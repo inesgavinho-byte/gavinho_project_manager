@@ -50,6 +50,7 @@ import { ManageCollectionsDialog } from "../components/ManageCollectionsDialog";
 import { AddToCollectionDialog } from "../components/AddToCollectionDialog";
 import { MaterialCommentsDialog } from "../components/MaterialCommentsDialog";
 import { MaterialPreviewDialog } from "../components/library/MaterialPreviewDialog";
+import { MaterialComparisonDialog } from "../components/library/MaterialComparisonDialog";
 
 // Categorias predefinidas para materiais
 const MATERIAL_CATEGORIES = [
@@ -75,7 +76,7 @@ const MATERIAL_CATEGORIES = [
 ];
 
 export default function Library() {
-  const [activeTab, setActiveTab] = useState<"materials" | "models" | "inspiration">("materials");
+  const [activeTab, setActiveTab] = useState<"materials" | "models" | "inspiration" | "collections" | "analysis">("materials");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -113,6 +114,9 @@ export default function Library() {
     open: boolean;
     materialId: number;
   }>({ open: false, materialId: 0 });
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [selectedMaterialsForComparison, setSelectedMaterialsForComparison] = useState<number[]>([]);
+  const [comparisonDialogOpen, setComparisonDialogOpen] = useState(false);
 
   // Queries
   const { data: materials = [], refetch: refetchMaterials } = trpc.library.materials.list.useQuery({
@@ -215,9 +219,44 @@ export default function Library() {
                   <Badge variant="secondary" className="ml-1">{inspirationCount}</Badge>
                 )}
               </TabsTrigger>
+              <TabsTrigger value="collections" className="gap-2">
+                <Folder className="w-4 h-4" />
+                Coleções
+              </TabsTrigger>
+              <TabsTrigger value="analysis" className="gap-2">
+                <TrendingUp className="w-4 h-4" />
+                Análise
+              </TabsTrigger>
             </TabsList>
 
             <div className="flex items-center gap-2">
+              {activeTab === "materials" && (
+                <>
+                  <Button
+                    variant={comparisonMode ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setComparisonMode(!comparisonMode);
+                      if (comparisonMode) {
+                        setSelectedMaterialsForComparison([]);
+                      }
+                    }}
+                    className={comparisonMode ? "bg-[#C9A882] hover:bg-[#B8976F]" : ""}
+                  >
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    {comparisonMode ? "Cancelar Comparação" : "Comparar"}
+                  </Button>
+                  {comparisonMode && selectedMaterialsForComparison.length >= 2 && (
+                    <Button
+                      size="sm"
+                      onClick={() => setComparisonDialogOpen(true)}
+                      className="bg-[#C9A882] hover:bg-[#B8976F]"
+                    >
+                      Ver Comparação ({selectedMaterialsForComparison.length})
+                    </Button>
+                  )}
+                </>
+              )}
               <Button
                 variant="outline"
                 size="sm"
@@ -420,8 +459,27 @@ export default function Library() {
                 {filteredMaterials.map((material) => (
                   <Card 
                     key={material.id} 
-                    className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => setMaterialPreviewDialog({ open: true, materialId: material.id })}
+                    className={`overflow-hidden hover:shadow-md transition-shadow cursor-pointer ${
+                      comparisonMode && selectedMaterialsForComparison.includes(material.id)
+                        ? "ring-2 ring-[#C9A882] bg-[#C9A882]/5"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      if (comparisonMode) {
+                        if (selectedMaterialsForComparison.includes(material.id)) {
+                          setSelectedMaterialsForComparison(
+                            selectedMaterialsForComparison.filter((id) => id !== material.id)
+                          );
+                        } else {
+                          setSelectedMaterialsForComparison([
+                            ...selectedMaterialsForComparison,
+                            material.id,
+                          ]);
+                        }
+                      } else {
+                        setMaterialPreviewDialog({ open: true, materialId: material.id });
+                      }
+                    }}
                   >
                     {material.imageUrl && (
                       <img
@@ -728,6 +786,68 @@ export default function Library() {
               </div>
             )}
           </TabsContent>
+
+          {/* Tab Coleções */}
+          <TabsContent value="collections" className="space-y-6">
+            <div className="bg-white rounded-lg p-6 border border-[#E5E2D9]">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-[#5F5C59]">Coleções de Materiais</h3>
+                  <p className="text-sm text-[#8B8670] mt-1">Organize materiais em coleções personalizadas por projeto ou tema</p>
+                </div>
+                <Button
+                  onClick={() => setManageCollectionsOpen(true)}
+                  className="bg-[#C9A882] hover:bg-[#B8976F]"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Nova Coleção
+                </Button>
+              </div>
+              <div className="text-center py-12 text-[#8B8670]">
+                <Folder className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium mb-2">Gerir Coleções</p>
+                <p className="text-sm">Clique em "Nova Coleção" para começar a organizar os seus materiais</p>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Tab Análise */}
+          <TabsContent value="analysis" className="space-y-6">
+            <div className="bg-white rounded-lg p-6 border border-[#E5E2D9]">
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-[#5F5C59]">Análise de Materiais</h3>
+                <p className="text-sm text-[#8B8670] mt-1">Estatísticas e insights sobre utilização de materiais</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-[#F2F0E7] rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-[#8B8670]">Total de Materiais</span>
+                    <Layers className="w-5 h-5 text-[#C9A882]" />
+                  </div>
+                  <div className="text-2xl font-bold text-[#5F5C59]">{materialsCount}</div>
+                </div>
+                <div className="bg-[#F2F0E7] rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-[#8B8670]">Modelos 3D</span>
+                    <Box className="w-5 h-5 text-[#C9A882]" />
+                  </div>
+                  <div className="text-2xl font-bold text-[#5F5C59]">{modelsCount}</div>
+                </div>
+                <div className="bg-[#F2F0E7] rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-[#8B8670]">Inspirações</span>
+                    <Sparkles className="w-5 h-5 text-[#C9A882]" />
+                  </div>
+                  <div className="text-2xl font-bold text-[#5F5C59]">{inspirationCount}</div>
+                </div>
+              </div>
+              <div className="text-center py-12 text-[#8B8670]">
+                <TrendingUp className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                <p className="text-lg font-medium mb-2">Análise Detalhada</p>
+                <p className="text-sm">Estatísticas de utilização, custos e tendências de materiais</p>
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
 
@@ -829,6 +949,16 @@ export default function Library() {
             deleteMaterial.mutate({ id: materialPreviewDialog.materialId });
             setMaterialPreviewDialog({ open: false, materialId: 0 });
           }
+        }}
+      />
+      <MaterialComparisonDialog
+        open={comparisonDialogOpen}
+        onOpenChange={setComparisonDialogOpen}
+        materialIds={selectedMaterialsForComparison}
+        onRemoveMaterial={(materialId) => {
+          setSelectedMaterialsForComparison(
+            selectedMaterialsForComparison.filter((id) => id !== materialId)
+          );
         }}
       />
     </div>
