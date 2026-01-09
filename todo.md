@@ -2655,3 +2655,19 @@
 - [x] Remover Inter de todos os componentes
 - [x] Atualizar import de Google Fonts (Quattrocento Sans 400,700)
 - [ ] Testar legibilidade em todos os componentes
+
+
+## Melhorias de Legibilidade e Integração Biblioteca (Janeiro 2026)
+- [x] Aumentar tamanho base de fonte de 11px para 12px no body
+- [x] Ajustar títulos h1 para 32px (proporcionalmente maior)
+- [x] Ajustar títulos h2 para 24px
+- [x] Ajustar títulos h3 para 18px
+- [x] Testar legibilidade em diferentes resoluções
+- [x] Remover texto "GAVINHO" duplicado no topo do sidebar (removido do DashboardLayout header)
+- [x] Manter apenas logo completo (ícone G + texto GAVINHO) numa localização (ModularSidebar)
+- [x] Verificar estrutura do ModularSidebar.tsx
+- [x] Integrar página Biblioteca com design GAVINHO (já implementada em Library.tsx)
+- [x] Adaptar BibliotecaPage.jsx para componentes shadcn/ui (completo)
+- [x] Implementar backend tRPC para Biblioteca (libraryRouter.ts completo)
+- [x] Criar gestão de documentos/templates de projetos (coleções, tags, favoritos)
+- [x] Testar todas as melhorias implementadas (verificado no preview)

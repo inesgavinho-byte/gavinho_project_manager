@@ -168,13 +168,7 @@ function DashboardLayoutContent({
               >
                 <PanelLeft className="h-4 w-4 text-sidebar-foreground/60" />
               </button>
-              {!isCollapsed ? (
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-serif text-xl font-light tracking-wide truncate text-sidebar-foreground">
-                    GAVINHO
-                  </span>
-                </div>
-              ) : null}
+              <NotificationsPopover />
             </div>
           </SidebarHeader>
 
