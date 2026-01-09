@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, FolderOpen, LayoutGrid, Table } from "lucide-react";
+import { Plus, Search, FolderOpen, LayoutGrid, Table, SlidersHorizontal } from "lucide-react";
 import NewProjectModal from "@/components/NewProjectModal";
 import ProjectCard from "@/components/ProjectCard";
 import ProjectsTable from "@/components/ProjectsTable";
+import { ProjectAdvancedFiltersModal, ProjectAdvancedFilters } from "@/components/AdvancedFiltersModal";
 
 export default function Projects() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -16,6 +17,8 @@ export default function Projects() {
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("date_desc");
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
+  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState<ProjectAdvancedFilters>({});
 
   const { data: projects, isLoading } = trpc.projects.list.useQuery();
 
@@ -26,7 +29,25 @@ export default function Projects() {
                          project.location?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "all" || project.status === statusFilter;
     const matchesPriority = priorityFilter === "all" || project.priority === priorityFilter;
-    return matchesSearch && matchesStatus && matchesPriority;
+    
+    // Advanced filters
+    const matchesClientName = !advancedFilters.clientName || project.clientName?.toLowerCase().includes(advancedFilters.clientName.toLowerCase());
+    const matchesLocation = !advancedFilters.location || project.location?.toLowerCase().includes(advancedFilters.location.toLowerCase());
+    const matchesAdvStatus = !advancedFilters.status || advancedFilters.status === "all" || project.status === advancedFilters.status;
+    const matchesAdvPriority = !advancedFilters.priority || advancedFilters.priority === "all" || project.priority === advancedFilters.priority;
+    const matchesMinProgress = advancedFilters.minProgress === undefined || (project.progress || 0) >= advancedFilters.minProgress;
+    const matchesMaxProgress = advancedFilters.maxProgress === undefined || (project.progress || 0) <= advancedFilters.maxProgress;
+    const matchesMinBudget = advancedFilters.minBudget === undefined || (project.budget || 0) >= advancedFilters.minBudget;
+    const matchesMaxBudget = advancedFilters.maxBudget === undefined || (project.budget || 0) <= advancedFilters.maxBudget;
+    const matchesStartDateFrom = !advancedFilters.startDateFrom || (project.startDate && new Date(project.startDate) >= new Date(advancedFilters.startDateFrom));
+    const matchesStartDateTo = !advancedFilters.startDateTo || (project.startDate && new Date(project.startDate) <= new Date(advancedFilters.startDateTo));
+    const matchesEndDateFrom = !advancedFilters.endDateFrom || (project.endDate && new Date(project.endDate) >= new Date(advancedFilters.endDateFrom));
+    const matchesEndDateTo = !advancedFilters.endDateTo || (project.endDate && new Date(project.endDate) <= new Date(advancedFilters.endDateTo));
+    
+    return matchesSearch && matchesStatus && matchesPriority &&
+           matchesClientName && matchesLocation && matchesAdvStatus && matchesAdvPriority &&
+           matchesMinProgress && matchesMaxProgress && matchesMinBudget && matchesMaxBudget &&
+           matchesStartDateFrom && matchesStartDateTo && matchesEndDateFrom && matchesEndDateTo;
   }).sort((a, b) => {
     switch (sortBy) {
       case "name_asc":
@@ -124,8 +145,8 @@ export default function Projects() {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="md:col-span-2">
-            <div className="relative">
+          <div className="md:col-span-2 flex gap-2">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5F5C59]/40" />
               <Input
                 placeholder="Procurar por nome, cliente ou localização..."
@@ -134,6 +155,16 @@ export default function Projects() {
                 className="pl-10 gavinho-input"
               />
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAdvancedFiltersOpen(true)}
+              className="gap-2"
+              style={{ borderColor: "var(--warm-beige)", color: "var(--text-dark)" }}
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Filtros Avançados
+            </Button>
           </div>
           
           <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -269,6 +300,14 @@ export default function Projects() {
           </div>
         </Card>
       )}
+
+      {/* Modal de Filtros Avançados */}
+      <ProjectAdvancedFiltersModal
+        open={advancedFiltersOpen}
+        onOpenChange={setAdvancedFiltersOpen}
+        onApply={setAdvancedFilters}
+        initialFilters={advancedFilters}
+      />
     </div>
   );
 }

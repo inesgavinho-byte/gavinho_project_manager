@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { Building2, Plus, Search, Filter, LayoutGrid, Table } from "lucide-react";
+import { Building2, Plus, Search, Filter, LayoutGrid, Table, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import ConstructionCard from "@/components/ConstructionCard";
 import ConstructionsTable from "@/components/ConstructionsTable";
+import { ConstructionAdvancedFiltersModal, ConstructionAdvancedFilters } from "@/components/AdvancedFiltersModal";
 import {
   Select,
   SelectContent,
@@ -21,6 +22,8 @@ export default function Constructions() {
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("date_desc");
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
+  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState<ConstructionAdvancedFilters>({});
 
   const { data: constructions, isLoading } = trpc.constructions.list.useQuery();
 
@@ -33,7 +36,25 @@ export default function Constructions() {
     const matchesStatus = statusFilter === "all" || construction.status === statusFilter;
     const matchesPriority = priorityFilter === "all" || construction.priority === priorityFilter;
 
-    return matchesSearch && matchesStatus && matchesPriority;
+    // Advanced filters
+    const matchesCode = !advancedFilters.code || construction.code.toLowerCase().includes(advancedFilters.code.toLowerCase());
+    const matchesProjectName = !advancedFilters.projectName || construction.name.toLowerCase().includes(advancedFilters.projectName.toLowerCase());
+    const matchesLocation = !advancedFilters.location || construction.location?.toLowerCase().includes(advancedFilters.location.toLowerCase());
+    const matchesAdvStatus = !advancedFilters.status || advancedFilters.status === "all" || construction.status === advancedFilters.status;
+    const matchesAdvPriority = !advancedFilters.priority || advancedFilters.priority === "all" || construction.priority === advancedFilters.priority;
+    const matchesMinProgress = advancedFilters.minProgress === undefined || (construction.progress || 0) >= advancedFilters.minProgress;
+    const matchesMaxProgress = advancedFilters.maxProgress === undefined || (construction.progress || 0) <= advancedFilters.maxProgress;
+    const matchesMinBudget = advancedFilters.minBudget === undefined || (construction.budget || 0) >= advancedFilters.minBudget;
+    const matchesMaxBudget = advancedFilters.maxBudget === undefined || (construction.budget || 0) <= advancedFilters.maxBudget;
+    const matchesStartDateFrom = !advancedFilters.startDateFrom || (construction.startDate && new Date(construction.startDate) >= new Date(advancedFilters.startDateFrom));
+    const matchesStartDateTo = !advancedFilters.startDateTo || (construction.startDate && new Date(construction.startDate) <= new Date(advancedFilters.startDateTo));
+    const matchesEndDateFrom = !advancedFilters.endDateFrom || (construction.endDate && new Date(construction.endDate) >= new Date(advancedFilters.endDateFrom));
+    const matchesEndDateTo = !advancedFilters.endDateTo || (construction.endDate && new Date(construction.endDate) <= new Date(advancedFilters.endDateTo));
+
+    return matchesSearch && matchesStatus && matchesPriority &&
+           matchesCode && matchesProjectName && matchesLocation && matchesAdvStatus && matchesAdvPriority &&
+           matchesMinProgress && matchesMaxProgress && matchesMinBudget && matchesMaxBudget &&
+           matchesStartDateFrom && matchesStartDateTo && matchesEndDateFrom && matchesEndDateTo;
   }).sort((a, b) => {
     switch (sortBy) {
       case "name_asc":
@@ -108,15 +129,27 @@ export default function Constructions() {
 
           {/* Filters */}
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Pesquisar por código, nome ou cliente..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-                style={{ backgroundColor: "white", borderColor: "#C3BAAF" }}
-              />
+            <div className="flex-1 flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Pesquisar por código, nome ou cliente..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                  style={{ backgroundColor: "white", borderColor: "#C3BAAF" }}
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAdvancedFiltersOpen(true)}
+                className="gap-2"
+                style={{ borderColor: "var(--warm-beige)", color: "var(--text-dark)" }}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Filtros Avançados
+              </Button>
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full md:w-48" style={{ backgroundColor: "white", borderColor: "#C3BAAF" }}>
@@ -289,6 +322,14 @@ export default function Constructions() {
           </div>
         )}
       </div>
+
+      {/* Modal de Filtros Avançados */}
+      <ConstructionAdvancedFiltersModal
+        open={advancedFiltersOpen}
+        onOpenChange={setAdvancedFiltersOpen}
+        onApply={setAdvancedFilters}
+        initialFilters={advancedFilters}
+      />
     </div>
   );
 }

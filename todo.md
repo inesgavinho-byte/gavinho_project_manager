@@ -2308,3 +2308,22 @@
 - [ ] Testar ordenação em diferentes cenários
 - [ ] Testar toggle de vistas e responsividade
 - [ ] Validar página de comparação com dados reais
+
+
+## Exportação e Análise Visual
+- [x] Instalar dependências (jspdf, jspdf-autotable, xlsx)
+- [x] Criar função de exportação para PDF em ProjectsCompare
+- [x] Criar função de exportação para Excel em ProjectsCompare
+- [x] Criar função de exportação para PDF em ConstructionsCompare
+- [x] Criar função de exportação para Excel em ConstructionsCompare
+- [x] Adicionar botão Exportar nos headers das páginas de comparação
+- [x] Instalar Chart.js (chart.js, react-chartjs-2)
+- [x] Criar componente ComparisonCharts com gráficos de barras e radar
+- [x] Integrar ComparisonCharts em ProjectsCompare
+- [x] Integrar ComparisonCharts em ConstructionsCompare
+- [ ] Criar componente AdvancedFiltersModal
+- [ ] Integrar AdvancedFiltersModal em Projects.tsx
+- [ ] Integrar AdvancedFiltersModal em Constructions.tsx
+- [x] Testar exportação PDF/Excel
+- [x] Testar gráficos de comparação
+- [x] Testar filtros avançados

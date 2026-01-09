@@ -4,7 +4,10 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, X, Download, FileText } from "lucide-react";
+import { exportProjectsToExcel } from "@/lib/exportToExcel";
+import { exportProjectsToPDF } from "@/lib/exportToPDF";
+import { ProjectComparisonCharts } from "@/components/ComparisonCharts";
 
 export default function ProjectsCompare() {
   const [, setLocation] = useLocation();
@@ -132,17 +135,41 @@ export default function ProjectsCompare() {
               <h3 className="font-semibold" style={{ color: "var(--text-dark)" }}>
                 Comparação Detalhada
               </h3>
-              {selectedIds.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSelectedIds([])}
-                  className="gap-2"
-                >
-                  <X className="h-4 w-4" />
-                  Limpar seleção
-                </Button>
-              )}
+              <div className="flex items-center gap-2">
+                {selectedIds.length > 0 && (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => exportProjectsToExcel(selectedProjects)}
+                      className="gap-2"
+                      style={{ borderColor: "var(--warm-beige)", color: "var(--text-dark)" }}
+                    >
+                      <Download className="h-4 w-4" />
+                      Excel
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => exportProjectsToPDF(selectedProjects)}
+                      className="gap-2"
+                      style={{ borderColor: "var(--warm-beige)", color: "var(--text-dark)" }}
+                    >
+                      <FileText className="h-4 w-4" />
+                      PDF
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedIds([])}
+                      className="gap-2"
+                    >
+                      <X className="h-4 w-4" />
+                      Limpar seleção
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
 
             <table className="w-full border-collapse">
@@ -408,6 +435,11 @@ export default function ProjectsCompare() {
               </tbody>
             </table>
           </Card>
+        )}
+
+        {/* Gráficos de Comparação */}
+        {selectedProjects.length > 0 && (
+          <ProjectComparisonCharts projects={selectedProjects} />
         )}
 
         {selectedProjects.length === 0 && (
