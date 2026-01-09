@@ -1,13 +1,14 @@
 import { router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
+import * as teamManagementDb from "./teamManagementDb";
 
 export const teamManagementRouter = router({
-  getMyAssignments: protectedProcedure.query(async () => {
-    return [];
+  getMyAssignments: protectedProcedure.query(async ({ ctx }) => {
+    return await teamManagementDb.getUserAssignments(ctx.user.id);
   }),
 
   getAllTasks: protectedProcedure.query(async () => {
-    return [];
+    return await teamManagementDb.getAllTasks();
   }),
 
   getMyTimeEntries: protectedProcedure
@@ -15,8 +16,12 @@ export const teamManagementRouter = router({
       startDate: z.date(),
       endDate: z.date(),
     }))
-    .query(async () => {
-      return [];
+    .query(async ({ ctx, input }) => {
+      return await teamManagementDb.getUserTimeEntries(
+        ctx.user.id,
+        input.startDate,
+        input.endDate
+      );
     }),
 
   getTimeSummary: protectedProcedure
@@ -24,12 +29,12 @@ export const teamManagementRouter = router({
       startDate: z.date(),
       endDate: z.date(),
     }))
-    .query(async () => {
-      return {
-        totalHours: 0,
-        daysWorked: 0,
-        tasksCompleted: 0,
-      };
+    .query(async ({ ctx, input }) => {
+      return await teamManagementDb.getTimeSummary(
+        ctx.user.id,
+        input.startDate,
+        input.endDate
+      );
     }),
 
   logTime: protectedProcedure
@@ -40,8 +45,15 @@ export const teamManagementRouter = router({
       taskId: z.number().optional(),
       projectId: z.number().optional(),
     }))
-    .mutation(async () => {
-      return { success: true };
+    .mutation(async ({ ctx, input }) => {
+      return await teamManagementDb.logTimeEntry({
+        userId: ctx.user.id,
+        projectId: input.projectId,
+        taskId: input.taskId,
+        description: input.description,
+        hours: input.hours,
+        date: input.date,
+      });
     }),
 
   getMyAvailability: protectedProcedure
@@ -49,8 +61,12 @@ export const teamManagementRouter = router({
       startDate: z.date(),
       endDate: z.date(),
     }))
-    .query(async () => {
-      return [];
+    .query(async ({ ctx, input }) => {
+      return await teamManagementDb.getUserAvailability(
+        ctx.user.id,
+        input.startDate,
+        input.endDate
+      );
     }),
 
   getTeamAvailability: protectedProcedure
@@ -58,8 +74,11 @@ export const teamManagementRouter = router({
       startDate: z.date(),
       endDate: z.date(),
     }))
-    .query(async () => {
-      return [];
+    .query(async ({ input }) => {
+      return await teamManagementDb.getTeamAvailability(
+        input.startDate,
+        input.endDate
+      );
     }),
 
   setAvailability: protectedProcedure
@@ -68,8 +87,13 @@ export const teamManagementRouter = router({
       status: z.enum(["available", "busy", "off", "vacation"]),
       notes: z.string().optional(),
     }))
-    .mutation(async () => {
-      return { success: true };
+    .mutation(async ({ ctx, input }) => {
+      return await teamManagementDb.setUserAvailability({
+        userId: ctx.user.id,
+        date: input.date,
+        status: input.status,
+        notes: input.notes,
+      });
     }),
 
   getProductivityReport: protectedProcedure
@@ -78,12 +102,14 @@ export const teamManagementRouter = router({
       endDate: z.date(),
       userId: z.number().optional(),
     }))
-    .query(async () => {
-      return {
-        totalHours: 0,
-        daysWorked: 0,
-        tasksCompleted: 0,
-        averageHoursPerDay: 0,
-      };
+    .query(async ({ ctx, input }) => {
+      // If userId not provided, use current user
+      const userId = input.userId || ctx.user.id;
+      
+      return await teamManagementDb.getProductivityReport(
+        input.startDate,
+        input.endDate,
+        userId
+      );
     }),
 });

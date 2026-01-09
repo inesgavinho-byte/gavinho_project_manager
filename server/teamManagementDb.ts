@@ -1,0 +1,320 @@
+import { getDb } from "./db";
+import { timeTracking, taskAssignments, userAvailability, users, projects } from "../drizzle/schema";
+import { eq, sql, and, gte, lte, between } from "drizzle-orm";
+
+/**
+ * Get user's task assignments
+ */
+export async function getUserAssignments(userId: number) {
+  const db = await getDb();
+  
+  const result = await db
+    .select({
+      id: taskAssignments.id,
+      projectId: taskAssignments.projectId,
+      projectName: projects.name,
+      title: taskAssignments.title,
+      description: taskAssignments.description,
+      status: taskAssignments.status,
+      priority: taskAssignments.priority,
+      dueDate: taskAssignments.dueDate,
+      estimatedHours: taskAssignments.estimatedHours,
+      actualHours: taskAssignments.actualHours,
+      createdAt: taskAssignments.createdAt,
+      updatedAt: taskAssignments.updatedAt,
+    })
+    .from(taskAssignments)
+    .leftJoin(projects, eq(taskAssignments.projectId, projects.id))
+    .where(eq(taskAssignments.userId, userId))
+    .orderBy(taskAssignments.dueDate);
+
+  return result.map(row => ({
+    ...row,
+    estimatedHours: row.estimatedHours ? Number(row.estimatedHours) : null,
+    actualHours: Number(row.actualHours || 0),
+  }));
+}
+
+/**
+ * Get all tasks (admin view)
+ */
+export async function getAllTasks() {
+  const db = await getDb();
+  
+  const result = await db
+    .select({
+      id: taskAssignments.id,
+      projectId: taskAssignments.projectId,
+      projectName: projects.name,
+      userId: taskAssignments.userId,
+      userName: users.name,
+      title: taskAssignments.title,
+      status: taskAssignments.status,
+      priority: taskAssignments.priority,
+      dueDate: taskAssignments.dueDate,
+      estimatedHours: taskAssignments.estimatedHours,
+      actualHours: taskAssignments.actualHours,
+    })
+    .from(taskAssignments)
+    .leftJoin(projects, eq(taskAssignments.projectId, projects.id))
+    .leftJoin(users, eq(taskAssignments.userId, users.id))
+    .orderBy(taskAssignments.dueDate);
+
+  return result.map(row => ({
+    ...row,
+    estimatedHours: row.estimatedHours ? Number(row.estimatedHours) : null,
+    actualHours: Number(row.actualHours || 0),
+  }));
+}
+
+/**
+ * Get user's time entries
+ */
+export async function getUserTimeEntries(userId: number, startDate: Date, endDate: Date) {
+  const db = await getDb();
+  
+  const result = await db
+    .select({
+      id: timeTracking.id,
+      projectId: timeTracking.projectId,
+      projectName: projects.name,
+      taskId: timeTracking.taskId,
+      description: timeTracking.description,
+      hours: timeTracking.hours,
+      date: timeTracking.date,
+      createdAt: timeTracking.createdAt,
+    })
+    .from(timeTracking)
+    .leftJoin(projects, eq(timeTracking.projectId, projects.id))
+    .where(and(
+      eq(timeTracking.userId, userId),
+      gte(timeTracking.date, startDate.toISOString().split('T')[0]),
+      lte(timeTracking.date, endDate.toISOString().split('T')[0])
+    ))
+    .orderBy(timeTracking.date);
+
+  return result.map(row => ({
+    ...row,
+    hours: Number(row.hours),
+  }));
+}
+
+/**
+ * Get time summary for user
+ */
+export async function getTimeSummary(userId: number, startDate: Date, endDate: Date) {
+  const db = await getDb();
+  
+  const result = await db
+    .select({
+      totalHours: sql<number>`COALESCE(SUM(${timeTracking.hours}), 0)`,
+      daysWorked: sql<number>`COUNT(DISTINCT ${timeTracking.date})`,
+      entriesCount: sql<number>`COUNT(*)`,
+    })
+    .from(timeTracking)
+    .where(and(
+      eq(timeTracking.userId, userId),
+      gte(timeTracking.date, startDate.toISOString().split('T')[0]),
+      lte(timeTracking.date, endDate.toISOString().split('T')[0])
+    ));
+
+  const row = result[0];
+  
+  // Get completed tasks count
+  const tasksResult = await db
+    .select({
+      tasksCompleted: sql<number>`COUNT(*)`,
+    })
+    .from(taskAssignments)
+    .where(and(
+      eq(taskAssignments.userId, userId),
+      eq(taskAssignments.status, 'completed'),
+      gte(taskAssignments.updatedAt, startDate),
+      lte(taskAssignments.updatedAt, endDate)
+    ));
+
+  return {
+    totalHours: Number(row?.totalHours || 0),
+    daysWorked: Number(row?.daysWorked || 0),
+    tasksCompleted: Number(tasksResult[0]?.tasksCompleted || 0),
+  };
+}
+
+/**
+ * Log time entry
+ */
+export async function logTimeEntry(data: {
+  userId: number;
+  projectId?: number;
+  taskId?: number;
+  description: string;
+  hours: number;
+  date: Date;
+}) {
+  const db = await getDb();
+  
+  const result = await db.insert(timeTracking).values({
+    userId: data.userId,
+    projectId: data.projectId || null,
+    taskId: data.taskId || null,
+    description: data.description,
+    hours: data.hours.toString(),
+    date: data.date.toISOString().split('T')[0],
+  });
+
+  return { success: true, id: result[0].insertId };
+}
+
+/**
+ * Get user availability
+ */
+export async function getUserAvailability(userId: number, startDate: Date, endDate: Date) {
+  const db = await getDb();
+  
+  const result = await db
+    .select()
+    .from(userAvailability)
+    .where(and(
+      eq(userAvailability.userId, userId),
+      gte(userAvailability.date, startDate.toISOString().split('T')[0]),
+      lte(userAvailability.date, endDate.toISOString().split('T')[0])
+    ))
+    .orderBy(userAvailability.date);
+
+  return result;
+}
+
+/**
+ * Get team availability
+ */
+export async function getTeamAvailability(startDate: Date, endDate: Date) {
+  const db = await getDb();
+  
+  const result = await db
+    .select({
+      userId: userAvailability.userId,
+      userName: users.name,
+      date: userAvailability.date,
+      status: userAvailability.status,
+      notes: userAvailability.notes,
+    })
+    .from(userAvailability)
+    .leftJoin(users, eq(userAvailability.userId, users.id))
+    .where(and(
+      gte(userAvailability.date, startDate.toISOString().split('T')[0]),
+      lte(userAvailability.date, endDate.toISOString().split('T')[0])
+    ))
+    .orderBy(userAvailability.date, users.name);
+
+  return result;
+}
+
+/**
+ * Set user availability
+ */
+export async function setUserAvailability(data: {
+  userId: number;
+  date: Date;
+  status: 'available' | 'busy' | 'off' | 'vacation';
+  notes?: string;
+}) {
+  const db = await getDb();
+  
+  // Upsert (insert or update if exists)
+  const dateStr = data.date.toISOString().split('T')[0];
+  
+  // Check if entry exists
+  const existing = await db
+    .select()
+    .from(userAvailability)
+    .where(and(
+      eq(userAvailability.userId, data.userId),
+      eq(userAvailability.date, dateStr)
+    ))
+    .limit(1);
+
+  if (existing.length > 0) {
+    // Update existing
+    await db
+      .update(userAvailability)
+      .set({
+        status: data.status,
+        notes: data.notes || null,
+      })
+      .where(and(
+        eq(userAvailability.userId, data.userId),
+        eq(userAvailability.date, dateStr)
+      ));
+  } else {
+    // Insert new
+    await db.insert(userAvailability).values({
+      userId: data.userId,
+      date: dateStr,
+      status: data.status,
+      notes: data.notes || null,
+    });
+  }
+
+  return { success: true };
+}
+
+/**
+ * Get productivity report
+ */
+export async function getProductivityReport(
+  startDate: Date,
+  endDate: Date,
+  userId?: number
+) {
+  const db = await getDb();
+  
+  const conditions = [
+    gte(timeTracking.date, startDate.toISOString().split('T')[0]),
+    lte(timeTracking.date, endDate.toISOString().split('T')[0]),
+  ];
+  
+  if (userId) {
+    conditions.push(eq(timeTracking.userId, userId));
+  }
+  
+  const result = await db
+    .select({
+      totalHours: sql<number>`COALESCE(SUM(${timeTracking.hours}), 0)`,
+      daysWorked: sql<number>`COUNT(DISTINCT ${timeTracking.date})`,
+      entriesCount: sql<number>`COUNT(*)`,
+    })
+    .from(timeTracking)
+    .where(and(...conditions));
+
+  const row = result[0];
+  
+  // Get completed tasks
+  const taskConditions = [
+    eq(taskAssignments.status, 'completed'),
+    gte(taskAssignments.updatedAt, startDate),
+    lte(taskAssignments.updatedAt, endDate),
+  ];
+  
+  if (userId) {
+    taskConditions.push(eq(taskAssignments.userId, userId));
+  }
+  
+  const tasksResult = await db
+    .select({
+      tasksCompleted: sql<number>`COUNT(*)`,
+    })
+    .from(taskAssignments)
+    .where(and(...taskConditions));
+
+  const totalHours = Number(row?.totalHours || 0);
+  const daysWorked = Number(row?.daysWorked || 0);
+  const tasksCompleted = Number(tasksResult[0]?.tasksCompleted || 0);
+  const averageHoursPerDay = daysWorked > 0 ? totalHours / daysWorked : 0;
+
+  return {
+    totalHours,
+    daysWorked,
+    tasksCompleted,
+    averageHoursPerDay: Math.round(averageHoursPerDay * 100) / 100,
+  };
+}

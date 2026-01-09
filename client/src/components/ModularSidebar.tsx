@@ -25,6 +25,8 @@ import {
   Bell,
   ChevronDown,
   ChevronRight,
+  DollarSign,
+  UserCog,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -186,6 +188,18 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
       id: "gestao",
       title: "GESTÃO",
       items: [
+        {
+          id: "financial-dashboard",
+          label: "Dashboard Financeiro",
+          icon: DollarSign,
+          path: "/financial-dashboard",
+        },
+        {
+          id: "team-management",
+          label: "Gestão de Equipa",
+          icon: UserCog,
+          path: "/team-management",
+        },
         {
           id: "recursos-humanos",
           label: "Recursos Humanos",

@@ -48,6 +48,8 @@ import Works from "./pages/Works";
 import WorksChat from "./pages/WorksChat";
 import WorksDiary from "./pages/WorksDiary";
 import WorksDirection from "./pages/WorksDirection";
+import FinancialDashboard from "./pages/FinancialDashboard";
+import TeamManagement from "./pages/TeamManagement";
 import WorksInspection from "./pages/WorksInspection";
 import WorksLicenses from "./pages/WorksLicenses";
 import ProjectsChat from "./pages/ProjectsChat";
@@ -305,6 +307,18 @@ function Router() {
       </Route>
 
       {/* Management Module Routes */}
+      <Route path="/financial-dashboard">
+        <DashboardLayout>
+          <FinancialDashboard />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/team-management">
+        <DashboardLayout>
+          <TeamManagement />
+        </DashboardLayout>
+      </Route>
+
       <Route path="/proposals-contracts">
         <DashboardLayout>
           <ProposalsContracts />

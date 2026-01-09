@@ -2108,3 +2108,72 @@ export const materialApprovalHistory = mysqlTable("materialApprovalHistory", {
 });
 export type MaterialApprovalHistory = typeof materialApprovalHistory.$inferSelect;
 export type InsertMaterialApprovalHistory = typeof materialApprovalHistory.$inferInsert;
+
+
+/**
+ * Time Tracking - Track hours worked by team members
+ */
+export const timeTracking = mysqlTable("timeTracking", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  projectId: int("projectId").references(() => projects.id, { onDelete: "set null" }),
+  taskId: int("taskId"),
+  description: text("description").notNull(),
+  hours: decimal("hours", { precision: 5, scale: 2 }).notNull(),
+  date: date("date").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("timeTracking_user_idx").on(table.userId),
+  projectIdIdx: index("timeTracking_project_idx").on(table.projectId),
+  dateIdx: index("timeTracking_date_idx").on(table.date),
+}));
+
+export type TimeTracking = typeof timeTracking.$inferSelect;
+export type InsertTimeTracking = typeof timeTracking.$inferInsert;
+
+/**
+ * Task Assignments - Assign tasks to team members
+ */
+export const taskAssignments = mysqlTable("taskAssignments", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  status: mysqlEnum("status", ["pending", "in_progress", "completed", "cancelled"]).default("pending").notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  dueDate: timestamp("dueDate"),
+  estimatedHours: decimal("estimatedHours", { precision: 5, scale: 2 }),
+  actualHours: decimal("actualHours", { precision: 5, scale: 2 }).default("0.00"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("taskAssignments_project_idx").on(table.projectId),
+  userIdIdx: index("taskAssignments_user_idx").on(table.userId),
+  statusIdx: index("taskAssignments_status_idx").on(table.status),
+  dueDateIdx: index("taskAssignments_dueDate_idx").on(table.dueDate),
+}));
+
+export type TaskAssignment = typeof taskAssignments.$inferSelect;
+export type InsertTaskAssignment = typeof taskAssignments.$inferInsert;
+
+/**
+ * User Availability - Track team member availability calendar
+ */
+export const userAvailability = mysqlTable("userAvailability", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  date: date("date").notNull(),
+  status: mysqlEnum("status", ["available", "busy", "off", "vacation"]).default("available").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("userAvailability_user_idx").on(table.userId),
+  dateIdx: index("userAvailability_date_idx").on(table.date),
+  uniqueUserDate: unique().on(table.userId, table.date),
+}));
+
+export type UserAvailability = typeof userAvailability.$inferSelect;
+export type InsertUserAvailability = typeof userAvailability.$inferInsert;
