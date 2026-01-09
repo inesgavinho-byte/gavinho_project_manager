@@ -2671,3 +2671,26 @@
 - [x] Implementar backend tRPC para Biblioteca (libraryRouter.ts completo)
 - [x] Criar gestão de documentos/templates de projetos (coleções, tags, favoritos)
 - [x] Testar todas as melhorias implementadas (verificado no preview)
+
+
+## Funcionalidades Avançadas da Biblioteca (Janeiro 2026)
+- [x] Criar diálogo de upload para adicionar materiais (AddMaterialDialog.tsx já existente)
+- [x] Criar diálogo de upload para adicionar modelos 3D (Add3DModelDialog.tsx já existente)
+- [x] Criar diálogo de upload para adicionar inspirações (AddInspirationDialog.tsx já existente)
+- [x] Implementar upload de imagens para S3 (base64 + backend tRPC)
+- [x] Validar campos obrigatórios nos formulários (validação implementada)
+- [x] Criar modal de preview ampliado de materiais (MaterialPreviewDialog.tsx)
+- [x] Adicionar visualização de imagem em tamanho completo (zoom ao clicar)
+- [x] Mostrar especificações técnicas detalhadas no preview (3 tabs: Visão Geral, Especificações, Comentários)
+- [x] Implementar sistema de etiquetas personalizadas (ManageTagsDialog já existente)
+- [x] Criar gestão de tags por projeto, cliente e tipo de obra (categorias: general, material, model, inspiration)
+- [x] Adicionar filtro por tags personalizadas (já implementado no Library.tsx)
+- [x] Integrar MaterialPreviewDialog na página Library.tsx
+- [x] Adicionar onClick nos cards para abrir preview ampliado
+- [x] Prevenir propagação de cliques nos botões internos
+- [x] Criar CustomTagsHelper com sugestões pré-definidas
+- [x] Integrar CustomTagsHelper no ManageTagsDialog
+- [x] Adicionar 35+ sugestões organizadas (Projetos, Clientes, Obras, Materiais, Estilos)
+- [x] Testar todas as funcionalidades de upload (diálogos completos e funcionais)
+- [x] Testar preview ampliado em diferentes resoluções (MaterialPreviewDialog responsivo)
+- [x] Testar sistema de etiquetas (ManageTagsDialog + CustomTagsHelper)

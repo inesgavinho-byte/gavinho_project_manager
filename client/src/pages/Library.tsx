@@ -49,6 +49,7 @@ import { BulkImportDialog } from "../components/BulkImportDialog";
 import { ManageCollectionsDialog } from "../components/ManageCollectionsDialog";
 import { AddToCollectionDialog } from "../components/AddToCollectionDialog";
 import { MaterialCommentsDialog } from "../components/MaterialCommentsDialog";
+import { MaterialPreviewDialog } from "../components/library/MaterialPreviewDialog";
 
 // Categorias predefinidas para materiais
 const MATERIAL_CATEGORIES = [
@@ -108,6 +109,10 @@ export default function Library() {
     materialName: string;
   }>({ open: false, materialId: 0, materialName: "" });
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [materialPreviewDialog, setMaterialPreviewDialog] = useState<{
+    open: boolean;
+    materialId: number;
+  }>({ open: false, materialId: 0 });
 
   // Queries
   const { data: materials = [], refetch: refetchMaterials } = trpc.library.materials.list.useQuery({
@@ -413,7 +418,11 @@ export default function Library() {
                 }
               >
                 {filteredMaterials.map((material) => (
-                  <Card key={material.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                  <Card 
+                    key={material.id} 
+                    className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => setMaterialPreviewDialog({ open: true, materialId: material.id })}
+                  >
                     {material.imageUrl && (
                       <img
                         src={material.imageUrl}
@@ -433,7 +442,10 @@ export default function Library() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => toggleFavorite.mutate({ materialId: material.id })}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite.mutate({ materialId: material.id });
+                            }}
                             disabled={toggleFavorite.isPending}
                           >
                             <Star
@@ -535,7 +547,12 @@ export default function Library() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => deleteMaterial.mutate({ id: material.id })}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm("Tem certeza que deseja eliminar este material?")) {
+                            deleteMaterial.mutate({ id: material.id });
+                          }
+                        }}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -796,6 +813,23 @@ export default function Library() {
         }}
         materialId={commentsDialog.materialId}
         materialName={commentsDialog.materialName}
+      />
+      <MaterialPreviewDialog
+        open={materialPreviewDialog.open}
+        onOpenChange={(open) =>
+          setMaterialPreviewDialog({ ...materialPreviewDialog, open })
+        }
+        materialId={materialPreviewDialog.materialId}
+        onEdit={() => {
+          setMaterialPreviewDialog({ open: false, materialId: 0 });
+          // TODO: Open edit dialog
+        }}
+        onDelete={() => {
+          if (confirm("Tem certeza que deseja eliminar este material?")) {
+            deleteMaterial.mutate({ id: materialPreviewDialog.materialId });
+            setMaterialPreviewDialog({ open: false, materialId: 0 });
+          }
+        }}
       />
     </div>
   );

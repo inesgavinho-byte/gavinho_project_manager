@@ -20,6 +20,7 @@ import {
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
 import { Plus, Trash2, Tag } from "lucide-react";
+import { CustomTagsHelper } from "./CustomTagsHelper";
 
 interface ManageTagsDialogProps {
   open: boolean;
@@ -85,6 +86,14 @@ export function ManageTagsDialog({
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Sugestões de Tags */}
+          <CustomTagsHelper
+            onSelectTag={(tagName, tagColor) => {
+              setNewTagName(tagName);
+              setNewTagColor(tagColor);
+            }}
+          />
+
           {/* Criar Nova Tag */}
           <div className="border rounded-lg p-4 space-y-4">
             <h3 className="font-medium text-[#5F5C59]">Criar Nova Tag</h3>
