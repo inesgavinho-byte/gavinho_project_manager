@@ -2327,3 +2327,29 @@
 - [x] Testar exportação PDF/Excel
 - [x] Testar gráficos de comparação
 - [x] Testar filtros avançados
+
+
+## Reimplementação Após Reset do Sandbox (09/01/2026)
+
+### Dashboard Financeiro
+- [ ] Criar server/financialDb.ts com queries de análise
+- [x] Criar server/financialRouter.ts com endpoints tRPC
+- [ ] Criar client/src/pages/FinancialDashboard.tsx
+- [ ] Adicionar rota no App.tsx
+- [ ] Adicionar link no ModularSidebar.tsx
+
+### Sistema de Notificações
+- [ ] Criar client/src/components/NotificationCenter.tsx
+- [ ] Integrar no DashboardLayout.tsx
+
+### Gestão de Equipa
+- [ ] Criar server/teamManagementDb.ts com queries
+- [x] Criar server/teamManagementRouter.ts com endpoints tRPC
+- [ ] Criar client/src/pages/TeamManagement.tsx
+- [ ] Adicionar rota no App.tsx
+- [ ] Adicionar link no ModularSidebar.tsx
+
+### Testes
+- [x] Executar pnpm test para validar
+- [x] Instalar k6 e executar load testing
+- [x] Criar relatório de testes final

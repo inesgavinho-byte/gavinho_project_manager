@@ -32,6 +32,8 @@ import { siteManagementRouter } from "./siteManagementRouter";
 import { budgetsRouter } from "./budgetsRouter";
 import { relationshipsRouter } from "./relationshipsRouter";
 import { libraryRouter } from "./libraryRouter";
+import { financialRouter } from "./financialRouter";
+import { teamManagementRouter } from "./teamManagementRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -74,6 +76,12 @@ export const appRouter = router({
 
   // Library - Biblioteca de Materiais, Modelos 3D e Inspiração
   library: libraryRouter,
+
+  // Financial - Dashboard de KPIs Financeiros
+  financial: financialRouter,
+
+  // Team Management - Gestão de Equipa, Tracking de Horas e Disponibilidade
+  teamManagement: teamManagementRouter,
 
   // MQT - Mapa de Quantidades
   mqt: mqtRouter,
