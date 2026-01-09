@@ -2561,3 +2561,27 @@
 - [ ] Testar responsividade com novo branding
 - [ ] Validar acessibilidade de cores
 - [ ] Criar guia de estilo visual
+
+
+## Logo GAVINHO e Favicon
+
+### Integração do Logo
+- [x] Copiar LOGO.png para client/public/ como gavinho-logo.png
+- [x] Copiar 150px.png para client/public/ como gavinho-icon.png
+- [x] Adicionar logo no DashboardLayout header (mobile)
+- [x] Adicionar logo no ModularSidebar
+- [x] Ajustar tamanho e posicionamento do logo
+- [x] Garantir responsividade do logo
+
+### Favicon
+- [x] Criar favicon.png a partir do ícone G
+- [x] Criar apple-touch-icon.png
+- [x] Atualizar index.html com links para favicon
+- [x] Adicionar meta tags (description, theme-color)
+- [ ] Testar favicon em diferentes navegadores
+
+### Testes Visuais
+- [ ] Verificar logo em todas as páginas
+- [ ] Testar responsividade do header
+- [ ] Validar contraste e legibilidade
+- [ ] Confirmar identidade visual completa

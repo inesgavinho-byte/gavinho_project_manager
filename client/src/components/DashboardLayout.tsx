@@ -235,12 +235,15 @@ function DashboardLayoutContent({
           <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="tracking-tight text-foreground">
-                    Menu
-                  </span>
-                </div>
+              <div className="flex items-center gap-2">
+                <img 
+                  src="/gavinho-icon.png" 
+                  alt="GAVINHO" 
+                  className="w-8 h-8 object-contain"
+                />
+                <span className="text-lg font-semibold tracking-tight text-foreground" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  GAVINHO
+                </span>
               </div>
             </div>
             <NotificationsPopover />

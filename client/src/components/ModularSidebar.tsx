@@ -362,8 +362,13 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
 
   return (
     <div className="h-full bg-white border-r border-[#C3BAAF]/20 overflow-y-auto">
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-[#5F5C59] tracking-tight">
+      <div className="p-6 flex items-center gap-3">
+        <img 
+          src="/gavinho-icon.png" 
+          alt="GAVINHO" 
+          className="w-10 h-10 object-contain"
+        />
+        <h1 className="text-2xl font-bold text-[#5F5C59] tracking-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
           GAVINHO
         </h1>
       </div>
