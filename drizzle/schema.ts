@@ -2177,3 +2177,117 @@ export const userAvailability = mysqlTable("userAvailability", {
 
 export type UserAvailability = typeof userAvailability.$inferSelect;
 export type InsertUserAvailability = typeof userAvailability.$inferInsert;
+
+
+/**
+ * Cost Predictions table - AI-powered cost predictions for projects
+ */
+export const costPredictions = mysqlTable("costPredictions", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  predictedCost: decimal("predictedCost", { precision: 15, scale: 2 }).notNull(),
+  confidenceLevel: mysqlEnum("confidenceLevel", ["low", "medium", "high"]).notNull(),
+  confidenceScore: int("confidenceScore").notNull(), // 0-100
+  overrunRisk: mysqlEnum("overrunRisk", ["low", "medium", "high", "critical"]).notNull(),
+  overrunProbability: int("overrunProbability").notNull(), // 0-100
+  analysisDate: timestamp("analysisDate").defaultNow().notNull(),
+  basedOnProjects: json("basedOnProjects").$type<number[]>().default([]), // Array of similar project IDs
+  factors: json("factors").$type<{
+    complexity: number;
+    duration: number;
+    teamSize: number;
+    location: string;
+    projectType: string;
+    historicalAccuracy: number;
+  }>().notNull(),
+  recommendations: json("recommendations").$type<string[]>().default([]),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  analysisDateIdx: index("analysisDate_idx").on(table.analysisDate),
+  overrunRiskIdx: index("overrunRisk_idx").on(table.overrunRisk),
+}));
+
+export type CostPrediction = typeof costPredictions.$inferSelect;
+export type InsertCostPrediction = typeof costPredictions.$inferInsert;
+
+
+/**
+ * Report Templates table - Customizable report templates
+ */
+export const reportTemplates = mysqlTable("reportTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  createdById: int("createdById").notNull().references(() => users.id),
+  isPublic: int("isPublic").default(0).notNull(), // 0 = private, 1 = public
+  
+  // Report Configuration
+  reportType: mysqlEnum("reportType", ["progress", "financial", "resources", "timeline", "custom"]).notNull(),
+  metrics: json("metrics").$type<string[]>().default([]), // Array of metric IDs to include
+  chartTypes: json("chartTypes").$type<{
+    metricId: string;
+    chartType: "line" | "bar" | "pie" | "area" | "table";
+  }[]>().default([]),
+  filters: json("filters").$type<{
+    projectIds?: number[];
+    dateRange?: { start: string; end: string };
+    status?: string[];
+    priority?: string[];
+  }>().notNull(),
+  
+  // Layout Configuration
+  layout: json("layout").$type<{
+    sections: {
+      id: string;
+      type: "header" | "metrics" | "chart" | "table" | "text";
+      order: number;
+      config: any;
+    }[];
+  }>().notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  createdByIdIdx: index("createdById_idx").on(table.createdById),
+  reportTypeIdx: index("reportType_idx").on(table.reportType),
+  isPublicIdx: index("isPublic_idx").on(table.isPublic),
+}));
+
+export type ReportTemplate = typeof reportTemplates.$inferSelect;
+export type InsertReportTemplate = typeof reportTemplates.$inferInsert;
+
+/**
+ * Report Executions table - History of generated reports
+ */
+export const reportExecutions = mysqlTable("reportExecutions", {
+  id: int("id").autoincrement().primaryKey(),
+  templateId: int("templateId").notNull().references(() => reportTemplates.id, { onDelete: "cascade" }),
+  executedById: int("executedById").notNull().references(() => users.id),
+  executedAt: timestamp("executedAt").defaultNow().notNull(),
+  
+  // Execution Parameters
+  parameters: json("parameters").$type<{
+    projectIds?: number[];
+    dateRange?: { start: string; end: string };
+    customFilters?: any;
+  }>().notNull(),
+  
+  // Generated Data
+  data: json("data").$type<any>().notNull(),
+  
+  // Export Information
+  exportFormat: mysqlEnum("exportFormat", ["pdf", "excel", "csv", "json"]).notNull(),
+  fileUrl: text("fileUrl"), // S3 URL if exported
+  fileSize: int("fileSize"), // File size in bytes
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  templateIdIdx: index("templateId_idx").on(table.templateId),
+  executedByIdIdx: index("executedById_idx").on(table.executedById),
+  executedAtIdx: index("executedAt_idx").on(table.executedAt),
+}));
+
+export type ReportExecution = typeof reportExecutions.$inferSelect;
+export type InsertReportExecution = typeof reportExecutions.$inferInsert;

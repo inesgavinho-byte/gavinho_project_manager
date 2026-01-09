@@ -2405,3 +2405,50 @@
 - [x] Adicionar comparação entre membros da equipa
 - [x] Adicionar métricas de eficiência (horas/tarefa, taxa conclusão)
 - [x] Adicionar rota e link no sidebar
+
+
+## Funcionalidades Avançadas - Fase 2
+
+### Sistema de Notificações Automáticas de Orçamento
+- [x] Criar tabela budgetAlerts no schema para registar alertas
+- [x] Implementar função checkBudgetThresholds() em financialDb.ts
+- [x] Criar serviço de email budgetEmailService.ts
+- [x] Implementar template HTML de email com breakdown de despesas
+- [x] Criar endpoint tRPC sendBudgetAlert
+- [x] Implementar job agendado para verificação diária de orçamentos
+- [x] Adicionar configuração de thresholds (80%, 90%, 100%)
+- [x] Criar componente BudgetAlerts.tsx para visualização
+- [x] Adicionar rota /budget-alerts no App.tsx
+- [x] Adicionar link no ModularSidebar
+- [ ] Testar envio de emails com projetos reais
+
+### Previsão de Custos com IA
+- [x] Criar tabela costPredictions no schema
+- [x] Implementar função analyzeSimilarProjects() em financialDb.ts
+- [x] Criar serviço aiPredictionService.ts com integração LLM
+- [x] Implementar algoritmo de análise de histórico de projetos
+- [x] Criar endpoint tRPC predictProjectCosts
+- [x] Implementar cálculo de risco de estouro de orçamento
+- [x] Criar componente CostPredictionDashboard.tsx
+- [x] Adicionar gráficos de previsão (custo previsto vs real)
+- [x] Implementar indicadores de confiança da previsão
+- [x] Adicionar rota /cost-prediction no App.tsx
+- [x] Adicionar link no ModularSidebar
+- [ ] Testar previsões com projetos históricos
+
+### Builder de Relatórios Personalizáveis
+- [x] Criar tabela reportTemplates no schema
+- [x] Criar tabela reportExecutions para histórico
+- [x] Implementar funções CRUD de templates em reportsDb.ts
+- [x] Criar componente ReportBuilder.tsx
+- [x] Implementar seleção de métricas (KPIs, gráficos, tabelas)
+- [x] Adicionar filtros de período e projeto
+- [x] Implementar preview de relatório em tempo real
+- [x] Criar sistema de salvamento de templates
+- [x] Implementar geração de relatórios a partir de templates
+- [x] Criar página de gestão de templates salvos
+- [x] Adicionar rota /report-builder no App.tsx
+- [x] Adicionar link no ModularSidebar
+- [x] Criar reportsRouter e registar em routers.ts
+- [ ] Adicionar exportação (PDF, Excel, CSV)
+- [ ] Testar builder com diferentes combinações de métricas

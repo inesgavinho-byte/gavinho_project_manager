@@ -28,6 +28,7 @@ import {
   DollarSign,
   UserCog,
   BarChart3,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -194,6 +195,24 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           label: "Dashboard Financeiro",
           icon: DollarSign,
           path: "/financial-dashboard",
+        },
+        {
+          id: "budget-alerts",
+          label: "Alertas de Orçamento",
+          icon: AlertCircle,
+          path: "/budget-alerts",
+        },
+        {
+          id: "cost-prediction",
+          label: "Previsão de Custos IA",
+          icon: TrendingUp,
+          path: "/cost-prediction",
+        },
+        {
+          id: "report-builder",
+          label: "Builder de Relatórios",
+          icon: FileText,
+          path: "/report-builder",
         },
         {
           id: "team-management",
