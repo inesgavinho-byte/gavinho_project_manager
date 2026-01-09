@@ -2599,3 +2599,19 @@
 - [x] Redirecionar para /dashboard (Dashboard Executivo)
 - [x] Adicionar cursor pointer e hover effect (opacity-80)
 - [ ] Testar navegação em todas as páginas
+
+
+## Correção de Cores do Sidebar
+- [x] Atualizar cores do ModularSidebar para paleta GAVINHO oficial
+- [x] Aplicar #C9A882 (dourado) para itens ativos e borda
+- [x] Aplicar #5F5C59 (cinza escuro) para texto
+- [x] Aplicar #F2F0E7 (bege claro) para fundo hover
+- [x] Remover cores antigas (#C3BAAF)
+
+## Otimização do Layout do Dashboard Executivo
+- [x] Identificar página do Dashboard Executivo (Dashboard.tsx)
+- [x] Remover logo GAVINHO redundante (já está no sidebar)
+- [x] Remover título "Dashboard Executivo" e subtítulo
+- [x] Ajustar espaçamento dos cards para cima (space-y-8 → space-y-6)
+- [x] Mover botão "+ Novo Projeto" para card "Ações Rápidas"
+- [ ] Testar responsividade do novo layout

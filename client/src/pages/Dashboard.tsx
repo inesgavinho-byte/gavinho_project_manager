@@ -83,16 +83,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-8 min-h-screen" style={{ backgroundColor: 'var(--soft-cream)' }}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard Executivo</h1>
-          <p className="text-muted-foreground mt-1">Visão geral dos projetos e atividades</p>
-        </div>
-        <NewProjectModal />
-      </div>
-
+    <div className="space-y-6 min-h-screen" style={{ backgroundColor: 'var(--soft-cream)' }}>
       {/* Filters */}
       <Card className="p-4">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
@@ -143,6 +134,15 @@ export default function Dashboard() {
 
       {/* Stats Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="card-shadow col-span-full md:col-span-2 lg:col-span-4">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div>
+              <CardTitle className="text-sm font-medium">Ações Rápidas</CardTitle>
+              <CardDescription className="text-xs">Criar novo projeto ou obra</CardDescription>
+            </div>
+            <NewProjectModal />
+          </CardHeader>
+        </Card>
         <Card className="card-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Projetos</CardTitle>

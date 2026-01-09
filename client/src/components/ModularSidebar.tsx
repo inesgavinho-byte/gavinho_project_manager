@@ -309,7 +309,7 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
               level > 0 && "pl-8",
               active
                 ? "bg-[#C9A882] text-white font-medium"
-                : "text-[#5F5C59] hover:bg-[#C3BAAF]/10"
+                : "text-[#5F5C59] hover:bg-[#F2F0E7]"
             )}
           >
             <div className="flex items-center gap-3">
@@ -343,7 +343,7 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
             level > 0 && "pl-8",
             active
               ? "bg-[#C9A882] text-white font-medium"
-              : "text-[#5F5C59] hover:bg-[#C3BAAF]/10"
+              : "text-[#5F5C59] hover:bg-[#F2F0E7]"
           )}
         >
           <div className="flex items-center gap-3">
@@ -361,7 +361,7 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
   };
 
   return (
-    <div className="h-full bg-white border-r border-[#C3BAAF]/20 overflow-y-auto">
+    <div className="h-full bg-white border-r border-[#C9A882]/20 overflow-y-auto">
       <Link href="/dashboard" onClick={onNavigate}>
         <div className="p-6 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
           <img 
@@ -383,7 +383,7 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
             <div key={module.id} className="space-y-1">
               <button
                 onClick={() => toggleModule(module.id)}
-                className="w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-[#C9A882] hover:bg-[#C3BAAF]/5 rounded-lg transition-colors"
+                className="w-full flex items-center justify-between px-3 py-2 text-xs font-bold text-[#C9A882] hover:bg-[#F2F0E7] rounded-lg transition-colors"
               >
                 <span>{module.title}</span>
                 {isExpanded ? (
