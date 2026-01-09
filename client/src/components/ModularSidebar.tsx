@@ -305,10 +305,10 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           <button
             onClick={() => toggleMenu(item.id)}
             className={cn(
-              "w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors rounded-lg",
+              "w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors rounded-lg relative",
               level > 0 && "pl-8",
               active
-                ? "bg-[#C9A882] text-white font-medium"
+                ? "bg-[#C9A882] text-white font-medium before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-[#5F5C59] before:rounded-l-lg"
                 : "text-[#5F5C59] hover:bg-[#F2F0E7]"
             )}
           >
@@ -339,10 +339,10 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
       >
         <div
           className={cn(
-            "flex items-center justify-between px-4 py-2.5 text-sm transition-colors rounded-lg",
+            "flex items-center justify-between px-4 py-2.5 text-sm transition-colors rounded-lg relative",
             level > 0 && "pl-8",
             active
-              ? "bg-[#C9A882] text-white font-medium"
+              ? "bg-[#C9A882] text-white font-medium before:content-[''] before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-[#5F5C59] before:rounded-l-lg"
               : "text-[#5F5C59] hover:bg-[#F2F0E7]"
           )}
         >
@@ -361,7 +361,7 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
   };
 
   return (
-    <div className="h-full bg-white border-r border-[#C9A882]/20 overflow-y-auto">
+    <div className="h-full bg-white border-r border-[#C9A882]/20 overflow-y-auto animate-in slide-in-from-left duration-300">
       <Link href="/dashboard" onClick={onNavigate}>
         <div className="p-6 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
           <img 
@@ -369,7 +369,7 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
             alt="GAVINHO" 
             className="w-10 h-10 object-contain"
           />
-          <h1 className="text-2xl font-bold text-[#5F5C59] tracking-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+          <h1 className="text-2xl font-bold text-[#5F5C59] tracking-tight">
             GAVINHO
           </h1>
         </div>

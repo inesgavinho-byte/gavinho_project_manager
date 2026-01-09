@@ -83,7 +83,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-6 min-h-screen" style={{ backgroundColor: 'var(--soft-cream)' }}>
+    <div className="space-y-6 min-h-screen animate-in fade-in duration-500" style={{ backgroundColor: 'var(--soft-cream)' }}>
       {/* Filters */}
       <Card className="p-4">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
@@ -133,7 +133,7 @@ export default function Dashboard() {
       </Card>
 
       {/* Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 animate-in fade-in duration-700 delay-150">
         <Card className="card-shadow col-span-full md:col-span-2 lg:col-span-4">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div>

@@ -2615,3 +2615,43 @@
 - [x] Ajustar espaçamento dos cards para cima (space-y-8 → space-y-6)
 - [x] Mover botão "+ Novo Projeto" para card "Ações Rápidas"
 - [ ] Testar responsividade do novo layout
+
+
+## Indicador Visual de Página Ativa
+- [x] Adicionar borda lateral cinza escuro (#5F5C59) em itens ativos do sidebar
+- [x] Implementar detecção automática de rota atual (já existente)
+- [x] Aplicar estilo visual consistente para itens ativos
+- [ ] Testar navegação e indicador em todas as páginas
+
+## Animações Suaves
+- [x] Adicionar fade-in nos cards do dashboard (duration-500 e duration-700)
+- [x] Implementar slide-in no sidebar ao abrir (slide-in-from-left duration-300)
+- [x] Adicionar transições suaves em hover states (transition-colors, transition-opacity)
+- [x] Animações em modais já existentes (shadcn/ui)
+- [ ] Testar performance das animações
+
+## Integração da Página Biblioteca
+- [ ] Converter BibliotecaPage.jsx para TypeScript (.tsx)
+- [ ] Adaptar cores para paleta GAVINHO (#C9A882, #5F5C59, #F2F0E7)
+- [ ] Substituir fontes para Cormorant Garamond + Inter
+- [ ] Integrar com tRPC backend
+- [ ] Adicionar rota /biblioteca no App.tsx
+- [ ] Adicionar link no ModularSidebar
+- [ ] Testar funcionalidades da biblioteca
+
+
+## Correções Urgentes de UI
+- [ ] Verificar por que cores GAVINHO não estão aplicadas no sidebar
+- [ ] Remover texto "GAVINHO" duplicado no topo da página
+- [ ] Remover ícone "G" duplicado ao lado do favicon
+- [ ] Garantir apenas um logo no sidebar
+- [ ] Testar todas as correções visuais
+
+
+## Atualização de Tipografia - Quattrocento Sans
+- [x] Atualizar index.css para usar Quattrocento Sans como fonte única
+- [x] Definir tamanho base de 11px no body
+- [x] Remover Cormorant Garamond de todos os componentes
+- [x] Remover Inter de todos os componentes
+- [x] Atualizar import de Google Fonts (Quattrocento Sans 400,700)
+- [ ] Testar legibilidade em todos os componentes
