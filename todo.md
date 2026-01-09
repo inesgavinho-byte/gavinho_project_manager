@@ -2481,14 +2481,83 @@
 - [x] Adicionar código de cores por tipo e prioridade
 
 ### Funcionalidades Avançadas
-- [ ] Adicionar lembretes e notificações de eventos
-- [ ] Implementar drag & drop para reagendar eventos
-- [ ] Criar visualização semanal e diária
+
+#### Notificações Automáticas de Eventos
+- [x] Criar serviço eventNotificationService.ts
+- [x] Implementar função checkUpcomingEvents() para verificar eventos próximos
+- [x] Criar template de email para lembretes de eventos
+- [x] Implementar endpoint tRPC sendEventReminders
+- [x] Adicionar getReminderStats para estatísticas
+- [ ] Adicionar job agendado para verificar eventos a cada 15 minutos
+- [ ] Criar preferências de notificação por utilizador
+- [ ] Testar envio de lembretes
+
+#### Visualizações Alternativas
+- [ ] Criar componente WeekView com visualização semanal
+- [ ] Criar componente DayView com visualização diária
+- [ ] Adicionar toggle entre vistas (Mensal/Semanal/Diária)
+- [ ] Implementar navegação entre semanas
+- [ ] Implementar navegação entre dias
+- [ ] Adicionar timeline de horas na vista diária
+- [ ] Testar todas as visualizações
+
+#### Drag & Drop de Eventos
+- [ ] Instalar biblioteca react-dnd ou dnd-kit
+- [ ] Implementar drag source nos eventos
+- [ ] Implementar drop target nos dias do calendário
+- [ ] Criar modal de confirmação de reagendamento
+- [ ] Atualizar backend para suportar reagendamento
+- [ ] Adicionar feedback visual durante drag
+- [ ] Testar drag & drop em todas as vistas
+
+#### Outras Funcionalidades
 - [ ] Adicionar exportação para iCal/Google Calendar
-- [ ] Implementar código de cores por tipo de evento
 
 ### Integração
 - [x] Adicionar rota /calendario no App.tsx
 - [x] Atualizar link no ModularSidebar
 - [ ] Integrar com sistema de notificações
 - [ ] Testar calendário com dados reais
+
+
+## Aplicação da Identidade Visual GAVINHO
+
+### Paleta de Cores e Tipografia
+- [x] Definir variáveis CSS para cores GAVINHO no index.css
+- [x] Aplicar fonte Cormorant Garamond para títulos
+- [x] Aplicar fonte Inter para corpo de texto
+- [x] Definir cor primária: #C9A882 (dourado elegante)
+- [x] Definir cor secundária: #5F5C59 (cinza escuro)
+- [x] Definir cor de fundo: #F2F0E7 (bege claro)
+- [x] Definir cores de status (sucesso, erro, aviso)
+
+### Componentes Principais
+- [ ] Atualizar DashboardLayout com cores GAVINHO
+- [ ] Aplicar branding no ModularSidebar
+- [ ] Estilizar botões com cores GAVINHO
+- [ ] Atualizar cards e containers
+- [ ] Aplicar branding em modais e dialogs
+- [ ] Estilizar formulários e inputs
+
+### Páginas da Plataforma
+- [ ] Aplicar branding no Dashboard Executivo
+- [ ] Atualizar página de Projetos
+- [ ] Estilizar página de Obras
+- [ ] Aplicar branding no Dashboard Financeiro
+- [ ] Atualizar página de Gestão de Equipa
+- [ ] Estilizar Calendário
+- [ ] Aplicar branding em Relatórios
+- [ ] Atualizar todas as páginas restantes
+
+### Elementos Visuais
+- [ ] Adicionar logo GAVINHO no header
+- [ ] Criar padrões visuais consistentes
+- [ ] Aplicar sombras e bordas elegantes
+- [ ] Definir espaçamentos harmoniosos
+- [ ] Criar transições suaves
+
+### Testes e Validação
+- [ ] Verificar consistência em todas as páginas
+- [ ] Testar responsividade com novo branding
+- [ ] Validar acessibilidade de cores
+- [ ] Criar guia de estilo visual

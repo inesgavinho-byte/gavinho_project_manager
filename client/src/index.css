@@ -1,8 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* GAVINHO Typography - Quattrocento Sans */
-@import url('https://fonts.googleapis.com/css2?family=Quattrocento+Sans:wght@400;700&display=swap');
+/* GAVINHO Typography - Cormorant Garamond (títulos) + Inter (corpo) */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -46,37 +46,40 @@
 }
 
 :root {
-  /* GAVINHO Brand Colors - Warm Beige & Soft Cream Design System
-   * Paleta elegante e sofisticada com tons terrosos
+  /* GAVINHO Brand Colors - Elegant Gold & Warm Gray Design System
+   * Paleta oficial GAVINHO: Dourado elegante, cinza quente e bege claro
+   * Primary: #C9A882 (Dourado GAVINHO)
+   * Secondary: #5F5C59 (Cinza Escuro)
+   * Background: #F2F0E7 (Bege Claro)
    */
   
-  /* Primary: Warm Beige #ADAA96 - Botões, tags, elementos de destaque */
-  --primary: oklch(0.70 0.02 85);
+  /* Primary: GAVINHO Gold #C9A882 - Botões, links, elementos de destaque */
+  --primary: oklch(0.73 0.04 65);
   --primary-foreground: oklch(0.99 0.002 60);
   
-  /* Secondary: Olive Gray #8B8670 - Ícones, texto secundário */
-  --secondary: oklch(0.57 0.02 85);
+  /* Secondary: Warm Dark Gray #5F5C59 - Títulos, texto primário */
+  --secondary: oklch(0.40 0.01 60);
   --secondary-foreground: oklch(0.99 0.002 60);
   
-  /* Background: White #FFFFFF - Fundo principal da aplicação */
-  --background: oklch(0.99 0.002 60);
-  --foreground: oklch(0.27 0.01 60);
+  /* Background: Soft Beige #F2F0E7 - Fundo principal da aplicação */
+  --background: oklch(0.95 0.01 80);
+  --foreground: oklch(0.40 0.01 60);
   
-  /* Accent: Soft Cream #F2F0E7 - Fundo de cards, áreas secundárias */
-  --accent: oklch(0.95 0.01 80);
-  --accent-foreground: oklch(0.27 0.01 60);
+  /* Accent: GAVINHO Gold Lighter - Hover states, destaque suave */
+  --accent: oklch(0.78 0.04 65);
+  --accent-foreground: oklch(0.40 0.01 60);
   
-  /* Cards: Soft Cream para contraste suave */
-  --card: oklch(0.95 0.01 80);
-  --card-foreground: oklch(0.27 0.01 60);
+  /* Cards: White para contraste sobre fundo bege */
+  --card: oklch(0.99 0.002 60);
+  --card-foreground: oklch(0.40 0.01 60);
   
   /* Popover: White */
   --popover: oklch(0.99 0.002 60);
-  --popover-foreground: oklch(0.27 0.01 60);
+  --popover-foreground: oklch(0.40 0.01 60);
   
-  /* Muted: Text Muted #6B6B6B - Texto secundário, placeholders */
-  --muted: oklch(0.95 0.01 80);
-  --muted-foreground: oklch(0.47 0.005 60);
+  /* Muted: Text Muted - Texto secundário, placeholders */
+  --muted: oklch(0.92 0.01 80);
+  --muted-foreground: oklch(0.50 0.005 60);
   
   /* Destructive: Urgente #9A6B5B */
   --destructive: oklch(0.52 0.06 40);
@@ -180,18 +183,19 @@
   
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-sans);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-feature-settings: "kern" 1, "liga" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   
-  /* Tipografia GAVINHO - Quattrocento Sans */
+  /* Tipografia GAVINHO - Cormorant Garamond para títulos */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-sans);
-    font-weight: 700;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
     letter-spacing: 0;
     line-height: 1.3;
+    color: var(--secondary);
   }
   
   h1 {

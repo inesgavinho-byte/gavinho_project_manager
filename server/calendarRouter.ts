@@ -1,6 +1,7 @@
 import { router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import * as calendarDb from "./calendarDb";
+import * as eventNotificationService from "./eventNotificationService";
 
 const eventTypeSchema = z.enum(["meeting", "deadline", "delivery", "site_visit", "presentation", "milestone", "personal", "other"]);
 const prioritySchema = z.enum(["low", "medium", "high", "urgent"]);
@@ -135,4 +136,13 @@ export const calendarRouter = router({
     .query(async ({ input, ctx }) => {
       return await calendarDb.getEventsByProject(input.projectId, ctx.user.id);
     }),
+
+  // Event Notifications
+  sendEventReminders: protectedProcedure.mutation(async () => {
+    return await eventNotificationService.sendEventReminders();
+  }),
+
+  getReminderStats: protectedProcedure.query(async () => {
+    return await eventNotificationService.getReminderStats();
+  }),
 });
