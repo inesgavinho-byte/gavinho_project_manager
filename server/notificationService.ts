@@ -33,7 +33,7 @@ export async function createNotification(data: NotificationData): Promise<void> 
       link: data.link,
       projectId: data.projectId,
       taskId: data.taskId,
-      isRead: false,
+      isRead: 0,
     });
   } catch (error) {
     console.error("[Notifications] Failed to create notification:", error);

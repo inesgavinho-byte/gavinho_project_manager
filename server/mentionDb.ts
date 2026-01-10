@@ -112,7 +112,7 @@ export async function getUserMentions(
     query = query.where(
       and(
         eq(commentMentions.mentionedUserId, userId),
-        eq(commentMentions.isRead, false)
+        eq(commentMentions.isRead, 0)
       )
     );
   }
@@ -131,7 +131,7 @@ export async function markMentionAsRead(mentionId: number) {
   if (!db) throw new Error("Database not available");
   await db
     .update(commentMentions)
-    .set({ isRead: true })
+    .set({ isRead: 1 })
     .where(eq(commentMentions.id, mentionId));
 }
 
@@ -143,7 +143,7 @@ export async function markAllMentionsAsRead(userId: number) {
   if (!db) throw new Error("Database not available");
   await db
     .update(commentMentions)
-    .set({ isRead: true })
+    .set({ isRead: 1 })
     .where(eq(commentMentions.mentionedUserId, userId));
 }
 
@@ -159,7 +159,7 @@ export async function getUnreadMentionsCount(userId: number): Promise<number> {
     .where(
       and(
         eq(commentMentions.mentionedUserId, userId),
-        eq(commentMentions.isRead, false)
+        eq(commentMentions.isRead, 0)
       )
     );
 
