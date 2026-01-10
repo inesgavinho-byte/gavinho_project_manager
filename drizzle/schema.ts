@@ -2410,3 +2410,38 @@ export const projectClientAccess = mysqlTable("projectClientAccess", {
 
 export type ProjectClientAccess = typeof projectClientAccess.$inferSelect;
 export type InsertProjectClientAccess = typeof projectClientAccess.$inferInsert;
+
+/**
+ * Contract Processing History
+ * Tracks all contract uploads and processing attempts
+ */
+export const contractProcessingHistory = mysqlTable("contractProcessingHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileUrl: text("fileUrl").notNull(),
+  fileSize: int("fileSize").notNull(), // in bytes
+  status: mysqlEnum("status", ["processing", "success", "error"]).notNull(),
+  errorMessage: text("errorMessage"),
+  
+  // Extracted data (stored as JSON for flexibility)
+  extractedData: json("extractedData"),
+  
+  // Processing metadata
+  processingStartedAt: timestamp("processingStartedAt").notNull(),
+  processingCompletedAt: timestamp("processingCompletedAt"),
+  processingDurationMs: int("processingDurationMs"), // duration in milliseconds
+  
+  // User who triggered the upload
+  uploadedById: int("uploadedById").notNull(),
+  
+  // Reprocessing tracking
+  isReprocessing: int("isReprocessing").default(0).notNull(), // 0 = false, 1 = true
+  originalProcessingId: int("originalProcessingId"), // reference to original if this is a reprocess
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContractProcessingHistory = typeof contractProcessingHistory.$inferSelect;
+export type InsertContractProcessingHistory = typeof contractProcessingHistory.$inferInsert;

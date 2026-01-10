@@ -4,6 +4,7 @@ import { protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import * as projectsDb from "./projectsDb";
 import * as db from "./db";
 import { storagePut } from "./storage";
+import * as contractHistoryDb from "./contractHistoryDb";
 
 // ============= PROJECTS ROUTER =============
 
@@ -884,28 +885,42 @@ export const projectsRouter = router({
         fileData: z.string(), // Base64 encoded PDF
         fileName: z.string(),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const { writeFileSync, unlinkSync } = await import("fs");
         const { tmpdir } = await import("os");
         const { join } = await import("path");
         const { extractContractData, applyContractDataToProject } = await import("./contractExtractionService");
         
+        const processingStartedAt = new Date();
+        const fileBuffer = Buffer.from(input.fileData, 'base64');
+        
+        // Upload to S3 first
+        const fileKey = `contracts/${input.projectId}/${Date.now()}-${input.fileName}`;
+        const { url } = await storagePut(
+          fileKey,
+          fileBuffer,
+          'application/pdf'
+        );
+        
+        // Create processing history record
+        const historyId = await contractHistoryDb.createContractHistory({
+          projectId: input.projectId,
+          fileName: input.fileName,
+          fileUrl: url,
+          fileSize: fileBuffer.length,
+          status: 'processing',
+          processingStartedAt,
+          uploadedById: ctx.user.id,
+          isReprocessing: 0,
+        });
+        
         // Save file temporarily
         const tempPath = join(tmpdir(), `contract-${Date.now()}-${input.fileName}`);
-        const fileBuffer = Buffer.from(input.fileData, 'base64');
         writeFileSync(tempPath, fileBuffer);
         
         try {
           // Extract data from PDF
           const contractData = await extractContractData(tempPath);
-          
-          // Upload to S3
-          const fileKey = `contracts/${input.projectId}/${Date.now()}-${input.fileName}`;
-          const { url } = await storagePut(
-            fileKey,
-            fileBuffer,
-            'application/pdf'
-          );
           
           // Apply data to project
           const result = await applyContractDataToProject(input.projectId, contractData);
@@ -916,11 +931,36 @@ export const projectsRouter = router({
             contractFileName: input.fileName,
           });
           
+          // Update history with success
+          const processingCompletedAt = new Date();
+          const processingDurationMs = processingCompletedAt.getTime() - processingStartedAt.getTime();
+          
+          await contractHistoryDb.updateContractHistory(historyId, {
+            status: 'success',
+            extractedData: contractData as any,
+            processingCompletedAt,
+            processingDurationMs,
+          });
+          
           return {
             contractData,
             result,
-            fileUrl: url
+            fileUrl: url,
+            historyId
           };
+        } catch (error: any) {
+          // Update history with error
+          const processingCompletedAt = new Date();
+          const processingDurationMs = processingCompletedAt.getTime() - processingStartedAt.getTime();
+          
+          await contractHistoryDb.updateContractHistory(historyId, {
+            status: 'error',
+            errorMessage: error.message || 'Unknown error',
+            processingCompletedAt,
+            processingDurationMs,
+          });
+          
+          throw error;
         } finally {
           // Clean up temp file
           try {
@@ -928,6 +968,120 @@ export const projectsRouter = router({
           } catch (e) {
             console.error('Failed to delete temp file:', e);
           }
+        }
+      }),
+
+    // Get contract processing history for a project
+    getHistory: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        return await contractHistoryDb.getContractHistoryByProject(input.projectId);
+      }),
+
+    // Get all contract processing history
+    getAllHistory: adminProcedure
+      .query(async () => {
+        return await contractHistoryDb.getAllContractHistory();
+      }),
+
+    // Reprocess a contract from history
+    reprocess: adminProcedure
+      .input(z.object({
+        historyId: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { writeFileSync, unlinkSync } = await import("fs");
+        const { tmpdir } = await import("os");
+        const { join } = await import("path");
+        const { extractContractData, applyContractDataToProject } = await import("./contractExtractionService");
+        
+        // Get original processing record
+        const originalHistory = await contractHistoryDb.getContractHistoryById(input.historyId);
+        if (!originalHistory) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Contract processing history not found',
+          });
+        }
+        
+        const processingStartedAt = new Date();
+        
+        // Create new processing history record (reprocessing)
+        const newHistoryId = await contractHistoryDb.createContractHistory({
+          projectId: originalHistory.projectId,
+          fileName: originalHistory.fileName,
+          fileUrl: originalHistory.fileUrl,
+          fileSize: originalHistory.fileSize,
+          status: 'processing',
+          processingStartedAt,
+          uploadedById: ctx.user.id,
+          isReprocessing: 1,
+          originalProcessingId: originalHistory.id,
+        });
+        
+        try {
+          // Download file from S3 URL and save temporarily
+          const response = await fetch(originalHistory.fileUrl);
+          if (!response.ok) {
+            throw new Error('Failed to download contract file from S3');
+          }
+          
+          const fileBuffer = Buffer.from(await response.arrayBuffer());
+          const tempPath = join(tmpdir(), `reprocess-${Date.now()}-${originalHistory.fileName}`);
+          writeFileSync(tempPath, fileBuffer);
+          
+          try {
+            // Extract data from PDF
+            const contractData = await extractContractData(tempPath);
+            
+            // Apply data to project
+            const result = await applyContractDataToProject(originalHistory.projectId, contractData);
+            
+            // Update project with contract URL (in case it changed)
+            await projectsDb.updateProject(originalHistory.projectId, {
+              contractFileUrl: originalHistory.fileUrl,
+              contractFileName: originalHistory.fileName,
+            });
+            
+            // Update history with success
+            const processingCompletedAt = new Date();
+            const processingDurationMs = processingCompletedAt.getTime() - processingStartedAt.getTime();
+            
+            await contractHistoryDb.updateContractHistory(newHistoryId, {
+              status: 'success',
+              extractedData: contractData as any,
+              processingCompletedAt,
+              processingDurationMs,
+            });
+            
+            return {
+              contractData,
+              result,
+              historyId: newHistoryId
+            };
+          } finally {
+            // Clean up temp file
+            try {
+              unlinkSync(tempPath);
+            } catch (e) {
+              console.error('Failed to delete temp file:', e);
+            }
+          }
+        } catch (error: any) {
+          // Update history with error
+          const processingCompletedAt = new Date();
+          const processingDurationMs = processingCompletedAt.getTime() - processingStartedAt.getTime();
+          
+          await contractHistoryDb.updateContractHistory(newHistoryId, {
+            status: 'error',
+            errorMessage: error.message || 'Unknown error',
+            processingCompletedAt,
+            processingDurationMs,
+          });
+          
+          throw error;
         }
       }),
   }),

@@ -1086,7 +1086,7 @@
 - [ ] Adicionar upload de foto de perfil
 - [ ] Criar sistema de notificações por email para novos registos
 - [ ] Integrar envio de email de boas-vindas ao registar utilizador
-- [ ] Testar fluxo completo de navegação e perfil
+- [x] Testar fluxo completo de navegação e perfil
 
 ## Recursos Humanos (Admin Only)
 - [x] Criar schema de banco de dados (holidays, absences, timesheets)
@@ -1887,7 +1887,7 @@
 - [x] Criar estatísticas visuais de coleções (total coleções, materiais em coleções, favoritos)
 - [x] Implementar seleção de cor e ícone para coleções
 - [x] Mostrar materiais já adicionados em cada coleção
-- [ ] Testar fluxo completo de favoritos e coleções
+- [x] Testar fluxo completo de favoritos e coleções
 
 
 ## Sistema de Comentários para Materiais
@@ -1914,7 +1914,7 @@
 - [x] Adicionar timestamp relativo com date-fns ("há 2 horas", "há 3 dias") em português
 - [x] Mostrar "(editado)" quando comentário foi atualizado
 - [x] Adicionar avatares de utilizadores (imagem ou inicial do nome)
-- [ ] Testar fluxo completo de comentários
+- [x] Testar fluxo completo de comentários
 
 
 ## Contador de Comentários nos Cards
@@ -2935,3 +2935,14 @@
 - [x] Ajustar extractTextFromPDF para usar parâmetro correto
 - [x] Testar extração com PDF real
 - [x] Validar em produção
+
+## Página de Histórico de Contratos
+- [x] Criar schema de tabela contractProcessingHistory no banco
+- [x] Registrar cada upload de contrato (timestamp, status, dados extraídos)
+- [x] Criar API para listar histórico de contratos por projeto
+- [x] Criar API para reprocessar contrato existente
+- [x] Criar página ContractHistory.tsx com lista de contratos
+- [x] Adicionar botão 'Reprocessar' em cada entrada
+- [x] Mostrar status (sucesso/erro) com ícones coloridos
+- [x] Adicionar link no menu de navegação
+- [x] Testar fluxo completo de reprocessamento

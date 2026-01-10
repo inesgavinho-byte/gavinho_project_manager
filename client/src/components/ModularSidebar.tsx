@@ -89,6 +89,12 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           path: "/contracts-dashboard",
         },
         {
+          id: "contract-history",
+          label: "Histórico de Contratos",
+          icon: History,
+          path: "/contract-history",
+        },
+        {
           id: "biblioteca",
           label: "Biblioteca",
           icon: Library,
