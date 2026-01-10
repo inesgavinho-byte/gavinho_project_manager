@@ -77,7 +77,7 @@ export async function getFilteredNotifications(
   }
 
   if (filters.isRead !== undefined) {
-    conditions.push(eq(notifications.isRead, filters.isRead ? 1 : 0));
+    conditions.push(eq(notifications.isRead, filters.isRead));
   }
 
   if (filters.startDate) {
@@ -160,7 +160,7 @@ export async function getNotificationStats(
 
   // Calculate stats
   const total = allNotifications.length;
-  const unread = allNotifications.filter((n) => n.isRead === 0).length;
+  const unread = allNotifications.filter((n) => !n.isRead).length;
 
   // By type
   const byType: Record<string, number> = {};

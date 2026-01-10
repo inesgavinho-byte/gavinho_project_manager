@@ -81,7 +81,7 @@ async function createNotification(check: NotificationCheck): Promise<void> {
       message: check.message,
       link: check.link,
       projectId: check.projectId,
-      isRead: 0,
+      isRead: false,
     });
     console.log(`[AutoNotification] Created: ${check.title}`);
   } catch (error) {
@@ -504,7 +504,7 @@ export async function generateTestNotifications(projectId: number, userId: numbe
       message: notif.message,
       link: notif.link,
       projectId: notif.projectId,
-      isRead: 0,
+      isRead: false,
     });
   }
 
