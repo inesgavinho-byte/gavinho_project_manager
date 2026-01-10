@@ -1,0 +1,201 @@
+{
+  "contractCode": "POP.001.2025",
+  "projectName": "MORADIA DA GUIA",
+  "projectCode": "GA00485_GUIA HOUSE",
+  "location": "Guia, Cascais",
+  "contractDate": "2025-01-21",
+  
+  "client": {
+    "name": "João Vasconcelos",
+    "nif": "321673557",
+    "address": "Rua dos Ulmeiros da Marinha, Nº 18 - Quinta da Marinha, Cascais",
+    "postalCode": "2750-008",
+    "city": "Cascais"
+  },
+  
+  "projectDescription": {
+    "type": "Comunicação Prévia e Execução de Arquitetura e Especialidades",
+    "scope": [
+      "Projeto de Arquitetura (Alterações ao Projeto Existente)",
+      "Coordenação de projeto em sede das equipas técnicas",
+      "Coordenação de projeto em sede de Licenciamento/Comunicação Prévia",
+      "Projeto de Licenciamento/Comunicação Prévia de Arquitetura e Especialidades",
+      "Projeto de Execução de Arquitetura",
+      "Projeto de Execução de Especialidades",
+      "Levantamento topográfico fornecido pelo antigo proprietário"
+    ],
+    "program": {
+      "description": "Moradia com 2 pisos acima da cota de soleira, 1 piso em cave",
+      "buildingArea": "681 m²",
+      "plotArea": "790 m²"
+    }
+  },
+  
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Alterações ao Projeto Existente",
+      "deadline": "30 dias úteis após assinatura do contrato, pagamento da adjudicação, e briefing do cliente",
+      "deliverables": [
+        "Plantas dos vários pisos",
+        "Cortes e alçados interiores mais significativos",
+        "Imagens 3D (6 imagens)"
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Projeto de Comunicação Prévia (Arquitetura e Especialidades)",
+      "deadline": "80 dias úteis após aprovação do Conceito/Estudo Prévio",
+      "deliverables": [
+        "Elementos Gráfico elucidativos (Plantas, Cortes e Alçados do Existente, Alterações/Cores Convencionais e Proposta - escala 1:200 a 1:50)",
+        "Pormenores elucidativos (escala 1:20)",
+        "Memória Descritiva Justificativa",
+        "Quadro Sinótico",
+        "Fichas INE",
+        "Calendarização",
+        "Estimativa de Custo de Obra",
+        "Projeto de Acessibilidades",
+        "Projetos de Especialidades (Estabilidade, Escavação, Redes de Águas, Esgotos, Gás, Eletricidade, ITED, Eletromecânico, Térmico+PCE, Segurança, Condicionamento Acústico, Ventilação e AVAC, Instalações Eletromecânicas, Intrusão e Videoporteiro, Plano de Segurança e Saúde, Arranjos Exteriores)"
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Submissão da Comunicação Prévia",
+      "deadline": "Após decisão do cliente acerca da adjudicação da Empreitada",
+      "description": "Dono de Obra deverá nomear o Empreiteiro responsável pela obra, bem como o Diretor de Obra e Diretor de Fiscalização"
+    },
+    {
+      "phase": 4,
+      "name": "Projeto de Execução de Arquitetura",
+      "deadline": "40 dias úteis após a aprovação da Comunicação Prévia",
+      "deliverables": [
+        "Elementos gráficos elucidativos (plantas, alçados, cortes - escala 1:50)",
+        "Desenhos Gerais (Plantas, Cortes e Alçados do Existente, Alterações/Cores Convencionais e Proposta - escala 1:50)",
+        "Mapas Gerais (Paredes, Tetos, Revestimento de Paredes e Pavimentos - escala 1:50)",
+        "Mapas de Pormenor Tipo (Layout Elétrico, Vãos Exteriores/Interiores, Carpintaria e Marcenaria, Zonas Húmidas, Escadas e Rampas, Cantarias, Guarda-Corpos - escala 1:20 a 1:5)",
+        "Mapa de Acabamentos",
+        "Amostras dos principais materiais"
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Projeto de Execução de Especialidades",
+      "deadline": "40 dias úteis após a aprovação da Comunicação Prévia (simultâneo com 4ª Fase)",
+      "deliverables": [
+        "Memória descritiva e justificativa",
+        "Medições e mapas de quantidades de trabalho",
+        "Peças desenhadas com indicações numéricas",
+        "Condições técnicas especiais do Caderno de Encargos"
+      ]
+    },
+    {
+      "phase": 6,
+      "name": "Compatibilização e adaptação de Projetos",
+      "deadline": "20 dias úteis após entrega dos Projetos de Execução",
+      "description": "Integração e compatibilização de todas as Especialidades com o Projeto de Arquitetura. Desenvolvimento do pacote para os restantes edifícios, adaptando o projeto às diferentes localizações e envolventes"
+    }
+  ],
+  
+  "financialTerms": {
+    "values": {
+      "architecture": {
+        "description": "Alterações ao Projeto, Comunicação Prévia, Projeto de Execução",
+        "subtotal": 20000.00,
+        "images3D": "OFERTA",
+        "total": 20000.00
+      },
+      "specialties": {
+        "description": "Estudo Prévio, Licenciamento/Comunicação Prévia e Projeto de Execução",
+        "total": 20000.00
+      },
+      "technicalAssistance": {
+        "description": "Valor a descontar no caso de adjudicação de Empreitada Global de Construção",
+        "visits": 48,
+        "pricePerVisit": 250.00,
+        "total": 13000.00
+      },
+      "totalGlobal": 53000.00,
+      "currency": "EUR",
+      "vat": "A acrescentar IVA à taxa legal em vigor"
+    },
+    
+    "paymentTerms": [
+      {
+        "installment": 1,
+        "description": "Com a Adjudicação",
+        "percentage": 30,
+        "amount": 15900.00
+      },
+      {
+        "installment": 2,
+        "description": "Com a aprovação das Alterações ao Projeto",
+        "percentage": 5,
+        "amount": 2650.00
+      },
+      {
+        "installment": 3,
+        "description": "Com a entrega do pacote de Comunicação Prévia",
+        "percentage": 25,
+        "amount": 13250.00
+      },
+      {
+        "installment": 4,
+        "description": "Com a submissão da Comunicação Prévia",
+        "percentage": 5,
+        "amount": 2650.00
+      },
+      {
+        "installment": 5,
+        "description": "Com a entrega do Projeto de Execução de Arquitetura e Especialidades",
+        "percentage": 25,
+        "amount": 13250.00
+      },
+      {
+        "installment": 6,
+        "description": "Com a conclusão da Fase de Compatibilização",
+        "percentage": 5,
+        "amount": 2650.00
+      },
+      {
+        "installment": 7,
+        "description": "Com a conclusão da Assistência Técnica",
+        "percentage": 5,
+        "amount": 2650.00
+      }
+    ],
+    
+    "paymentMethod": {
+      "type": "Transferência bancária",
+      "iban": "PT50 0010 0000 5344 2110 0011 7",
+      "beneficiary": "GAVINHO Arquitetura e Interiores",
+      "terms": "Pagamento a pronto pagamento nas datas acordadas"
+    }
+  },
+  
+  "contractTerms": {
+    "validity": "30 dias a contar da data da proposta",
+    "approvalDeadline": "5 dias úteis para aprovação pelo Cliente",
+    "penaltyClause": "1 por mil do valor da fase por dia de atraso no primeiro mês, 2 por mil nos dias seguintes",
+    "rescissionTerms": [
+      "Cliente pode resolver se prazos excedidos em 50% sem motivo justificado",
+      "GAVINHO pode resolver em qualquer fase se Cliente não cumprir justa causa",
+      "GAVINHO pode resolver se fase suspensa por mais de 360 dias",
+      "GAVINHO pode resolver em caso de atraso de pagamento superior a 90 dias"
+    ]
+  },
+  
+  "inclusions": [
+    "Comparência do Coordenador de Projeto nas reuniões",
+    "Preparação dos projetos incluídos no âmbito da proposta",
+    "Medições dos Projetos de Execução adjudicados (entrega 25 dias após aprovação)",
+    "Fornecimento de elementos e apoio nos contactos oficiais",
+    "Perspetivas Exteriores e Interiores"
+  ],
+  
+  "exclusions": [
+    "3D em fase de execução",
+    "Elaboração de Maqueta",
+    "Exercício de funções de fiscalização, direção ou gestão de obra",
+    "Outros Estudos ou trabalhos não especificados na proposta"
+  ]
+}

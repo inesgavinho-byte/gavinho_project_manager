@@ -28,7 +28,7 @@ interface EditProjectDialogProps {
   onSuccess?: () => void;
 }
 
-export default function EditProjectDialog({
+export function EditProjectDialog({
   project,
   open,
   onOpenChange,

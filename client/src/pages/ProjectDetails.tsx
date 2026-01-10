@@ -48,7 +48,8 @@ import ProjectGallery from "@/components/ProjectGallery";
 import { DeliveryCenter } from "@/components/DeliveryCenter";
 import { ProjectGanttChart } from "@/components/ProjectGanttChart";
 import { ProjectArchvizGallery } from "@/components/ProjectArchvizGallery";
-import EditProjectDialog from "@/components/EditProjectDialog";
+import { EditProjectDialog } from "@/components/EditProjectDialog";
+import { ContractUpload } from "@/components/ContractUpload";
 import { ProjectPhasesSection } from "@/components/ProjectPhasesSection";
 import { ProjectLibraryTab } from "@/components/ProjectLibraryTab";
 
@@ -1053,6 +1054,15 @@ export default function ProjectDetails() {
 
         {/* Contract Tab */}
         <TabsContent value="contract" className="space-y-6">
+          {/* Contract Upload */}
+          <ContractUpload 
+            projectId={parseInt(id!)} 
+            onUploadComplete={() => {
+              // Refresh project data after upload
+              window.location.reload();
+            }}
+          />
+
           <Card className="p-8 border-[#C3BAAF]/20 bg-white">
             <div className="space-y-8">
               {/* Header */}

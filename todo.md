@@ -2842,3 +2842,35 @@
 - [x] Implementar exportação de relatório (CSV)
 - [x] Adicionar estatísticas do histórico (total, por tipo, por prioridade)
 - [x] Adicionar rota no App.tsx e link na navegação
+
+
+## Melhorias de Navegação e Automação
+- [ ] Adicionar link "Análise de Contratos" no ModularSidebar
+- [ ] Adicionar link "Preferências de Notificações" no ModularSidebar
+- [ ] Adicionar link "Histórico de Notificações" no ModularSidebar
+- [ ] Implementar job automático de verificação diária de notificações (9h)
+- [ ] Criar mapa interativo no Dashboard de Contratos com Google Maps API
+- [ ] Adicionar marcadores clicáveis com informações de contrato no mapa
+
+
+## Upload e Extração de Contratos
+- [ ] Adicionar campo de upload de contrato no tab Contrato
+- [ ] Criar serviço de extração de dados do PDF de contrato
+- [ ] Extrair dados de cliente e criar/atualizar cliente automaticamente
+- [ ] Extrair e atualizar morada do projeto
+- [ ] Extrair fases e entregas do contrato
+- [ ] Extrair lista de entregáveis
+- [ ] Extrair valor contratual e condições de pagamento
+- [ ] Preencher automaticamente campos do projeto com dados extraídos
+
+## Reorganização de Tabs
+- [ ] Mover tab Financeiro para dentro de "Gestão de Projeto"
+- [ ] Mover tab Contrato para dentro de "Gestão de Projeto"
+- [ ] Criar estrutura de tabs aninhadas em ProjectDetails
+
+## Sistema de Permissões
+- [ ] Adicionar campo de permissões ao schema de utilizadores
+- [ ] Criar sistema de roles (admin, manager, viewer)
+- [ ] Implementar controlo de acesso a tabs Financeiro e Contrato
+- [ ] Adicionar interface de gestão de permissões por utilizador
+- [ ] Implementar verificação de permissões no backend

@@ -825,4 +825,110 @@ export const projectsRouter = router({
         return { success: true };
       }),
   }),
+
+  // Contract management
+  contract: router({
+    // Upload contract file
+    upload: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        fileData: z.string(), // Base64 encoded file
+        fileName: z.string(),
+        mimeType: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        // Decode base64 and upload to S3
+        const fileBuffer = Buffer.from(input.fileData, 'base64');
+        const fileKey = `contracts/${input.projectId}/${Date.now()}-${input.fileName}`;
+        
+        const { url } = await storagePut(
+          fileKey,
+          fileBuffer,
+          input.mimeType
+        );
+        
+        // Update project with contract URL
+        await projectsDb.updateProject(input.projectId, {
+          contractFileUrl: url,
+          contractFileName: input.fileName,
+        });
+        
+        return { url, fileKey };
+      }),
+
+    // Extract contract data from PDF
+    extract: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        filePath: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { extractContractData, applyContractDataToProject } = await import("./contractExtractionService");
+        
+        // Extract data from PDF
+        const contractData = await extractContractData(input.filePath);
+        
+        // Apply data to project
+        const result = await applyContractDataToProject(input.projectId, contractData);
+        
+        return {
+          contractData,
+          result
+        };
+      }),
+
+    // Extract and apply contract data from uploaded file
+    uploadAndExtract: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        fileData: z.string(), // Base64 encoded PDF
+        fileName: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { writeFileSync, unlinkSync } = await import("fs");
+        const { tmpdir } = await import("os");
+        const { join } = await import("path");
+        const { extractContractData, applyContractDataToProject } = await import("./contractExtractionService");
+        
+        // Save file temporarily
+        const tempPath = join(tmpdir(), `contract-${Date.now()}-${input.fileName}`);
+        const fileBuffer = Buffer.from(input.fileData, 'base64');
+        writeFileSync(tempPath, fileBuffer);
+        
+        try {
+          // Extract data from PDF
+          const contractData = await extractContractData(tempPath);
+          
+          // Upload to S3
+          const fileKey = `contracts/${input.projectId}/${Date.now()}-${input.fileName}`;
+          const { url } = await storagePut(
+            fileKey,
+            fileBuffer,
+            'application/pdf'
+          );
+          
+          // Apply data to project
+          const result = await applyContractDataToProject(input.projectId, contractData);
+          
+          // Update project with contract URL
+          await projectsDb.updateProject(input.projectId, {
+            contractFileUrl: url,
+            contractFileName: input.fileName,
+          });
+          
+          return {
+            contractData,
+            result,
+            fileUrl: url
+          };
+        } finally {
+          // Clean up temp file
+          try {
+            unlinkSync(tempPath);
+          } catch (e) {
+            console.error('Failed to delete temp file:', e);
+          }
+        }
+      }),
+  }),
 });

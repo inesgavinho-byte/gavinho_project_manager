@@ -29,6 +29,8 @@ import {
   UserCog,
   BarChart3,
   AlertCircle,
+  Settings,
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -83,7 +85,7 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
         {
           id: "contracts-dashboard",
           label: "Análise de Contratos",
-          icon: FileText,
+          icon: BarChart3,
           path: "/contracts-dashboard",
         },
         {
@@ -262,6 +264,18 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           icon: Bell,
           path: "/mencoes",
           badge: 5,
+        },
+        {
+          id: "notification-history",
+          label: "Histórico de Notificações",
+          icon: History,
+          path: "/notification-history",
+        },
+        {
+          id: "notification-preferences",
+          label: "Preferências de Notificações",
+          icon: Settings,
+          path: "/notification-preferences",
         },
       ],
     },
