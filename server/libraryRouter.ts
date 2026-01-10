@@ -79,6 +79,7 @@ import {
 } from "./libraryDb.js";
 import { storagePut } from "./storage.js";
 import { TRPCError } from "@trpc/server";
+import { generateMaterialsReportPDF } from "./libraryPdfGenerator.js";
 
 export const libraryRouter = router({
   // ============================================================================
@@ -1058,17 +1059,26 @@ export const libraryRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       try {
-        // For now, return a placeholder - full PDF generation requires additional setup
+        const pdfBuffer = await generateMaterialsReportPDF({
+          projectId: input.projectId,
+          materialIds: input.materialIds,
+          includeImages: input.includeImages,
+          includeTechnicalSpecs: input.includeTechnicalSpecs,
+          userId: ctx.user.id,
+        });
+
+        // Convert buffer to base64 for client download
+        const base64Pdf = pdfBuffer.toString("base64");
         return {
           success: true,
-          message: "Funcionalidade de geração de PDF em desenvolvimento",
-          materialIds: input.materialIds || [],
+          pdfData: base64Pdf,
+          filename: `relatorio-materiais-${Date.now()}.pdf`,
         };
       } catch (error) {
         console.error("Error generating PDF report:", error);
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Erro ao gerar relatório PDF",
+          message: "Erro ao gerar relat\u00f3rio PDF",
         });
       }
     }),

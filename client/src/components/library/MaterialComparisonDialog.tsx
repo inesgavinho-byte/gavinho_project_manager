@@ -18,6 +18,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 interface MaterialComparisonDialogProps {
   open: boolean;
@@ -32,7 +33,8 @@ export function MaterialComparisonDialog({
   materialIds,
   onRemoveMaterial,
 }: MaterialComparisonDialogProps) {
-  // Query materials
+  const [sortBy, setSortBy] = useState<"name" | "price" | "supplier" | "category">("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");  // Query materials
   const materialsQueries = materialIds.map((id) =>
     trpc.library.materials.getById.useQuery(
       { id },
@@ -41,8 +43,30 @@ export function MaterialComparisonDialog({
   );
 
   const materials = materialsQueries
-    .map((q) => q.data)
-    .filter((m) => m !== undefined);
+    .map((query) => query.data)
+    .filter((material): material is NonNullable<typeof material> => !!material);
+
+  // Sort materials based on selected criteria
+  const sortedMaterials = [...materials].sort((a, b) => {
+    let comparison = 0;
+    switch (sortBy) {
+      case "name":
+        comparison = a.name.localeCompare(b.name);
+        break;
+      case "price":
+        const priceA = parseFloat(a.price || "0");
+        const priceB = parseFloat(b.price || "0");
+        comparison = priceA - priceB;
+        break;
+      case "supplier":
+        comparison = (a.supplier || "").localeCompare(b.supplier || "");
+        break;
+      case "category":
+        comparison = a.category.localeCompare(b.category);
+        break;
+    }
+    return sortOrder === "asc" ? comparison : -comparison;
+  });
 
   const isLoading = materialsQueries.some((q) => q.isLoading);
 
@@ -63,9 +87,32 @@ export function MaterialComparisonDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-6xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-[#5F5C59]">
-              Comparar Materiais
-            </DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-2xl font-bold text-[#5F5C59]">
+                Comparar Materiais ({materials.length})
+              </DialogTitle>
+              <div className="flex items-center gap-2">
+                <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Ordenar por" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">Nome</SelectItem>
+                    <SelectItem value="price">Preço</SelectItem>
+                    <SelectItem value="supplier">Fornecedor</SelectItem>
+                    <SelectItem value="category">Categoria</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                  className="border-[#E5E2D9]"
+                >
+                  {sortOrder === "asc" ? "↑" : "↓"}
+                </Button>
+              </div>
+            </div>
           </DialogHeader>
           <div className="text-center py-12 text-[#8B8670]">
             <Package className="w-16 h-16 mx-auto mb-4 opacity-50" />
@@ -100,8 +147,8 @@ export function MaterialComparisonDialog({
 
         {/* Comparison Grid */}
         <div className="flex-1 overflow-x-auto overflow-y-auto p-6">
-          <div className="grid gap-6" style={{ gridTemplateColumns: `repeat(${materials.length}, minmax(300px, 1fr))` }}>
-            {materials.map((material) => (
+          <div className="grid gap-6" style={{ gridTemplateColumns: `repeat(${sortedMaterials.length}, minmax(300px, 1fr))` }}>
+            {sortedMaterials.map((material) => (
               <div
                 key={material.id}
                 className="bg-white rounded-lg border border-[#E5E2D9] overflow-hidden"
@@ -271,11 +318,28 @@ export function MaterialComparisonDialog({
                     includeImages: true,
                     includeTechnicalSpecs: true,
                   });
-                  if (result.success) {
-                    alert(result.message || "Relatório gerado com sucesso!");
+                  if (result.success && result.pdfData) {
+                    // Convert base64 to blob and trigger download
+                    const byteCharacters = atob(result.pdfData);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                      byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], { type: "application/pdf" });
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = result.filename || "relatorio-materiais.pdf";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                    alert("Relatório PDF gerado com sucesso!");
                   }
                 } catch (error) {
-                  alert("Erro ao gerar relatório");
+                  console.error("Erro ao gerar relatório:", error);
+                  alert("Erro ao gerar relatório PDF");
                 }
               }}
             >

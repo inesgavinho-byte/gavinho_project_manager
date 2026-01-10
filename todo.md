@@ -2717,3 +2717,26 @@
 - [x] Testar edição inline (MaterialPreviewDialog com modo edit)
 - [x] Testar comparação de materiais (seleção múltipla + MaterialComparisonDialog)
 - [x] Testar geração de relatórios PDF (endpoint tRPC + botão exportação)
+
+
+## Funcionalidades Avançadas da Biblioteca (Janeiro 2026)
+- [x] Instalar biblioteca pdfkit para geração de PDF (pdfkit + @types/pdfkit)
+- [x] Criar módulo libraryPdfGenerator.ts para geração de PDFs
+- [x] Implementar layout profissional com identidade GAVINHO (cores #C9A882, #5F5C59, tipografia)
+- [x] Incluir imagens dos materiais no PDF (URLs com links clicáveis)
+- [x] Formatar especificações técnicas no documento (seções organizadas)
+- [x] Integrar gerador de PDF no libraryRouter
+- [x] Implementar download automático no MaterialComparisonDialog
+- [x] Adicionar filtros de ordenação no MaterialComparisonDialog (Select + botão asc/desc)
+- [x] Implementar ordenação por preço, fornecedor e categoria (nome, preço, fornecedor, categoria)
+- [x] Destacar diferenças significativas entre especificações (ordenação visual)
+- [x] Instalar react-chartjs-2 e chart.js
+- [x] Criar componente AnalyticsDashboard para tab Análise (com Chart.js)
+- [x] Implementar gráfico de distribuição de categorias (Doughnut chart)
+- [x] Implementar gráfico de evolução de preços (Line chart)
+- [x] Implementar gráfico de materiais mais utilizados (Bar chart)
+- [x] Adicionar cards de overview (Total, Categorias, Preço Médio, Mais Utilizado)
+- [x] Integrar AnalyticsDashboard na tab Análise do Library.tsx
+- [x] Testar geração de PDF com materiais reais (pdfkit integrado, download funcional)
+- [x] Testar filtros e ordenação na comparação (Select + botão asc/desc funcionais)
+- [x] Testar dashboard de análise visual (Chart.js integrado, gráficos renderizados)
