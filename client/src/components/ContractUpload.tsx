@@ -52,11 +52,13 @@ export function ContractUpload({ projectId, onUploadComplete }: ContractUploadPr
       return;
     }
 
-    // Validate file size (max 16MB)
-    if (file.size > 16 * 1024 * 1024) {
+    // Validate file size (max 50MB)
+    const maxSizeMB = 50;
+    const fileSizeMB = file.size / (1024 * 1024);
+    if (fileSizeMB > maxSizeMB) {
       toast({
         title: "Arquivo muito grande",
-        description: "O tamanho máximo permitido é 16MB.",
+        description: `O arquivo tem ${fileSizeMB.toFixed(1)}MB. Tamanho máximo permitido: ${maxSizeMB}MB.`,
         variant: "destructive",
       });
       return;
@@ -123,7 +125,7 @@ export function ContractUpload({ projectId, onUploadComplete }: ContractUploadPr
                 Clique para selecionar o contrato em PDF
               </div>
               <div className="text-xs text-muted-foreground">
-                Tamanho máximo: 16MB
+                Tamanho máximo: 50MB • Apenas arquivos PDF
               </div>
             </label>
           </div>

@@ -4,12 +4,87 @@
  */
 
 import { invokeLLM } from "./_core/llm";
-import { readFileSync } from "fs";
+import { readFileSync, statSync } from "fs";
 import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
 const { PDFParse } = require("pdf-parse");
 const pdf = PDFParse;
+
+/**
+ * PDF validation result
+ */
+interface PDFValidationResult {
+  valid: boolean;
+  error?: string;
+  errorCode?: 'INVALID_FORMAT' | 'FILE_TOO_LARGE' | 'CORRUPTED_PDF' | 'EMPTY_FILE';
+}
+
+/**
+ * Validate PDF file format and structure
+ * Checks:
+ * - Magic bytes (%PDF-)
+ * - File size (max 50MB)
+ * - Basic PDF structure (%%EOF)
+ */
+export function validatePDF(pdfPath: string): PDFValidationResult {
+  try {
+    // Check if file exists and get size
+    const stats = statSync(pdfPath);
+    const fileSizeInMB = stats.size / (1024 * 1024);
+    
+    // Check file size (max 50MB)
+    const MAX_FILE_SIZE_MB = 50;
+    if (fileSizeInMB > MAX_FILE_SIZE_MB) {
+      return {
+        valid: false,
+        error: `Arquivo muito grande (${fileSizeInMB.toFixed(1)}MB). Tamanho máximo permitido: ${MAX_FILE_SIZE_MB}MB`,
+        errorCode: 'FILE_TOO_LARGE'
+      };
+    }
+    
+    // Check if file is empty
+    if (stats.size === 0) {
+      return {
+        valid: false,
+        error: 'Arquivo vazio',
+        errorCode: 'EMPTY_FILE'
+      };
+    }
+    
+    // Read first 1KB and last 1KB for validation
+    const buffer = readFileSync(pdfPath);
+    const header = buffer.slice(0, Math.min(1024, buffer.length)).toString('utf-8');
+    const footer = buffer.slice(Math.max(0, buffer.length - 1024)).toString('utf-8');
+    
+    // Check PDF magic bytes (%PDF-)
+    if (!header.startsWith('%PDF-')) {
+      return {
+        valid: false,
+        error: 'Formato de arquivo inválido. Apenas arquivos PDF são permitidos.',
+        errorCode: 'INVALID_FORMAT'
+      };
+    }
+    
+    // Check for PDF end marker (%%EOF)
+    if (!footer.includes('%%EOF')) {
+      return {
+        valid: false,
+        error: 'Arquivo PDF corrompido ou incompleto. Falta marcador de fim de arquivo.',
+        errorCode: 'CORRUPTED_PDF'
+      };
+    }
+    
+    return { valid: true };
+    
+  } catch (error) {
+    return {
+      valid: false,
+      error: `Erro ao validar arquivo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+      errorCode: 'CORRUPTED_PDF'
+    };
+  }
+}
 
 interface ExtractedContractData {
   contractCode: string;
@@ -92,6 +167,12 @@ async function extractTextFromPDF(pdfPath: string): Promise<string> {
  * Extract contract data from PDF using LLM
  */
 export async function extractContractData(pdfPath: string): Promise<ExtractedContractData> {
+  // Validate PDF before processing
+  const validation = validatePDF(pdfPath);
+  if (!validation.valid) {
+    throw new Error(validation.error || 'Arquivo PDF inválido');
+  }
+  
   // Extract text from PDF
   const pdfText = await extractTextFromPDF(pdfPath);
   

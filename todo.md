@@ -2920,3 +2920,12 @@
 - [x] Testar diferentes abordagens de import (default vs named export)
 - [x] Validar solução localmente com build de produção
 - [x] Criar checkpoint e testar deployment
+
+## Validação de Formato PDF
+- [x] Criar função de validação de magic bytes PDF (%PDF-)
+- [x] Adicionar verificação de tamanho máximo de arquivo (ex: 50MB)
+- [x] Implementar validação de estrutura básica PDF
+- [x] Integrar validação no endpoint de upload de contratos
+- [x] Adicionar mensagens de erro específicas para cada tipo de falha
+- [x] Testar com arquivos válidos e inválidos (txt, docx, imagens)
+- [x] Criar testes unitários para validação
