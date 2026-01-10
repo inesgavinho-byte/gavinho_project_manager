@@ -34,7 +34,8 @@ import {
   Filter,
   X,
   Folder,
-  Package
+  Package,
+  FileSignature
 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -420,6 +421,10 @@ export default function ProjectDetails() {
           <TabsTrigger value="library" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <Package className="w-4 h-4 mr-2" />
             Biblioteca
+          </TabsTrigger>
+          <TabsTrigger value="contract" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
+            <FileSignature className="w-4 h-4 mr-2" />
+            Contrato
           </TabsTrigger>
         </TabsList>
 
@@ -1044,6 +1049,163 @@ export default function ProjectDetails() {
         {/* Library Tab */}
         <TabsContent value="library">
           <ProjectLibraryTab projectId={projectId} />
+        </TabsContent>
+
+        {/* Contract Tab */}
+        <TabsContent value="contract" className="space-y-6">
+          <Card className="p-8 border-[#C3BAAF]/20 bg-white">
+            <div className="space-y-8">
+              {/* Header */}
+              <div className="border-b border-[#C3BAAF]/20 pb-6">
+                <h2 className="font-serif text-3xl text-[#5F5C59] mb-2">Informações do Contrato</h2>
+                <p className="text-[#5F5C59]/70">Dados contratuais, prazos e documentação</p>
+              </div>
+
+              {/* Contract Info Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Valor Contratual */}
+                <div className="space-y-2">
+                  <Label className="text-[#5F5C59] font-medium">Valor Contratual</Label>
+                  <div className="flex items-center gap-2">
+                    <Euro className="w-5 h-5 text-[#C9A882]" />
+                    <span className="text-2xl font-serif text-[#5F5C59]">
+                      {project?.contractValue 
+                        ? `€${parseFloat(project.contractValue).toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        : 'Não definido'
+                      }
+                    </span>
+                  </div>
+                </div>
+
+                {/* Tipo de Contrato */}
+                <div className="space-y-2">
+                  <Label className="text-[#5F5C59] font-medium">Tipo de Serviço</Label>
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="w-5 h-5 text-[#C9A882]" />
+                    <span className="text-lg text-[#5F5C59]">
+                      {project?.contractType || 'Arquitetura e Especialidades'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Data de Assinatura */}
+                <div className="space-y-2">
+                  <Label className="text-[#5F5C59] font-medium">Data de Assinatura</Label>
+                  <div className="flex items-center gap-2">
+                    <FileSignature className="w-5 h-5 text-[#C9A882]" />
+                    <span className="text-lg text-[#5F5C59]">
+                      {project?.contractSignedDate 
+                        ? new Date(project.contractSignedDate).toLocaleDateString('pt-PT')
+                        : 'Não definido'
+                      }
+                    </span>
+                  </div>
+                </div>
+
+                {/* Prazo Contratual */}
+                <div className="space-y-2">
+                  <Label className="text-[#5F5C59] font-medium">Prazo de Execução</Label>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-[#C9A882]" />
+                    <span className="text-lg text-[#5F5C59]">
+                      {project?.contractDuration || 'Não definido'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Data Limite */}
+                <div className="space-y-2">
+                  <Label className="text-[#5F5C59] font-medium">Data Limite Contratual</Label>
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 text-[#C9A882]" />
+                    <span className="text-lg text-[#5F5C59]">
+                      {project?.contractDeadline 
+                        ? new Date(project.contractDeadline).toLocaleDateString('pt-PT')
+                        : 'Não definido'
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notas do Contrato */}
+              {project?.contractNotes && (
+                <div className="space-y-3 pt-6 border-t border-[#C3BAAF]/20">
+                  <Label className="text-[#5F5C59] font-medium">Notas e Observações</Label>
+                  <div className="bg-[#EEEAE5]/30 rounded-lg p-4">
+                    <p className="text-[#5F5C59] whitespace-pre-wrap">{project.contractNotes}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Alertas de Prazo */}
+              {project?.contractDeadline && (
+                <div className="space-y-3 pt-6 border-t border-[#C3BAAF]/20">
+                  <Label className="text-[#5F5C59] font-medium">Status do Prazo</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {(() => {
+                      const deadline = new Date(project.contractDeadline);
+                      const today = new Date();
+                      const daysRemaining = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                      const totalDays = project.contractDuration?.match(/\d+/)?.[0] || 0;
+                      const percentComplete = totalDays ? Math.min(100, Math.max(0, 100 - (daysRemaining / parseInt(totalDays as string) * 100))) : 0;
+
+                      return (
+                        <>
+                          <Card className="p-4 border-[#C3BAAF]/20">
+                            <div className="text-center">
+                              <p className="text-sm text-[#5F5C59]/70 mb-1">Dias Restantes</p>
+                              <p className={`text-3xl font-serif ${
+                                daysRemaining < 7 ? 'text-red-500' :
+                                daysRemaining < 30 ? 'text-orange-500' :
+                                'text-green-500'
+                              }`}>
+                                {daysRemaining > 0 ? daysRemaining : 0}
+                              </p>
+                            </div>
+                          </Card>
+                          <Card className="p-4 border-[#C3BAAF]/20">
+                            <div className="text-center">
+                              <p className="text-sm text-[#5F5C59]/70 mb-1">Progresso Temporal</p>
+                              <p className="text-3xl font-serif text-[#C9A882]">
+                                {Math.round(percentComplete)}%
+                              </p>
+                            </div>
+                          </Card>
+                          <Card className="p-4 border-[#C3BAAF]/20">
+                            <div className="text-center">
+                              <p className="text-sm text-[#5F5C59]/70 mb-1">Status</p>
+                              <Badge className={`text-sm ${
+                                daysRemaining < 0 ? 'bg-red-500' :
+                                daysRemaining < 7 ? 'bg-orange-500' :
+                                'bg-green-500'
+                              }`}>
+                                {daysRemaining < 0 ? 'Expirado' :
+                                 daysRemaining < 7 ? 'Urgente' :
+                                 daysRemaining < 30 ? 'Atenção' :
+                                 'No Prazo'
+                                }
+                              </Badge>
+                            </div>
+                          </Card>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {/* Edit Button */}
+              <div className="pt-6 border-t border-[#C3BAAF]/20">
+                <Button
+                  onClick={() => setIsEditDialogOpen(true)}
+                  className="bg-[#C9A882] hover:bg-[#B8956F] text-white"
+                >
+                  Editar Informações do Contrato
+                </Button>
+              </div>
+            </div>
+          </Card>
         </TabsContent>
       </Tabs>
 

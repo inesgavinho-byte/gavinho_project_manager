@@ -1,0 +1,477 @@
+[
+  {
+    "code": "POP.001.2025",
+    "value": 3.0,
+    "dates": {
+      "deadline_duration": "Prazo de entrega: 30 dias"
+    },
+    "phases": [
+      {
+        "number": "2",
+        "name": "2.Proponente"
+      },
+      {
+        "number": "3",
+        "name": "Identificação do Cliente"
+      },
+      {
+        "number": "4",
+        "name": "Definição e Planeamento dos Trabalhos"
+      },
+      {
+        "number": "5",
+        "name": "Metodologia"
+      },
+      {
+        "number": "1",
+        "name": "1 – IMAGENS 3D 6"
+      },
+      {
+        "number": "7",
+        "name": "Condições de Pagamento"
+      },
+      {
+        "number": "8",
+        "name": "Inclusões e Exclusões"
+      },
+      {
+        "number": "1",
+        "name": "1. Apresentação"
+      },
+      {
+        "number": "2",
+        "name": "2. Condições para Prestação de Outros Serviços"
+      },
+      {
+        "number": "3",
+        "name": "Disposições Gerais"
+      }
+    ],
+    "client": "os objetivos do Projeto, em termos de custos, prazos e qualidade;",
+    "location": "e/ou Edifício ;",
+    "type": "Arquitetura + Design de Interiores + Especialidades + Gestão de Projeto + ArchViz + Obra",
+    "text_length": 32094
+  },
+  {
+    "code": "POP.007.2025",
+    "value": null,
+    "dates": {},
+    "phases": [
+      {
+        "number": "030",
+        "name": "2021 de 20 de Dezembro de 2021"
+      }
+    ],
+    "client": null,
+    "location": null,
+    "type": "Arquitetura + Design de Interiores + Gestão de Projeto + Obra",
+    "text_length": 2129
+  },
+  {
+    "code": "POP.008.2025",
+    "value": 3.0,
+    "dates": {
+      "deadline_duration": "Prazo de entrega: 40 dias"
+    },
+    "phases": [
+      {
+        "number": "08",
+        "name": "2025 – Proposta para Projeto de, Design de Interiores e Decoração – MORADIA ANTÓNIO SALDANHA"
+      },
+      {
+        "number": "2",
+        "name": "2.Proponente"
+      },
+      {
+        "number": "3",
+        "name": "Identificação do Cliente"
+      },
+      {
+        "number": "4",
+        "name": "Definição e Planeamento dos Trabalhos"
+      },
+      {
+        "number": "5",
+        "name": "Metodologia"
+      },
+      {
+        "number": "7",
+        "name": "Condições de Pagamento"
+      },
+      {
+        "number": "8",
+        "name": "Inclusões e Exclusões"
+      },
+      {
+        "number": "1",
+        "name": "1. Apresentação"
+      },
+      {
+        "number": "2",
+        "name": "2. Condições para Prestação de Outros Serviços"
+      },
+      {
+        "number": "3",
+        "name": "Disposições Gerais"
+      }
+    ],
+    "client": "os objetivos do Projeto, em termos de custos, prazos e qualidade;",
+    "location": "e/ou Edifício ;",
+    "type": "Arquitetura + Design de Interiores + Especialidades + Gestão de Projeto + ArchViz + Obra",
+    "text_length": 28290
+  },
+  {
+    "code": "POP.017.2025",
+    "value": 5.0,
+    "dates": {},
+    "phases": [
+      {
+        "number": "3",
+        "name": "Identificação"
+      },
+      {
+        "number": "5",
+        "name": "Metodologia"
+      },
+      {
+        "number": "1",
+        "name": "Apresentação"
+      },
+      {
+        "number": "3",
+        "name": "Disposições"
+      },
+      {
+        "number": "9",
+        "name": "Exclusividade"
+      },
+      {
+        "number": "10",
+        "name": "Confidencialidade"
+      },
+      {
+        "number": "11",
+        "name": "Propriedade"
+      }
+    ],
+    "client": "os",
+    "location": "de",
+    "type": "Arquitetura + Design de Interiores + Especialidades + Gestão de Projeto + ArchViz + Obra",
+    "text_length": 39277
+  },
+  {
+    "code": "POP.011.2024",
+    "value": 3.0,
+    "dates": {
+      "deadline_duration": "Prazo de entrega: 10 dias"
+    },
+    "phases": [
+      {
+        "number": "11",
+        "name": "2024 – Proposta para Projeto de Archviz  – HOTEL ALGARVE"
+      },
+      {
+        "number": "3",
+        "name": "Identificação do Cliente"
+      },
+      {
+        "number": "4",
+        "name": "Definição e Planeamento dos Trabalhos"
+      },
+      {
+        "number": "5",
+        "name": "Metodologia"
+      },
+      {
+        "number": "1",
+        "name": "1 – IMAGENS  15"
+      },
+      {
+        "number": "7",
+        "name": "Condições de Pagamento"
+      },
+      {
+        "number": "8",
+        "name": "Inclusões e Exclusões"
+      },
+      {
+        "number": "1",
+        "name": "1. Apresentação"
+      },
+      {
+        "number": "2",
+        "name": "2. Condições para Prestação de Outros Serviços"
+      },
+      {
+        "number": "3",
+        "name": "Disposições Gerais"
+      }
+    ],
+    "client": "os objetivos do Projeto, em termos de custos, prazos e qualidade;",
+    "location": "de pagamento o do domicílio da sede da",
+    "type": "Arquitetura + Design de Interiores + Especialidades + Gestão de Projeto + ArchViz + Obra",
+    "text_length": 20436
+  },
+  {
+    "code": "POP.013.2024",
+    "value": null,
+    "dates": {},
+    "phases": [],
+    "client": null,
+    "location": null,
+    "type": "Arquitetura e Especialidades",
+    "text_length": 27
+  },
+  {
+    "code": "POP.014.2024",
+    "value": 3.0,
+    "dates": {
+      "deadline_duration": "prazo de 5 dias"
+    },
+    "phases": [
+      {
+        "number": "1",
+        "name": "PARTES INTERVENIENTES / INTERVENING PARTIES"
+      },
+      {
+        "number": "2",
+        "name": "OBJETO DA PRESTAÇÃO/ OBJECT OF THE PROVISION"
+      },
+      {
+        "number": "3",
+        "name": "MEMÓRIA DESCRITIVA/  DESCRIPTIVE MEMORY"
+      },
+      {
+        "number": "3",
+        "name": "1PROJETO/ PROJECT"
+      },
+      {
+        "number": "3",
+        "name": "2MEIOS HUMANOS, TÉCNICOS E MATERIAIS/  HUMAN, TECHNICAL AND MATERIALS"
+      },
+      {
+        "number": "3",
+        "name": "3ORGANIZAÇÃO E MEIOS DE CONTROLO/  ORGANIZATION AND MEANS OF CONTROL"
+      },
+      {
+        "number": "8",
+        "name": "30h - 18.00h), com intervalo para almoço entre as 13h e as"
+      },
+      {
+        "number": "8",
+        "name": "30am - 6.00pm), with a lunch break between 1pm and 2pm), and may change"
+      },
+      {
+        "number": "4",
+        "name": "1DOCUMENTAÇÃO TÉCNICA/  TECHNICAL DOCUMENTATION"
+      },
+      {
+        "number": "4",
+        "name": "2SUB-CONTRATAÇÃO/ SUB-CONTRACTING"
+      }
+    ],
+    "client": "- Dono da Obra: / Client - Construction Owner:",
+    "location": "de pagamento o do",
+    "type": "Arquitetura + Gestão de Projeto + ArchViz + Obra",
+    "text_length": 28198
+  },
+  {
+    "code": "POP.022.2024",
+    "value": null,
+    "dates": {},
+    "phases": [],
+    "client": null,
+    "location": null,
+    "type": "Arquitetura e Especialidades",
+    "text_length": 26
+  },
+  {
+    "code": "POP.026.2024",
+    "value": null,
+    "dates": {},
+    "phases": [],
+    "client": null,
+    "location": null,
+    "type": "Arquitetura e Especialidades",
+    "text_length": 15
+  },
+  {
+    "code": "POP.029.2024",
+    "value": null,
+    "dates": {},
+    "phases": [],
+    "client": null,
+    "location": null,
+    "type": "Arquitetura e Especialidades",
+    "text_length": 16
+  },
+  {
+    "code": "POP.035.2024",
+    "value": null,
+    "dates": {},
+    "phases": [],
+    "client": null,
+    "location": null,
+    "type": "Arquitetura e Especialidades",
+    "text_length": 8
+  },
+  {
+    "code": "POP.037.2024",
+    "value": 3.0,
+    "dates": {
+      "deadline_duration": "Prazo de entrega: 20 dias"
+    },
+    "phases": [
+      {
+        "number": "37",
+        "name": "2024 – Proposta para Projeto de Pedido de Informação Prévia – HOTEL ALGARVE"
+      },
+      {
+        "number": "001",
+        "name": "2024 para um conjunto de 5 edificios com a função de"
+      },
+      {
+        "number": "3",
+        "name": "Identificação do Cliente"
+      },
+      {
+        "number": "4",
+        "name": "Definição e Planeamento dos Trabalhos"
+      },
+      {
+        "number": "5",
+        "name": "Metodologia"
+      },
+      {
+        "number": "7",
+        "name": "Condições de Pagamento"
+      },
+      {
+        "number": "8",
+        "name": "Inclusões e Exclusões"
+      },
+      {
+        "number": "1",
+        "name": "1. Apresentação"
+      },
+      {
+        "number": "2",
+        "name": "2. Condições para Prestação de Outros Serviços"
+      },
+      {
+        "number": "3",
+        "name": "Disposições Gerais"
+      }
+    ],
+    "client": "os objetivos do Projeto, em termos de custos, prazos e qualidade;",
+    "location": "de pagamento o do domicílio da sede da",
+    "type": "Arquitetura + Design de Interiores + Especialidades + Gestão de Projeto + ArchViz + Obra",
+    "text_length": 22269
+  },
+  {
+    "code": "POP.044.2024",
+    "value": 3.0,
+    "dates": {
+      "deadline_duration": "Prazo de entrega: 60 dias"
+    },
+    "phases": [
+      {
+        "number": "3",
+        "name": "Identificação do Cliente"
+      },
+      {
+        "number": "4",
+        "name": "Definição e Planeamento dos Trabalhos"
+      },
+      {
+        "number": "5",
+        "name": "Metodologia"
+      },
+      {
+        "number": "1",
+        "name": "000,00€/ mês  (valor referência – não incluído)"
+      },
+      {
+        "number": "7",
+        "name": "Condições de Pagamento"
+      },
+      {
+        "number": "8",
+        "name": "Inclusões e Exclusões"
+      },
+      {
+        "number": "1",
+        "name": "1. Apresentação"
+      },
+      {
+        "number": "2",
+        "name": "2. Condições para Prestação de Outros Serviços"
+      },
+      {
+        "number": "3",
+        "name": "Disposições Gerais"
+      },
+      {
+        "number": "3",
+        "name": "4. Legislação"
+      }
+    ],
+    "client": "os objetivos do Projeto, em termos de custos, prazos e qualidade;",
+    "location": "e/ou Edifício ;",
+    "type": "Arquitetura + Design de Interiores + Especialidades + Gestão de Projeto + ArchViz + Obra",
+    "text_length": 27130
+  },
+  {
+    "code": "POP.054.2024",
+    "value": 3.0,
+    "dates": {
+      "deadline_duration": "Prazo de entrega: 40 dias"
+    },
+    "phases": [
+      {
+        "number": "3",
+        "name": "Identificação do Cliente"
+      },
+      {
+        "number": "4",
+        "name": "Definição e Planeamento dos Trabalhos"
+      },
+      {
+        "number": "5",
+        "name": "Metodologia"
+      },
+      {
+        "number": "7",
+        "name": "Condições de Pagamento"
+      },
+      {
+        "number": "8",
+        "name": "Inclusões e Exclusões"
+      },
+      {
+        "number": "1",
+        "name": "1. Apresentação"
+      },
+      {
+        "number": "2",
+        "name": "2. Condições para Prestação de Outros Serviços"
+      },
+      {
+        "number": "3",
+        "name": "Disposições Gerais"
+      },
+      {
+        "number": "3",
+        "name": "4. Legislação"
+      },
+      {
+        "number": "4",
+        "name": "5.Contagem de Prazos"
+      }
+    ],
+    "client": "os objetivos do Projeto, em termos de custos, prazos e qualidade;",
+    "location": "e/ou Edifício ;",
+    "type": "Arquitetura + Design de Interiores + Gestão de Projeto + ArchViz + Obra",
+    "text_length": 23152
+  }
+]

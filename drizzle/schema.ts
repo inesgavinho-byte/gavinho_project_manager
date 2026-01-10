@@ -43,6 +43,13 @@ export const projects = mysqlTable("projects", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   deletedAt: timestamp("deletedAt"),
+  // Contract details
+  contractValue: decimal("contractValue", { precision: 15, scale: 2 }),
+  contractSignedDate: timestamp("contractSignedDate"),
+  contractDeadline: timestamp("contractDeadline"),
+  contractType: varchar("contractType", { length: 255 }),
+  contractDuration: varchar("contractDuration", { length: 100 }), // e.g., "30 dias", "3 meses"
+  contractNotes: text("contractNotes"),
 });
 
 export type Project = typeof projects.$inferSelect;
@@ -2321,7 +2328,7 @@ export const calendarEvents = mysqlTable("calendarEvents", {
   
   // Relations
   projectId: int("projectId").references(() => projects.id, { onDelete: "cascade" }),
-  deliveryId: int("deliveryId").references(() => deliveries.id, { onDelete: "cascade" }),
+  // deliveryId: int("deliveryId").references(() => deliveries.id, { onDelete: "cascade" }), // Table deliveries not defined
   constructionId: int("constructionId").references(() => constructions.id, { onDelete: "cascade" }),
   createdById: int("createdById").notNull().references(() => users.id),
   

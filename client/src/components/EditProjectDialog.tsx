@@ -49,6 +49,12 @@ export default function EditProjectDialog({
     clientName: "",
     location: "",
     progress: "0",
+    contractValue: "",
+    contractSignedDate: "",
+    contractDeadline: "",
+    contractType: "",
+    contractDuration: "",
+    contractNotes: "",
   });
 
   // Initialize form with project data
@@ -70,6 +76,16 @@ export default function EditProjectDialog({
         clientName: project.clientName || "",
         location: project.location || "",
         progress: project.progress?.toString() || "0",
+        contractValue: project.contractValue || "",
+        contractSignedDate: project.contractSignedDate 
+          ? new Date(project.contractSignedDate).toISOString().split("T")[0] 
+          : "",
+        contractDeadline: project.contractDeadline 
+          ? new Date(project.contractDeadline).toISOString().split("T")[0] 
+          : "",
+        contractType: project.contractType || "",
+        contractDuration: project.contractDuration || "",
+        contractNotes: project.contractNotes || "",
       });
     }
   }, [project, open]);
@@ -279,6 +295,79 @@ export default function EditProjectDialog({
             <p className="text-xs text-muted-foreground mt-1">
               Percentagem de conclusão do projeto (0-100)
             </p>
+          </div>
+
+          {/* Seção de Contrato */}
+          <div className="border-t pt-4 mt-6">
+            <h3 className="text-lg font-semibold mb-4">Informações do Contrato</h3>
+            
+            {/* Valor Contratual e Tipo */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <Label htmlFor="contractValue">Valor Contratual (€)</Label>
+                <Input
+                  id="contractValue"
+                  type="text"
+                  value={formData.contractValue}
+                  onChange={(e) => setFormData({ ...formData, contractValue: e.target.value })}
+                  placeholder="Ex: 50000"
+                />
+              </div>
+              <div>
+                <Label htmlFor="contractType">Tipo de Serviço</Label>
+                <Input
+                  id="contractType"
+                  value={formData.contractType}
+                  onChange={(e) => setFormData({ ...formData, contractType: e.target.value })}
+                  placeholder="Ex: Arquitetura e Especialidades"
+                />
+              </div>
+            </div>
+
+            {/* Datas do Contrato */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <Label htmlFor="contractSignedDate">Data de Assinatura</Label>
+                <Input
+                  id="contractSignedDate"
+                  type="date"
+                  value={formData.contractSignedDate}
+                  onChange={(e) => setFormData({ ...formData, contractSignedDate: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="contractDeadline">Data Limite Contratual</Label>
+                <Input
+                  id="contractDeadline"
+                  type="date"
+                  value={formData.contractDeadline}
+                  onChange={(e) => setFormData({ ...formData, contractDeadline: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {/* Duração do Contrato */}
+            <div className="mb-4">
+              <Label htmlFor="contractDuration">Prazo de Execução</Label>
+              <Input
+                id="contractDuration"
+                value={formData.contractDuration}
+                onChange={(e) => setFormData({ ...formData, contractDuration: e.target.value })}
+                placeholder="Ex: 30 dias, 3 meses"
+              />
+            </div>
+
+            {/* Notas do Contrato */}
+            <div>
+              <Label htmlFor="contractNotes">Notas e Observações</Label>
+              <Textarea
+                id="contractNotes"
+                value={formData.contractNotes}
+                onChange={(e) => setFormData({ ...formData, contractNotes: e.target.value })}
+                placeholder="Observações sobre o contrato, cláusulas especiais, etc."
+                rows={3}
+              />
+            </div>
           </div>
 
           <DialogFooter>

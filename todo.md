@@ -2750,3 +2750,61 @@
 - [x] Validar dados importados na plataforma (76 projetos totais, 54 em andamento, 3 concluídos)
 - [x] Verificar estados dos projetos (assinado, em vigor, em execução) - mapeados corretamente
 - [x] Testar navegação e visualização dos projetos reais (5 projetos POP visíveis no dashboard)
+
+## Enriquecimento de Fichas de Projetos POP com Dados Contratuais
+- [x] Adicionar campos de contrato ao schema (contractValue, contractSignedDate, contractDeadline, contractType, contractDuration, contractNotes)
+- [x] Criar tab "Contrato" na página de detalhes do projeto
+- [x] Implementar formulário de edição de dados contratuais
+- [x] Adicionar visualização de informações do contrato
+- [x] Adicionar alertas de status de prazo contratual
+- [ ] Implementar upload de documentos contratuais anexos
+- [ ] Criar seção de fases contratuais específicas
+- [ ] Adicionar timeline de marcos contratuais
+
+## Dashboard de Análise de Contratos
+- [ ] Criar página ContractsDashboard.tsx
+- [ ] Implementar visualização de distribuição geográfica (mapa)
+- [ ] Criar gráfico de evolução temporal de assinaturas
+- [ ] Implementar comparação de valores por tipo de serviço
+- [ ] Adicionar filtros por ano, status, tipo de contrato
+- [ ] Criar cards de estatísticas gerais (valor total, média, etc)
+- [ ] Implementar exportação de relatórios
+
+## Sistema de Alertas de Prazos Contratuais
+- [x] Criar serviço de monitoramento de prazos contratuais
+- [x] Implementar verificação automática de deadlines próximos (7, 14, 30 dias)
+- [x] Criar notificações automáticas para prazos próximos
+- [x] Implementar notificação de contratos expirados
+- [x] Adicionar visualização de status de prazo no tab Contrato
+- [ ] Adicionar alertas de marcos importantes (25%, 50%, 75% do prazo)
+- [ ] Criar dashboard de alertas de prazos
+
+## Sistema de Notificações Automáticas
+- [x] Criar serviço de geração automática de notificações
+- [x] Implementar notificação de progresso 75%, 90%, 100% atingido
+- [x] Adicionar notificação de prazos próximos (7, 14, 30 dias)
+- [x] Criar notificação de orçamento 90%, 100%, >100% utilizado
+- [x] Implementar notificação de projetos atrasados
+- [x] Adicionar notificação de prazos contratuais
+- [x] Criar endpoint para gerar notificações de teste
+- [x] Criar endpoint para executar verificações manuais
+- [ ] Implementar job automático de verificação diária
+
+## Painel de Preferências de Notificações
+- [ ] Criar página NotificationPreferences.tsx
+- [ ] Implementar seleção de tipos de notificação (in-app, email)
+- [ ] Adicionar configuração de frequência de notificações
+- [ ] Criar configuração de prioridades mínimas
+- [ ] Implementar configuração por tipo de alerta
+- [ ] Adicionar opção de silenciar notificações temporariamente
+- [ ] Criar preview de notificações
+
+## Histórico de Notificações com Filtros
+- [ ] Criar página NotificationHistory.tsx
+- [ ] Implementar filtros por tipo de notificação
+- [ ] Adicionar filtros por prioridade
+- [ ] Criar filtros por período (hoje, semana, mês, ano)
+- [ ] Implementar filtros por projeto
+- [ ] Adicionar busca por texto
+- [ ] Criar exportação de histórico
+- [ ] Implementar paginação e ordenação

@@ -63,6 +63,13 @@ export const projectsRouter = router({
       actualCost: z.string().optional(),
       clientName: z.string().optional(),
       location: z.string().optional(),
+      // Contract fields
+      contractValue: z.string().optional(),
+      contractSignedDate: z.date().optional(),
+      contractDeadline: z.date().optional(),
+      contractType: z.string().optional(),
+      contractDuration: z.string().optional(),
+      contractNotes: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
       const { id, ...data } = input;

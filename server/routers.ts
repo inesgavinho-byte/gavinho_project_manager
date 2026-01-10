@@ -692,6 +692,22 @@ export const appRouter = router({
         await notificationDb.updateUserPreferences(ctx.user.id, input);
         return { success: true };
       }),
+
+    // Run automatic notification checks
+    runAutoChecks: protectedProcedure.mutation(async () => {
+      const { runAutoNotifications } = await import("./autoNotificationService");
+      const result = await runAutoNotifications();
+      return result;
+    }),
+
+    // Generate test notifications for a project
+    generateTest: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        const { generateTestNotifications } = await import("./autoNotificationService");
+        await generateTestNotifications(input.projectId, ctx.user.id);
+        return { success: true };
+      }),
   }),
 
   // Predictive Analysis
