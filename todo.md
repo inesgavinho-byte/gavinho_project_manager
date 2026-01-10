@@ -2874,3 +2874,6 @@
 - [ ] Implementar controlo de acesso a tabs Financeiro e Contrato
 - [ ] Adicionar interface de gestão de permissões por utilizador
 - [ ] Implementar verificação de permissões no backend
+
+## Reorganização de Interface
+- [x] Reorganizar abas Financeiro e Contrato dentro de aba pai "Gestão de Projeto"
