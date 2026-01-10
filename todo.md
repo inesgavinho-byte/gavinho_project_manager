@@ -2808,3 +2808,37 @@
 - [ ] Adicionar busca por texto
 - [ ] Criar exportação de histórico
 - [ ] Implementar paginação e ordenação
+
+## Dashboard de Análise de Contratos - Implementação Completa
+- [x] Criar página ContractsDashboard.tsx
+- [x] Implementar endpoint tRPC para estatísticas de contratos
+- [x] Adicionar visualização de distribuição geográfica dos projetos (tabela + gráfico)
+- [x] Criar gráfico de evolução temporal de assinaturas
+- [x] Implementar gráfico de comparação de valores por tipo de serviço
+- [x] Adicionar cards de estatísticas gerais (valor total, média, contagem)
+- [x] Implementar filtros por ano, status, tipo de contrato
+- [x] Adicionar rota no App.tsx e link na navegação
+- [x] Criar visualização responsiva para mobile
+
+## Painel de Preferências de Notificações - Implementação Completa
+- [x] Criar página NotificationPreferences.tsx
+- [x] Implementar interface de configuração de tipos de alertas
+- [x] Adicionar toggles para cada tipo de notificação (progresso, prazos, orçamento)
+- [x] Implementar campos para thresholds personalizados (dias de aviso, % orçamento)
+- [x] Endpoints tRPC para salvar preferências já existiam
+- [x] Adicionar validação de valores de thresholds
+- [x] Implementar feedback visual de salvamento
+- [x] Adicionar rota no App.tsx e link na navegação
+
+## Histórico de Notificações com Filtros - Implementação Completa
+- [x] Criar página NotificationHistory.tsx
+- [x] Implementar endpoint tRPC para listar notificações com filtros
+- [x] Adicionar filtros por tipo de notificação
+- [x] Implementar filtro por prioridade (low, medium, high, critical)
+- [x] Adicionar filtro por período (última semana, mês, trimestre, ano, personalizado)
+- [x] Implementar filtro por projeto
+- [x] Adicionar filtro por status (lida/não lida)
+- [x] Criar visualização em cards com paginação
+- [x] Implementar exportação de relatório (CSV)
+- [x] Adicionar estatísticas do histórico (total, por tipo, por prioridade)
+- [x] Adicionar rota no App.tsx e link na navegação

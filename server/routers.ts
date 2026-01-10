@@ -38,6 +38,7 @@ import { productivityRouter } from "./productivityRouter";
 import { reportsRouter } from "./reportsRouter";
 import { calendarRouter } from "./calendarRouter";
 import { importRouter } from "./importContracts";
+import * as contractAnalytics from "./contractAnalyticsService";
 
 export const appRouter = router({
   system: systemRouter,
@@ -708,6 +709,56 @@ export const appRouter = router({
         await generateTestNotifications(input.projectId, ctx.user.id);
         return { success: true };
       }),
+
+    // Notification History with Filters
+    getHistory: protectedProcedure
+      .input(
+        z.object({
+          type: z.array(z.string()).optional(),
+          priority: z.array(z.string()).optional(),
+          projectId: z.number().optional(),
+          isRead: z.boolean().optional(),
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+          limit: z.number().optional().default(50),
+          offset: z.number().optional().default(0),
+        })
+      )
+      .query(async ({ input, ctx }) => {
+        const { getFilteredNotifications } = await import("./notificationHistoryService");
+        return await getFilteredNotifications(ctx.user.id, input);
+      }),
+
+    getStats: protectedProcedure
+      .input(
+        z.object({
+          type: z.array(z.string()).optional(),
+          priority: z.array(z.string()).optional(),
+          projectId: z.number().optional(),
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+        })
+      )
+      .query(async ({ input, ctx }) => {
+        const { getNotificationStats } = await import("./notificationHistoryService");
+        return await getNotificationStats(ctx.user.id, input);
+      }),
+
+    exportCSV: protectedProcedure
+      .input(
+        z.object({
+          type: z.array(z.string()).optional(),
+          priority: z.array(z.string()).optional(),
+          projectId: z.number().optional(),
+          isRead: z.boolean().optional(),
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+        })
+      )
+      .query(async ({ input, ctx }) => {
+        const { exportNotificationsToCSV } = await import("./notificationHistoryService");
+        return await exportNotificationsToCSV(ctx.user.id, input);
+      }),
   }),
 
   // Predictive Analysis
@@ -1163,6 +1214,37 @@ export const appRouter = router({
       .mutation(async ({ ctx }) => {
         await mentionDb.markAllMentionsAsRead(ctx.user.id);
         return { success: true };
+      }),
+  }),
+
+  // Contract Analytics
+  contractAnalytics: router({
+    getStats: protectedProcedure.query(async () => {
+      return await contractAnalytics.getContractStats();
+    }),
+
+    getByType: protectedProcedure.query(async () => {
+      return await contractAnalytics.getContractsByType();
+    }),
+
+    getTimeline: protectedProcedure.query(async () => {
+      return await contractAnalytics.getContractTimeline();
+    }),
+
+    getByLocation: protectedProcedure.query(async () => {
+      return await contractAnalytics.getContractsByLocation();
+    }),
+
+    getFiltered: protectedProcedure
+      .input(
+        z.object({
+          year: z.number().optional(),
+          status: z.enum(["active", "expired", "expiring_soon", "all"]).optional(),
+          type: z.string().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        return await contractAnalytics.getFilteredContracts(input);
       }),
   }),
 });

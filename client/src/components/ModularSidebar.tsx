@@ -81,6 +81,12 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           badge: 3,
         },
         {
+          id: "contracts-dashboard",
+          label: "Análise de Contratos",
+          icon: FileText,
+          path: "/contracts-dashboard",
+        },
+        {
           id: "biblioteca",
           label: "Biblioteca",
           icon: Library,

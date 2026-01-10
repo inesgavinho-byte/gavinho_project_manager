@@ -23,6 +23,9 @@ import WhatIfSimulation from "./pages/WhatIfSimulation";
 import ActivityFeed from "./pages/ActivityFeed";
 import Mentions from "./pages/Mentions";
 import { ImportContracts } from "./pages/ImportContracts";
+import ContractsDashboard from "./pages/ContractsDashboard";
+import NotificationPreferences from "./pages/NotificationPreferences";
+import NotificationHistory from "./pages/NotificationHistory";
 import Constructions from "./pages/Constructions";
 import ConstructionDetails from "./pages/ConstructionDetails";
 import ConstructionsCompare from "./pages/ConstructionsCompare";
@@ -91,6 +94,24 @@ function Router() {
       <Route path="/projects/compare">
         <DashboardLayout>
           <ProjectsCompare />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/contracts-dashboard">
+        <DashboardLayout>
+          <ContractsDashboard />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/notification-preferences">
+        <DashboardLayout>
+          <NotificationPreferences />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/notification-history">
+        <DashboardLayout>
+          <NotificationHistory />
         </DashboardLayout>
       </Route>
       
