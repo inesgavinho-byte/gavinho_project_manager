@@ -39,9 +39,14 @@ import { reportsRouter } from "./reportsRouter";
 import { calendarRouter } from "./calendarRouter";
 import { importRouter } from "./importContracts";
 import * as contractAnalytics from "./contractAnalyticsService";
+import { userManagementRouter } from "./userManagementRouter";
 
 export const appRouter = router({
   system: systemRouter,
+  
+  // User Management - Admin only
+  userManagement: userManagementRouter,
+  
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {

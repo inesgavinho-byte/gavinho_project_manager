@@ -60,6 +60,7 @@ export default function ProjectDetails() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const isClient = user?.role === 'client';
 
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [selectedExistingMember, setSelectedExistingMember] = useState<number | null>(null);
@@ -398,18 +399,22 @@ export default function ProjectDetails() {
             <Clock className="w-4 h-4 mr-2" />
             Fases & Entregas
           </TabsTrigger>
-          <TabsTrigger value="team" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
-            <Users className="w-4 h-4 mr-2" />
-            Equipa
-          </TabsTrigger>
+          {!isClient && (
+            <TabsTrigger value="team" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
+              <Users className="w-4 h-4 mr-2" />
+              Equipa
+            </TabsTrigger>
+          )}
           <TabsTrigger value="documents" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <FileText className="w-4 h-4 mr-2" />
             Design Review
           </TabsTrigger>
-          <TabsTrigger value="management" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
-            <Folder className="w-4 h-4 mr-2" />
-            Gestão de Projeto
-          </TabsTrigger>
+          {!isClient && (
+            <TabsTrigger value="management" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
+              <Folder className="w-4 h-4 mr-2" />
+              Gestão de Projeto
+            </TabsTrigger>
+          )}
           <TabsTrigger value="gallery" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <ImageIcon className="w-4 h-4 mr-2" />
             Briefing

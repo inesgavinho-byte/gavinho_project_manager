@@ -3,11 +3,13 @@ import { router, protectedProcedure, adminProcedure } from "./_core/trpc";
 import * as budgetsDb from "./budgetsDb";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
+import { auditView, auditModify } from "./_core/auditMiddleware";
 
 export const budgetsRouter = router({
   // ============= BUDGETS =============
   
   list: adminProcedure
+    .use(auditView("budget"))
     .input(z.object({ projectId: z.number() }))
     .query(async ({ input }) => {
       return await budgetsDb.getProjectBudgets(input.projectId);

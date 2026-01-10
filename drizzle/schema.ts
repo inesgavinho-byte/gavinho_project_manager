@@ -2368,3 +2368,45 @@ export const calendarEvents = mysqlTable("calendarEvents", {
 
 export type CalendarEvent = typeof calendarEvents.$inferSelect;
 export type InsertCalendarEvent = typeof calendarEvents.$inferInsert;
+
+/**
+ * Audit Logs - Track sensitive operations for compliance and security
+ */
+export const auditLogs = mysqlTable("auditLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // User who performed the action
+  action: varchar("action", { length: 100 }).notNull(), // e.g., "view_budget", "update_contract", "change_role"
+  entityType: varchar("entityType", { length: 50 }).notNull(), // e.g., "budget", "contract", "user"
+  entityId: int("entityId"), // ID of the affected entity
+  details: text("details"), // JSON with additional context
+  ipAddress: varchar("ipAddress", { length: 45 }), // IPv4 or IPv6
+  userAgent: text("userAgent"), // Browser/client info
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_idx").on(table.userId),
+  actionIdx: index("action_idx").on(table.action),
+  entityTypeIdx: index("entity_type_idx").on(table.entityType),
+  createdAtIdx: index("created_at_idx").on(table.createdAt),
+}));
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = typeof auditLogs.$inferInsert;
+
+/**
+ * Project Client Access - Associate clients with specific projects
+ */
+export const projectClientAccess = mysqlTable("projectClientAccess", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  clientUserId: int("clientUserId").notNull(), // User with role "client"
+  accessLevel: mysqlEnum("accessLevel", ["view", "comment", "upload"]).default("view").notNull(),
+  grantedById: int("grantedById").notNull(), // Admin who granted access
+  grantedAt: timestamp("grantedAt").defaultNow().notNull(),
+  revokedAt: timestamp("revokedAt"),
+}, (table) => ({
+  projectIdx: index("project_idx").on(table.projectId),
+  clientIdx: index("client_idx").on(table.clientUserId),
+}));
+
+export type ProjectClientAccess = typeof projectClientAccess.$inferSelect;
+export type InsertProjectClientAccess = typeof projectClientAccess.$inferInsert;

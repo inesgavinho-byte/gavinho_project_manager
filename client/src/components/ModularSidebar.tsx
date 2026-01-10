@@ -217,6 +217,12 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           path: "/team-management",
         },
         {
+          id: "user-management",
+          label: "Gestão de Utilizadores",
+          icon: Shield,
+          path: "/user-management",
+        },
+        {
           id: "team-productivity",
           label: "Produtividade Equipa",
           icon: BarChart3,

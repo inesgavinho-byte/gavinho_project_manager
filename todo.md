@@ -2882,3 +2882,25 @@
 - [x] Implementar verificação de role no frontend para ocultar abas Financeiro e Contrato de não-admins
 - [x] Adicionar proteção no backend para procedures de orçamentos e contratos
 - [x] Criar testes para validar restrições de acesso por role
+
+## Gestão de Utilizadores e Roles
+- [x] Criar tabela audit_logs no schema para registar acessos e modificações
+- [x] Criar procedures backend para listar, atualizar roles e gerir utilizadores
+- [x] Criar página UI de gestão de utilizadores (apenas admins)
+- [x] Implementar funcionalidade de promover/remover roles (admin/user/client)
+- [x] Adicionar filtros e pesquisa na lista de utilizadores
+
+## Sistema de Permissões para Clientes
+- [x] Criar clientProcedure middleware para validar acesso de clientes
+- [x] Implementar lógica de associação cliente-projeto no backend
+- [x] Restringir acesso de clientes apenas aos seus projetos
+- [x] Ocultar abas sensíveis (Financeiro, Contrato, Equipa) para clientes
+- [x] Permitir acesso de clientes a: Briefing, Galeria, Entregas, Design Review
+
+## Audit Log e Rastreabilidade
+- [x] Implementar middleware de audit log para operações sensíveis
+- [x] Registar acessos a dados financeiros e contratuais
+- [x] Registar modificações de roles e permissões
+- [x] Criar página UI para visualizar audit logs (apenas admins)
+- [x] Adicionar filtros por utilizador, ação e data no audit log
+- [ ] Implementar exportação de audit logs para PDF/CSV
