@@ -41,6 +41,7 @@ import { importRouter } from "./importContracts";
 import * as contractAnalytics from "./contractAnalyticsService";
 import { userManagementRouter } from "./userManagementRouter";
 import { userProfileRouter } from "./userProfileRouter";
+import { userSkillsRouter } from "./userSkillsRouter";
 
 export const appRouter = router({
   system: systemRouter,
@@ -50,6 +51,9 @@ export const appRouter = router({
   
   // User Profile - Personal settings and preferences
   userProfile: userProfileRouter,
+  
+  // User Skills - Professional skills and competencies
+  userSkills: userSkillsRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

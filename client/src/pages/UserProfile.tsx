@@ -25,7 +25,8 @@ import {
   Briefcase,
   Building2,
   Lock,
-  Loader2
+  Loader2,
+  Award
 } from "lucide-react";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
@@ -35,6 +36,7 @@ import { ProfilePictureUpload } from "@/components/profile/ProfilePictureUpload"
 import { UserPreferences } from "@/components/profile/UserPreferences";
 import { ActivityTimeline } from "@/components/profile/ActivityTimeline";
 import { UserStats } from "@/components/profile/UserStats";
+import { SkillsManager } from "@/components/profile/SkillsManager";
 
 export default function UserProfile() {
   const { toast } = useToast();
@@ -203,6 +205,10 @@ export default function UserProfile() {
               <Settings className="h-4 w-4 mr-2" />
               Preferências
             </TabsTrigger>
+            <TabsTrigger value="skills" className="data-[state=active]:bg-background">
+              <Award className="h-4 w-4 mr-2" />
+              Competências
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="stats" className="space-y-6">
@@ -219,6 +225,10 @@ export default function UserProfile() {
               loading={prefsLoading}
               onPasswordChange={() => setPasswordDialogOpen(true)}
             />
+          </TabsContent>
+
+          <TabsContent value="skills" className="space-y-6">
+            <SkillsManager userId={user.id} />
           </TabsContent>
         </Tabs>
       </div>
