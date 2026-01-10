@@ -40,12 +40,16 @@ import { calendarRouter } from "./calendarRouter";
 import { importRouter } from "./importContracts";
 import * as contractAnalytics from "./contractAnalyticsService";
 import { userManagementRouter } from "./userManagementRouter";
+import { userProfileRouter } from "./userProfileRouter";
 
 export const appRouter = router({
   system: systemRouter,
   
   // User Management - Admin only
   userManagement: userManagementRouter,
+  
+  // User Profile - Personal settings and preferences
+  userProfile: userProfileRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

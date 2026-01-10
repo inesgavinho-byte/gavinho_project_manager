@@ -2961,3 +2961,42 @@
 - [x] Adicionar comparação com período anterior (% change)
 - [x] Adicionar link no menu de navegação
 - [x] Testar todos os gráficos e métricas
+
+## Módulo de Página de Utilizador
+
+### Schema e Base de Dados
+- [x] Adicionar campos ao schema users (profilePicture, bio, phone, location, dateOfBirth, linkedin, website)
+- [x] Criar tabela userActivityLog para histórico de atividade
+- [x] Criar tabela userPreferences para configurações personalizadas
+- [x] Executar migrations no banco de dados
+
+### Backend - APIs e Serviços
+- [x] Criar userProfileDb.ts com funções CRUD de perfil
+- [x] Criar userActivityDb.ts para logging de atividades
+- [x] Criar userPreferencesDb.ts para gestão de preferências
+- [x] Criar userStatsDb.ts para estatísticas pessoais
+- [x] Criar userProfileRouter.ts com endpoints tRPC
+- [x] Implementar upload de foto de perfil para S3
+- [x] Implementar alteração de password com validação
+- [x] Implementar logging automático de atividades importantes
+
+### Frontend - Páginas e Componentes
+- [x] Criar página UserProfile.tsx com layout de perfil
+- [x] Criar componente ProfileHeader com foto e informações principais
+- [x] Criar componente EditProfileDialog para edição de dados
+- [x] Criar componente ChangePasswordDialog para alteração de password
+- [x] Criar componente ProfilePictureUpload com preview
+- [x] Criar componente UserPreferences com toggles de configurações
+- [x] Criar componente ActivityTimeline com histórico de ações
+- [x] Criar componente UserStats com estatísticas pessoais
+- [x] Adicionar rota /profile no App.tsx
+- [x] Adicionar link "Meu Perfil" no menu de utilizador
+
+### Testes e Validação
+- [x] Escrever testes unitários para userProfileDb.ts
+- [ ] Escrever testes unitários para userProfileRouter.ts
+- [ ] Testar upload de foto de perfil
+- [ ] Testar alteração de password
+- [ ] Testar edição de dados pessoais
+- [ ] Testar logging de atividades
+- [ ] Validar estatísticas pessoais

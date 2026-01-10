@@ -18,6 +18,16 @@ export const users = mysqlTable("users", {
   outlookRefreshToken: text("outlookRefreshToken"),
   outlookTokenExpiry: timestamp("outlookTokenExpiry"),
   outlookEmail: varchar("outlookEmail", { length: 320 }),
+  // Profile fields
+  profilePicture: text("profilePicture"),
+  bio: text("bio"),
+  phone: varchar("phone", { length: 50 }),
+  location: varchar("location", { length: 255 }),
+  dateOfBirth: timestamp("dateOfBirth"),
+  linkedin: varchar("linkedin", { length: 255 }),
+  website: varchar("website", { length: 255 }),
+  jobTitle: varchar("jobTitle", { length: 255 }),
+  department: varchar("department", { length: 255 }),
 });
 
 export type User = typeof users.$inferSelect;
@@ -2445,3 +2455,56 @@ export const contractProcessingHistory = mysqlTable("contractProcessingHistory",
 
 export type ContractProcessingHistory = typeof contractProcessingHistory.$inferSelect;
 export type InsertContractProcessingHistory = typeof contractProcessingHistory.$inferInsert;
+
+/**
+ * User Activity Log - Track user actions for activity timeline
+ */
+export const userActivityLog = mysqlTable("userActivityLog", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  actionType: varchar("actionType", { length: 100 }).notNull(), // e.g., "project_created", "document_uploaded", "comment_added"
+  entityType: varchar("entityType", { length: 50 }), // e.g., "project", "document", "comment"
+  entityId: int("entityId"),
+  description: text("description"), // Human-readable description
+  metadata: json("metadata"), // Additional context as JSON
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("userId_idx").on(table.userId),
+  actionTypeIdx: index("actionType_idx").on(table.actionType),
+  createdAtIdx: index("createdAt_idx").on(table.createdAt),
+}));
+
+export type UserActivityLog = typeof userActivityLog.$inferSelect;
+export type InsertUserActivityLog = typeof userActivityLog.$inferInsert;
+
+/**
+ * User Preferences - Store user-specific settings and preferences
+ */
+export const userPreferences = mysqlTable("userPreferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  
+  // Notification preferences
+  emailNotifications: int("emailNotifications").default(1).notNull(), // 0 = off, 1 = on
+  pushNotifications: int("pushNotifications").default(1).notNull(),
+  notificationFrequency: mysqlEnum("notificationFrequency", ["realtime", "hourly", "daily", "weekly"]).default("realtime").notNull(),
+  
+  // Display preferences
+  theme: mysqlEnum("theme", ["light", "dark", "auto"]).default("light").notNull(),
+  language: varchar("language", { length: 10 }).default("pt").notNull(), // ISO 639-1 code
+  timezone: varchar("timezone", { length: 50 }).default("Europe/Lisbon").notNull(),
+  dateFormat: varchar("dateFormat", { length: 20 }).default("DD/MM/YYYY").notNull(),
+  
+  // Dashboard preferences
+  defaultView: varchar("defaultView", { length: 50 }).default("dashboard").notNull(), // Default landing page
+  showCompletedProjects: int("showCompletedProjects").default(1).notNull(),
+  projectsPerPage: int("projectsPerPage").default(12).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("userId_idx").on(table.userId),
+}));
+
+export type UserPreferences = typeof userPreferences.$inferSelect;
+export type InsertUserPreferences = typeof userPreferences.$inferInsert;
