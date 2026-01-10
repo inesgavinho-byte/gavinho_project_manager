@@ -2909,3 +2909,8 @@
 - [x] Investigar erro de inicialização do servidor Node.js no deployment
 - [x] Corrigir erros TypeScript que impedem build de produção
 - [x] Validar servidor inicia corretamente em ambiente local
+
+## Correção de Import pdf-parse
+- [x] Corrigir import de pdf-parse em contractExtractionService.ts (incompatível com ES modules)
+- [x] Testar build de produção localmente
+- [x] Validar deployment funciona sem erros

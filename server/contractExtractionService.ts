@@ -5,7 +5,10 @@
 
 import { invokeLLM } from "./_core/llm";
 import { readFileSync } from "fs";
-import pdf from "pdf-parse";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const pdf = require("pdf-parse");
 
 interface ExtractedContractData {
   contractCode: string;
