@@ -37,6 +37,7 @@ import { teamManagementRouter } from "./teamManagementRouter";
 import { productivityRouter } from "./productivityRouter";
 import { reportsRouter } from "./reportsRouter";
 import { calendarRouter } from "./calendarRouter";
+import { importRouter } from "./importContracts";
 
 export const appRouter = router({
   system: systemRouter,
@@ -94,6 +95,9 @@ export const appRouter = router({
 
   // Calendar - Sistema de Calendário e Eventos
   calendar: calendarRouter,
+
+  // Import - Importação de Dados
+  import: importRouter,
 
   // MQT - Mapa de Quantidades
   mqt: mqtRouter,

@@ -1,0 +1,16 @@
+Erros da Importação de Contratos
+=================================
+
+Resultado: 0 importados, 0 saltados, 18 erros
+
+Todos os 18 contratos falharam com o mesmo erro:
+"Cannot read properties of undefined (reading 'select')"
+
+Causa provável:
+- O contexto ctx.db não está disponível ou não foi inicializado corretamente
+- Problema na configuração do tRPC context
+
+Próximos passos:
+1. Verificar se ctx.db está disponível no context
+2. Corrigir importContracts.ts para usar a conexão correta
+3. Testar novamente a importação

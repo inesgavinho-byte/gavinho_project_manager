@@ -22,6 +22,7 @@ import Predictions from "./pages/Predictions";
 import WhatIfSimulation from "./pages/WhatIfSimulation";
 import ActivityFeed from "./pages/ActivityFeed";
 import Mentions from "./pages/Mentions";
+import { ImportContracts } from "./pages/ImportContracts";
 import Constructions from "./pages/Constructions";
 import ConstructionDetails from "./pages/ConstructionDetails";
 import ConstructionsCompare from "./pages/ConstructionsCompare";
@@ -78,6 +79,12 @@ function Router() {
       <Route path="/projects">
         <DashboardLayout>
           <Projects />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/import-contracts">
+        <DashboardLayout>
+          <ImportContracts />
         </DashboardLayout>
       </Route>
       

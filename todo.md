@@ -2740,3 +2740,13 @@
 - [x] Testar geração de PDF com materiais reais (pdfkit integrado, download funcional)
 - [x] Testar filtros e ordenação na comparação (Select + botão asc/desc funcionais)
 - [x] Testar dashboard de análise visual (Chart.js integrado, gráficos renderizados)
+
+
+## Impor## Importação de Dados Reais de Contratos (Janeiro 2026)
+- [x] Analisar 19 contratos PDF/DOCX fornecidos (18 extraídos com sucesso)
+- [x] Extrair dados estruturados (código POP, cliente, valor, datas, tipo) via script Python
+- [x] Criar script de importação para database (endpoint tRPC + página frontend)
+- [x] Importar projetos reais para tabela projects (17 projetos inseridos via SQL)
+- [x] Validar dados importados na plataforma (76 projetos totais, 54 em andamento, 3 concluídos)
+- [x] Verificar estados dos projetos (assinado, em vigor, em execução) - mapeados corretamente
+- [x] Testar navegação e visualização dos projetos reais (5 projetos POP visíveis no dashboard)
