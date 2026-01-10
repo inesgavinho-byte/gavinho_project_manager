@@ -95,6 +95,12 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           path: "/contract-history",
         },
         {
+          id: "contract-metrics",
+          label: "Métricas de Contratos",
+          icon: BarChart3,
+          path: "/contract-metrics",
+        },
+        {
           id: "biblioteca",
           label: "Biblioteca",
           icon: Library,

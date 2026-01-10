@@ -5,6 +5,7 @@ import * as projectsDb from "./projectsDb";
 import * as db from "./db";
 import { storagePut } from "./storage";
 import * as contractHistoryDb from "./contractHistoryDb";
+import * as contractMetricsDb from "./contractMetricsDb";
 
 // ============= PROJECTS ROUTER =============
 
@@ -1083,6 +1084,77 @@ export const projectsRouter = router({
           
           throw error;
         }
+      }),
+
+    // Get contract processing metrics
+    getMetrics: adminProcedure
+      .input(z.object({
+        period: z.enum(["7d", "30d", "90d", "all"]).optional().default("30d"),
+      }))
+      .query(async ({ input }) => {
+        const now = new Date();
+        let startDate: Date | undefined;
+        
+        switch (input.period) {
+          case "7d":
+            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case "30d":
+            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            break;
+          case "90d":
+            startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+            break;
+          case "all":
+            startDate = undefined;
+            break;
+        }
+        
+        const [overallStats, performanceMetrics, commonErrors, fileSizeStats] = await Promise.all([
+          contractMetricsDb.getOverallStatistics(startDate),
+          contractMetricsDb.getPerformanceMetrics(startDate),
+          contractMetricsDb.getCommonErrors(startDate, 10),
+          contractMetricsDb.getFileSizeStats(startDate),
+        ]);
+        
+        return {
+          overallStats,
+          performanceMetrics,
+          commonErrors,
+          fileSizeStats,
+        };
+      }),
+
+    // Get time series data for charts
+    getTimeSeries: adminProcedure
+      .input(z.object({
+        period: z.enum(["7d", "30d", "90d"]).optional().default("30d"),
+      }))
+      .query(async ({ input }) => {
+        const now = new Date();
+        let startDate: Date;
+        
+        switch (input.period) {
+          case "7d":
+            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            break;
+          case "30d":
+            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            break;
+          case "90d":
+            startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+            break;
+        }
+        
+        const [timeSeries, durationDistribution] = await Promise.all([
+          contractMetricsDb.getTimeSeriesData(startDate, now),
+          contractMetricsDb.getDurationDistribution(startDate),
+        ]);
+        
+        return {
+          timeSeries,
+          durationDistribution,
+        };
       }),
   }),
 });

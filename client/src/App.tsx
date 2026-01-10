@@ -25,6 +25,7 @@ import Mentions from "./pages/Mentions";
 import { ImportContracts } from "./pages/ImportContracts";
 import ContractsDashboard from "./pages/ContractsDashboard";
 import ContractHistory from "./pages/ContractHistory";
+import ContractMetrics from "./pages/ContractMetrics";
 import NotificationPreferences from "./pages/NotificationPreferences";
 import NotificationHistory from "./pages/NotificationHistory";
 import Constructions from "./pages/Constructions";
@@ -108,6 +109,12 @@ function Router() {
       <Route path="/contract-history">
         <DashboardLayout>
           <ContractHistory />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/contract-metrics">
+        <DashboardLayout>
+          <ContractMetrics />
         </DashboardLayout>
       </Route>
       

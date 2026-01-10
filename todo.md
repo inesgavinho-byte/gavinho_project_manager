@@ -2946,3 +2946,18 @@
 - [x] Mostrar status (sucesso/erro) com ícones coloridos
 - [x] Adicionar link no menu de navegação
 - [x] Testar fluxo completo de reprocessamento
+
+## Dashboard de Métricas de Contratos
+- [x] Criar API para agregar estatísticas gerais (total, sucesso, erro, taxa)
+- [x] Criar API para série temporal de uploads (por dia/semana/mês)
+- [x] Criar API para análise de tipos de erro mais comuns
+- [x] Criar API para métricas de performance (tempo médio, min, max)
+- [x] Criar página ContractMetrics.tsx com layout de dashboard
+- [x] Implementar gráfico de taxa de sucesso ao longo do tempo (line chart)
+- [x] Implementar gráfico de distribuição de status (pie/donut chart)
+- [x] Implementar gráfico de tempo médio de processamento (bar chart)
+- [x] Implementar lista de erros mais comuns com contagem
+- [x] Adicionar filtros de período (7d, 30d, 90d, all time)
+- [x] Adicionar comparação com período anterior (% change)
+- [x] Adicionar link no menu de navegação
+- [x] Testar todos os gráficos e métricas
