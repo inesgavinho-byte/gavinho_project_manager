@@ -2914,3 +2914,9 @@
 - [x] Corrigir import de pdf-parse em contractExtractionService.ts (incompatível com ES modules)
 - [x] Testar build de produção localmente
 - [x] Validar deployment funciona sem erros
+
+## Correção de Erro pdf is not a function (Produção)
+- [x] Investigar causa do erro 'pdf is not a function' em produção
+- [x] Testar diferentes abordagens de import (default vs named export)
+- [x] Validar solução localmente com build de produção
+- [x] Criar checkpoint e testar deployment

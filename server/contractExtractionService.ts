@@ -8,7 +8,8 @@ import { readFileSync } from "fs";
 import { createRequire } from "module";
 
 const require = createRequire(import.meta.url);
-const pdf = require("pdf-parse");
+const { PDFParse } = require("pdf-parse");
+const pdf = PDFParse;
 
 interface ExtractedContractData {
   contractCode: string;
@@ -82,8 +83,9 @@ interface ExtractedContractData {
  */
 async function extractTextFromPDF(pdfPath: string): Promise<string> {
   const dataBuffer = readFileSync(pdfPath);
-  const data = await pdf(dataBuffer);
-  return data.text;
+  const parser = new pdf({ buffer: dataBuffer });
+  const result = await parser.getText();
+  return result.text;
 }
 
 /**
