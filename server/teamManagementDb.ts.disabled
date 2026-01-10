@@ -7,6 +7,7 @@ import { eq, sql, and, gte, lte, between } from "drizzle-orm";
  */
 export async function getUserAssignments(userId: number) {
   const db = await getDb();
+  if (!db) throw new Error("Database connection failed");
   
   const result = await db
     .select({
@@ -40,6 +41,7 @@ export async function getUserAssignments(userId: number) {
  */
 export async function getAllTasks() {
   const db = await getDb();
+  if (!db) throw new Error("Database connection failed");
   
   const result = await db
     .select({
@@ -72,6 +74,7 @@ export async function getAllTasks() {
  */
 export async function getUserTimeEntries(userId: number, startDate: Date, endDate: Date) {
   const db = await getDb();
+  if (!db) throw new Error("Database connection failed");
   
   const result = await db
     .select({
@@ -88,8 +91,8 @@ export async function getUserTimeEntries(userId: number, startDate: Date, endDat
     .leftJoin(projects, eq(timeTracking.projectId, projects.id))
     .where(and(
       eq(timeTracking.userId, userId),
-      gte(timeTracking.date, startDate.toISOString().split('T')[0]),
-      lte(timeTracking.date, endDate.toISOString().split('T')[0])
+      sql`${timeTracking.date} >= ${startDate.toISOString().split('T')[0]}`,
+      sql`${timeTracking.date} <= ${endDate.toISOString().split('T')[0]}`
     ))
     .orderBy(timeTracking.date);
 
@@ -104,6 +107,7 @@ export async function getUserTimeEntries(userId: number, startDate: Date, endDat
  */
 export async function getTimeSummary(userId: number, startDate: Date, endDate: Date) {
   const db = await getDb();
+  if (!db) throw new Error("Database connection failed");
   
   const result = await db
     .select({
@@ -114,8 +118,8 @@ export async function getTimeSummary(userId: number, startDate: Date, endDate: D
     .from(timeTracking)
     .where(and(
       eq(timeTracking.userId, userId),
-      gte(timeTracking.date, startDate.toISOString().split('T')[0]),
-      lte(timeTracking.date, endDate.toISOString().split('T')[0])
+      sql`${timeTracking.date} >= ${startDate.toISOString().split('T')[0]}`,
+      sql`${timeTracking.date} <= ${endDate.toISOString().split('T')[0]}`
     ));
 
   const row = result[0];
@@ -152,6 +156,7 @@ export async function logTimeEntry(data: {
   date: Date;
 }) {
   const db = await getDb();
+  if (!db) throw new Error("Database connection failed");
   
   const result = await db.insert(timeTracking).values({
     userId: data.userId,
@@ -170,14 +175,15 @@ export async function logTimeEntry(data: {
  */
 export async function getUserAvailability(userId: number, startDate: Date, endDate: Date) {
   const db = await getDb();
+  if (!db) throw new Error("Database connection failed");
   
   const result = await db
     .select()
     .from(userAvailability)
     .where(and(
       eq(userAvailability.userId, userId),
-      gte(userAvailability.date, startDate.toISOString().split('T')[0]),
-      lte(userAvailability.date, endDate.toISOString().split('T')[0])
+      sql`${userAvailability.date} >= ${startDate.toISOString().split('T')[0]}`,
+      sql`${userAvailability.date} <= ${endDate.toISOString().split('T')[0]}`
     ))
     .orderBy(userAvailability.date);
 
@@ -189,6 +195,7 @@ export async function getUserAvailability(userId: number, startDate: Date, endDa
  */
 export async function getTeamAvailability(startDate: Date, endDate: Date) {
   const db = await getDb();
+  if (!db) throw new Error("Database connection failed");
   
   const result = await db
     .select({
@@ -201,8 +208,8 @@ export async function getTeamAvailability(startDate: Date, endDate: Date) {
     .from(userAvailability)
     .leftJoin(users, eq(userAvailability.userId, users.id))
     .where(and(
-      gte(userAvailability.date, startDate.toISOString().split('T')[0]),
-      lte(userAvailability.date, endDate.toISOString().split('T')[0])
+      sql`${userAvailability.date} >= ${startDate.toISOString().split('T')[0]}`,
+      sql`${userAvailability.date} <= ${endDate.toISOString().split('T')[0]}`
     ))
     .orderBy(userAvailability.date, users.name);
 
@@ -219,6 +226,7 @@ export async function setUserAvailability(data: {
   notes?: string;
 }) {
   const db = await getDb();
+  if (!db) throw new Error("Database connection failed");
   
   // Upsert (insert or update if exists)
   const dateStr = data.date.toISOString().split('T')[0];
@@ -267,10 +275,11 @@ export async function getProductivityReport(
   userId?: number
 ) {
   const db = await getDb();
+  if (!db) throw new Error("Database connection failed");
   
   const conditions = [
-    gte(timeTracking.date, startDate.toISOString().split('T')[0]),
-    lte(timeTracking.date, endDate.toISOString().split('T')[0]),
+    sql`${timeTracking.date} >= ${startDate.toISOString().split('T')[0]}`,
+    sql`${timeTracking.date} <= ${endDate.toISOString().split('T')[0]}`,
   ];
   
   if (userId) {

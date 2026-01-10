@@ -33,7 +33,7 @@ import { budgetsRouter } from "./budgetsRouter";
 import { relationshipsRouter } from "./relationshipsRouter";
 import { libraryRouter } from "./libraryRouter";
 import { financialRouter } from "./financialRouter";
-import { teamManagementRouter } from "./teamManagementRouter";
+// import { teamManagementRouter } from "./teamManagementRouter"; // Temporarily disabled
 import { productivityRouter } from "./productivityRouter";
 import { reportsRouter } from "./reportsRouter";
 import { calendarRouter } from "./calendarRouter";
@@ -91,7 +91,7 @@ export const appRouter = router({
   financial: financialRouter,
 
   // Team Management - Gestão de Equipa, Tracking de Horas e Disponibilidade
-  teamManagement: teamManagementRouter,
+  // teamManagement: teamManagementRouter, // Temporarily disabled
 
   // Productivity - Dashboard de Produtividade da Equipa
   productivity: productivityRouter,

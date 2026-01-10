@@ -59,7 +59,9 @@ export async function updateWorker(id: number, data: Partial<InsertSiteWorker>) 
 }
 
 export async function deleteWorker(id: number) {
-  await db.delete(siteWorkers).where(eq(siteWorkers.id, id));
+  const dbConn = await db;
+  if (!dbConn) throw new Error("Database not available");
+  await dbConn.delete(siteWorkers).where(eq(siteWorkers.id, id));
 }
 
 export async function getActiveWorkersByConstruction(constructionId: number) {
@@ -269,7 +271,9 @@ export async function getMaterialRequestById(id: number) {
 }
 
 export async function approveMaterialRequest(id: number, approvedBy: number) {
-  await db
+  const dbConn = await db;
+  if (!dbConn) throw new Error("Database not available");
+  await dbConn
     .update(siteMaterialRequests)
     .set({
       status: "approved",
@@ -282,7 +286,9 @@ export async function approveMaterialRequest(id: number, approvedBy: number) {
 }
 
 export async function rejectMaterialRequest(id: number, approvedBy: number) {
-  await db
+  const dbConn = await db;
+  if (!dbConn) throw new Error("Database not available");
+  await dbConn
     .update(siteMaterialRequests)
     .set({
       status: "rejected",

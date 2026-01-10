@@ -2904,3 +2904,8 @@
 - [x] Criar página UI para visualizar audit logs (apenas admins)
 - [x] Adicionar filtros por utilizador, ação e data no audit log
 - [ ] Implementar exportação de audit logs para PDF/CSV
+
+## Correção de Deployment
+- [x] Investigar erro de inicialização do servidor Node.js no deployment
+- [x] Corrigir erros TypeScript que impedem build de produção
+- [x] Validar servidor inicia corretamente em ambiente local
