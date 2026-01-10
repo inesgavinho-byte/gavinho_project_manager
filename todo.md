@@ -2929,3 +2929,9 @@
 - [x] Adicionar mensagens de erro específicas para cada tipo de falha
 - [x] Testar com arquivos válidos e inválidos (txt, docx, imagens)
 - [x] Criar testes unitários para validação
+
+## Correção PDFParse v2 - Parâmetro url vs buffer
+- [x] Investigar API correta de PDFParse v2 (url vs buffer vs data)
+- [x] Ajustar extractTextFromPDF para usar parâmetro correto
+- [x] Testar extração com PDF real
+- [x] Validar em produção

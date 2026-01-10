@@ -158,8 +158,9 @@ interface ExtractedContractData {
  */
 async function extractTextFromPDF(pdfPath: string): Promise<string> {
   const dataBuffer = readFileSync(pdfPath);
-  const parser = new pdf({ buffer: dataBuffer });
+  const parser = new pdf({ data: dataBuffer });
   const result = await parser.getText();
+  await parser.destroy(); // Clean up resources
   return result.text;
 }
 
