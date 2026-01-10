@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { protectedProcedure, router } from "./_core/trpc";
+import { protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import * as projectsDb from "./projectsDb";
 import * as db from "./db";
 import { storagePut } from "./storage";
@@ -826,10 +826,10 @@ export const projectsRouter = router({
       }),
   }),
 
-  // Contract management
+  // Contract management - Admin Only
   contract: router({
     // Upload contract file
-    upload: protectedProcedure
+    upload: adminProcedure
       .input(z.object({
         projectId: z.number(),
         fileData: z.string(), // Base64 encoded file
@@ -857,7 +857,7 @@ export const projectsRouter = router({
       }),
 
     // Extract contract data from PDF
-    extract: protectedProcedure
+    extract: adminProcedure
       .input(z.object({
         projectId: z.number(),
         filePath: z.string(),
@@ -878,7 +878,7 @@ export const projectsRouter = router({
       }),
 
     // Extract and apply contract data from uploaded file
-    uploadAndExtract: protectedProcedure
+    uploadAndExtract: adminProcedure
       .input(z.object({
         projectId: z.number(),
         fileData: z.string(), // Base64 encoded PDF

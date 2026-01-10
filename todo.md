@@ -2877,3 +2877,8 @@
 
 ## Reorganização de Interface
 - [x] Reorganizar abas Financeiro e Contrato dentro de aba pai "Gestão de Projeto"
+
+## Sistema de Permissões e Controle de Acesso
+- [x] Implementar verificação de role no frontend para ocultar abas Financeiro e Contrato de não-admins
+- [x] Adicionar proteção no backend para procedures de orçamentos e contratos
+- [x] Criar testes para validar restrições de acesso por role

@@ -62,7 +62,7 @@ export const appRouter = router({
   // Projects - Full router with phases, milestones, team, documents, gallery
   projects: projectsRouter,
 
-  // Budgets - Budget management, expenses, alerts
+  // Budgets - Budget management, expenses, alerts (Admin Only)
   budgets: budgetsRouter,
   relationships: relationshipsRouter,
 
@@ -305,62 +305,6 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
         await db.updateTask(id, data);
-        return { success: true };
-      }),
-  }),
-
-  // Budgets
-  budgets: router({
-    listByProject: protectedProcedure
-      .input(z.object({ projectId: z.number() }))
-      .query(async ({ input }) => {
-        return await db.getBudgetsByProject(input.projectId);
-      }),
-    
-    create: protectedProcedure
-      .input(z.object({
-        projectId: z.number(),
-        category: z.string(),
-        description: z.string().optional(),
-        budgetedAmount: z.string(),
-        actualAmount: z.string().optional(),
-        notes: z.string().optional(),
-      }))
-      .mutation(async ({ input }) => {
-        await db.createBudget(input);
-        return { success: true };
-      }),
-    
-    update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        actualAmount: z.string().optional(),
-        notes: z.string().optional(),
-      }))
-      .mutation(async ({ input }) => {
-        const { id, ...data } = input;
-        
-        // Calculate variance
-        if (data.actualAmount) {
-          const database = await db.getDb();
-          if (!database) throw new Error("Database not available");
-          const budget = await database.select().from(budgets).where(eq(budgets.id, id)).limit(1);
-          if (budget && budget[0]) {
-            const budgeted = parseFloat(budget[0].budgetedAmount);
-            const actual = parseFloat(data.actualAmount);
-            const variance = actual - budgeted;
-            const variancePercent = budgeted > 0 ? (variance / budgeted) * 100 : 0;
-            
-            await db.updateBudget(id, {
-              ...data,
-              variance: variance.toFixed(2),
-              variancePercent: variancePercent.toFixed(2),
-            });
-            return { success: true };
-          }
-        }
-        
-        await db.updateBudget(id, data);
         return { success: true };
       }),
   }),

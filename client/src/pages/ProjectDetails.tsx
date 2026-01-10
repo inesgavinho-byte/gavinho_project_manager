@@ -52,11 +52,14 @@ import { EditProjectDialog } from "@/components/EditProjectDialog";
 import { ContractUpload } from "@/components/ContractUpload";
 import { ProjectPhasesSection } from "@/components/ProjectPhasesSection";
 import { ProjectLibraryTab } from "@/components/ProjectLibraryTab";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function ProjectDetails() {
   const [, params] = useRoute("/projects/:id");
   const projectId = params?.id ? parseInt(params.id) : 0;
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
 
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [selectedExistingMember, setSelectedExistingMember] = useState<number | null>(null);
@@ -997,14 +1000,18 @@ export default function ProjectDetails() {
                 <Folder className="w-4 h-4 mr-2" />
                 Documentos
               </TabsTrigger>
-              <TabsTrigger value="financial" className="data-[state=active]:bg-white data-[state=active]:text-[#5F5C59]">
-                <Euro className="w-4 h-4 mr-2" />
-                Financeiro
-              </TabsTrigger>
-              <TabsTrigger value="contract" className="data-[state=active]:bg-white data-[state=active]:text-[#5F5C59]">
-                <FileSignature className="w-4 h-4 mr-2" />
-                Contrato
-              </TabsTrigger>
+              {isAdmin && (
+                <TabsTrigger value="financial" className="data-[state=active]:bg-white data-[state=active]:text-[#5F5C59]">
+                  <Euro className="w-4 h-4 mr-2" />
+                  Financeiro
+                </TabsTrigger>
+              )}
+              {isAdmin && (
+                <TabsTrigger value="contract" className="data-[state=active]:bg-white data-[state=active]:text-[#5F5C59]">
+                  <FileSignature className="w-4 h-4 mr-2" />
+                  Contrato
+                </TabsTrigger>
+              )}
             </TabsList>
 
             {/* Sub-tab: Documentos */}
@@ -1012,24 +1019,27 @@ export default function ProjectDetails() {
               <ProjectManagementDocs projectId={projectId} />
             </TabsContent>
 
-            {/* Sub-tab: Financeiro */}
-            <TabsContent value="financial">
-              <BudgetManagement projectId={projectId} />
-            </TabsContent>
+            {/* Sub-tab: Financeiro - Admin Only */}
+            {isAdmin && (
+              <TabsContent value="financial">
+                <BudgetManagement projectId={projectId} />
+              </TabsContent>
+            )}
 
-            {/* Sub-tab: Contrato */}
-            <TabsContent value="contract" className="space-y-6">
-              {/* Contract Upload */}
-              <ContractUpload 
-                projectId={projectId} 
-                onUploadComplete={() => {
-                  // Refresh project data after upload
-                  window.location.reload();
-                }}
-              />
+            {/* Sub-tab: Contrato - Admin Only */}
+            {isAdmin && (
+              <TabsContent value="contract" className="space-y-6">
+                {/* Contract Upload */}
+                <ContractUpload 
+                  projectId={projectId} 
+                  onUploadComplete={() => {
+                    // Refresh project data after upload
+                    window.location.reload();
+                  }}
+                />
 
-              <Card className="p-8 border-[#C3BAAF]/20 bg-white">
-                <div className="space-y-8">
+                <Card className="p-8 border-[#C3BAAF]/20 bg-white">
+                  <div className="space-y-8">
                   {/* Header */}
                   <div className="border-b border-[#C3BAAF]/20 pb-6">
                     <h2 className="font-serif text-3xl text-[#5F5C59] mb-2">Informações do Contrato</h2>
@@ -1178,10 +1188,11 @@ export default function ProjectDetails() {
                     >
                       Editar Informações do Contrato
                     </Button>
+                    </div>
                   </div>
-                </div>
-              </Card>
-            </TabsContent>
+                </Card>
+              </TabsContent>
+            )}
           </Tabs>
         </TabsContent>
 

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "./_core/trpc";
+import { router, protectedProcedure, adminProcedure } from "./_core/trpc";
 import * as budgetsDb from "./budgetsDb";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
@@ -7,25 +7,25 @@ import { TRPCError } from "@trpc/server";
 export const budgetsRouter = router({
   // ============= BUDGETS =============
   
-  list: protectedProcedure
+  list: adminProcedure
     .input(z.object({ projectId: z.number() }))
     .query(async ({ input }) => {
       return await budgetsDb.getProjectBudgets(input.projectId);
     }),
 
-  getById: protectedProcedure
+  getById: adminProcedure
     .input(z.object({ budgetId: z.number() }))
     .query(async ({ input }) => {
       return await budgetsDb.getBudgetById(input.budgetId);
     }),
 
-  getSummary: protectedProcedure
+  getSummary: adminProcedure
     .input(z.object({ budgetId: z.number() }))
     .query(async ({ input }) => {
       return await budgetsDb.getBudgetSummary(input.budgetId);
     }),
 
-  create: protectedProcedure
+  create: adminProcedure
     .input(z.object({
       projectId: z.number(),
       name: z.string().min(1),
@@ -51,7 +51,7 @@ export const budgetsRouter = router({
       return { id: budgetId };
     }),
 
-  update: protectedProcedure
+  update: adminProcedure
     .input(z.object({
       budgetId: z.number(),
       name: z.string().min(1).optional(),
@@ -86,7 +86,7 @@ export const budgetsRouter = router({
       return { success: true };
     }),
 
-  approve: protectedProcedure
+  approve: adminProcedure
     .input(z.object({ budgetId: z.number() }))
     .mutation(async ({ input, ctx }) => {
       await budgetsDb.updateBudget(input.budgetId, {
@@ -97,7 +97,7 @@ export const budgetsRouter = router({
       return { success: true };
     }),
 
-  delete: protectedProcedure
+  delete: adminProcedure
     .input(z.object({ budgetId: z.number() }))
     .mutation(async ({ input }) => {
       await budgetsDb.deleteBudget(input.budgetId);
@@ -107,13 +107,13 @@ export const budgetsRouter = router({
   // ============= BUDGET ITEMS =============
 
   items: router({
-    list: protectedProcedure
+    list: adminProcedure
       .input(z.object({ budgetId: z.number() }))
       .query(async ({ input }) => {
         return await budgetsDb.getBudgetItems(input.budgetId);
       }),
 
-    create: protectedProcedure
+    create: adminProcedure
       .input(z.object({
         budgetId: z.number(),
         name: z.string().min(1),
@@ -138,7 +138,7 @@ export const budgetsRouter = router({
         return { id: itemId };
       }),
 
-    update: protectedProcedure
+    update: adminProcedure
       .input(z.object({
         itemId: z.number(),
         name: z.string().min(1).optional(),
@@ -169,7 +169,7 @@ export const budgetsRouter = router({
         return { success: true };
       }),
 
-    delete: protectedProcedure
+    delete: adminProcedure
       .input(z.object({ itemId: z.number() }))
       .mutation(async ({ input }) => {
         await budgetsDb.deleteBudgetItem(input.itemId);
@@ -180,19 +180,19 @@ export const budgetsRouter = router({
   // ============= EXPENSES =============
 
   expenses: router({
-    listByProject: protectedProcedure
+    listByProject: adminProcedure
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input }) => {
         return await budgetsDb.getProjectExpenses(input.projectId);
       }),
 
-    listByBudget: protectedProcedure
+    listByBudget: adminProcedure
       .input(z.object({ budgetId: z.number() }))
       .query(async ({ input }) => {
         return await budgetsDb.getBudgetExpenses(input.budgetId);
       }),
 
-    create: protectedProcedure
+    create: adminProcedure
       .input(z.object({
         projectId: z.number(),
         budgetId: z.number().optional(),
@@ -240,7 +240,7 @@ export const budgetsRouter = router({
         return { id: expenseId, receiptUrl };
       }),
 
-    update: protectedProcedure
+    update: adminProcedure
       .input(z.object({
         expenseId: z.number(),
         name: z.string().min(1).optional(),
@@ -271,7 +271,7 @@ export const budgetsRouter = router({
         return { success: true };
       }),
 
-    delete: protectedProcedure
+    delete: adminProcedure
       .input(z.object({ expenseId: z.number() }))
       .mutation(async ({ input }) => {
         await budgetsDb.deleteExpense(input.expenseId);
@@ -282,19 +282,19 @@ export const budgetsRouter = router({
   // ============= ALERTS =============
 
   alerts: router({
-    list: protectedProcedure
+    list: adminProcedure
       .input(z.object({ budgetId: z.number() }))
       .query(async ({ input }) => {
         return await budgetsDb.getBudgetAlerts(input.budgetId);
       }),
 
-    listUnread: protectedProcedure
+    listUnread: adminProcedure
       .input(z.object({ projectId: z.number() }))
       .query(async ({ input }) => {
         return await budgetsDb.getUnreadBudgetAlerts(input.projectId);
       }),
 
-    markAsRead: protectedProcedure
+    markAsRead: adminProcedure
       .input(z.object({ alertId: z.number() }))
       .mutation(async ({ input, ctx }) => {
         await budgetsDb.markAlertAsRead(input.alertId, ctx.user.id);
