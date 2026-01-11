@@ -2508,3 +2508,192 @@ export const userPreferences = mysqlTable("userPreferences", {
 
 export type UserPreferences = typeof userPreferences.$inferSelect;
 export type InsertUserPreferences = typeof userPreferences.$inferInsert;
+
+
+/**
+ * Delivery Versions - Track version history of deliverables
+ */
+export const deliveryVersions = mysqlTable("deliveryVersions", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  version: int("version").notNull(), // 1, 2, 3...
+  versionNotes: text("versionNotes"), // What changed in this version
+  fileUrl: text("fileUrl"), // URL to versioned file
+  fileKey: varchar("fileKey", { length: 500 }), // S3 key
+  fileSize: int("fileSize"), // in bytes
+  uploadedById: int("uploadedById").notNull(),
+  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  versionIdx: index("version_idx").on(table.version),
+}));
+
+export type DeliveryVersion = typeof deliveryVersions.$inferSelect;
+export type InsertDeliveryVersion = typeof deliveryVersions.$inferInsert;
+
+/**
+ * Delivery Checklists - Auto-generated checklists for deliverables
+ */
+export const deliveryChecklists = mysqlTable("deliveryChecklists", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  deliveryType: varchar("deliveryType", { length: 100 }).notNull(), // "document", "drawing", etc.
+  title: varchar("title", { length: 255 }).notNull(), // e.g., "Checklist de Projeto Base"
+  description: text("description"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  typeIdx: index("type_idx").on(table.deliveryType),
+}));
+
+export type DeliveryChecklist = typeof deliveryChecklists.$inferSelect;
+export type InsertDeliveryChecklist = typeof deliveryChecklists.$inferInsert;
+
+/**
+ * Checklist Items - Individual items in a delivery checklist
+ */
+export const checklistItems = mysqlTable("checklistItems", {
+  id: int("id").autoincrement().primaryKey(),
+  checklistId: int("checklistId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  isCompleted: int("isCompleted").default(0).notNull(), // 0 = false, 1 = true
+  completedBy: int("completedBy"), // User who completed
+  completedAt: timestamp("completedAt"),
+  order: int("order").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  checklistIdIdx: index("checklistId_idx").on(table.checklistId),
+  completedIdx: index("isCompleted_idx").on(table.isCompleted),
+}));
+
+export type ChecklistItem = typeof checklistItems.$inferSelect;
+export type InsertChecklistItem = typeof checklistItems.$inferInsert;
+
+/**
+ * Client Delivery Approvals - Track client approval/rejection of deliverables
+ */
+export const clientDeliveryApprovals = mysqlTable("clientDeliveryApprovals", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  clientId: int("clientId").notNull(), // Client user who approved/rejected
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "revision_requested"]).default("pending").notNull(),
+  feedback: text("feedback"), // Client feedback/comments
+  rejectionReason: text("rejectionReason"), // Reason for rejection
+  approvedAt: timestamp("approvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  clientIdIdx: index("clientId_idx").on(table.clientId),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type ClientDeliveryApproval = typeof clientDeliveryApprovals.$inferSelect;
+export type InsertClientDeliveryApproval = typeof clientDeliveryApprovals.$inferInsert;
+
+/**
+ * Delivery Notifications - Track automated notifications sent
+ */
+export const deliveryNotifications = mysqlTable("deliveryNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  type: mysqlEnum("type", ["deadline_reminder", "approval_request", "approval_received", "rejection_notice", "revision_requested", "follow_up"]).notNull(),
+  recipientId: int("recipientId").notNull(), // User who received notification
+  message: text("message"),
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+  readAt: timestamp("readAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  recipientIdIdx: index("recipientId_idx").on(table.recipientId),
+  typeIdx: index("type_idx").on(table.type),
+}));
+
+export type DeliveryNotification = typeof deliveryNotifications.$inferSelect;
+export type InsertDeliveryNotification = typeof deliveryNotifications.$inferInsert;
+
+/**
+ * Delivery Audit Log - Complete audit trail of all delivery actions
+ */
+export const deliveryAuditLog = mysqlTable("deliveryAuditLog", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  action: varchar("action", { length: 100 }).notNull(), // "created", "updated", "version_uploaded", "approved", "rejected", etc.
+  performedBy: int("performedBy").notNull(), // User who performed action
+  oldValue: text("oldValue"), // Previous value (JSON)
+  newValue: text("newValue"), // New value (JSON)
+  details: text("details"), // Additional context
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  performedByIdx: index("performedBy_idx").on(table.performedBy),
+  actionIdx: index("action_idx").on(table.action),
+}));
+
+export type DeliveryAuditLog = typeof deliveryAuditLog.$inferSelect;
+export type InsertDeliveryAuditLog = typeof deliveryAuditLog.$inferInsert;
+
+/**
+ * Delivery Reminders - Track follow-up reminders for pending deliveries
+ */
+export const deliveryReminders = mysqlTable("deliveryReminders", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  reminderType: mysqlEnum("reminderType", ["1_day_before", "3_days_before", "7_days_before", "1_day_after", "3_days_after", "7_days_after"]).notNull(),
+  scheduledFor: timestamp("scheduledFor").notNull(),
+  sentAt: timestamp("sentAt"),
+  status: mysqlEnum("status", ["pending", "sent", "skipped"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  statusIdx: index("status_idx").on(table.status),
+  scheduledForIdx: index("scheduledFor_idx").on(table.scheduledFor),
+}));
+
+export type DeliveryReminder = typeof deliveryReminders.$inferSelect;
+export type InsertDeliveryReminder = typeof deliveryReminders.$inferInsert;
+
+/**
+ * Delivery Reports - Pre-calculated metrics for dashboard
+ */
+export const deliveryReports = mysqlTable("deliveryReports", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  phaseId: int("phaseId"),
+  reportDate: date("reportDate").notNull(),
+  
+  // Compliance metrics
+  totalDeliveries: int("totalDeliveries").default(0).notNull(),
+  onTimeDeliveries: int("onTimeDeliveries").default(0).notNull(),
+  lateDeliveries: int("lateDeliveries").default(0).notNull(),
+  complianceRate: decimal("complianceRate", { precision: 5, scale: 2 }).default("0.00").notNull(), // 0-100%
+  
+  // Approval metrics
+  totalApprovals: int("totalApprovals").default(0).notNull(),
+  approvedDeliveries: int("approvedDeliveries").default(0).notNull(),
+  rejectedDeliveries: int("rejectedDeliveries").default(0).notNull(),
+  revisionRequested: int("revisionRequested").default(0).notNull(),
+  acceptanceRate: decimal("acceptanceRate", { precision: 5, scale: 2 }).default("0.00").notNull(), // 0-100%
+  
+  // Timing metrics
+  avgApprovalTime: int("avgApprovalTime"), // in hours
+  avgTimeToRevision: int("avgTimeToRevision"), // in hours
+  
+  // Delay analysis
+  avgDaysLate: decimal("avgDaysLate", { precision: 5, scale: 2 }).default("0.00").notNull(),
+  maxDaysLate: int("maxDaysLate").default(0).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  phaseIdIdx: index("phaseId_idx").on(table.phaseId),
+  reportDateIdx: index("reportDate_idx").on(table.reportDate),
+}));
+
+export type DeliveryReport = typeof deliveryReports.$inferSelect;
+export type InsertDeliveryReport = typeof deliveryReports.$inferInsert;

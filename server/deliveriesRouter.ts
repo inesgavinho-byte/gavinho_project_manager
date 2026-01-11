@@ -142,4 +142,244 @@ export const deliveriesRouter = router({
     .mutation(async () => {
       return checkAndNotifyDeliveries();
     }),
+
+  // ============================================================================
+  // VERSIONAMENTO DE ENTREGAS
+  // ============================================================================
+  versions: router({
+    // Get all versions of a delivery
+    list: publicProcedure
+      .input(z.object({ deliveryId: z.number() }))
+      .query(async ({ input }) => {
+        return deliveriesDb.getDeliveryVersions(input.deliveryId);
+      }),
+
+    // Get latest version
+    latest: publicProcedure
+      .input(z.object({ deliveryId: z.number() }))
+      .query(async ({ input }) => {
+        return deliveriesDb.getLatestDeliveryVersion(input.deliveryId);
+      }),
+
+    // Upload new version
+    upload: protectedProcedure
+      .input(
+        z.object({
+          deliveryId: z.number(),
+          versionNotes: z.string().optional(),
+          fileData: z.string(), // base64
+          fileName: z.string(),
+          fileType: z.string(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        const nextVersion = await deliveriesDb.getNextVersionNumber(input.deliveryId);
+        const buffer = Buffer.from(input.fileData, "base64");
+        const fileKey = `deliveries/${input.deliveryId}/v${nextVersion}/${Date.now()}-${input.fileName}`;
+        const { url } = await storagePut(fileKey, buffer, input.fileType);
+
+        await deliveriesDb.createDeliveryVersion({
+          deliveryId: input.deliveryId,
+          version: nextVersion,
+          versionNotes: input.versionNotes,
+          fileUrl: url,
+          fileKey,
+          fileSize: buffer.length,
+          uploadedById: ctx.user.id,
+        });
+
+        return { version: nextVersion, url, fileKey };
+      }),
+  }),
+
+  // ============================================================================
+  // CHECKLISTS AUTOMATICOS
+  // ============================================================================
+  checklists: router({
+    // Get checklist for delivery
+    get: publicProcedure
+      .input(z.object({ deliveryId: z.number() }))
+      .query(async ({ input }) => {
+        return deliveriesDb.getDeliveryChecklist(input.deliveryId);
+      }),
+
+    // Add checklist item
+    addItem: protectedProcedure
+      .input(
+        z.object({
+          checklistId: z.number(),
+          title: z.string(),
+          description: z.string().optional(),
+          order: z.number(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return deliveriesDb.addChecklistItem(input);
+      }),
+
+    // Complete checklist item
+    completeItem: protectedProcedure
+      .input(z.object({ itemId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        return deliveriesDb.completeChecklistItem(input.itemId, ctx.user.id);
+      }),
+
+    // Get completion percentage
+    completion: publicProcedure
+      .input(z.object({ checklistId: z.number() }))
+      .query(async ({ input }) => {
+        return deliveriesDb.getChecklistCompletion(input.checklistId);
+      }),
+  }),
+
+  // ============================================================================
+  // APROVACAO DO CLIENTE
+  // ============================================================================
+  clientApproval: router({
+    // Get approval status
+    status: publicProcedure
+      .input(z.object({ deliveryId: z.number() }))
+      .query(async ({ input }) => {
+        return deliveriesDb.getClientApprovalStatus(input.deliveryId);
+      }),
+
+    // Approve as client
+    approve: protectedProcedure
+      .input(
+        z.object({
+          deliveryId: z.number(),
+          feedback: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return deliveriesDb.approveDeliveryAsClient(
+          input.deliveryId,
+          ctx.user.id,
+          input.feedback
+        );
+      }),
+
+    // Reject as client
+    reject: protectedProcedure
+      .input(
+        z.object({
+          deliveryId: z.number(),
+          rejectionReason: z.string(),
+          feedback: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return deliveriesDb.rejectDeliveryAsClient(
+          input.deliveryId,
+          ctx.user.id,
+          input.rejectionReason,
+          input.feedback
+        );
+      }),
+
+    // Request revision as client
+    requestRevision: protectedProcedure
+      .input(
+        z.object({
+          deliveryId: z.number(),
+          feedback: z.string(),
+        })
+      )
+      .mutation(async ({ input, ctx }) => {
+        return deliveriesDb.requestRevisionAsClient(
+          input.deliveryId,
+          ctx.user.id,
+          input.feedback
+        );
+      }),
+  }),
+
+  // ============================================================================
+  // NOTIFICACOES
+  // ============================================================================
+  notifications: router({
+    // Get unread notifications
+    unread: protectedProcedure.query(async ({ ctx }) => {
+      return deliveriesDb.getUnreadDeliveryNotifications(ctx.user.id);
+    }),
+
+    // Mark as read
+    markRead: protectedProcedure
+      .input(z.object({ notificationId: z.number() }))
+      .mutation(async ({ input }) => {
+        return deliveriesDb.markNotificationAsRead(input.notificationId);
+      }),
+  }),
+
+  // ============================================================================
+  // AUDITORIA
+  // ============================================================================
+  audit: router({
+    // Get audit log for delivery
+    log: publicProcedure
+      .input(z.object({ deliveryId: z.number() }))
+      .query(async ({ input }) => {
+        return deliveriesDb.getDeliveryAuditLog(input.deliveryId);
+      }),
+  }),
+
+  // ============================================================================
+  // RELATORIOS E METRICAS
+  // ============================================================================
+  metrics: router({
+    // Calculate delivery metrics
+    calculate: publicProcedure
+      .input(
+        z.object({
+          projectId: z.number(),
+          phaseId: z.number().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        return deliveriesDb.calculateDeliveryMetrics(input.projectId, input.phaseId);
+      }),
+
+    // Get deliveries by status
+    byStatus: publicProcedure
+      .input(
+        z.object({
+          projectId: z.number(),
+          status: z.enum(["pending", "in_review", "approved", "rejected", "delivered"]),
+        })
+      )
+      .query(async ({ input }) => {
+        return deliveriesDb.getDeliveriesByStatus(input.projectId, input.status);
+      }),
+
+    // Get overdue deliveries
+    overdue: publicProcedure
+      .input(z.object({ projectId: z.number().optional() }))
+      .query(async ({ input }) => {
+        return deliveriesDb.getOverdueDeliveries(input.projectId);
+      }),
+
+    // Get upcoming deliveries (advanced)
+    upcoming: publicProcedure
+      .input(
+        z.object({
+          projectId: z.number().optional(),
+          daysAhead: z.number().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        return deliveriesDb.getUpcomingDeliveriesAdvanced(input.projectId, input.daysAhead);
+      }),
+
+    // Get delivery reports
+    reports: publicProcedure
+      .input(
+        z.object({
+          projectId: z.number(),
+          phaseId: z.number().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        return deliveriesDb.getDeliveryReports(input.projectId, input.phaseId);
+      }),
+  }),
 });
