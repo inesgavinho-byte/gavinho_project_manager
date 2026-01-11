@@ -16,12 +16,12 @@ export async function shareScenario(
   sharedWith: number,
   permission: "view" | "edit" | "admin"
 ): Promise<{ success: boolean; shareId?: number }> {
-  const db = await getDb();
-  if (!db) return { success: false };
+  const dbConn = await getDb();
+  if (!dbConn) return { success: false };
 
   try {
     // Check if already shared
-    const existing = await db
+    const existing = await dbConn
       .select()
       .from(scenarioShares)
       .where(
@@ -34,7 +34,7 @@ export async function shareScenario(
 
     if (existing.length > 0) {
       // Update existing share
-      await db
+      await dbConn
         .update(scenarioShares)
         .set({ permission })
         .where(eq(scenarioShares.id, existing[0]!.id));
@@ -43,7 +43,7 @@ export async function shareScenario(
     }
 
     // Create new share
-    const result = await db.insert(scenarioShares).values({
+    const result = await dbConn.insert(scenarioShares).values({
       scenarioId,
       sharedBy,
       sharedWith,
@@ -64,11 +64,11 @@ export async function unshareScenario(
   scenarioId: number,
   sharedWith: number
 ): Promise<boolean> {
-  const db = await getDb();
-  if (!db) return false;
+  const dbConn = await getDb();
+  if (!dbConn) return false;
 
   try {
-    await db
+    await dbConn
       .delete(scenarioShares)
       .where(
         and(
@@ -88,11 +88,11 @@ export async function unshareScenario(
  * Get all users a scenario is shared with
  */
 export async function getScenarioShares(scenarioId: number) {
-  const db = await getDb();
-  if (!db) return [];
+  const dbConn = await getDb();
+  if (!dbConn) return [];
 
   try {
-    const shares = await db
+    const shares = await dbConn
       .select({
         id: scenarioShares.id,
         sharedWith: scenarioShares.sharedWith,
@@ -117,11 +117,11 @@ export async function getScenarioShares(scenarioId: number) {
  * Get all scenarios shared with a user
  */
 export async function getScenariosSharedWithUser(userId: number) {
-  const db = await getDb();
-  if (!db) return [];
+  const dbConn = await getDb();
+  if (!dbConn) return [];
 
   try {
-    const scenarios = await db
+    const scenarios = await dbConn
       .select({
         scenario: whatIfScenarios,
         share: scenarioShares,
@@ -146,12 +146,12 @@ export async function checkScenarioAccess(
   scenarioId: number,
   userId: number
 ): Promise<{ hasAccess: boolean; permission?: "view" | "edit" | "admin" }> {
-  const db = await getDb();
-  if (!db) return { hasAccess: false };
+  const dbConn = await getDb();
+  if (!dbConn) return { hasAccess: false };
 
   try {
     // Check if user owns the scenario (via project ownership or direct creation)
-    const scenario = await db
+    const scenario = await dbConn
       .select()
       .from(whatIfScenarios)
       .where(eq(whatIfScenarios.id, scenarioId))
@@ -162,7 +162,7 @@ export async function checkScenarioAccess(
     }
 
     // Check if shared with user
-    const share = await db
+    const share = await dbConn
       .select()
       .from(scenarioShares)
       .where(
@@ -195,11 +195,11 @@ export async function addScenarioComment(
   comment: string,
   parentCommentId?: number
 ): Promise<{ success: boolean; commentId?: number }> {
-  const db = await getDb();
-  if (!db) return { success: false };
+  const dbConn = await getDb();
+  if (!dbConn) return { success: false };
 
   try {
-    const result = await db.insert(scenarioComments).values({
+    const result = await dbConn.insert(scenarioComments).values({
       scenarioId,
       userId,
       comment,
@@ -208,13 +208,13 @@ export async function addScenarioComment(
 
     // Incrementar contador de respostas do comentário pai
     if (parentCommentId) {
-      await db
+      await dbConn
         .update(scenarioComments)
         .set({ replyCount: sql`${scenarioComments.replyCount} + 1` })
         .where(eq(scenarioComments.id, parentCommentId));
       
       // Buscar autor do comentário pai para notificar
-      const parentComment = await db
+      const parentComment = await dbConn
         .select({ userId: scenarioComments.userId, scenarioId: scenarioComments.scenarioId })
         .from(scenarioComments)
         .where(eq(scenarioComments.id, parentCommentId))
@@ -240,7 +240,7 @@ export async function addScenarioComment(
       const mentionedUsernames = mentionService.getUniqueMentionedUsernames(mentions);
       
       // Get all users to find mentioned ones
-      const allUsers = await db.getAllUsers();
+      const allUsers = await db.getAllUsers(); // Use the imported db module function
       const mentionedUsers = allUsers.filter((user: { id: number; name: string | null; email: string | null; role: string }) => {
         const username = (user.name || user.email || `user${user.id}`)
           .replace(/\s+/g, "_")
@@ -285,11 +285,11 @@ export async function addScenarioComment(
  * Get all top-level comments for a scenario (no parent)
  */
 export async function getScenarioComments(scenarioId: number) {
-  const db = await getDb();
-  if (!db) return [];
+  const dbConn = await getDb();
+  if (!dbConn) return [];
 
   try {
-    const comments = await db
+    const comments = await dbConn
       .select({
         id: scenarioComments.id,
         comment: scenarioComments.comment,
@@ -322,11 +322,11 @@ export async function getScenarioComments(scenarioId: number) {
  * Get replies to a specific comment
  */
 export async function getCommentReplies(parentCommentId: number) {
-  const db = await getDb();
-  if (!db) return [];
+  const dbConn = await getDb();
+  if (!dbConn) return [];
 
   try {
-    const replies = await db
+    const replies = await dbConn
       .select({
         id: scenarioComments.id,
         comment: scenarioComments.comment,
@@ -354,12 +354,12 @@ export async function getCommentReplies(parentCommentId: number) {
  * Get full comment thread (comment + all nested replies)
  */
 export async function getCommentThread(commentId: number): Promise<any> {
-  const db = await getDb();
-  if (!db) return null;
+  const dbConn = await getDb();
+  if (!dbConn) return null;
 
   try {
     // Get the comment
-    const comment = await db
+    const comment = await dbConn
       .select({
         id: scenarioComments.id,
         comment: scenarioComments.comment,
@@ -398,12 +398,12 @@ export async function deleteScenarioComment(
   commentId: number,
   userId: number
 ): Promise<boolean> {
-  const db = await getDb();
-  if (!db) return false;
+  const dbConn = await getDb();
+  if (!dbConn) return false;
 
   try {
     // Only allow user to delete their own comments
-    await db
+    await dbConn
       .delete(scenarioComments)
       .where(
         and(
@@ -423,11 +423,11 @@ export async function deleteScenarioComment(
  * Get all team members (users) for sharing
  */
 export async function getTeamMembers() {
-  const db = await getDb();
-  if (!db) return [];
+  const dbConn = await getDb();
+  if (!dbConn) return [];
 
   try {
-    const members = await db
+    const members = await dbConn
       .select({
         id: users.id,
         name: users.name,

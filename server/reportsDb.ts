@@ -21,6 +21,7 @@ export async function createReportTemplate(data: {
   layout: any;
 }): Promise<number> {
   const db = await getDb();
+  if (!db) throw new Error("Database not available");
 
   const result = await db.insert(reportTemplates).values({
     name: data.name,
@@ -55,6 +56,7 @@ export async function updateReportTemplate(
   }>
 ): Promise<void> {
   const db = await getDb();
+  if (!db) throw new Error("Database not available");
 
   // Check if user owns the template
   const template = await db
@@ -89,6 +91,7 @@ export async function updateReportTemplate(
  */
 export async function deleteReportTemplate(templateId: number, userId: number): Promise<void> {
   const db = await getDb();
+  if (!db) throw new Error("Database not available");
 
   // Check if user owns the template
   const template = await db
@@ -113,6 +116,7 @@ export async function deleteReportTemplate(templateId: number, userId: number): 
  */
 export async function getReportTemplates(userId: number) {
   const db = await getDb();
+  if (!db) throw new Error("Database not available");
 
   const templates = await db
     .select({
@@ -139,6 +143,7 @@ export async function getReportTemplates(userId: number) {
  */
 export async function getReportTemplate(templateId: number, userId: number) {
   const db = await getDb();
+  if (!db) throw new Error("Database not available");
 
   const template = await db
     .select()
@@ -171,6 +176,7 @@ export async function saveReportExecution(data: {
   fileSize?: number;
 }): Promise<number> {
   const db = await getDb();
+  if (!db) throw new Error("Database not available");
 
   const result = await db.insert(reportExecutions).values({
     templateId: data.templateId,
@@ -190,6 +196,7 @@ export async function saveReportExecution(data: {
  */
 export async function getReportExecutions(userId: number, limit: number = 20) {
   const db = await getDb();
+  if (!db) throw new Error("Database not available");
 
   const executions = await db
     .select({
@@ -215,6 +222,7 @@ export async function getReportExecutions(userId: number, limit: number = 20) {
  */
 export async function getReportExecution(executionId: number, userId: number) {
   const db = await getDb();
+  if (!db) throw new Error("Database not available");
 
   const execution = await db
     .select()

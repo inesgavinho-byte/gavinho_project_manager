@@ -3106,3 +3106,36 @@
 - Corrigida linha 358: `const db = getDb()` → `const db = await getDb()`
 
 **Status:** ✅ Todos os erros TypeScript foram corrigidos. Servidor compilando sem erros.
+
+
+## Correções Adicionais - TypeScript Errors (Resolvido em Jan 11, 2026 - Parte 2)
+- [x] Corrigir erros em reportsDb.ts - getDb() sem verificação de null
+- [x] Corrigir erros em routers.ts - implementar funções faltantes (associateSupplierProjects, getSupplierProjects)
+- [x] Corrigir conflito de nomenclatura em scenarioSharingService.ts (db module vs db connection)
+- [x] Adicionar funções de supplier projects em db.ts
+
+### Detalhes das Correções Adicionais
+
+**reportsDb.ts:**
+- Adicionadas verificações `if (!db) throw new Error("Database not available")` em 5 funções:
+  - createReportTemplate
+  - updateReportTemplate
+  - deleteReportTemplate
+  - getReportTemplates
+  - getReportTemplate
+  - getReportExecutions
+  - saveReportExecution
+
+**routers.ts:**
+- Implementadas duas novas funções em db.ts:
+  - `associateSupplierProjects(supplierId, projectIds, category)` - associa projetos a fornecedores
+  - `getSupplierProjects(supplierId)` - obtém projetos associados a um fornecedor
+- Adicionadas importações de `supplierProjects` e `InsertSupplierProject` em db.ts
+
+**scenarioSharingService.ts:**
+- Resolvido conflito de nomenclatura entre `import * as db from "./db"` e `const db = await getDb()`
+- Renomeada variável local de `db` para `dbConn` em todas as funções
+- Corrigidas todas as referências de `if (!db)` para `if (!dbConn)`
+- Mantida a função `db.getAllUsers()` do módulo db importado
+
+**Status:** ✅ Todos os erros relacionados a getDb() foram corrigidos. Servidor compilando sem erros de null check.

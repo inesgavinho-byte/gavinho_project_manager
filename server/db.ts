@@ -19,6 +19,8 @@ import {
   InsertBudget,
   notifications,
   InsertNotification,
+  supplierProjects,
+  InsertSupplierProject,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -182,6 +184,32 @@ export async function updateSupplier(id: number, supplier: Partial<InsertSupplie
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.update(suppliers).set(supplier).where(eq(suppliers.id, id));
+}
+
+// Supplier Projects Association
+export async function associateSupplierProjects(supplierId: number, projectIds: number[], category?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Delete existing associations for this supplier
+  await db.delete(supplierProjects).where(eq(supplierProjects.supplierId, supplierId));
+  
+  // Insert new associations
+  const values = projectIds.map(projectId => ({
+    supplierId,
+    projectId,
+    category: category || null,
+  }));
+  
+  if (values.length > 0) {
+    await db.insert(supplierProjects).values(values);
+  }
+}
+
+export async function getSupplierProjects(supplierId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(supplierProjects).where(eq(supplierProjects.supplierId, supplierId));
 }
 
 // Orders
