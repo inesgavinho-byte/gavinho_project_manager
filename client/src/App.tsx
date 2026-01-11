@@ -72,10 +72,15 @@ import BudgetAlerts from "./pages/BudgetAlerts";
 import CostPredictionDashboard from "./pages/CostPredictionDashboard";
 import ReportBuilder from "./pages/ReportBuilder";
 import CalendarPage from "./pages/CalendarPage";
+import TestLogin from "./pages/TestLogin";
 
 function Router() {
   return (
     <Switch>
+      <Route path="/test-login">
+        <TestLogin />
+      </Route>
+
       <Route path="/">
         <DashboardLayout>
           <Dashboard />

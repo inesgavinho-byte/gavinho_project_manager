@@ -10,6 +10,46 @@ function getQueryParam(req: Request, key: string): string | undefined {
 }
 
 export function registerOAuthRoutes(app: Express) {
+  // Test login endpoint (development only)
+  app.post("/api/test-login", async (req: Request, res: Response) => {
+    try {
+      const testOpenId = "test-user-" + Date.now();
+      const testEmail = "test@gavinho.local";
+      const testName = "Utilizador de Teste";
+
+      // Skip database for test login - just create session token
+
+      // Create session token
+      const sessionToken = await sdk.createSessionToken(testOpenId, {
+        name: testName,
+        expiresInMs: ONE_YEAR_MS,
+      });
+
+      // Set cookie
+      const cookieOptions = getSessionCookieOptions(req);
+      res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+
+      res.json({
+        success: true,
+        message: "Login de teste bem-sucedido",
+        user: {
+          openId: testOpenId,
+          name: testName,
+          email: testEmail,
+        },
+      });
+    } catch (error) {
+      console.error("[Test Login] Failed", error);
+      res.status(500).json({ error: "Test login failed" });
+    }
+  });
+
+  // Logout endpoint
+  app.post("/api/logout", (req: Request, res: Response) => {
+    res.clearCookie(COOKIE_NAME);
+    res.json({ success: true, message: "Logout bem-sucedido" });
+  });
+
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
     const state = getQueryParam(req, "state");

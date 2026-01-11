@@ -278,6 +278,14 @@
 - [x] Adicionar feedback visual (toast) após marcar todas
 - [x] Atualizar contadores e lista após ação
 
+## Sistema de Login de Teste (Sem OAuth)
+- [x] Implementar endpoint de login de teste (`/api/test-login`)
+- [x] Criar página de login de teste (`/test-login`)
+- [x] Implementar endpoint de logout (`/api/logout`)
+- [x] Adicionar rota de teste no App.tsx
+- [x] Criar testes vitest para endpoints de login
+- [ ] Validar funcionalidade no browser
+
 ## Identidade Visual GAVINHO
 - [x] Atualizar paleta de cores no index.css (Sandy Beach, Blush, Brown, Gold)
 - [x] Adicionar tipografia Cormorant Garamond para títulos
