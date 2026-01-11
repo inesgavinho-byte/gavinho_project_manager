@@ -3087,3 +3087,22 @@
 - [ ] Validar fluxo completo de entrega interna → cliente
 - [ ] Testar automações em ambiente de produção
 - [ ] Validar relatórios com dados reais
+
+
+## Bug Fixes - TypeScript Errors (Resolvido em Jan 11, 2026)
+- [x] Corrigir erros TypeScript em siteManagementDb.ts - getDb() sem await
+- [x] Corrigir erros TypeScript em contractExtractionService.ts - getDb() sem await
+- [x] Adicionar inicialização de db em todas as funções que usam 'await db'
+- [x] Corrigir importações de getDb() em siteManagementDb.ts
+
+### Detalhes das Correções
+**siteManagementDb.ts:**
+- Removida inicialização incorreta `const db = getDb()` no topo do arquivo (linha 2)
+- Adicionado `const db = await getDb()` em 30+ funções que usam `await db`
+- Adicionado verificação `if (!db) throw new Error("Database not available")` em cada função
+- Corrigidas funções: createWorker, getWorkersByConstruction, getWorkerById, updateWorker, deleteWorker, getActiveWorkersByConstruction, checkIn, checkOut, getAttendanceById, getAttendanceByConstruction, getAttendanceByWorker, getActiveAttendance, createWorkHours, getWorkHoursByConstruction, getWorkHoursByWorker, approveWorkHours, rejectWorkHours, getWorkHoursById, createMaterialRequest, getMaterialRequestsByConstruction, getMaterialRequestById, approveMaterialRequest, rejectMaterialRequest, markMaterialRequestDelivered, createMaterialUsage, getMaterialUsageByConstruction, getMaterialUsageByWorker, e outras
+
+**contractExtractionService.ts:**
+- Corrigida linha 358: `const db = getDb()` → `const db = await getDb()`
+
+**Status:** ✅ Todos os erros TypeScript foram corrigidos. Servidor compilando sem erros.

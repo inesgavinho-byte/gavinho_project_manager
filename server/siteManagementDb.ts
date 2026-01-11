@@ -1,5 +1,4 @@
 import { getDb } from "./db";
-const db = getDb();
 import {
   siteWorkers,
   siteAttendance,
@@ -30,11 +29,15 @@ import { eq, and, desc, gte, lte, sql, isNull } from "drizzle-orm";
 // ============================================================================
 
 export async function createWorker(data: InsertSiteWorker) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const [worker] = await db.insert(siteWorkers).values(data);
   return worker;
 }
 
 export async function getWorkersByConstruction(constructionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   return await db
     .select()
     .from(siteWorkers)
@@ -43,6 +46,8 @@ export async function getWorkersByConstruction(constructionId: number) {
 }
 
 export async function getWorkerById(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const [worker] = await db
     .select()
     .from(siteWorkers)
@@ -51,6 +56,8 @@ export async function getWorkerById(id: number) {
 }
 
 export async function updateWorker(id: number, data: Partial<InsertSiteWorker>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   await db
     .update(siteWorkers)
     .set({ ...data, updatedAt: new Date() })
@@ -59,12 +66,14 @@ export async function updateWorker(id: number, data: Partial<InsertSiteWorker>) 
 }
 
 export async function deleteWorker(id: number) {
-  const dbConn = await db;
+  const dbConn = await getDb();
   if (!dbConn) throw new Error("Database not available");
   await dbConn.delete(siteWorkers).where(eq(siteWorkers.id, id));
 }
 
 export async function getActiveWorkersByConstruction(constructionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   return await db
     .select()
     .from(siteWorkers)
@@ -82,11 +91,15 @@ export async function getActiveWorkersByConstruction(constructionId: number) {
 // ============================================================================
 
 export async function checkIn(data: InsertSiteAttendance) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const [attendance] = await db.insert(siteAttendance).values(data);
   return attendance;
 }
 
 export async function checkOut(attendanceId: number, checkOutTime: Date, notes?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   await db
     .update(siteAttendance)
     .set({ checkOut: checkOutTime, notes })
@@ -95,6 +108,8 @@ export async function checkOut(attendanceId: number, checkOutTime: Date, notes?:
 }
 
 export async function getAttendanceById(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const [attendance] = await db
     .select()
     .from(siteAttendance)
@@ -107,6 +122,8 @@ export async function getAttendanceByConstruction(
   startDate?: Date,
   endDate?: Date
 ) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const conditions = [eq(siteAttendance.constructionId, constructionId)];
   
   if (startDate) {
@@ -128,6 +145,8 @@ export async function getAttendanceByWorker(
   startDate?: Date,
   endDate?: Date
 ) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const conditions = [eq(siteAttendance.workerId, workerId)];
   
   if (startDate) {
@@ -145,6 +164,8 @@ export async function getAttendanceByWorker(
 }
 
 export async function getActiveAttendance(workerId: number, constructionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const [attendance] = await db
     .select()
     .from(siteAttendance)
@@ -165,6 +186,8 @@ export async function getActiveAttendance(workerId: number, constructionId: numb
 // ============================================================================
 
 export async function createWorkHours(data: InsertSiteWorkHours) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const [workHours] = await db.insert(siteWorkHours).values(data);
   return workHours;
 }
@@ -174,6 +197,8 @@ export async function getWorkHoursByConstruction(
   startDate?: Date,
   endDate?: Date
 ) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const conditions = [eq(siteWorkHours.constructionId, constructionId)];
   
   if (startDate) {
@@ -195,6 +220,8 @@ export async function getWorkHoursByWorker(
   startDate?: Date,
   endDate?: Date
 ) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const conditions = [eq(siteWorkHours.workerId, workerId)];
   
   if (startDate) {
@@ -212,6 +239,8 @@ export async function getWorkHoursByWorker(
 }
 
 export async function approveWorkHours(id: number, approvedBy: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   await db
     .update(siteWorkHours)
     .set({
@@ -225,6 +254,8 @@ export async function approveWorkHours(id: number, approvedBy: number) {
 }
 
 export async function rejectWorkHours(id: number, approvedBy: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   await db
     .update(siteWorkHours)
     .set({
@@ -238,6 +269,8 @@ export async function rejectWorkHours(id: number, approvedBy: number) {
 }
 
 export async function getWorkHoursById(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const [workHours] = await db
     .select()
     .from(siteWorkHours)
@@ -250,11 +283,15 @@ export async function getWorkHoursById(id: number) {
 // ============================================================================
 
 export async function createMaterialRequest(data: InsertSiteMaterialRequest) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const [request] = await db.insert(siteMaterialRequests).values(data);
   return request;
 }
 
 export async function getMaterialRequestsByConstruction(constructionId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   return await db
     .select()
     .from(siteMaterialRequests)
@@ -263,6 +300,8 @@ export async function getMaterialRequestsByConstruction(constructionId: number) 
 }
 
 export async function getMaterialRequestById(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const [request] = await db
     .select()
     .from(siteMaterialRequests)
@@ -271,7 +310,7 @@ export async function getMaterialRequestById(id: number) {
 }
 
 export async function approveMaterialRequest(id: number, approvedBy: number) {
-  const dbConn = await db;
+  const dbConn = await getDb();
   if (!dbConn) throw new Error("Database not available");
   await dbConn
     .update(siteMaterialRequests)
@@ -286,7 +325,7 @@ export async function approveMaterialRequest(id: number, approvedBy: number) {
 }
 
 export async function rejectMaterialRequest(id: number, approvedBy: number) {
-  const dbConn = await db;
+  const dbConn = await getDb();
   if (!dbConn) throw new Error("Database not available");
   await dbConn
     .update(siteMaterialRequests)
@@ -353,6 +392,8 @@ export async function getMaterialUsageByWorker(
   startDate?: Date,
   endDate?: Date
 ) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
   const conditions = [eq(siteMaterialUsage.usedBy, workerId)];
   
   if (startDate) {

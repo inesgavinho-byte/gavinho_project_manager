@@ -355,7 +355,7 @@ export async function applyContractDataToProject(
   const { projects, clients, projectPhases, deliverables } = await import("../drizzle/schema");
   const { eq } = await import("drizzle-orm");
   
-  const db = getDb();
+  const db = await getDb();
   
   // 1. Create or update client
   let clientId: number | undefined;
