@@ -1,9 +1,10 @@
 import { getDb } from "./db";
-import { supplierTransactions, supplierEvaluations, InsertSupplierTransaction, InsertSupplierEvaluation } from "../drizzle/schema";
+import { supplierTransactions, supplierEvaluations } from "../drizzle/schema";
+// import { InsertSupplierTransaction, InsertSupplierEvaluation } from "../drizzle/schema"; // Types not exported
 import { eq, desc, and } from "drizzle-orm";
 
 // Supplier Transactions
-export async function createSupplierTransaction(transaction: InsertSupplierTransaction) {
+export async function createSupplierTransaction(transaction: any) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -52,7 +53,7 @@ export async function updateTransactionStatus(
 }
 
 // Supplier Evaluations
-export async function createSupplierEvaluation(evaluation: InsertSupplierEvaluation) {
+export async function createSupplierEvaluation(evaluation: any) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
@@ -83,7 +84,7 @@ export async function getEvaluationsByProject(projectId: number) {
 
 export async function updateSupplierEvaluation(
   evaluationId: number,
-  updates: Partial<InsertSupplierEvaluation>
+  updates: any
 ) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

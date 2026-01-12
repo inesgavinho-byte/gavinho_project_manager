@@ -1,4 +1,4 @@
-import { mysqlTable, mysqlSchema, AnyMySqlColumn, index, foreignKey, int, mysqlEnum, date, text, timestamp, json, varchar, decimal } from "drizzle-orm/mysql-core"
+import { mysqlTable, mysqlSchema, AnyMySqlColumn, index, foreignKey, int, mysqlEnum, date, text, timestamp, json, varchar, decimal, tinyint, bigint } from "drizzle-orm/mysql-core"
 import { sql } from "drizzle-orm"
 
 export const absences = mysqlTable("absences", {
@@ -1772,7 +1772,7 @@ export const users = mysqlTable("users", {
 	name: text(),
 	email: varchar({ length: 320 }),
 	loginMethod: varchar({ length: 64 }),
-	role: mysqlEnum(['user','admin']).default('user').notNull(),
+	role: mysqlEnum(['user','admin','client']).default('user').notNull(),
 	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
 	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
 	lastSignedIn: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),

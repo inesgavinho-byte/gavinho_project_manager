@@ -20,7 +20,7 @@ export async function getUserById(userId: number) {
 export async function updateUserRole(userId: number, role: "user" | "admin" | "client") {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db.update(users).set({ role, updatedAt: new Date() }).where(eq(users.id, userId));
+  await db.update(users).set({ role, updatedAt: new Date().toISOString() }).where(eq(users.id, userId));
   return { success: true };
 }
 
