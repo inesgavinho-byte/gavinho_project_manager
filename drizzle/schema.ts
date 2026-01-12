@@ -1639,6 +1639,20 @@ export const supplierTransactions = mysqlTable("supplierTransactions", {
 	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
 });
 
+export const supplierEvaluations = mysqlTable("supplierEvaluations", {
+	id: int().autoincrement().notNull(),
+	supplierId: int().notNull().references(() => suppliers.id, { onDelete: "cascade" } ),
+	projectId: int().references(() => projects.id),
+	rating: int().notNull(), // 1-5 scale
+	quality: int(), // 1-5 scale
+	timeliness: int(), // 1-5 scale
+	communication: int(), // 1-5 scale
+	comments: text(),
+	evaluatedAt: timestamp({ mode: 'string' }).notNull(),
+	evaluatedBy: int().references(() => users.id),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+});
+
 export const suppliers = mysqlTable("suppliers", {
 	id: int().autoincrement().notNull(),
 	name: varchar({ length: 255 }).notNull(),
@@ -1786,3 +1800,9 @@ export const users = mysqlTable("users", {
 ]);
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
+
+export type SupplierTransaction = typeof supplierTransactions.$inferSelect;
+export type InsertSupplierTransaction = typeof supplierTransactions.$inferInsert;
+
+export type SupplierEvaluation = typeof supplierEvaluations.$inferSelect;
+export type InsertSupplierEvaluation = typeof supplierEvaluations.$inferInsert;
