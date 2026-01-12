@@ -37,7 +37,6 @@ const getStatusLabel = (status: string) => {
     completed: "Concluído",
     cancelled: "Cancelado",
     not_started: "Não Iniciado",
-    in_progress: "Em Curso",
   };
   return labels[status] || status;
 };

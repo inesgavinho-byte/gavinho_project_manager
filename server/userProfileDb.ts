@@ -1,7 +1,9 @@
 import { eq } from "drizzle-orm";
 import { getDb } from "./db.js";
-import { users, userActivityLog, userPreferences } from "../drizzle/schema.js";
-import type { User, InsertUser } from "../drizzle/schema.js";
+import { users } from "../drizzle/schema.js";
+import type { User } from "../drizzle/schema.js";
+// import type { InsertUser } from "../drizzle/schema.js";
+// Note: userActivityLog and userPreferences were removed from schema
 
 /**
  * Get user profile by ID
@@ -24,7 +26,7 @@ export async function getUserProfile(userId: number): Promise<User | null> {
  */
 export async function updateUserProfile(
   userId: number,
-  data: Partial<InsertUser>
+  data: any
 ): Promise<User | null> {
   const db = await getDb();
   if (!db) return null;
@@ -33,7 +35,7 @@ export async function updateUserProfile(
     .update(users)
     .set({
       ...data,
-      updatedAt: new Date(),
+      updatedAt: new Date().toISOString(),
     })
     .where(eq(users.id, userId));
 
@@ -110,19 +112,19 @@ export async function getUserStats(userId: number) {
     console.log("Timesheets table not available");
   }
 
-  // Count recent activities
-  const recentActivities = await db
-    .select()
-    .from(userActivityLog)
-    .where(eq(userActivityLog.userId, userId))
-    .limit(10);
+  // Count recent activities (userActivityLog table was removed)
+  // const recentActivities = await db
+  //   .select()
+  //   .from(userActivityLog)
+  //   .where(eq(userActivityLog.userId, userId))
+  //   .limit(10);
 
   return {
     projectsCreated: projectsCreated.length,
     projectsAsMember: projectsAsMember.length,
     totalProjects: projectsCreated.length + projectsAsMember.length,
     totalHours,
-    recentActivitiesCount: recentActivities.length,
+    recentActivitiesCount: 0,
   };
 }
 

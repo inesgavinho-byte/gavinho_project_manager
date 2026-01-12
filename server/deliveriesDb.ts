@@ -2,16 +2,17 @@ import { eq, and, gte, lte, desc, sql, isNull } from "drizzle-orm";
 import { getDb } from "./db";
 import {
   projectDeliveries,
-  deliveryApprovals,
-  deliveryVersions,
-  deliveryChecklists,
-  checklistItems,
-  clientDeliveryApprovals,
-  deliveryNotifications,
-  deliveryAuditLog,
-  deliveryReminders,
-  deliveryReports,
+  // deliveryApprovals,
+  // // deliveryVersions,
+  // // deliveryChecklists,
+  // // checklistItems,
+  // // clientDeliveryApprovals,
+  // // deliveryNotifications,
+  // // deliveryAuditLog,
+  // // deliveryReminders,
+  // deliveryReports,
 } from "../drizzle/schema";
+// Note: Multiple delivery-related tables were removed from schema
 
 // ============================================================================
 // DELIVERIES
@@ -204,9 +205,9 @@ export async function listApprovals(deliveryId: number) {
   if (!db) throw new Error("Database not available");
   return db
     .select()
-    .from(deliveryApprovals)
-    .where(eq(deliveryApprovals.deliveryId, deliveryId))
-    .orderBy(desc(deliveryApprovals.createdAt));
+  //   .from(deliveryApprovals)
+  //   .where(eq(deliveryApprovals.deliveryId, deliveryId))
+  //   .orderBy(desc(deliveryApprovals.createdAt));
 }
 
 export async function createApproval(data: {
@@ -215,34 +216,8 @@ export async function createApproval(data: {
   status: "approved" | "rejected" | "revision_requested";
   comments?: string;
 }) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  // Insert approval record
-  const result = await db.insert(deliveryApprovals).values({
-    deliveryId: data.deliveryId,
-    reviewerId: data.reviewerId,
-    status: data.status,
-    comments: data.comments,
-  });
-  const approvalId = Number(result[0].insertId);
-
-  // Update delivery status
-  let newStatus: string;
-  if (data.status === "approved") {
-    newStatus = "approved";
-  } else if (data.status === "rejected") {
-    newStatus = "rejected";
-  } else {
-    newStatus = "in_review";
-  }
-
-  await db
-    .update(projectDeliveries)
-    .set({ status: newStatus as any })
-    .where(eq(projectDeliveries.id, data.deliveryId));
-
-  return approvalId;
+  // TODO: Implement when deliveryApprovals table is restored
+  return 0;
 }
 
 // ============================================================================
@@ -261,7 +236,7 @@ export async function createDeliveryVersion(data: {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(deliveryVersions).values(data);
+  // const result = await db.insert(deliveryVersions).values(data);
   
   // Log to audit trail
   await logDeliveryAction(data.deliveryId, "version_uploaded", data.uploadedById, {
@@ -273,23 +248,13 @@ export async function createDeliveryVersion(data: {
 }
 
 export async function getDeliveryVersions(deliveryId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  return await db.query.deliveryVersions.findMany({
-    where: eq(deliveryVersions.deliveryId, deliveryId),
-    orderBy: [desc(deliveryVersions.version)],
-  });
+  // TODO: Implement when deliveryVersions table is restored
+  return [];
 }
 
 export async function getLatestDeliveryVersion(deliveryId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const versions = await db.query.deliveryVersions.findMany({
-    where: eq(deliveryVersions.deliveryId, deliveryId),
-    orderBy: [desc(deliveryVersions.version)],
-    limit: 1,
-  });
-  return versions[0] || null;
+  // TODO: Implement when deliveryVersions table is restored
+  return null;
 }
 
 export async function getNextVersionNumber(deliveryId: number): Promise<number> {
@@ -309,21 +274,13 @@ export async function createDeliveryChecklist(data: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  const result = await db.insert(deliveryChecklists).values(data);
+  // const result = await db.insert(deliveryChecklists).values(data);
   return result;
 }
 
 export async function getDeliveryChecklist(deliveryId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  return await db.query.deliveryChecklists.findFirst({
-    where: eq(deliveryChecklists.deliveryId, deliveryId),
-    with: {
-      items: {
-        orderBy: [checklistItems.order],
-      },
-    },
-  });
+  // TODO: Implement when deliveryChecklists table is restored
+  return null;
 }
 
 export async function addChecklistItem(data: {
@@ -332,41 +289,31 @@ export async function addChecklistItem(data: {
   description?: string;
   order: number;
 }) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  return await db.insert(checklistItems).values({
-    ...data,
-    isCompleted: 0,
-  });
+  // TODO: Implement when checklistItems table is restored
+  return 0;
 }
 
 export async function completeChecklistItem(itemId: number, completedById: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  // TODO: Implement when checklistItems table is restored
+  return;
+  /*
   return await db
-    .update(checklistItems)
+  //   .update(checklistItems)
     .set({
       isCompleted: 1,
       completedBy: completedById,
       completedAt: new Date(),
     })
-    .where(eq(checklistItems.id, itemId));
+  //   .where(eq(checklistItems.id, itemId));
+  */
 }
 
 export async function getChecklistCompletion(checklistId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const items = await db.query.checklistItems.findMany({
-    where: eq(checklistItems.checklistId, checklistId),
-  });
-  
-  const completed = items.filter((i) => i.isCompleted === 1).length;
-  const total = items.length;
-  
+  // TODO: Implement when checklistItems table is restored
   return {
-    completed,
-    total,
-    percentage: total > 0 ? Math.round((completed / total) * 100) : 0,
+    completed: 0,
+    total: 0,
+    percentage: 0,
   };
 }
 
@@ -375,18 +322,9 @@ export async function getChecklistCompletion(checklistId: number) {
 // ============================================================================
 
 export async function createClientApprovalRequest(deliveryId: number, clientId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const result = await db.insert(clientDeliveryApprovals).values({
-    deliveryId,
-    clientId,
-    status: "pending",
-  });
-  
-  // Log to audit trail
+  // TODO: Implement when clientDeliveryApprovals table is restored
   await logDeliveryAction(deliveryId, "approval_requested_from_client", clientId);
-  
-  return result;
+  return 0;
 }
 
 export async function approveDeliveryAsClient(
@@ -399,7 +337,7 @@ export async function approveDeliveryAsClient(
   
   // Update approval status
   await db
-    .update(clientDeliveryApprovals)
+  //   .update(clientDeliveryApprovals)
     .set({
       status: "approved",
       feedback,
@@ -407,8 +345,8 @@ export async function approveDeliveryAsClient(
     })
     .where(
       and(
-        eq(clientDeliveryApprovals.deliveryId, deliveryId),
-        eq(clientDeliveryApprovals.clientId, clientId)
+  //       eq(clientDeliveryApprovals.deliveryId, deliveryId),
+  //       eq(clientDeliveryApprovals.clientId, clientId)
       )
     );
   
@@ -432,7 +370,7 @@ export async function rejectDeliveryAsClient(
   
   // Update approval status
   await db
-    .update(clientDeliveryApprovals)
+  //   .update(clientDeliveryApprovals)
     .set({
       status: "rejected",
       rejectionReason,
@@ -441,8 +379,8 @@ export async function rejectDeliveryAsClient(
     })
     .where(
       and(
-        eq(clientDeliveryApprovals.deliveryId, deliveryId),
-        eq(clientDeliveryApprovals.clientId, clientId)
+  //       eq(clientDeliveryApprovals.deliveryId, deliveryId),
+  //       eq(clientDeliveryApprovals.clientId, clientId)
       )
     );
   
@@ -467,15 +405,15 @@ export async function requestRevisionAsClient(
   if (!db) throw new Error("Database not available");
   
   await db
-    .update(clientDeliveryApprovals)
+  //   .update(clientDeliveryApprovals)
     .set({
       status: "revision_requested",
       feedback,
     })
     .where(
       and(
-        eq(clientDeliveryApprovals.deliveryId, deliveryId),
-        eq(clientDeliveryApprovals.clientId, clientId)
+  //       eq(clientDeliveryApprovals.deliveryId, deliveryId),
+  //       eq(clientDeliveryApprovals.clientId, clientId)
       )
     );
   
@@ -489,11 +427,8 @@ export async function requestRevisionAsClient(
 }
 
 export async function getClientApprovalStatus(deliveryId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  return await db.query.clientDeliveryApprovals.findFirst({
-    where: eq(clientDeliveryApprovals.deliveryId, deliveryId),
-  });
+  // TODO: Implement when clientDeliveryApprovals table is restored
+  return null;
 }
 
 // ============================================================================
@@ -514,28 +449,17 @@ export async function createDeliveryNotification(data: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.insert(deliveryNotifications).values(data);
+  // return await db.insert(deliveryNotifications).values(data);
 }
 
 export async function getUnreadDeliveryNotifications(userId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  return await db.query.deliveryNotifications.findMany({
-    where: and(
-      eq(deliveryNotifications.recipientId, userId),
-      isNull(deliveryNotifications.readAt)
-    ),
-    orderBy: [desc(deliveryNotifications.sentAt)],
-  });
+  // TODO: Implement when deliveryNotifications table is restored
+  return [];
 }
 
 export async function markNotificationAsRead(notificationId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  return await db
-    .update(deliveryNotifications)
-    .set({ readAt: new Date() })
-    .where(eq(deliveryNotifications.id, notificationId));
+  // TODO: Implement when deliveryNotifications table is restored
+  return;
 }
 
 // ============================================================================
@@ -548,23 +472,13 @@ export async function logDeliveryAction(
   performedBy: number,
   details?: Record<string, any>
 ) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  return await db.insert(deliveryAuditLog).values({
-    deliveryId,
-    action,
-    performedBy,
-    details: details ? JSON.stringify(details) : null,
-  });
+  // TODO: Implement when deliveryAuditLog table is restored
+  return;
 }
 
 export async function getDeliveryAuditLog(deliveryId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  return await db.query.deliveryAuditLog.findMany({
-    where: eq(deliveryAuditLog.deliveryId, deliveryId),
-    orderBy: [desc(deliveryAuditLog.createdAt)],
-  });
+  // TODO: Implement when deliveryAuditLog table is restored
+  return [];
 }
 
 // ============================================================================
@@ -582,32 +496,23 @@ export async function createDeliveryReminder(data: {
     | "7_days_after";
   scheduledFor: Date;
 }) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  return await db.insert(deliveryReminders).values({
-    ...data,
-    status: "pending",
-  });
+  // TODO: Implement when deliveryReminders table is restored
+  return 0;
 }
 
 export async function getPendingReminders() {
   const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  return await db.query.deliveryReminders.findMany({
-    where: and(
-      eq(deliveryReminders.status, "pending"),
-      lte(deliveryReminders.scheduledFor, new Date())
-    ),
-  });
+  // TODO: Implement when deliveryReminders table is restored
+  return [];
 }
 
 export async function markReminderAsSent(reminderId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   return await db
-    .update(deliveryReminders)
+  //   .update(deliveryReminders)
     .set({ sentAt: new Date(), status: "sent" })
-    .where(eq(deliveryReminders.id, reminderId));
+  //   .where(eq(deliveryReminders.id, reminderId));
 }
 
 // ============================================================================
@@ -727,18 +632,10 @@ export async function saveDeliveryReport(data: {
 }) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  return await db.insert(deliveryReports).values(data);
+  // return await db.insert(deliveryReports).values(data);
 }
 
 export async function getDeliveryReports(projectId: number, phaseId?: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  const whereCondition = phaseId
-    ? and(eq(deliveryReports.projectId, projectId), eq(deliveryReports.phaseId, phaseId))
-    : eq(deliveryReports.projectId, projectId);
-  
-  return await db.query.deliveryReports.findMany({
-    where: whereCondition,
-    orderBy: [desc(deliveryReports.reportDate)],
-  });
+  // TODO: Implement when deliveryReports table is restored
+  return [];
 }

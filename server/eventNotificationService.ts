@@ -4,7 +4,7 @@ import { and, gte, lte, eq } from "drizzle-orm";
 import { notifyOwner } from "./_core/notification";
 
 // TODO: Restore after fixing calendarEvents table schema
-// import { calendarEvents } from "../drizzle/schema";
+// // import { calendarEvents } from "../drizzle/schema" (table removed);
 
 // Placeholder for disabled functionality
 const calendarEvents = {} as any;

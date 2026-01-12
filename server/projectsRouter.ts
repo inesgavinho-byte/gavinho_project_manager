@@ -777,56 +777,7 @@ export const projectsRouter = router({
       }),
   }),
 
-  // ============= PHASES =============
-  phases: router({
-    list: protectedProcedure
-      .input(z.object({ projectId: z.number() }))
-      .query(async ({ input }) => {
-        return await projectsDb.getProjectPhases(input.projectId);
-      }),
-
-    create: protectedProcedure
-      .input(z.object({
-        projectId: z.number(),
-        name: z.string().min(1),
-        description: z.string().optional(),
-        status: z.enum(["not_started", "in_progress", "completed", "on_hold"]).default("not_started"),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        assignedTo: z.number().optional(),
-        progress: z.number().min(0).max(100).default(0),
-        order: z.number(),
-      }))
-      .mutation(async ({ input }) => {
-        const phaseId = await projectsDb.createPhase(input);
-        return { id: phaseId };
-      }),
-
-    update: protectedProcedure
-      .input(z.object({
-        id: z.number(),
-        name: z.string().min(1).optional(),
-        description: z.string().optional(),
-        status: z.enum(["not_started", "in_progress", "completed", "on_hold"]).optional(),
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        assignedTo: z.number().optional(),
-        progress: z.number().min(0).max(100).optional(),
-        order: z.number().optional(),
-      }))
-      .mutation(async ({ input }) => {
-        const { id, ...data } = input;
-        await projectsDb.updatePhase(id, data);
-        return { success: true };
-      }),
-
-    delete: protectedProcedure
-      .input(z.object({ id: z.number() }))
-      .mutation(async ({ input }) => {
-        await projectsDb.deletePhase(input.id);
-        return { success: true };
-      }),
-  }),
+  // Phases router already defined above
 
   // Contract management - Admin Only
   contract: router({

@@ -43,6 +43,13 @@
       "when": 1768166531951,
       "tag": "0005_faulty_golden_guardian",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1768180427333,
+      "tag": "0006_wide_mongu",
+      "breakpoints": true
     }
   ]
 }

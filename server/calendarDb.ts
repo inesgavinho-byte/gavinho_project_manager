@@ -3,7 +3,7 @@ import { projects, deliveries, constructions, users } from "../drizzle/schema";
 import { eq, and, gte, lte, desc, asc, sql } from "drizzle-orm";
 
 // TODO: Restore after fixing calendarEvents table schema
-// import { calendarEvents } from "../drizzle/schema";
+// // import { calendarEvents } from "../drizzle/schema" (table removed);
 
 // Placeholder for disabled functionality
 const calendarEvents = {} as any;

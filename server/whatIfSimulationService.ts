@@ -1,5 +1,6 @@
 import { invokeLLM } from "./_core/llm";
 import type { Project } from "../drizzle/schema";
+// Note: Using 'Project' type which is the inferred type from 'projects' table
 
 export interface ScenarioParameters {
   budgetAdjustment?: number; // absolute amount

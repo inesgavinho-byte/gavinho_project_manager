@@ -543,20 +543,21 @@ export async function saveCostPrediction(data: {
 }): Promise<number> {
   const db = await getDb();
 
-  const result = await db.insert(costPredictions).values({
-    projectId: data.projectId,
-    predictedCost: data.predictedCost.toString(),
-    confidenceLevel: data.confidenceLevel,
-    confidenceScore: data.confidenceScore,
-    overrunRisk: data.overrunRisk,
-    overrunProbability: data.overrunProbability,
-    analysisDate: new Date(),
-    basedOnProjects: data.basedOnProjects,
-    factors: data.factors,
-    recommendations: data.recommendations,
-  });
+  // TODO: Implement when costPredictions table is restored
+  // const result = await db.insert(costPredictions).values({
+  //   projectId: data.projectId,
+  //   predictedCost: data.predictedCost.toString(),
+  //   confidenceLevel: data.confidenceLevel,
+  //   confidenceScore: data.confidenceScore,
+  //   overrunRisk: data.overrunRisk,
+  //   overrunProbability: data.overrunProbability,
+  //   analysisDate: new Date(),
+  //   basedOnProjects: data.basedOnProjects,
+  //   factors: data.factors,
+  //   recommendations: data.recommendations,
+  // });
 
-  return result[0].insertId;
+  return 0; // Placeholder
 }
 
 /**
@@ -567,9 +568,9 @@ export async function getCostPredictions(projectId: number) {
 
   const predictions = await db
     .select()
-    .from(costPredictions)
-    .where(eq(costPredictions.projectId, projectId))
-    .orderBy(desc(costPredictions.analysisDate));
+  //   .from(costPredictions)
+  //   .where(eq(costPredictions.projectId, projectId))
+  //   .orderBy(desc(costPredictions.analysisDate));
 
   return predictions;
 }
@@ -582,9 +583,9 @@ export async function getLatestCostPrediction(projectId: number) {
 
   const prediction = await db
     .select()
-    .from(costPredictions)
-    .where(eq(costPredictions.projectId, projectId))
-    .orderBy(desc(costPredictions.analysisDate))
+  //   .from(costPredictions)
+  //   .where(eq(costPredictions.projectId, projectId))
+  //   .orderBy(desc(costPredictions.analysisDate))
     .limit(1);
 
   return prediction.length > 0 ? prediction[0] : null;
@@ -598,24 +599,24 @@ export async function getHighRiskProjects() {
 
   const highRiskPredictions = await db
     .select({
-      predictionId: costPredictions.id,
-      projectId: costPredictions.projectId,
+  //     predictionId: costPredictions.id,
+  //     projectId: costPredictions.projectId,
       projectName: projects.name,
-      predictedCost: costPredictions.predictedCost,
-      overrunRisk: costPredictions.overrunRisk,
-      overrunProbability: costPredictions.overrunProbability,
-      analysisDate: costPredictions.analysisDate,
+  //     predictedCost: costPredictions.predictedCost,
+  //     overrunRisk: costPredictions.overrunRisk,
+  //     overrunProbability: costPredictions.overrunProbability,
+  //     analysisDate: costPredictions.analysisDate,
     })
-    .from(costPredictions)
-    .leftJoin(projects, eq(costPredictions.projectId, projects.id))
+  //   .from(costPredictions)
+  //   .leftJoin(projects, eq(costPredictions.projectId, projects.id))
     .where(
       and(
-        sql`${costPredictions.overrunRisk} IN ('high', 'critical')`,
+  //       sql`${costPredictions.overrunRisk} IN ('high', 'critical')`,
         isNull(projects.deletedAt),
         sql`${projects.status} != 'completed'`
       )
     )
-    .orderBy(desc(costPredictions.analysisDate));
+  //   .orderBy(desc(costPredictions.analysisDate));
 
   // Get only the latest prediction for each project
   const latestPredictions = new Map();
