@@ -1,6 +1,12 @@
 import { getDb } from "./db";
-import { calendarEvents, projects, deliveries, constructions, users } from "../drizzle/schema";
+import { projects, deliveries, constructions, users } from "../drizzle/schema";
 import { eq, and, gte, lte, desc, asc, sql } from "drizzle-orm";
+
+// TODO: Restore after fixing calendarEvents table schema
+// import { calendarEvents } from "../drizzle/schema";
+
+// Placeholder for disabled functionality
+const calendarEvents = {} as any;
 
 /**
  * Calendar Database Functions

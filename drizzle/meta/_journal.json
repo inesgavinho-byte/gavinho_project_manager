@@ -15,6 +15,34 @@
       "when": 1767470858423,
       "tag": "0001_boring_ultragirl",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1768165397726,
+      "tag": "0002_same_stephen_strange",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1768165688841,
+      "tag": "0003_furry_overlord",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1768166499738,
+      "tag": "0004_shallow_warbound",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1768166531951,
+      "tag": "0005_faulty_golden_guardian",
+      "breakpoints": true
     }
   ]
 }

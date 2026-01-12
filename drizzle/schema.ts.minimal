@@ -1,0 +1,4 @@
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index, date, json, unique } from "drizzle-orm/mysql-core";
+
+// Temporary minimal schema for debugging
+// All tables commented out to identify parsing error

@@ -1,0 +1,814 @@
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, decimal, boolean, index, date, json, unique } from "drizzle-orm/mysql-core";
+
+/**
+ * Core user table backing auth flow.
+ */
+
+export type User = typeof users.$inferSelect;
+export type InsertUser = typeof users.$inferInsert;
+
+/**
+ * Projects table
+ */
+
+export type Project = typeof projects.$inferSelect;
+export type InsertProject = typeof projects.$inferInsert;
+
+/**
+ * Project Phases table - configurable phases for each project
+ */
+
+export type Supplier = typeof suppliers.$inferSelect;
+export type InsertSupplier = typeof suppliers.$inferInsert;
+
+/**
+ * Orders table
+ */
+
+export type Order = typeof orders.$inferSelect;
+export type InsertOrder = typeof orders.$inferInsert;
+
+/**
+ * Tasks table
+ */
+
+export type Task = typeof tasks.$inferSelect;
+export type InsertTask = typeof tasks.$inferInsert;
+
+/**
+ * Budgets table
+ */
+
+export type QuantityMap = typeof quantityMaps.$inferSelect;
+export type InsertQuantityMap = typeof quantityMaps.$inferInsert;
+
+
+
+/**
+ * Emails table - stores synchronized Outlook emails
+ */
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;
+
+/**
+ * Notification preferences table
+ */
+
+export type NotificationPreference = typeof notificationPreferences.$inferSelect;
+export type InsertNotificationPreference = typeof notificationPreferences.$inferInsert;
+
+/**
+ * Supplier transactions table - tracks all transactions with suppliers
+ */
+
+export type SupplierTransaction = typeof supplierTransactions.$inferSelect;
+export type InsertSupplierTransaction = typeof supplierTransactions.$inferInsert;
+
+/**
+ * Supplier evaluations table - tracks performance ratings
+ */
+
+export type SupplierEvaluation = typeof supplierEvaluations.$inferSelect;
+export type InsertSupplierEvaluation = typeof supplierEvaluations.$inferInsert;
+
+/**
+ * Project predictions table - AI-powered predictions for delays and costs
+ */
+
+export type WhatIfScenario = typeof whatIfScenarios.$inferSelect;
+export type InsertWhatIfScenario = typeof whatIfScenarios.$inferInsert;
+
+/**
+ * Scenario Shares - Track sharing of what-if scenarios with team members
+ */
+
+export type ScenarioShare = typeof scenarioShares.$inferSelect;
+export type InsertScenarioShare = typeof scenarioShares.$inferInsert;
+
+/**
+ * Scenario Comments - Collaborative discussions on scenarios
+ */
+
+export type ScenarioComment = typeof scenarioComments.$inferSelect;
+export type InsertScenarioComment = typeof scenarioComments.$inferInsert;
+
+
+export type ActivityFeed = typeof activityFeed.$inferSelect;
+export type InsertActivityFeed = typeof activityFeed.$inferInsert;
+
+/**
+ * Comment Mentions - Track @mentions in comments
+ */
+
+export type MaterialPriceHistory = typeof materialPriceHistory.$inferSelect;
+export type InsertMaterialPriceHistory = typeof materialPriceHistory.$inferInsert;
+
+/**
+ * Material Suggestions - AI-powered material suggestions for projects
+ */
+export const materialSuggestions = mysqlTable("materialSuggestions", {
+  id: int("id").primaryKey().autoincrement(),
+  projectId: int("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  suggestedMaterialId: int("suggestedMaterialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  reason: text("reason").notNull(), // Why this material was suggested
+  confidence: decimal("confidence", { precision: 5, scale: 2 }).notNull(), // 0-100 score
+  status: mysqlEnum("status", ["pending", "accepted", "rejected"]).default("pending").notNull(),
+  matchFactors: text("matchFactors"), // JSON: {budget: true, style: true, history: false}
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  respondedAt: timestamp("respondedAt"),
+  respondedById: int("respondedById").references(() => users.id),
+}, (table) => ({
+  projectIdIdx: index("materialSuggestion_project_idx").on(table.projectId),
+  materialIdIdx: index("materialSuggestion_material_idx").on(table.suggestedMaterialId),
+  statusIdx: index("materialSuggestion_status_idx").on(table.status),
+}));
+
+export type MaterialSuggestion = typeof materialSuggestions.$inferSelect;
+export type InsertMaterialSuggestion = typeof materialSuggestions.$inferInsert;
+
+/**
+ * Material Collections - User-created collections to organize materials
+ */
+export const materialCollections = mysqlTable("materialCollections", {
+  id: int("id").primaryKey().autoincrement(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  color: varchar("color", { length: 50 }), // Hex color for visual identification
+  icon: varchar("icon", { length: 50 }), // Icon name from lucide-react
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("materialCollection_user_idx").on(table.userId),
+}));
+
+export type MaterialCollection = typeof materialCollections.$inferSelect;
+export type InsertMaterialCollection = typeof materialCollections.$inferInsert;
+
+/**
+ * Collection Materials - Materials within collections
+ */
+export const collectionMaterials = mysqlTable("collectionMaterials", {
+  id: int("id").primaryKey().autoincrement(),
+  collectionId: int("collectionId").notNull().references(() => materialCollections.id, { onDelete: "cascade" }),
+  materialId: int("materialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  notes: text("notes"), // User notes about why this material is in this collection
+  displayOrder: int("displayOrder").notNull().default(0),
+  addedAt: timestamp("addedAt").defaultNow().notNull(),
+}, (table) => ({
+  collectionIdIdx: index("collectionMaterial_collection_idx").on(table.collectionId),
+  materialIdIdx: index("collectionMaterial_material_idx").on(table.materialId),
+  // Unique constraint: same material can't be added twice to same collection
+  uniqueCollectionMaterial: index("unique_collection_material").on(table.collectionId, table.materialId),
+}));
+
+export type CollectionMaterial = typeof collectionMaterials.$inferSelect;
+export type InsertCollectionMaterial = typeof collectionMaterials.$inferInsert;
+
+/**
+ * Favorite Materials - User's favorite materials for quick access
+ */
+export const favoriteMaterials = mysqlTable("favoriteMaterials", {
+  id: int("id").primaryKey().autoincrement(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  materialId: int("materialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("favoriteMaterial_user_idx").on(table.userId),
+  materialIdIdx: index("favoriteMaterial_material_idx").on(table.materialId),
+  // Unique constraint: same material can't be favorited twice by same user
+  uniqueUserMaterial: index("unique_user_material").on(table.userId, table.materialId),
+}));
+
+export type FavoriteMaterial = typeof favoriteMaterials.$inferSelect;
+export type InsertFavoriteMaterial = typeof favoriteMaterials.$inferInsert;
+
+
+/**
+ * Material Comments - User comments and discussions on materials
+ */
+export const materialComments = mysqlTable("materialComments", {
+  id: int("id").primaryKey().autoincrement(),
+  materialId: int("materialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  isPinned: boolean("isPinned").notNull().default(false),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull().onUpdateNow(),
+}, (table) => ({
+  materialIdIdx: index("materialComment_material_idx").on(table.materialId),
+  userIdIdx: index("materialComment_user_idx").on(table.userId),
+  pinnedIdx: index("materialComment_pinned_idx").on(table.isPinned),
+}));
+
+export type MaterialComment = typeof materialComments.$inferSelect;
+export type InsertMaterialComment = typeof materialComments.$inferInsert;
+
+
+export const commentNotifications = mysqlTable("commentNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  materialId: int("material_id").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  commentId: int("comment_id").notNull().references(() => materialComments.id, { onDelete: "cascade" }),
+  read: boolean("read").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+
+export const commentReactions = mysqlTable("commentReactions", {
+  id: int("id").autoincrement().primaryKey(),
+  commentId: int("comment_id").notNull().references(() => materialComments.id, { onDelete: "cascade" }),
+  userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  emoji: varchar("emoji", { length: 10 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  uniqueReaction: unique().on(table.commentId, table.userId, table.emoji),
+}));
+
+
+/**
+ * Material Approval History - Track approval/rejection actions
+ */
+export const materialApprovalHistory = mysqlTable("materialApprovalHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  materialId: int("materialId").notNull().references(() => libraryMaterials.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  action: mysqlEnum("action", ["approved", "rejected"]).notNull(),
+  reason: text("reason"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type MaterialApprovalHistory = typeof materialApprovalHistory.$inferSelect;
+export type InsertMaterialApprovalHistory = typeof materialApprovalHistory.$inferInsert;
+
+
+/**
+ * Time Tracking - Track hours worked by team members
+ */
+export const timeTracking = mysqlTable("timeTracking", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  projectId: int("projectId").references(() => projects.id, { onDelete: "set null" }),
+  taskId: int("taskId"),
+  description: text("description").notNull(),
+  hours: decimal("hours", { precision: 5, scale: 2 }).notNull(),
+  date: date("date").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("timeTracking_user_idx").on(table.userId),
+  projectIdIdx: index("timeTracking_project_idx").on(table.projectId),
+  dateIdx: index("timeTracking_date_idx").on(table.date),
+}));
+
+export type TimeTracking = typeof timeTracking.$inferSelect;
+export type InsertTimeTracking = typeof timeTracking.$inferInsert;
+
+/**
+ * Task Assignments - Assign tasks to team members
+ */
+export const taskAssignments = mysqlTable("taskAssignments", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  status: mysqlEnum("status", ["pending", "in_progress", "completed", "cancelled"]).default("pending").notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  dueDate: timestamp("dueDate"),
+  estimatedHours: decimal("estimatedHours", { precision: 5, scale: 2 }),
+  actualHours: decimal("actualHours", { precision: 5, scale: 2 }).default("0.00"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("taskAssignments_project_idx").on(table.projectId),
+  userIdIdx: index("taskAssignments_user_idx").on(table.userId),
+  statusIdx: index("taskAssignments_status_idx").on(table.status),
+  dueDateIdx: index("taskAssignments_dueDate_idx").on(table.dueDate),
+}));
+
+export type TaskAssignment = typeof taskAssignments.$inferSelect;
+export type InsertTaskAssignment = typeof taskAssignments.$inferInsert;
+
+/**
+ * User Availability - Track team member availability calendar
+ */
+export const userAvailability = mysqlTable("userAvailability", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  date: date("date").notNull(),
+  status: mysqlEnum("status", ["available", "busy", "off", "vacation"]).default("available").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("userAvailability_user_idx").on(table.userId),
+  dateIdx: index("userAvailability_date_idx").on(table.date),
+  uniqueUserDate: unique().on(table.userId, table.date),
+}));
+
+export type UserAvailability = typeof userAvailability.$inferSelect;
+export type InsertUserAvailability = typeof userAvailability.$inferInsert;
+
+
+/**
+ * Cost Predictions table - AI-powered cost predictions for projects
+ */
+export const costPredictions = mysqlTable("costPredictions", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull().references(() => projects.id, { onDelete: "cascade" }),
+  predictedCost: decimal("predictedCost", { precision: 15, scale: 2 }).notNull(),
+  confidenceLevel: mysqlEnum("confidenceLevel", ["low", "medium", "high"]).notNull(),
+  confidenceScore: int("confidenceScore").notNull(), // 0-100
+  overrunRisk: mysqlEnum("overrunRisk", ["low", "medium", "high", "critical"]).notNull(),
+  overrunProbability: int("overrunProbability").notNull(), // 0-100
+  analysisDate: timestamp("analysisDate").defaultNow().notNull(),
+  basedOnProjects: json("basedOnProjects").$type<number[]>().default([]), // Array of similar project IDs
+  factors: json("factors").$type<{
+    complexity: number;
+    duration: number;
+    teamSize: number;
+    location: string;
+    projectType: string;
+    historicalAccuracy: number;
+  }>().notNull(),
+  recommendations: json("recommendations").$type<string[]>().default([]),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  analysisDateIdx: index("analysisDate_idx").on(table.analysisDate),
+  overrunRiskIdx: index("overrunRisk_idx").on(table.overrunRisk),
+}));
+
+export type CostPrediction = typeof costPredictions.$inferSelect;
+export type InsertCostPrediction = typeof costPredictions.$inferInsert;
+
+
+/**
+ * Report Templates table - Customizable report templates
+ */
+export const reportTemplates = mysqlTable("reportTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  createdById: int("createdById").notNull().references(() => users.id),
+  isPublic: int("isPublic").default(0).notNull(), // 0 = private, 1 = public
+  
+  // Report Configuration
+  reportType: mysqlEnum("reportType", ["progress", "financial", "resources", "timeline", "custom"]).notNull(),
+  metrics: json("metrics").$type<string[]>().default([]), // Array of metric IDs to include
+  chartTypes: json("chartTypes").$type<{
+    metricId: string;
+    chartType: "line" | "bar" | "pie" | "area" | "table";
+  }[]>().default([]),
+  filters: json("filters").$type<{
+    projectIds?: number[];
+    dateRange?: { start: string; end: string };
+    status?: string[];
+    priority?: string[];
+  }>().notNull(),
+  
+  // Layout Configuration
+  layout: json("layout").$type<{
+    sections: {
+      id: string;
+      type: "header" | "metrics" | "chart" | "table" | "text";
+      order: number;
+      config: any;
+    }[];
+  }>().notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  createdByIdIdx: index("createdById_idx").on(table.createdById),
+  reportTypeIdx: index("reportType_idx").on(table.reportType),
+  isPublicIdx: index("isPublic_idx").on(table.isPublic),
+}));
+
+export type ReportTemplate = typeof reportTemplates.$inferSelect;
+export type InsertReportTemplate = typeof reportTemplates.$inferInsert;
+
+/**
+ * Report Executions table - History of generated reports
+ */
+export const reportExecutions = mysqlTable("reportExecutions", {
+  id: int("id").autoincrement().primaryKey(),
+  templateId: int("templateId").notNull().references(() => reportTemplates.id, { onDelete: "cascade" }),
+  executedById: int("executedById").notNull().references(() => users.id),
+  executedAt: timestamp("executedAt").defaultNow().notNull(),
+  
+  // Execution Parameters
+  parameters: json("parameters").$type<{
+    projectIds?: number[];
+    dateRange?: { start: string; end: string };
+    customFilters?: any;
+  }>().notNull(),
+  
+  // Generated Data
+  data: json("data").$type<any>().notNull(),
+  
+  // Export Information
+  exportFormat: mysqlEnum("exportFormat", ["pdf", "excel", "csv", "json"]).notNull(),
+  fileUrl: text("fileUrl"), // S3 URL if exported
+  fileSize: int("fileSize"), // File size in bytes
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  templateIdIdx: index("templateId_idx").on(table.templateId),
+  executedByIdIdx: index("executedById_idx").on(table.executedById),
+  executedAtIdx: index("executedAt_idx").on(table.executedAt),
+}));
+
+export type ReportExecution = typeof reportExecutions.$inferSelect;
+export type InsertReportExecution = typeof reportExecutions.$inferInsert;
+
+
+/**
+ * Calendar Events table - Events, deadlines, and appointments
+ */
+export const calendarEvents = mysqlTable("calendarEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  
+  // Date and Time
+  startDate: timestamp("startDate").notNull(),
+  endDate: timestamp("endDate").notNull(),
+  allDay: int("allDay").default(0).notNull(), // 0 = specific time, 1 = all day event
+  
+  // Event Type and Category
+  eventType: mysqlEnum("eventType", [
+    "meeting",
+    "deadline",
+    "delivery",
+    "site_visit",
+    "presentation",
+    "milestone",
+    "personal",
+    "other"
+  ]).notNull(),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  
+  // Relations
+  projectId: int("projectId").references(() => projects.id, { onDelete: "cascade" }),
+  // deliveryId: int("deliveryId").references(() => deliveries.id, { onDelete: "cascade" }), // Table deliveries not defined
+  constructionId: int("constructionId").references(() => constructions.id, { onDelete: "cascade" }),
+  createdById: int("createdById").notNull().references(() => users.id),
+  
+  // Location
+  location: varchar("location", { length: 255 }),
+  
+  // Recurrence
+  isRecurring: int("isRecurring").default(0).notNull(),
+  recurrenceRule: json("recurrenceRule").$type<{
+    frequency: "daily" | "weekly" | "monthly" | "yearly";
+    interval: number;
+    endDate?: string;
+    daysOfWeek?: number[]; // 0 = Sunday, 6 = Saturday
+  }>(),
+  
+  // Reminders
+  reminderMinutes: int("reminderMinutes"), // Minutes before event to send reminder
+  
+  // Status
+  status: mysqlEnum("status", ["scheduled", "completed", "cancelled", "postponed"]).default("scheduled").notNull(),
+  
+  // Color coding
+  color: varchar("color", { length: 7 }).default("#C9A882"), // Hex color for visual distinction
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  constructionIdIdx: index("constructionId_idx").on(table.constructionId),
+  createdByIdIdx: index("createdById_idx").on(table.createdById),
+  startDateIdx: index("startDate_idx").on(table.startDate),
+  endDateIdx: index("endDate_idx").on(table.endDate),
+  eventTypeIdx: index("eventType_idx").on(table.eventType),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type CalendarEvent = typeof calendarEvents.$inferSelect;
+export type InsertCalendarEvent = typeof calendarEvents.$inferInsert;
+
+/**
+ * Audit Logs - Track sensitive operations for compliance and security
+ */
+export const auditLogs = mysqlTable("auditLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(), // User who performed the action
+  action: varchar("action", { length: 100 }).notNull(), // e.g., "view_budget", "update_contract", "change_role"
+  entityType: varchar("entityType", { length: 50 }).notNull(), // e.g., "budget", "contract", "user"
+  entityId: int("entityId"), // ID of the affected entity
+  details: text("details"), // JSON with additional context
+  ipAddress: varchar("ipAddress", { length: 45 }), // IPv4 or IPv6
+  userAgent: text("userAgent"), // Browser/client info
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("user_idx").on(table.userId),
+  actionIdx: index("action_idx").on(table.action),
+  entityTypeIdx: index("entity_type_idx").on(table.entityType),
+  createdAtIdx: index("created_at_idx").on(table.createdAt),
+}));
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = typeof auditLogs.$inferInsert;
+
+/**
+ * Project Client Access - Associate clients with specific projects
+ */
+export const projectClientAccess = mysqlTable("projectClientAccess", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  clientUserId: int("clientUserId").notNull(), // User with role "client"
+  accessLevel: mysqlEnum("accessLevel", ["view", "comment", "upload"]).default("view").notNull(),
+  grantedById: int("grantedById").notNull(), // Admin who granted access
+  grantedAt: timestamp("grantedAt").defaultNow().notNull(),
+  revokedAt: timestamp("revokedAt"),
+}, (table) => ({
+  projectIdx: index("project_idx").on(table.projectId),
+  clientIdx: index("client_idx").on(table.clientUserId),
+}));
+
+export type ProjectClientAccess = typeof projectClientAccess.$inferSelect;
+export type InsertProjectClientAccess = typeof projectClientAccess.$inferInsert;
+
+/**
+ * Contract Processing History
+ * Tracks all contract uploads and processing attempts
+ */
+export const contractProcessingHistory = mysqlTable("contractProcessingHistory", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileUrl: text("fileUrl").notNull(),
+  fileSize: int("fileSize").notNull(), // in bytes
+  status: mysqlEnum("status", ["processing", "success", "error"]).notNull(),
+  errorMessage: text("errorMessage"),
+  
+  // Extracted data (stored as JSON for flexibility)
+  extractedData: json("extractedData"),
+  
+  // Processing metadata
+  processingStartedAt: timestamp("processingStartedAt").notNull(),
+  processingCompletedAt: timestamp("processingCompletedAt"),
+  processingDurationMs: int("processingDurationMs"), // duration in milliseconds
+  
+  // User who triggered the upload
+  uploadedById: int("uploadedById").notNull(),
+  
+  // Reprocessing tracking
+  isReprocessing: int("isReprocessing").default(0).notNull(), // 0 = false, 1 = true
+  originalProcessingId: int("originalProcessingId"), // reference to original if this is a reprocess
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContractProcessingHistory = typeof contractProcessingHistory.$inferSelect;
+export type InsertContractProcessingHistory = typeof contractProcessingHistory.$inferInsert;
+
+/**
+ * User Activity Log - Track user actions for activity timeline
+ */
+export const userActivityLog = mysqlTable("userActivityLog", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  actionType: varchar("actionType", { length: 100 }).notNull(), // e.g., "project_created", "document_uploaded", "comment_added"
+  entityType: varchar("entityType", { length: 50 }), // e.g., "project", "document", "comment"
+  entityId: int("entityId"),
+  description: text("description"), // Human-readable description
+  metadata: json("metadata"), // Additional context as JSON
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("userId_idx").on(table.userId),
+  actionTypeIdx: index("actionType_idx").on(table.actionType),
+  createdAtIdx: index("createdAt_idx").on(table.createdAt),
+}));
+
+export type UserActivityLog = typeof userActivityLog.$inferSelect;
+export type InsertUserActivityLog = typeof userActivityLog.$inferInsert;
+
+/**
+ * User Preferences - Store user-specific settings and preferences
+ */
+export const userPreferences = mysqlTable("userPreferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().unique(),
+  
+  // Notification preferences
+  emailNotifications: int("emailNotifications").default(1).notNull(), // 0 = off, 1 = on
+  pushNotifications: int("pushNotifications").default(1).notNull(),
+  notificationFrequency: mysqlEnum("notificationFrequency", ["realtime", "hourly", "daily", "weekly"]).default("realtime").notNull(),
+  
+  // Display preferences
+  theme: mysqlEnum("theme", ["light", "dark", "auto"]).default("light").notNull(),
+  language: varchar("language", { length: 10 }).default("pt").notNull(), // ISO 639-1 code
+  timezone: varchar("timezone", { length: 50 }).default("Europe/Lisbon").notNull(),
+  dateFormat: varchar("dateFormat", { length: 20 }).default("DD/MM/YYYY").notNull(),
+  
+  // Dashboard preferences
+  defaultView: varchar("defaultView", { length: 50 }).default("dashboard").notNull(), // Default landing page
+  showCompletedProjects: int("showCompletedProjects").default(1).notNull(),
+  projectsPerPage: int("projectsPerPage").default(12).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdIdx: index("userId_idx").on(table.userId),
+}));
+
+export type UserPreferences = typeof userPreferences.$inferSelect;
+export type InsertUserPreferences = typeof userPreferences.$inferInsert;
+
+
+/**
+ * Delivery Versions - Track version history of deliverables
+ */
+export const deliveryVersions = mysqlTable("deliveryVersions", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  version: int("version").notNull(), // 1, 2, 3...
+  versionNotes: text("versionNotes"), // What changed in this version
+  fileUrl: text("fileUrl"), // URL to versioned file
+  fileKey: varchar("fileKey", { length: 500 }), // S3 key
+  fileSize: int("fileSize"), // in bytes
+  uploadedById: int("uploadedById").notNull(),
+  uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  versionIdx: index("version_idx").on(table.version),
+}));
+
+export type DeliveryVersion = typeof deliveryVersions.$inferSelect;
+export type InsertDeliveryVersion = typeof deliveryVersions.$inferInsert;
+
+/**
+ * Delivery Checklists - Auto-generated checklists for deliverables
+ */
+export const deliveryChecklists = mysqlTable("deliveryChecklists", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  deliveryType: varchar("deliveryType", { length: 100 }).notNull(), // "document", "drawing", etc.
+  title: varchar("title", { length: 255 }).notNull(), // e.g., "Checklist de Projeto Base"
+  description: text("description"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  typeIdx: index("type_idx").on(table.deliveryType),
+}));
+
+export type DeliveryChecklist = typeof deliveryChecklists.$inferSelect;
+export type InsertDeliveryChecklist = typeof deliveryChecklists.$inferInsert;
+
+/**
+ * Checklist Items - Individual items in a delivery checklist
+ */
+export const checklistItems = mysqlTable("checklistItems", {
+  id: int("id").autoincrement().primaryKey(),
+  checklistId: int("checklistId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  isCompleted: int("isCompleted").default(0).notNull(), // 0 = false, 1 = true
+  completedBy: int("completedBy"), // User who completed
+  completedAt: timestamp("completedAt"),
+  order: int("order").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  checklistIdIdx: index("checklistId_idx").on(table.checklistId),
+  completedIdx: index("isCompleted_idx").on(table.isCompleted),
+}));
+
+export type ChecklistItem = typeof checklistItems.$inferSelect;
+export type InsertChecklistItem = typeof checklistItems.$inferInsert;
+
+/**
+ * Client Delivery Approvals - Track client approval/rejection of deliverables
+ */
+export const clientDeliveryApprovals = mysqlTable("clientDeliveryApprovals", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  clientId: int("clientId").notNull(), // Client user who approved/rejected
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "revision_requested"]).default("pending").notNull(),
+  feedback: text("feedback"), // Client feedback/comments
+  rejectionReason: text("rejectionReason"), // Reason for rejection
+  approvedAt: timestamp("approvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  clientIdIdx: index("clientId_idx").on(table.clientId),
+  statusIdx: index("status_idx").on(table.status),
+}));
+
+export type ClientDeliveryApproval = typeof clientDeliveryApprovals.$inferSelect;
+export type InsertClientDeliveryApproval = typeof clientDeliveryApprovals.$inferInsert;
+
+/**
+ * Delivery Notifications - Track automated notifications sent
+ */
+export const deliveryNotifications = mysqlTable("deliveryNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  type: mysqlEnum("type", ["deadline_reminder", "approval_request", "approval_received", "rejection_notice", "revision_requested", "follow_up"]).notNull(),
+  recipientId: int("recipientId").notNull(), // User who received notification
+  message: text("message"),
+  sentAt: timestamp("sentAt").defaultNow().notNull(),
+  readAt: timestamp("readAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  recipientIdIdx: index("recipientId_idx").on(table.recipientId),
+  typeIdx: index("type_idx").on(table.type),
+}));
+
+export type DeliveryNotification = typeof deliveryNotifications.$inferSelect;
+export type InsertDeliveryNotification = typeof deliveryNotifications.$inferInsert;
+
+/**
+ * Delivery Audit Log - Complete audit trail of all delivery actions
+ */
+export const deliveryAuditLog = mysqlTable("deliveryAuditLog", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  action: varchar("action", { length: 100 }).notNull(), // "created", "updated", "version_uploaded", "approved", "rejected", etc.
+  performedBy: int("performedBy").notNull(), // User who performed action
+  oldValue: text("oldValue"), // Previous value (JSON)
+  newValue: text("newValue"), // New value (JSON)
+  details: text("details"), // Additional context
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  performedByIdx: index("performedBy_idx").on(table.performedBy),
+  actionIdx: index("action_idx").on(table.action),
+}));
+
+export type DeliveryAuditLog = typeof deliveryAuditLog.$inferSelect;
+export type InsertDeliveryAuditLog = typeof deliveryAuditLog.$inferInsert;
+
+/**
+ * Delivery Reminders - Track follow-up reminders for pending deliveries
+ */
+export const deliveryReminders = mysqlTable("deliveryReminders", {
+  id: int("id").autoincrement().primaryKey(),
+  deliveryId: int("deliveryId").notNull(),
+  reminderType: mysqlEnum("reminderType", ["1_day_before", "3_days_before", "7_days_before", "1_day_after", "3_days_after", "7_days_after"]).notNull(),
+  scheduledFor: timestamp("scheduledFor").notNull(),
+  sentAt: timestamp("sentAt"),
+  status: mysqlEnum("status", ["pending", "sent", "skipped"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  deliveryIdIdx: index("deliveryId_idx").on(table.deliveryId),
+  statusIdx: index("status_idx").on(table.status),
+  scheduledForIdx: index("scheduledFor_idx").on(table.scheduledFor),
+}));
+
+export type DeliveryReminder = typeof deliveryReminders.$inferSelect;
+export type InsertDeliveryReminder = typeof deliveryReminders.$inferInsert;
+
+/**
+ * Delivery Reports - Pre-calculated metrics for dashboard
+ */
+export const deliveryReports = mysqlTable("deliveryReports", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(),
+  phaseId: int("phaseId"),
+  reportDate: date("reportDate").notNull(),
+  
+  // Compliance metrics
+  totalDeliveries: int("totalDeliveries").default(0).notNull(),
+  onTimeDeliveries: int("onTimeDeliveries").default(0).notNull(),
+  lateDeliveries: int("lateDeliveries").default(0).notNull(),
+  complianceRate: decimal("complianceRate", { precision: 5, scale: 2 }).default("0.00").notNull(), // 0-100%
+  
+  // Approval metrics
+  totalApprovals: int("totalApprovals").default(0).notNull(),
+  approvedDeliveries: int("approvedDeliveries").default(0).notNull(),
+  rejectedDeliveries: int("rejectedDeliveries").default(0).notNull(),
+  revisionRequested: int("revisionRequested").default(0).notNull(),
+  acceptanceRate: decimal("acceptanceRate", { precision: 5, scale: 2 }).default("0.00").notNull(), // 0-100%
+  
+  // Timing metrics
+  avgApprovalTime: int("avgApprovalTime"), // in hours
+  avgTimeToRevision: int("avgTimeToRevision"), // in hours
+  
+  // Delay analysis
+  avgDaysLate: decimal("avgDaysLate", { precision: 5, scale: 2 }).default("0.00").notNull(),
+  maxDaysLate: int("maxDaysLate").default(0).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  projectIdIdx: index("projectId_idx").on(table.projectId),
+  phaseIdIdx: index("phaseId_idx").on(table.phaseId),
+  reportDateIdx: index("reportDate_idx").on(table.reportDate),
+}));
+
+export type DeliveryReport = typeof deliveryReports.$inferSelect;
+export type InsertDeliveryReport = typeof deliveryReports.$inferInsert;

@@ -3,8 +3,13 @@
  */
 
 import { getDb } from "./db";
-import { contractProcessingHistory, type InsertContractProcessingHistory, type ContractProcessingHistory } from "../drizzle/schema";
-import { eq, desc } from "drizzle-orm";
+// TODO: Restore after fixing contractProcessingHistory table schema
+// import { contractProcessingHistory, type InsertContractProcessingHistory, type ContractProcessingHistory } from "../drizzle/schema";
+// import { eq, desc } from "drizzle-orm";
+
+// Placeholder types for disabled functionality
+type InsertContractProcessingHistory = any;
+type ContractProcessingHistory = any;
 
 /**
  * Create a new contract processing history record

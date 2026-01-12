@@ -1,7 +1,13 @@
 import { getDb } from "./db";
-import { calendarEvents, users, projects } from "../drizzle/schema";
+import { users, projects } from "../drizzle/schema";
 import { and, gte, lte, eq } from "drizzle-orm";
 import { notifyOwner } from "./_core/notification";
+
+// TODO: Restore after fixing calendarEvents table schema
+// import { calendarEvents } from "../drizzle/schema";
+
+// Placeholder for disabled functionality
+const calendarEvents = {} as any;
 
 /**
  * Event Notification Service

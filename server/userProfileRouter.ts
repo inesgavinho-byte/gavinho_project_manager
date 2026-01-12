@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "./_core/trpc.js";
+import { storagePut } from "./storage.js";
 import {
   getUserProfile,
   updateUserProfile,
@@ -8,21 +9,32 @@ import {
   getUserStats,
   searchUsers,
 } from "./userProfileDb.js";
-import {
-  getUserActivities,
-  getRecentActivities,
-  logActivity,
-  getActivityCountByType,
-} from "./userActivityDb.js";
-import {
-  getOrCreateUserPreferences,
-  updateUserPreferences,
-  updateNotificationPreferences,
-  updateDisplayPreferences,
-  updateDashboardPreferences,
-  resetPreferencesToDefaults,
-} from "./userPreferencesDb.js";
-import { storagePut } from "./storage.js";
+// TODO: Restore after fixing userActivityLog table schema
+// import {
+//   getUserActivities,
+//   getRecentActivities,
+//   logActivity,
+//   getActivityCountByType,
+// } from "./userActivityDb.js";
+
+// TODO: Restore after fixing userPreferences table schema
+// import {
+//   getOrCreateUserPreferences,
+//   updateUserPreferences,
+//   updateNotificationPreferences,
+//   updateDisplayPreferences,
+//   updateDashboardPreferences,
+//   resetPreferencesToDefaults,
+// } from "./userPreferencesDb.js";
+
+// Placeholder functions for disabled functionality
+const logActivity = async () => { /* disabled */ };
+const getUserActivities = async () => { throw new Error("User activity functionality disabled - table schema needs fixing"); };
+const getRecentActivities = async () => { throw new Error("User activity functionality disabled - table schema needs fixing"); };
+const getActivityCountByType = async () => { throw new Error("User activity functionality disabled - table schema needs fixing"); };
+const getOrCreateUserPreferences = async () => { throw new Error("User preferences functionality disabled - table schema needs fixing"); };
+const updateUserPreferences = async () => { throw new Error("User preferences functionality disabled - table schema needs fixing"); };
+const resetPreferencesToDefaults = async () => { throw new Error("User preferences functionality disabled - table schema needs fixing"); };
 
 export const userProfileRouter = router({
   /**
@@ -69,14 +81,14 @@ export const userProfileRouter = router({
 
       const updated = await updateUserProfile(ctx.user.id, updateData);
 
-      // Log activity
-      await logActivity(
-        ctx.user.id,
-        "profile_updated",
-        "Atualizou o perfil",
-        "user",
-        ctx.user.id
-      );
+      // TODO: Re-enable activity logging after fixing userActivityLog table schema
+      // await logActivity(
+      //   ctx.user.id,
+      //   "profile_updated",
+      //   "Atualizou o perfil",
+      //   "user",
+      //   ctx.user.id
+      // );
 
       return updated;
     }),
@@ -106,14 +118,14 @@ export const userProfileRouter = router({
       // Update user profile
       const updated = await updateProfilePicture(ctx.user.id, url);
 
-      // Log activity
-      await logActivity(
-        ctx.user.id,
-        "profile_picture_updated",
-        "Atualizou a foto de perfil",
-        "user",
-        ctx.user.id
-      );
+      // TODO: Re-enable activity logging after fixing userActivityLog table schema
+      // await logActivity(
+      //   ctx.user.id,
+      //   "profile_picture_updated",
+      //   "Atualizou a foto de perfil",
+      //   "user",
+      //   ctx.user.id
+      // );
 
       return updated;
     }),
@@ -136,14 +148,14 @@ export const userProfileRouter = router({
       );
 
       if (result.success) {
-        // Log activity
-        await logActivity(
-          ctx.user.id,
-          "password_changed",
-          "Alterou a password",
-          "user",
-          ctx.user.id
-        );
+        // TODO: Re-enable activity logging after fixing userActivityLog table schema
+        // await logActivity(
+        //   ctx.user.id,
+        //   "password_changed",
+        //   "Alterou a password",
+        //   "user",
+        //   ctx.user.id
+        // );
       }
 
       return result;
@@ -156,87 +168,74 @@ export const userProfileRouter = router({
     return getUserStats(ctx.user.id);
   }),
 
-  /**
-   * Get user activities
-   */
-  getMyActivities: protectedProcedure
-    .input(
-      z.object({
-        limit: z.number().default(50),
-        offset: z.number().default(0),
-        actionType: z.string().optional(),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      return getUserActivities(ctx.user.id, input);
-    }),
+  // TODO: Restore after fixing userActivityLog table schema
+  // getMyActivities: protectedProcedure
+  //   .input(
+  //     z.object({
+  //       limit: z.number().default(50),
+  //       offset: z.number().default(0),
+  //       actionType: z.string().optional(),
+  //     })
+  //   )
+  //   .query(async ({ ctx, input }) => {
+  //     return getUserActivities(ctx.user.id, input);
+  //   }),
 
-  /**
-   * Get activity count by type
-   */
-  getActivityCountByType: protectedProcedure.query(async ({ ctx }) => {
-    return getActivityCountByType(ctx.user.id);
-  }),
+  // getActivityCountByType: protectedProcedure.query(async ({ ctx }) => {
+  //   return getActivityCountByType(ctx.user.id);
+  // }),
 
-  /**
-   * Get user preferences
-   */
-  getMyPreferences: protectedProcedure.query(async ({ ctx }) => {
-    return getOrCreateUserPreferences(ctx.user.id);
-  }),
+  // TODO: Restore after fixing userPreferences table schema
+  // getMyPreferences: protectedProcedure.query(async ({ ctx }) => {
+  //   return getOrCreateUserPreferences(ctx.user.id);
+  // }),
 
-  /**
-   * Update preferences
-   */
-  updatePreferences: protectedProcedure
-    .input(
-      z.object({
-        emailNotifications: z.number().optional(),
-        pushNotifications: z.number().optional(),
-        notificationFrequency: z
-          .enum(["realtime", "hourly", "daily", "weekly"])
-          .optional(),
-        theme: z.enum(["light", "dark", "auto"]).optional(),
-        language: z.string().optional(),
-        timezone: z.string().optional(),
-        dateFormat: z.string().optional(),
-        defaultView: z.string().optional(),
-        showCompletedProjects: z.number().optional(),
-        projectsPerPage: z.number().optional(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const updated = await updateUserPreferences(ctx.user.id, input);
+  // updatePreferences: protectedProcedure
+  //   .input(
+  //     z.object({
+  //       emailNotifications: z.number().optional(),
+  //       pushNotifications: z.number().optional(),
+  //       notificationFrequency: z
+  //         .enum(["realtime", "hourly", "daily", "weekly"])
+  //         .optional(),
+  //       theme: z.enum(["light", "dark", "auto"]).optional(),
+  //       language: z.string().optional(),
+  //       timezone: z.string().optional(),
+  //       dateFormat: z.string().optional(),
+  //       defaultView: z.string().optional(),
+  //       showCompletedProjects: z.number().optional(),
+  //       projectsPerPage: z.number().optional(),
+  //     })
+  //   )
+  //   .mutation(async ({ ctx, input }) => {
+  //     const updated = await updateUserPreferences(ctx.user.id, input);
 
-      // Log activity
-      await logActivity(
-        ctx.user.id,
-        "preferences_updated",
-        "Atualizou as preferências",
-        "user",
-        ctx.user.id
-      );
+  //     // Log activity
+  //     await logActivity(
+  //       ctx.user.id,
+  //       "preferences_updated",
+  //       "Atualizou as preferências",
+  //       "user",
+  //       ctx.user.id
+  //     );
 
-      return updated;
-    }),
+  //     return updated;
+  //   }),
 
-  /**
-   * Reset preferences to defaults
-   */
-  resetPreferences: protectedProcedure.mutation(async ({ ctx }) => {
-    const reset = await resetPreferencesToDefaults(ctx.user.id);
+  // resetPreferences: protectedProcedure.mutation(async ({ ctx }) => {
+  //   const reset = await resetPreferencesToDefaults(ctx.user.id);
 
-    // Log activity
-    await logActivity(
-      ctx.user.id,
-      "preferences_reset",
-      "Restaurou as preferências padrão",
-      "user",
-      ctx.user.id
-    );
+  //   // Log activity
+  //   await logActivity(
+  //     ctx.user.id,
+  //     "preferences_reset",
+  //     "Restaurou as preferências padrão",
+  //     "user",
+  //     ctx.user.id
+  //   );
 
-    return reset;
-  }),
+  //   return reset;
+  // }),
 
   /**
    * Search users (for mentions, team assignments, etc.)
@@ -247,17 +246,15 @@ export const userProfileRouter = router({
       return searchUsers(input.query);
     }),
 
-  /**
-   * Get recent activities (admin only)
-   */
-  getRecentActivities: protectedProcedure
-    .input(z.object({ limit: z.number().default(50) }))
-    .query(async ({ ctx, input }) => {
-      // Check if user is admin
-      if (ctx.user.role !== "admin") {
-        throw new Error("Unauthorized");
-      }
+  // TODO: Restore after fixing userActivityLog table schema
+  // getRecentActivities: protectedProcedure
+  //   .input(z.object({ limit: z.number().default(50) }))
+  //   .query(async ({ ctx, input }) => {
+  //     // Check if user is admin
+  //     if (ctx.user.role !== "admin") {
+  //       throw new Error("Unauthorized");
+  //     }
 
-      return getRecentActivities(input.limit);
-    }),
+  //     return getRecentActivities(input.limit);
+  //   }),
 });

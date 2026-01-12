@@ -96,3 +96,30 @@ export async function updateUserPreferences(
     });
   }
 }
+
+export async function createNotification(data: {
+  userId: number;
+  type: string;
+  title: string;
+  message: string;
+  priority?: string;
+  projectId?: number;
+  link?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(notifications).values({
+    userId: data.userId,
+    type: data.type,
+    title: data.title,
+    message: data.message,
+    priority: data.priority || "normal",
+    projectId: data.projectId,
+    link: data.link,
+    isRead: false,
+    createdAt: new Date(),
+  });
+
+  return { success: true, id: result.insertId };
+}

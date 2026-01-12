@@ -33,7 +33,7 @@ import { budgetsRouter } from "./budgetsRouter";
 import { relationshipsRouter } from "./relationshipsRouter";
 import { libraryRouter } from "./libraryRouter";
 import { financialRouter } from "./financialRouter";
-// import { teamManagementRouter } from "./teamManagementRouter"; // Temporarily disabled
+import { teamManagementRouter } from "./teamManagementRouter";
 import { productivityRouter } from "./productivityRouter";
 import { reportsRouter } from "./reportsRouter";
 import { calendarRouter } from "./calendarRouter";
@@ -95,7 +95,7 @@ export const appRouter = router({
   financial: financialRouter,
 
   // Team Management - Gestão de Equipa, Tracking de Horas e Disponibilidade
-  // teamManagement: teamManagementRouter, // Temporarily disabled
+  teamManagement: teamManagementRouter,
 
   // Productivity - Dashboard de Produtividade da Equipa
   productivity: productivityRouter,
@@ -587,6 +587,25 @@ export const appRouter = router({
 
   // Notifications
   notifications: router({
+    create: protectedProcedure
+      .input(z.object({
+        userId: z.number(),
+        type: z.string(),
+        title: z.string(),
+        message: z.string(),
+        priority: z.string().optional(),
+        projectId: z.number().optional(),
+        link: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const result = await notificationDb.createNotification(input);
+        return result;
+      }),
+
+    getUnread: protectedProcedure.query(async ({ ctx }) => {
+      return await notificationDb.getNotificationsByUser(ctx.user.id, true);
+    }),
+
     list: protectedProcedure
       .input(z.object({ unreadOnly: z.boolean().optional() }).optional())
       .query(async ({ input, ctx }) => {
@@ -601,9 +620,11 @@ export const appRouter = router({
     }),
 
     markAsRead: protectedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.number().optional(), notificationId: z.number().optional() }))
       .mutation(async ({ input, ctx }) => {
-        await notificationDb.markAsRead(input.id, ctx.user.id);
+        const notifId = input.id || input.notificationId;
+        if (!notifId) throw new Error("Notification ID is required");
+        await notificationDb.markAsRead(notifId, ctx.user.id);
         return { success: true };
       }),
 
