@@ -3,6 +3,7 @@ import type { Express, Request, Response } from "express";
 import * as db from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
+import { ENV } from "./env";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -10,6 +11,19 @@ function getQueryParam(req: Request, key: string): string | undefined {
 }
 
 export function registerOAuthRoutes(app: Express) {
+  // Get OAuth login URL
+  app.get("/api/oauth/login-url", (req: Request, res: Response) => {
+    try {
+      const redirectUri = `${req.protocol}://${req.get("host")}/api/oauth/callback`;
+      const state = Buffer.from(redirectUri).toString("base64");
+      const loginUrl = `${ENV.oAuthServerUrl}/oauth/authorize?client_id=${ENV.appId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid%20profile%20email&state=${state}`;
+      res.json({ loginUrl });
+    } catch (error) {
+      console.error("[OAuth] Failed to generate login URL", error);
+      res.status(500).json({ error: "Failed to generate login URL" });
+    }
+  });
+
   // Test login endpoint (development only)
   app.post("/api/test-login", async (req: Request, res: Response) => {
     try {

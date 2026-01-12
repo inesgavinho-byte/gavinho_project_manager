@@ -73,10 +73,17 @@ import CostPredictionDashboard from "./pages/CostPredictionDashboard";
 import ReportBuilder from "./pages/ReportBuilder";
 import CalendarPage from "./pages/CalendarPage";
 import TestLogin from "./pages/TestLogin";
+import Login from "./pages/Login";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { Loader2 } from "lucide-react";
 
 function Router() {
   return (
     <Switch>
+      <Route path="/login">
+        <Login />
+      </Route>
+
       <Route path="/test-login">
         <TestLogin />
       </Route>
@@ -438,13 +445,34 @@ function Router() {
   );
 }
 
+function ProtectedRouter() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">A carregar...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Login />;
+  }
+
+  return <Router />;
+}
+
 function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <ProtectedRouter />
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

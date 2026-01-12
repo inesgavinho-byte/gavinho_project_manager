@@ -3208,3 +3208,18 @@
 **Checkpoint:** Schema corrigido, routers registados, testes parcialmente atualizados
 **Erros Remanescentes:** 11 arquivos ainda importam as 7 tabelas deletadas
 **Próximo Passo:** Remover/comentar referências em todos os 11 arquivos e executar testes
+
+
+## Autenticação OAuth - Implementação Completa
+- [x] Implementar endpoint `/api/oauth/login-url` para gerar URL de login
+- [x] Implementar endpoint `/api/oauth/callback` para processar callback do OAuth
+- [x] Criar página de login (`client/src/pages/Login.tsx`) com design GAVINHO
+- [x] Adicionar botão "Entrar com Manus" com redirecionamento OAuth
+- [x] Adicionar botão "Login de Teste (Dev)" para testes de desenvolvimento
+- [x] Implementar ProtectedRouter para proteger rotas com autenticação
+- [x] Adicionar redirecionamento automático para login quando não autenticado
+- [x] Testar fluxo completo de autenticação
+- [x] Testar endpoint de login de teste
+- [ ] Implementar logout funcional
+- [ ] Adicionar refresh de token automático
+- [ ] Implementar recuperação de senha
