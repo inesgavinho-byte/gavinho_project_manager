@@ -3223,3 +3223,37 @@
 - [ ] Implementar logout funcional
 - [ ] Adicionar refresh de token automático
 - [ ] Implementar recuperação de senha
+
+
+## UI para Avaliações de Fornecedores (Nova)
+- [x] Criar página SupplierEvaluations.tsx com listagem de fornecedores
+- [x] Implementar formulário de avaliação com campos (rating, quality, timeliness, communication)
+- [x] Criar componente SupplierEvaluationForm com validação
+- [ ] Implementar modal de edição de avaliações existentes
+- [ ] Adicionar gráficos de histórico de avaliações por fornecedor
+- [x] Criar endpoint tRPC para salvar avaliações
+- [x] Implementar filtros por período e status de avaliação
+- [ ] Adicionar rota /supplier-evaluations no App.tsx
+- [ ] Adicionar link no menu lateral (GESTÃO > Avaliações de Fornecedores)
+
+## Filtros Avançados no Dashboard (Nova)
+- [x] Adicionar filtro por status (Planeamento, Em Andamento, Concluído)
+- [x] Implementar filtro por período (Últimos 7 dias, 30 dias, 90 dias, Todos)
+- [x] Adicionar filtro por responsável/gestor do projeto
+- [x] Criar componente FilterBar reutilizável
+- [x] Implementar persistência de filtros em localStorage
+- [x] Adicionar botão "Limpar Filtros"
+- [x] Atualizar queries do backend para suportar múltiplos filtros
+- [x] Adicionar indicadores visuais de filtros ativos
+- [ ] Testar performance com múltiplos filtros simultâneos
+
+## Notificações de Aprovação (Nova)
+- [x] Criar tabela approvalNotifications no schema
+- [x] Implementar serviço de notificações automáticas para avaliações
+- [x] Adicionar notificação quando fornecedor é avaliado
+- [x] Implementar notificação quando projeto muda de status
+- [x] Criar endpoint tRPC para enviar notificações
+- [x] Adicionar badge de notificações não lidas no header
+- [x] Implementar painel de notificações com filtros
+- [ ] Adicionar preferências de notificação por tipo
+- [ ] Criar testes unitários para sistema de notificações
