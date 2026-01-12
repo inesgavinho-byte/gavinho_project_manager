@@ -1,6 +1,7 @@
 import { getDb } from "./db";
 import { supplierEvaluations, suppliers } from "../drizzle/schema";
 import { eq, and, gte, lte } from "drizzle-orm";
+import * as automaticNotificationsService from "./automaticNotificationsService";
 
 interface CreateEvaluationInput {
   supplierId: number;
@@ -34,6 +35,18 @@ export async function createSupplierEvaluation(input: CreateEvaluationInput) {
     evaluatedBy: input.evaluatedBy,
     evaluatedAt: now.toISOString(),
   });
+
+  // Disparar notificacao automatica
+  const supplier = await db.select().from(suppliers).where(eq(suppliers.id, input.supplierId));
+  if (supplier.length > 0) {
+    const supplierName = supplier[0].name;
+    await automaticNotificationsService.notifyOnSupplierEvaluation(
+      input.supplierId,
+      supplierName,
+      input.rating,
+      `Usuário ${input.evaluatedBy || 'Sistema'}`
+    );
+  }
 
   return result;
 }

@@ -43,6 +43,9 @@ import { userManagementRouter } from "./userManagementRouter";
 import { userProfileRouter } from "./userProfileRouter";
 import * as supplierEvaluationsDb from "./supplierEvaluationsDb";
 import * as approvalNotificationsService from "./approvalNotificationsService";
+import * as automaticNotificationsService from "./automaticNotificationsService";
+import * as supplierTrendService from "./supplierTrendService";
+import * as userNotificationPreferencesDb from "./userNotificationPreferencesDb";
 
 export const appRouter = router({
   system: systemRouter,
@@ -119,6 +122,81 @@ export const appRouter = router({
           ctx.user.name || "Sistema"
         );
       }),
+  }),
+
+  // Automatic Notifications - Integração com fluxos existentes
+  automaticNotifications: router({
+    getQueueStats: protectedProcedure.query(async () => {
+      return automaticNotificationsService.getQueueStats();
+    }),
+
+    processQueue: protectedProcedure.mutation(async () => {
+      await automaticNotificationsService.processManually();
+      return { success: true };
+    }),
+  }),
+
+  // User Notification Preferences
+  notificationPreferences: router({
+    get: protectedProcedure.query(async ({ ctx }) => {
+      return await userNotificationPreferencesDb.getUserNotificationPreferences(ctx.user.id);
+    }),
+
+    update: protectedProcedure
+      .input(z.object({
+        enabledSupplierEvaluated: z.boolean().optional(),
+        enabledProjectStatusChanged: z.boolean().optional(),
+        enabledProjectCompleted: z.boolean().optional(),
+        enabledDeadlineAlert: z.boolean().optional(),
+        enabledBudgetAlert: z.boolean().optional(),
+        enabledOrderUpdate: z.boolean().optional(),
+        enabledTaskAssigned: z.boolean().optional(),
+        frequency: z.enum(["immediate", "daily", "weekly"]).optional(),
+        enableEmailNotifications: z.boolean().optional(),
+        enablePushNotifications: z.boolean().optional(),
+        enableInAppNotifications: z.boolean().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        return await userNotificationPreferencesDb.updateUserNotificationPreferences(ctx.user.id, input);
+      }),
+
+    toggleNotificationType: protectedProcedure
+      .input(z.object({
+        notificationType: z.string(),
+        enabled: z.boolean(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        return await userNotificationPreferencesDb.toggleNotificationType(
+          ctx.user.id,
+          input.notificationType,
+          input.enabled
+        );
+      }),
+
+    setFrequency: protectedProcedure
+      .input(z.object({
+        frequency: z.enum(["immediate", "daily", "weekly"]),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        return await userNotificationPreferencesDb.setNotificationFrequency(ctx.user.id, input.frequency);
+      }),
+
+    toggleChannel: protectedProcedure
+      .input(z.object({
+        channel: z.enum(["email", "push", "inApp"]),
+        enabled: z.boolean(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        return await userNotificationPreferencesDb.toggleNotificationChannel(
+          ctx.user.id,
+          input.channel,
+          input.enabled
+        );
+      }),
+
+    reset: protectedProcedure.mutation(async ({ ctx }) => {
+      return await userNotificationPreferencesDb.resetNotificationPreferences(ctx.user.id);
+    }),
   }),
   
   // User Management - Admin only
@@ -334,6 +412,30 @@ export const appRouter = router({
       .input(z.object({ supplierId: z.number().int(), limit: z.number().int().optional() }))
       .query(async ({ input }) => {
         return await supplierEvaluationsDb.getSupplierEvaluationHistory(input.supplierId, input.limit);
+      }),
+
+    getTrendData: protectedProcedure
+      .input(z.object({
+        supplierId: z.number().int(),
+        period: z.enum(["30d", "90d", "1y", "all"]).optional().default("90d"),
+      }))
+      .query(async ({ input }) => {
+        return await supplierTrendService.getSupplierTrendData(input.supplierId, input.period as any);
+      }),
+
+    getComparisonTrendData: protectedProcedure
+      .input(z.object({
+        supplierIds: z.array(z.number().int()),
+        period: z.enum(["30d", "90d", "1y", "all"]).optional().default("90d"),
+      }))
+      .query(async ({ input }) => {
+        return await supplierTrendService.getComparisonTrendData(input.supplierIds, input.period as any);
+      }),
+
+    getTrendStats: protectedProcedure
+      .input(z.object({ supplierId: z.number().int() }))
+      .query(async ({ input }) => {
+        return await supplierTrendService.getSupplierTrendStats(input.supplierId);
       }),
   }),
 

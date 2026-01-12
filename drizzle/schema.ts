@@ -1798,8 +1798,36 @@ export const users = mysqlTable("users", {
 (table) => [
 	index("users_openId_unique").on(table.openId),
 ]);
+export const userNotificationPreferences = mysqlTable("userNotificationPreferences", {
+	id: int().autoincrement().notNull(),
+	userId: int().notNull().references(() => users.id, { onDelete: "cascade" } ),
+	// Tipos de notificacoes
+	enabledSupplierEvaluated: tinyint().default(1).notNull(),
+	enabledProjectStatusChanged: tinyint().default(1).notNull(),
+	enabledProjectCompleted: tinyint().default(1).notNull(),
+	enabledDeadlineAlert: tinyint().default(1).notNull(),
+	enabledBudgetAlert: tinyint().default(1).notNull(),
+	enabledOrderUpdate: tinyint().default(1).notNull(),
+	enabledTaskAssigned: tinyint().default(1).notNull(),
+	// Frequencia de notificacoes
+	frequency: mysqlEnum(['immediate','daily','weekly']).default('immediate').notNull(),
+	// Preferencias de canal
+	enableEmailNotifications: tinyint().default(1).notNull(),
+	enablePushNotifications: tinyint().default(1).notNull(),
+	enableInAppNotifications: tinyint().default(1).notNull(),
+	// Timestamps
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+},
+(table) => [
+	index("userId_idx").on(table.userId),
+]);
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
+
+export type UserNotificationPreferences = typeof userNotificationPreferences.$inferSelect;
+export type InsertUserNotificationPreferences = typeof userNotificationPreferences.$inferInsert;
 
 export type SupplierTransaction = typeof supplierTransactions.$inferSelect;
 export type InsertSupplierTransaction = typeof supplierTransactions.$inferInsert;

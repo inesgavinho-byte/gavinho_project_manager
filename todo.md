@@ -3257,3 +3257,31 @@
 - [x] Implementar painel de notificações com filtros
 - [ ] Adicionar preferências de notificação por tipo
 - [ ] Criar testes unitários para sistema de notificações
+
+
+## Notificações Automáticas (Nova)
+- [x] Conectar disparo automático de notificações ao criar avaliação de fornecedor
+- [x] Conectar disparo automático de notificações ao atualizar status de projeto
+- [x] Conectar disparo automático de notificações ao concluir projeto
+- [x] Implementar fila de notificações para processamento assíncrono
+- [x] Adicionar retry automático para notificações falhadas
+- [ ] Criar testes unitários para fluxos de notificações automáticas
+
+## Gráficos de Tendências de Fornecedores (Nova)
+- [x] Adicionar query para buscar histórico de ratings por fornecedor
+- [x] Criar componente SupplierTrendChart com Recharts
+- [x] Implementar visualização de evolução de ratings ao longo do tempo
+- [ ] Adicionar filtro de período no gráfico (30d, 90d, 1 ano)
+- [ ] Criar gráfico de comparação entre múltiplos fornecedores
+- [x] Adicionar estatísticas de tendência (melhora, piora, estável)
+- [ ] Integrar gráficos na página SupplierEvaluations
+
+## Preferências de Notificação por Usuário (Nova)
+- [x] Criar tabela userNotificationPreferences no schema
+- [x] Implementar funções de CRUD em userPreferencesDb.ts
+- [x] Criar endpoints tRPC para gerenciar preferências
+- [x] Adicionar painel de configurações na página de perfil do usuário
+- [x] Implementar toggles para cada tipo de notificação
+- [x] Adicionar configuração de frequência de notificações (imediato, diário, semanal)
+- [ ] Integrar preferências no serviço de notificações automáticas
+- [ ] Criar testes unitários para preferências de notificação
