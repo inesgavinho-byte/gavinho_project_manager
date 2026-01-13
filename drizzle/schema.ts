@@ -1834,3 +1834,129 @@ export type InsertSupplierTransaction = typeof supplierTransactions.$inferInsert
 
 export type SupplierEvaluation = typeof supplierEvaluations.$inferSelect;
 export type InsertSupplierEvaluation = typeof supplierEvaluations.$inferInsert;
+
+// ============================================
+// MQT (Mapas de Quantidades) Tables
+// ============================================
+
+export const mqtImports = mysqlTable("mqtImports", {
+	id: int().autoincrement().notNull().primaryKey(),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	importedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	importedBy: int().notNull().references(() => users.id, { onDelete: "set null" }),
+	source: mysqlEnum(['google_sheets', 'excel']).notNull(),
+	sourceUrl: varchar({ length: 500 }),
+	fileName: varchar({ length: 255 }),
+	status: mysqlEnum(['pending', 'processing', 'completed', 'failed']).default('pending').notNull(),
+	errorMessage: text(),
+	totalRows: int(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+	index("projectId_idx").on(table.projectId),
+	index("status_idx").on(table.status),
+	index("importedBy_idx").on(table.importedBy),
+]);
+
+export const mqtLines = mysqlTable("mqtLines", {
+	id: int().autoincrement().notNull().primaryKey(),
+	importId: int().notNull().references(() => mqtImports.id, { onDelete: "cascade" }),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	itemCode: varchar({ length: 100 }).notNull(),
+	itemDescription: varchar({ length: 500 }),
+	plannedQuantity: decimal({ precision: 10, scale: 2 }),
+	executedQuantity: decimal({ precision: 10, scale: 2 }),
+	unit: varchar({ length: 50 }),
+	variance: decimal({ precision: 10, scale: 2 }),
+	variancePercentage: decimal({ precision: 5, scale: 2 }),
+	status: mysqlEnum(['on_track', 'warning', 'critical']).default('on_track').notNull(),
+	notes: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+	index("importId_idx").on(table.importId),
+	index("projectId_idx").on(table.projectId),
+	index("itemCode_idx").on(table.itemCode),
+	index("status_idx").on(table.status),
+]);
+
+export const mqtAlerts = mysqlTable("mqtAlerts", {
+	id: int().autoincrement().notNull().primaryKey(),
+	mqtLineId: int().notNull().references(() => mqtLines.id, { onDelete: "cascade" }),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	alertType: mysqlEnum(['variance_high', 'variance_critical', 'missing_data']).notNull(),
+	severity: mysqlEnum(['low', 'medium', 'high', 'critical']).notNull(),
+	message: text(),
+	isResolved: tinyint().default(0).notNull(),
+	resolvedAt: timestamp({ mode: 'string' }),
+	resolvedBy: int().references(() => users.id, { onDelete: "set null" }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+}, (table) => [
+	index("mqtLineId_idx").on(table.mqtLineId),
+	index("projectId_idx").on(table.projectId),
+	index("severity_idx").on(table.severity),
+	index("isResolved_idx").on(table.isResolved),
+]);
+
+export const mqtHistory = mysqlTable("mqtHistory", {
+	id: int().autoincrement().notNull().primaryKey(),
+	mqtLineId: int().notNull().references(() => mqtLines.id, { onDelete: "cascade" }),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	action: mysqlEnum(['created', 'updated', 'reverted']).notNull(),
+	previousValues: json(),
+	newValues: json(),
+	changedBy: int().notNull().references(() => users.id, { onDelete: "set null" }),
+	changedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+}, (table) => [
+	index("mqtLineId_idx").on(table.mqtLineId),
+	index("projectId_idx").on(table.projectId),
+	index("changedBy_idx").on(table.changedBy),
+]);
+
+// Note: orders, orderItems, orderStatusHistory, orderAlerts already exist in schema
+// They are used for order tracking and management
+
+// ============================================
+// Email Tracking for Orders and Purchases
+// ============================================
+
+export const emailTracking = mysqlTable("emailTracking", {
+	id: int().autoincrement().notNull().primaryKey(),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	orderId: int().references(() => orders.id, { onDelete: "set null" }),
+	emailId: varchar({ length: 255 }).notNull(),
+	subject: varchar({ length: 500 }).notNull(),
+	sender: varchar({ length: 255 }).notNull(),
+	recipient: varchar({ length: 255 }).notNull(),
+	receivedAt: timestamp({ mode: 'string' }).notNull(),
+	category: mysqlEnum(['purchase_order', 'invoice', 'delivery_notice', 'payment', 'other']).notNull(),
+	content: text(),
+	extractedData: json(),
+	isProcessed: tinyint().default(0).notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+}, (table) => [
+	index("projectId_idx").on(table.projectId),
+	index("orderId_idx").on(table.orderId),
+	index("category_idx").on(table.category),
+	index("isProcessed_idx").on(table.isProcessed),
+	index("emailId_idx").on(table.emailId),
+]);
+
+// ============================================
+// Type Exports for MQT and Orders
+// ============================================
+
+export type MqtImport = typeof mqtImports.$inferSelect;
+export type InsertMqtImport = typeof mqtImports.$inferInsert;
+
+export type MqtLine = typeof mqtLines.$inferSelect;
+export type InsertMqtLine = typeof mqtLines.$inferInsert;
+
+export type MqtAlert = typeof mqtAlerts.$inferSelect;
+export type InsertMqtAlert = typeof mqtAlerts.$inferInsert;
+
+export type MqtHistory = typeof mqtHistory.$inferSelect;
+export type InsertMqtHistory = typeof mqtHistory.$inferInsert;
+
+export type EmailTracking = typeof emailTracking.$inferSelect;
+export type InsertEmailTracking = typeof emailTracking.$inferInsert;

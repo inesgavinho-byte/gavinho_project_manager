@@ -293,6 +293,38 @@
 - [x] Atualizar DashboardLayout com novo design
 - [x] Alterar fundo dos cards de projeto para branco para melhor legibilidade
 - [x] Alterar fundo dos cards de alertas e notificações para branco
+
+## IMPLEMENTAÇÃO - FUNCIONALIDADES DE ALTA PRIORIDADE (Janeiro 2026)
+
+### MQT - Importação de Mapas de Quantidades
+- [x] Configurar Google Sheets API
+- [x] Criar schema de banco de dados para MQT
+- [x] Implementar parser de Google Sheets
+- [x] Implementar parser de Excel
+- [x] Criar serviço de importação MQT
+- [x] Implementar sistema de alertas de variância
+- [x] Criar endpoints tRPC para MQT
+- [ ] Desenvolver componente de upload
+- [ ] Criar tabela de visualização de MQT
+- [ ] Implementar gráficos de comparação (planejado vs executado)
+- [ ] Criar painel de alertas
+- [ ] Adicionar página MQT ao menu
+- [ ] Implementar exportação de dados
+- [ ] Criar testes unitários para MQT
+- [ ] Testar fluxo completo de importação
+
+### Integração Outlook - Rastreamento de Emails
+- [ ] Implementar sincronização de emails de encomendas
+- [ ] Criar classificação automática de emails (IA)
+- [ ] Implementar busca de emails por projeto
+- [ ] Criar visualização de histórico de comunicações
+- [ ] Desenvolver sistema de alertas para emails críticos
+- [ ] Implementar atribuição de emails a encomendas
+- [ ] Criar dashboard de emails por categoria
+- [ ] Adicionar filtros avançados de emails
+- [ ] Implementar integração com gestão de encomendas
+- [ ] Criar testes para integração Outlook
+
 - [ ] Atualizar cards de alertas e menções
 - [ ] Testar responsividade em mobile
 
