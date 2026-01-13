@@ -70,7 +70,7 @@ export function NotificationBell() {
       </Button>
 
       {isOpen && (
-        <Card className="absolute right-0 top-12 w-96 shadow-lg z-50">
+        <Card className="absolute right-0 top-12 w-96 shadow-lg z-50 bg-white">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Notificações</CardTitle>
@@ -96,12 +96,12 @@ export function NotificationBell() {
             )}
           </CardHeader>
 
-          <CardContent className="max-h-96 overflow-y-auto space-y-2">
+          <CardContent className="max-h-96 overflow-y-auto space-y-2 bg-white">
             {unreadNotifications.length > 0 ? (
               unreadNotifications.map((notification: any) => (
                 <div
                   key={notification.id}
-                  className={`p-3 rounded-lg border ${getNotificationColor(notification.type)} space-y-2`}
+                  className={`gavinho-notification-card space-y-2`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-2 flex-1">
@@ -142,7 +142,7 @@ export function NotificationBell() {
                 </div>
               ))
             ) : (
-              <div className="text-center py-8">
+              <div className="text-center py-8 bg-white">
                 <Bell className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                 <p className="text-sm text-gray-500">
                   Nenhuma notificação não lida

@@ -83,7 +83,7 @@ export function SystemNotificationsPopover() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[420px] p-0" align="end">
+      <PopoverContent className="w-[420px] p-0 bg-white" align="end">
         {/* Header */}
         <div className="flex items-center justify-between border-b p-4">
           <div className="flex items-center gap-2">
@@ -120,9 +120,9 @@ export function SystemNotificationsPopover() {
         </div>
 
         {/* Notifications List */}
-        <div className="max-h-[500px] overflow-y-auto">
+        <div className="max-h-[500px] overflow-y-auto bg-white">
           {sortedNotifications.length === 0 ? (
-            <div className="p-8 text-center">
+            <div className="p-8 text-center bg-white">
               <Bell className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
               <p className="font-medium">Nenhuma notificação</p>
               <p className="text-sm text-muted-foreground mt-1">
