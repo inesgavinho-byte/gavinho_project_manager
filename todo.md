@@ -3338,5 +3338,12 @@
 - [x] Criar página Calendar.tsx
 - [x] Adicionar rota /calendar ao App.tsx
 - [x] Atualizar link no menu de navegação
+
+### Sincronização Bidirecional Outlook Calendar
+- [x] Criar webhook para receber notificações de alterações
+- [x] Implementar processamento de eventos de alteração
+- [x] Criar sistema de sincronização bidirecional
+- [x] Adicionar endpoints tRPC para sincronização
+- [ ] Implementar notificações em tempo real (WebSocket)
 - [ ] Criar testes unitários
 - [ ] Testar fluxo completo
