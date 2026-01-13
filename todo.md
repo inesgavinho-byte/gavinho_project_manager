@@ -291,6 +291,7 @@
 - [x] Adicionar tipografia Cormorant Garamond para títulos
 - [x] Ajustar componentes para estilo minimalista/editorial
 - [x] Atualizar DashboardLayout com novo design
+- [x] Alterar fundo dos cards de projeto para branco para melhor legibilidade
 - [ ] Atualizar cards de alertas e menções
 - [ ] Testar responsividade em mobile
 

@@ -511,9 +511,9 @@
   background-color: var(--warm-beige);
 }
 
-/* Card Styles - Soft Cream Background */
+/* Card Styles - White Background for Better Readability */
 .gavinho-project-card {
-  background: var(--soft-cream);
+  background: white;
   border-radius: 10px;
   padding: 14px;
   border: 1px solid var(--border-light);
