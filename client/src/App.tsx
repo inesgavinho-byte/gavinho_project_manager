@@ -48,6 +48,7 @@ import SiteDashboard from "./pages/SiteDashboard";
 import SiteMaterials from "./pages/SiteMaterials";
 import SiteAttendance from "./pages/SiteAttendance";
 import SiteWorkers from "./pages/SiteWorkers";
+
 import SiteManagement from "./pages/SiteManagement";
 import WorksDashboard from "./pages/WorksDashboard";
 import Works from "./pages/Works";
@@ -72,7 +73,6 @@ import BudgetAlerts from "./pages/BudgetAlerts";
 import CostPredictionDashboard from "./pages/CostPredictionDashboard";
 import ReportBuilder from "./pages/ReportBuilder";
 import CalendarPage from "./pages/CalendarPage";
-import { Calendar } from "./pages/Calendar";
 import TestLogin from "./pages/TestLogin";
 import Login from "./pages/Login";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -319,7 +319,7 @@ function Router() {
       </Route>
 
       <Route path="/calendar">
-        <Calendar />
+        <CalendarPage />
       </Route>
 
       {/* Works Module Routes */}

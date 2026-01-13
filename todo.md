@@ -3351,9 +3351,11 @@
 - [x] Integrar com alertas críticos do calendário
 - [x] Configurar SendGrid API e adicionar credenciais
 - [x] Criar serviço de envio de emails com SendGrid
-- [ ] Implementar sistema de agendamento de lembretes
-- [x] Criar templates de email profissionais
-- [x] Criar endpoints tRPC para gerenciar preferências
-- [ ] Desenvolver dashboard de histórico de emails
+- [ ] Criar schema de banco de dados para histórico de emails
+- [ ] Implementar serviço de consulta e análise de histórico
+- [ ] Criar endpoints tRPC para histórico de emails
+- [ ] Desenvolver Dashboard React com tabelas e gráficos
+- [ ] Implementar filtros avançados e busca
+- [ ] Criar página de Histórico de Emails integrada
 - [x] Corrigir erro de WebSocket (import useAuth + tratamento de erro)
-- [ ] Testar fluxo completo
+- [ ] Testar painel completo

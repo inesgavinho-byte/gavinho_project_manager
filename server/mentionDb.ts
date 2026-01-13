@@ -62,3 +62,36 @@ export async function markMentionsAsRead(mentionIds: number[]): Promise<boolean>
   // TODO: Implement when commentMentions table is restored
   return false;
 }
+
+
+/**
+ * Get mentions for a comment
+ */
+export async function getMentionsForComment(commentId: number) {
+  // TODO: Implement when commentMentions table is restored
+  return [];
+}
+
+/**
+ * Mark mention as read (alias for markMentionsAsRead)
+ */
+export async function markMentionAsRead(mentionId: number): Promise<boolean> {
+  return markMentionsAsRead([mentionId]);
+}
+
+
+/**
+ * Get unread mentions count
+ */
+export async function getUnreadMentionsCount(userId: number): Promise<number> {
+  // TODO: Implement when commentMentions table is restored
+  return 0;
+}
+
+/**
+ * Mark all mentions as read
+ */
+export async function markAllMentionsAsRead(userId: number): Promise<boolean> {
+  // TODO: Implement when commentMentions table is restored
+  return false;
+}

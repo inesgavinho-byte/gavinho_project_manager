@@ -29,3 +29,8 @@ export async function getLatestPredictions(limit: number = 10): Promise<any[]> {
   // TODO: Implement when projectPredictions table is restored
   return [];
 }
+
+export async function getCriticalPredictions(limit: number = 10): Promise<any[]> {
+  // TODO: Implement when projectPredictions table is restored
+  return [];
+}

@@ -1,5 +1,8 @@
 import { invokeLLM } from "./_core/llm";
-import type { Project } from "../drizzle/schema";
+import type { InferSelectModel } from "drizzle-orm";
+import { projects } from "../drizzle/schema";
+
+type Project = InferSelectModel<typeof projects>;
 // Note: Using 'Project' type which is the inferred type from 'projects' table
 
 export interface ScenarioParameters {

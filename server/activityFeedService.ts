@@ -59,3 +59,27 @@ export async function getRecentActivities(limit: number = 50): Promise<ActivityF
 export async function deleteActivity(id: number): Promise<void> {
   // TODO: Implement when activityFeed table is restored
 }
+
+
+/**
+ * Get user activities
+ */
+export async function getUserActivities(userId: number, limit?: number): Promise<ActivityFeedItem[]> {
+  // TODO: Implement user activities retrieval
+  return [];
+}
+
+/**
+ * Get unread activity count
+ */
+export async function getUnreadActivityCount(userId: number): Promise<number> {
+  // TODO: Implement unread activity count
+  return 0;
+}
+
+/**
+ * Mark activities as read
+ */
+export async function markActivitiesAsRead(activityIds: number[]): Promise<void> {
+  // TODO: Implement mark activities as read
+}

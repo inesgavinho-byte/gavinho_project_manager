@@ -1943,6 +1943,13 @@ export const emailTracking = mysqlTable("emailTracking", {
 ]);
 
 // ============================================
+// Type Exports for Projects
+// ============================================
+
+export type Project = typeof projects.$inferSelect;
+export type InsertProject = typeof projects.$inferInsert;
+
+// ============================================
 // Type Exports for MQT and Orders
 // ============================================
 
@@ -1960,3 +1967,32 @@ export type InsertMqtHistory = typeof mqtHistory.$inferInsert;
 
 export type EmailTracking = typeof emailTracking.$inferSelect;
 export type InsertEmailTracking = typeof emailTracking.$inferInsert;
+
+export const emailHistory = mysqlTable("emailHistory", {
+	id: int().autoincrement().notNull().primaryKey(),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	eventType: mysqlEnum(['delivery', 'adjudication', 'payment', 'reminder', 'other']).notNull(),
+	recipientEmail: varchar({ length: 320 }).notNull(),
+	recipientName: varchar({ length: 255 }),
+	subject: varchar({ length: 500 }).notNull(),
+	body: text(),
+	status: mysqlEnum(['sent', 'delivered', 'bounced', 'failed', 'pending']).default('pending').notNull(),
+	sentAt: timestamp({ mode: 'string' }).notNull(),
+	deliveredAt: timestamp({ mode: 'string' }),
+	bouncedAt: timestamp({ mode: 'string' }),
+	failedAt: timestamp({ mode: 'string' }),
+	errorMessage: text(),
+	openedAt: timestamp({ mode: 'string' }),
+	clickedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+	index("projectId_idx").on(table.projectId),
+	index("status_idx").on(table.status),
+	index("eventType_idx").on(table.eventType),
+	index("sentAt_idx").on(table.sentAt),
+	index("recipientEmail_idx").on(table.recipientEmail),
+]);
+
+export type EmailHistory = typeof emailHistory.$inferSelect;
+export type InsertEmailHistory = typeof emailHistory.$inferInsert;

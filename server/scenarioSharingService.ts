@@ -108,3 +108,60 @@ export async function getCommentLikesCount(commentId: number): Promise<number> {
   // TODO: Implement when scenarioComments table is restored
   return 0;
 }
+
+
+/**
+ * Get scenarios shared with a user
+ */
+export async function getScenariosSharedWithUser(userId: number): Promise<any[]> {
+  // TODO: Implement when scenarioShares table is restored
+  return [];
+}
+
+/**
+ * Check if user has access to a scenario
+ */
+export async function checkScenarioAccess(
+  scenarioId: number,
+  userId: number,
+  requiredPermission: "view" | "edit" | "admin" = "view"
+): Promise<boolean> {
+  // TODO: Implement when scenarioShares table is restored
+  return false;
+}
+
+/**
+ * Add comment to a scenario (alias)
+ */
+export async function addScenarioComment(
+  scenarioId: number,
+  userId: number,
+  comment: string,
+  parentCommentId?: number
+): Promise<{ success: boolean; commentId?: number }> {
+  return addComment(scenarioId, userId, comment, parentCommentId);
+}
+
+/**
+ * Get comment thread
+ */
+export async function getCommentThread(commentId: number): Promise<any> {
+  // TODO: Implement when scenarioComments table is restored
+  return null;
+}
+
+/**
+ * Delete scenario comment (alias)
+ */
+export async function deleteScenarioComment(commentId: number): Promise<boolean> {
+  return deleteComment(commentId);
+}
+
+
+/**
+ * Get team members
+ */
+export async function getTeamMembers(): Promise<any[]> {
+  // TODO: Implement team members retrieval
+  return [];
+}
