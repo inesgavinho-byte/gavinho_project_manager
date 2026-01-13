@@ -3349,5 +3349,11 @@
 - [x] Criar cliente React com WebSocket
 - [x] Desenvolver componente de notificações em tempo real
 - [x] Integrar com alertas críticos do calendário
-- [ ] Criar testes unitários
+- [x] Configurar SendGrid API e adicionar credenciais
+- [x] Criar serviço de envio de emails com SendGrid
+- [ ] Implementar sistema de agendamento de lembretes
+- [x] Criar templates de email profissionais
+- [x] Criar endpoints tRPC para gerenciar preferências
+- [ ] Desenvolver dashboard de histórico de emails
+- [x] Corrigir erro de WebSocket (import useAuth + tratamento de erro)
 - [ ] Testar fluxo completo

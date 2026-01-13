@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { useAuth } from '@/_core/hooks/useAuth';
+import { useAuth } from '../_core/hooks/useAuth';
 
 export interface Notification {
   type: 'alert' | 'notification';
@@ -86,7 +86,8 @@ export function useNotificationWebSocket(options: UseNotificationWebSocketOption
       };
 
       ws.onerror = (error) => {
-        console.error('[WebSocket] Erro:', error);
+        const errorMessage = error instanceof Event ? 'WebSocket connection failed' : String(error);
+        console.error('[WebSocket] Erro:', errorMessage);
       };
 
       ws.onclose = () => {
