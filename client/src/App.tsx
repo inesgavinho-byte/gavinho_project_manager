@@ -72,6 +72,7 @@ import BudgetAlerts from "./pages/BudgetAlerts";
 import CostPredictionDashboard from "./pages/CostPredictionDashboard";
 import ReportBuilder from "./pages/ReportBuilder";
 import CalendarPage from "./pages/CalendarPage";
+import { Calendar } from "./pages/Calendar";
 import TestLogin from "./pages/TestLogin";
 import Login from "./pages/Login";
 import { useAuth } from "@/_core/hooks/useAuth";
@@ -314,6 +315,10 @@ function Router() {
         <DashboardLayout>
           <Mentions />
         </DashboardLayout>
+      </Route>
+
+      <Route path="/calendar">
+        <Calendar />
       </Route>
 
       {/* Works Module Routes */}

@@ -110,7 +110,7 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           id: "calendario",
           label: "Calendário",
           icon: Calendar,
-          path: "/calendario",
+          path: "/calendar",
         },
         {
           id: "sugestoes-ia",

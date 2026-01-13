@@ -3319,3 +3319,24 @@
 - [x] Adicionar configuração de frequência de notificações (imediato, diário, semanal)
 - [ ] Integrar preferências no serviço de notificações automáticas
 - [ ] Criar testes unitários para preferências de notificação
+
+## FASE 1 - INTEGRAÇÃO COM CALENDÁRIOS (Semana 5-6)
+
+### Outlook Calendar Integration
+- [x] Configurar Microsoft Graph Calendar API
+- [x] Criar schema de banco de dados para calendário
+- [x] Implementar serviço de sincronização com Outlook
+- [x] Criar eventos automáticos para entregas
+- [x] Criar eventos automáticos para adjudicações
+- [x] Criar eventos automáticos para pagamentos
+- [x] Implementar sistema de alertas (1 dia antes)
+- [x] Implementar sistema de alertas (1 hora antes)
+- [x] Criar endpoints tRPC para calendário
+- [x] Desenvolver Dashboard de Calendário React
+- [x] Integrar com componentes existentes
+- [x] Testar sincronização bidirecional
+- [x] Criar página Calendar.tsx
+- [x] Adicionar rota /calendar ao App.tsx
+- [x] Atualizar link no menu de navegação
+- [ ] Criar testes unitários
+- [ ] Testar fluxo completo
