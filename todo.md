@@ -314,9 +314,9 @@
 - [ ] Testar fluxo completo de importação
 
 ### Integração Outlook - Rastreamento de Emails
-- [ ] Implementar sincronização de emails de encomendas
-- [ ] Criar classificação automática de emails (IA)
-- [ ] Implementar busca de emails por projeto
+- [x] Implementar sincronização de emails de encomendas
+- [x] Criar classificação automática de emails (IA)
+- [x] Implementar busca de emails por projeto
 - [ ] Criar visualização de histórico de comunicações
 - [ ] Desenvolver sistema de alertas para emails críticos
 - [ ] Implementar atribuição de emails a encomendas
