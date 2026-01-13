@@ -3344,6 +3344,10 @@
 - [x] Implementar processamento de eventos de alteração
 - [x] Criar sistema de sincronização bidirecional
 - [x] Adicionar endpoints tRPC para sincronização
-- [ ] Implementar notificações em tempo real (WebSocket)
+- [x] Criar servidor WebSocket para broadcast de alertas
+- [x] Implementar sistema de broadcast de alertas críticos
+- [x] Criar cliente React com WebSocket
+- [x] Desenvolver componente de notificações em tempo real
+- [x] Integrar com alertas críticos do calendário
 - [ ] Criar testes unitários
 - [ ] Testar fluxo completo

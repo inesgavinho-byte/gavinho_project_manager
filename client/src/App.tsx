@@ -77,6 +77,7 @@ import TestLogin from "./pages/TestLogin";
 import Login from "./pages/Login";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Loader2 } from "lucide-react";
+import { RealtimeNotifications } from "./components/RealtimeNotifications";
 
 function Router() {
   return (
@@ -476,6 +477,7 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
+          <RealtimeNotifications position="top-right" maxNotifications={5} />
           <Toaster />
           <ProtectedRouter />
         </TooltipProvider>
