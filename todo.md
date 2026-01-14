@@ -3399,3 +3399,27 @@
 - [x] Implementar exportação de relatório em PDF
 - [x] Integrar ao componente EmailHistory
 - [ ] Testar ações em massa
+
+
+## Notificações de Sincronização - Fase 5
+- [x] Criar endpoint tRPC para notificações de sincronização
+- [x] Implementar toast com resultado de sincronização
+- [x] Adicionar contador de emails importados
+- [x] Mostrar status de sucesso/erro na notificação
+- [ ] Integrar ao componente EmailHistory
+
+## Agendamento Automático - Fase 6
+- [x] Criar job que sincroniza a cada hora
+- [x] Implementar scheduler com node-cron
+- [x] Adicionar logs de execução do job
+- [x] Configurar retry em caso de falha
+- [ ] Testar agendamento automático
+
+## Filtros Avançados - Fase 7
+- [x] Adicionar filtro por domínio de email
+- [x] Adicionar filtro por remetente
+- [x] Adicionar filtro por período customizado
+- [x] Adicionar filtro por tags
+- [ ] Implementar persistência de filtros (localStorage)
+- [ ] Integrar filtros ao componente EmailHistory
+- [ ] Testar funcionalidades de filtros

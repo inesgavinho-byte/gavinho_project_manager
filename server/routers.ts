@@ -1558,6 +1558,91 @@ export const appRouter = router({
         const updated = await bulkService.tagEmails(input.emailIds, input.tag);
         return { updated, success: true };
       }),
-});
 
+    // Endpoints para scheduler de sincronização
+    syncOutlookNow: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        const { syncOutlookEmails } = await import('./emailSyncService');
+        const synced = await syncOutlookEmails(input.projectId);
+        return { synced, provider: 'outlook' };
+      }),
+
+    syncSendGridNow: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        const { syncSendGridEvents } = await import('./emailSyncService');
+        const synced = await syncSendGridEvents(input.projectId);
+        return { synced, provider: 'sendgrid' };
+      }),
+
+    getSchedulerStatus: protectedProcedure.query(async () => {
+      const { getSchedulerStatus } = await import('./emailSchedulerService');
+      return getSchedulerStatus();
+    }),
+
+    // Endpoints para filtros avançados
+    filterEmails: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.number(),
+          status: z.string().optional(),
+          eventType: z.string().optional(),
+          domain: z.string().optional(),
+          sender: z.string().optional(),
+          recipient: z.string().optional(),
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+          tags: z.array(z.string()).optional(),
+          searchText: z.string().optional(),
+          limit: z.number().optional().default(50),
+          offset: z.number().optional().default(0),
+        })
+      )
+      .query(async ({ input }) => {
+        const { filterEmails } = await import('./emailFilterService');
+        return filterEmails(input);
+      }),
+
+    getUniqueDomains: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const { getUniqueDomains } = await import('./emailFilterService');
+        return getUniqueDomains(input.projectId);
+      }),
+
+    getUniqueSenders: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const { getUniqueSenders } = await import('./emailFilterService');
+        return getUniqueSenders(input.projectId);
+      }),
+
+    getUniqueTags: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const { getUniqueTags } = await import('./emailFilterService');
+        return getUniqueTags(input.projectId);
+      }),
+
+    countFilteredEmails: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.number(),
+          status: z.string().optional(),
+          eventType: z.string().optional(),
+          domain: z.string().optional(),
+          sender: z.string().optional(),
+          recipient: z.string().optional(),
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+          tags: z.array(z.string()).optional(),
+          searchText: z.string().optional(),
+        })
+      )
+      .query(async ({ input }) => {
+        const { countFilteredEmails } = await import('./emailFilterService');
+        return countFilteredEmails(input);
+      }),
+});
 export type AppRouter = typeof appRouter;
