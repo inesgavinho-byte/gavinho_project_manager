@@ -1559,6 +1559,46 @@ export const appRouter = router({
         return { updated, success: true };
       }),
 
+    // Endpoints para busca em tempo real
+    searchEmails: protectedProcedure
+      .input(z.object({ projectId: z.number(), query: z.string(), limit: z.number().default(20) }))
+      .query(async ({ input }) => {
+        const { searchEmails } = await import('./emailSearchService');
+        return await searchEmails(input.projectId, input.query, input.limit);
+      }),
+
+    getEmailSuggestions: protectedProcedure
+      .input(z.object({ 
+        projectId: z.number(), 
+        query: z.string(), 
+        type: z.enum(['recipient', 'sender', 'subject', 'domain']).default('recipient'),
+        limit: z.number().default(10)
+      }))
+      .query(async ({ input }) => {
+        const { getEmailSuggestions } = await import('./emailSearchService');
+        return await getEmailSuggestions(input.projectId, input.query, input.type, input.limit);
+      }),
+
+    advancedSearch: protectedProcedure
+      .input(z.object({ 
+        projectId: z.number(),
+        filters: z.object({
+          query: z.string().optional(),
+          recipientEmail: z.string().optional(),
+          senderEmail: z.string().optional(),
+          domain: z.string().optional(),
+          status: z.string().optional(),
+          eventType: z.string().optional(),
+          startDate: z.string().optional(),
+          endDate: z.string().optional(),
+        }),
+        limit: z.number().default(50)
+      }))
+      .query(async ({ input }) => {
+        const { advancedEmailSearch } = await import('./emailSearchService');
+        return await advancedEmailSearch(input.projectId, input.filters, input.limit);
+      }),
+
     // Endpoints para scheduler de sincronização
     syncOutlookNow: protectedProcedure
       .input(z.object({ projectId: z.number() }))
@@ -1644,5 +1684,31 @@ export const appRouter = router({
         const { countFilteredEmails } = await import('./emailFilterService');
         return countFilteredEmails(input);
       }),
+
+    // Endpoints para alertas inteligentes
+    detectAnomalies: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        const { detectAnomaliesWithAI, saveDetectedAnomalies } = await import('./intelligentAlertsService');
+        const anomalies = await detectAnomaliesWithAI(input.projectId);
+        await saveDetectedAnomalies(input.projectId, anomalies);
+        return { detected: anomalies.length, anomalies };
+      }),
+
+    getIntelligentAlerts: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const { getUnreadIntelligentAlerts } = await import('./intelligentAlertsService');
+        return getUnreadIntelligentAlerts(input.projectId);
+      }),
+
+    markAlertAsResolved: protectedProcedure
+      .input(z.object({ alertId: z.number() }))
+      .mutation(async ({ input }) => {
+        const { markAlertAsResolved } = await import('./intelligentAlertsService');
+        return markAlertAsResolved(input.alertId);
+      }),
+
 });
+
 export type AppRouter = typeof appRouter;

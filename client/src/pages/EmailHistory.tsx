@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -8,6 +8,8 @@ import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { EmailTrendCharts } from '@/components/EmailTrendCharts';
 import { EmailBulkActions } from '@/components/EmailBulkActions';
+import { AlertsDashboard } from '@/components/AlertsDashboard';
+import { EmailSearchBar } from '@/components/EmailSearchBar';
 
 interface EmailHistoryProps {
   projectId?: number;
@@ -24,6 +26,9 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
   const [selectedAlert, setSelectedAlert] = useState<number | null>(null);
   const [selectedEmails, setSelectedEmails] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [activeTab, setActiveTab] = useState<'history' | 'alerts' | 'trends'>('history');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Queries
   const { data: emailHistory = [], isLoading: historyLoading } = trpc.emailHistory.getHistory.useQuery({
@@ -32,6 +37,9 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
     eventType: filters.eventType || undefined,
     limit: 50,
   });
+
+  // Usar resultados de busca se houver, senão usar histórico normal
+  const displayedEmails = isSearching && searchResults.length > 0 ? searchResults : emailHistory;
 
   const { data: alerts = [], isLoading: alertsLoading, refetch: refetchAlerts } = trpc.emailHistory.getAlerts.useQuery({
     projectId,
@@ -48,68 +56,30 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
 
   const { data: domainData = [], isLoading: domainLoading } = trpc.emailHistory.getDomainComparison.useQuery({
     projectId,
+    days: 30,
   });
 
   const { data: eventTypeData = [], isLoading: eventTypeLoading } = trpc.emailHistory.getEventTypeComparison.useQuery({
     projectId,
+    days: 30,
   });
 
   const { data: trendSummary = {}, isLoading: summaryLoading } = trpc.emailHistory.getTrendSummary.useQuery({
     projectId,
   });
+
   // Mutations
-  const markAlertAsReadMutation = trpc.emailHistory.markAlertAsRead.useMutation({
+  const { mutate: markAlertAsReadMutation } = trpc.emailHistory.markAlertAsRead.useMutation({
     onSuccess: () => {
       refetchAlerts();
     },
   });
 
-  const analyzeProjectMutation = trpc.emailHistory.analyzeProject.useMutation();
-
-  // Calcular estatísticas
-  const stats = useMemo(() => {
-    if (!emailHistory || emailHistory.length === 0) {
-      return { sent: 0, delivered: 0, bounced: 0, failed: 0, openRate: 0 };
-    }
-
-    const sent = emailHistory.length;
-    const delivered = emailHistory.filter((e: any) => e.status === 'delivered').length;
-    const bounced = emailHistory.filter((e: any) => e.status === 'bounced').length;
-    const failed = emailHistory.filter((e: any) => e.status === 'failed').length;
-    const opened = emailHistory.filter((e: any) => e.openedAt).length;
-    const openRate = sent > 0 ? ((opened / sent) * 100).toFixed(1) : '0';
-
-    return { sent, delivered, bounced, failed, openRate };
-  }, [emailHistory]);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'delivered':
-        return 'bg-green-100 text-green-800';
-      case 'bounced':
-        return 'bg-red-100 text-red-800';
-      case 'failed':
-        return 'bg-orange-100 text-orange-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'delivered':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'bounced':
-      case 'failed':
-        return <XCircle className="w-4 h-4" />;
-      case 'pending':
-        return <Clock className="w-4 h-4" />;
-      default:
-        return <Mail className="w-4 h-4" />;
-    }
-  };
+  const { mutate: analyzeProjectMutation } = trpc.emailHistory.analyzeProject.useMutation({
+    onSuccess: () => {
+      refetchAlerts();
+    },
+  });
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -148,6 +118,7 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
     setSelectedEmails([]);
     setSelectAll(false);
   };
+
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -165,46 +136,178 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
         </Button>
       </div>
 
-      {/* Barra de Ações em Massa */}
-      <EmailBulkActions
-        selectedEmails={selectedEmails}
-        onClearSelection={handleClearSelection}
-        onRefresh={() => {
-          // Trigger refresh of email history
-        }}
-        projectName="Projeto"
-      />
-
-      {/* Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card className="p-4">
-          <div className="text-sm font-medium text-gray-600">Enviados</div>
-          <div className="text-2xl font-bold text-gray-900 mt-2">{stats.sent}</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-sm font-medium text-gray-600">Entregues</div>
-          <div className="text-2xl font-bold text-green-600 mt-2">{stats.delivered}</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-sm font-medium text-gray-600">Rejeitados</div>
-          <div className="text-2xl font-bold text-red-600 mt-2">{stats.bounced}</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-sm font-medium text-gray-600">Falhados</div>
-          <div className="text-2xl font-bold text-orange-600 mt-2">{stats.failed}</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-sm font-medium text-gray-600">Taxa de Abertura</div>
-          <div className="text-2xl font-bold text-blue-600 mt-2">{stats.openRate}%</div>
-        </Card>
+      {/* Tabs de Navegação */}
+      <div className="flex gap-2 border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeTab === 'history'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Histórico
+        </button>
+        <button
+          onClick={() => setActiveTab('alerts')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeTab === 'alerts'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Alertas Inteligentes
+        </button>
+        <button
+          onClick={() => setActiveTab('trends')}
+          className={`px-4 py-2 font-medium transition-colors ${
+            activeTab === 'trends'
+              ? 'border-b-2 border-blue-600 text-blue-600'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Tendências
+        </button>
       </div>
 
-      {/* Alertas Automáticos */}
-      {alerts.length > 0 && (
-        <Card className="p-6 border-l-4 border-red-500 bg-red-50">
-          <div className="flex items-start gap-4">
-            <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
-            <div className="flex-1">
+      {/* Tab: Alertas Inteligentes */}
+      {activeTab === 'alerts' && <AlertsDashboard projectId={projectId} />}
+
+      {/* Tab: Histórico */}
+      {activeTab === 'history' && (
+        <>
+          {/* Barra de Ações em Massa */}
+          <EmailBulkActions
+            selectedEmails={selectedEmails}
+            onClearSelection={handleClearSelection}
+            onRefresh={() => {
+              // Trigger refresh of email history
+            }}
+            projectName="Projeto"
+          />
+
+          {/* Estatísticas */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Enviados</p>
+                  <p className="text-3xl font-bold text-blue-600">{emailHistory.length}</p>
+                </div>
+                <Mail className="w-10 h-10 text-blue-400 opacity-50" />
+              </div>
+            </Card>
+
+            <Card className="p-4 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Entregues</p>
+                  <p className="text-3xl font-bold text-green-600">
+                    {emailHistory.filter((e: any) => e.status === 'delivered').length}
+                  </p>
+                </div>
+                <CheckCircle className="w-10 h-10 text-green-400 opacity-50" />
+              </div>
+            </Card>
+
+            <Card className="p-4 bg-gradient-to-br from-red-50 to-red-100 border-red-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Rejeitados</p>
+                  <p className="text-3xl font-bold text-red-600">
+                    {emailHistory.filter((e: any) => e.status === 'rejected').length}
+                  </p>
+                </div>
+                <XCircle className="w-10 h-10 text-red-400 opacity-50" />
+              </div>
+            </Card>
+
+            <Card className="p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Pendentes</p>
+                  <p className="text-3xl font-bold text-yellow-600">
+                    {emailHistory.filter((e: any) => e.status === 'pending').length}
+                  </p>
+                </div>
+                <Clock className="w-10 h-10 text-yellow-400 opacity-50" />
+              </div>
+            </Card>
+          </div>
+
+          {/* Busca em Tempo Real */}
+          <div className="mb-4">
+            <EmailSearchBar
+              projectId={projectId}
+              onResultsChange={(results) => {
+                setSearchResults(results);
+                setIsSearching(results.length > 0);
+              }}
+              onSearchChange={(query) => {
+                setIsSearching(query.length > 0);
+              }}
+              placeholder="Buscar emails por destinatário, assunto, remetente..."
+            />
+          </div>
+
+          {/* Filtros */}
+          <Card className="p-4 border border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select
+                  value={filters.status}
+                  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Todos</option>
+                  <option value="delivered">Entregue</option>
+                  <option value="rejected">Rejeitado</option>
+                  <option value="pending">Pendente</option>
+                  <option value="bounced">Devolvido</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Evento</label>
+                <select
+                  value={filters.eventType}
+                  onChange={(e) => setFilters({ ...filters, eventType: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Todos</option>
+                  <option value="send">Envio</option>
+                  <option value="open">Abertura</option>
+                  <option value="click">Clique</option>
+                  <option value="bounce">Devolução</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Data Inicial</label>
+                <input
+                  type="date"
+                  value={filters.startDate}
+                  onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Data Final</label>
+                <input
+                  type="date"
+                  value={filters.endDate}
+                  onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* Alertas Automáticos */}
+          {alerts.length > 0 && (
+            <Card className="p-4 border border-red-200 bg-red-50">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Alertas Automáticos ({alerts.length})</h2>
               <div className="space-y-3">
                 {alerts.slice(0, 5).map((alert: any) => (
@@ -238,161 +341,93 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
                   </div>
                 ))}
               </div>
+            </Card>
+          )}
+
+          {/* Tabela de Histórico */}
+          <Card className="border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-4 py-3 text-left">
+                      <input
+                        type="checkbox"
+                        checked={selectAll}
+                        onChange={handleSelectAll}
+                        className="w-4 h-4"
+                      />
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Data</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Destinatário</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Assunto</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Tipo</th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {historyLoading ? (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                        Carregando histórico...
+                      </td>
+                    </tr>
+                  ) : displayedEmails.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                        {isSearching ? 'Nenhum email encontrado para sua busca' : 'Nenhum email encontrado'}
+                      </td>
+                    </tr>
+                  ) : (
+                    displayedEmails.map((email: any) => (
+                      <tr key={email.id} className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="px-4 py-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedEmails.includes(email.id)}
+                            onChange={() => handleSelectEmail(email.id)}
+                            className="w-4 h-4"
+                          />
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {format(new Date(email.sentAt), 'dd/MM/yyyy HH:mm', { locale: pt })}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{email.recipientEmail}</td>
+                        <td className="px-4 py-3 text-sm text-gray-900">{email.subject}</td>
+                        <td className="px-4 py-3 text-sm text-gray-600">{email.eventType}</td>
+                        <td className="px-4 py-3">
+                          <Badge className={getSeverityColor(email.status)}>{email.status}</Badge>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </>
       )}
 
-      {/* Insights de IA */}
-      {insights.anomalies && insights.anomalies.length > 0 && (
-        <Card className="p-6 border-l-4 border-blue-500">
-          <div className="flex items-start gap-4">
-            <TrendingUp className="w-6 h-6 text-blue-600 flex-shrink-0 mt-1" />
-            <div className="flex-1">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Insights de IA</h2>
-              <div className="space-y-3">
-                {insights.anomalies.slice(0, 3).map((anomaly: any, idx: number) => (
-                  <div key={idx} className="p-3 bg-blue-50 rounded border border-blue-200">
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-blue-100 text-blue-800">
-                        {anomaly.anomalyType}
-                      </Badge>
-                      <span className="text-sm font-medium text-gray-900">
-                        Confiança: {(anomaly.confidence * 100).toFixed(0)}%
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-700 mt-2">{anomaly.description}</p>
-                    {anomaly.recommendation && (
-                      <p className="text-sm text-blue-700 mt-2 italic">💡 {anomaly.recommendation}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* Tab: Tendências */}
+      {activeTab === 'trends' && (
+        <div className="mt-8">
+          <div className="flex items-center gap-2 mb-6">
+            <BarChart3 className="w-6 h-6 text-blue-600" />
+            <h2 className="text-2xl font-bold text-gray-900">Dashboard de Tendências</h2>
           </div>
-        </Card>
+          {trendLoading || domainLoading || eventTypeLoading || summaryLoading ? (
+            <div className="text-center py-12 text-gray-500">Carregando gráficos...</div>
+          ) : (
+            <EmailTrendCharts
+              projectId={projectId}
+              trendData={trendData}
+              domainData={domainData}
+              eventTypeData={eventTypeData}
+              trendSummary={trendSummary}
+            />
+          )}
+        </div>
       )}
-
-      {/* Filtros */}
-      <Card className="p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Filtros</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-            <select
-              value={filters.status}
-              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-            >
-              <option value="">Todos</option>
-              <option value="delivered">Entregue</option>
-              <option value="bounced">Rejeitado</option>
-              <option value="failed">Falhado</option>
-              <option value="pending">Pendente</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Evento</label>
-            <select
-              value={filters.eventType}
-              onChange={(e) => setFilters({ ...filters, eventType: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-            >
-              <option value="">Todos</option>
-              <option value="delivery">Entrega</option>
-              <option value="adjudication">Adjudicação</option>
-              <option value="payment">Pagamento</option>
-              <option value="reminder">Lembrete</option>
-              <option value="other">Outro</option>
-            </select>
-          </div>
-        </div>
-      </Card>
-
-      {/* Tabela de Histórico */}
-      <Card className="p-6 overflow-x-auto">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Histórico de Emails</h2>
-        {historyLoading ? (
-          <div className="text-center py-8 text-gray-500">Carregando...</div>
-        ) : emailHistory.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">Nenhum email encontrado</div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">
-                  <input
-                    type="checkbox"
-                    checked={selectAll}
-                    onChange={handleSelectAll}
-                    className="w-4 h-4 cursor-pointer"
-                  />
-                </th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Data/Hora</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Destinatário</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Assunto</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Tipo</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {emailHistory.map((email: any) => (
-                <tr key={email.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedEmails.includes(email.id)}
-                      onChange={() => handleSelectEmail(email.id)}
-                      className="w-4 h-4 cursor-pointer"
-                    />
-                  </td>
-                  <td className="py-3 px-4 text-gray-600">
-                    {email.sentAt ? format(new Date(email.sentAt), 'dd MMM yyyy HH:mm', { locale: pt }) : '-'}
-                  </td>
-                  <td className="py-3 px-4 text-gray-900">{email.recipientEmail}</td>
-                  <td className="py-3 px-4 text-gray-700 max-w-xs truncate">{email.subject}</td>
-                  <td className="py-3 px-4">
-                    <Badge className="bg-gray-100 text-gray-800">{email.eventType}</Badge>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(email.status)}
-                      <Badge className={getStatusColor(email.status)}>
-                        {email.status.toUpperCase()}
-                      </Badge>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <Button size="sm" variant="ghost" className="text-blue-600 hover:text-blue-700">
-                      Ver Detalhes
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </Card>
-
-      {/* Dashboard de Tendências */}
-      <div className="mt-8">
-        <div className="flex items-center gap-2 mb-6">
-          <BarChart3 className="w-6 h-6 text-blue-600" />
-          <h2 className="text-2xl font-bold text-gray-900">Dashboard de Tendências</h2>
-        </div>
-        {trendLoading || domainLoading || eventTypeLoading || summaryLoading ? (
-          <div className="text-center py-12 text-gray-500">Carregando gráficos...</div>
-        ) : (
-          <EmailTrendCharts
-            projectId={projectId}
-            trendData={trendData}
-            domainData={domainData}
-            eventTypeData={eventTypeData}
-            trendSummary={trendSummary}
-          />
-        )}
-      </div>
     </div>
   );
 }
