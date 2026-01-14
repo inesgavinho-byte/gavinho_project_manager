@@ -3376,3 +3376,11 @@
 - [x] Adicionar rota /email-history ao App.tsx
 - [x] Integrar ao menu de navegação
 - [ ] Testar funcionalidade completa
+
+
+## Dashboard de Tendências de Emails - Fase 2
+- [x] Criar endpoint tRPC para dados de tendências
+- [x] Implementar componente de gráficos com Recharts
+- [x] Integrar dashboard de tendências ao painel de histórico
+- [x] Adicionar filtros de período e projeto
+- [ ] Testar funcionalidade de gráficos

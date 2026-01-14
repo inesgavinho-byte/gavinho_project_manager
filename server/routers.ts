@@ -1482,6 +1482,30 @@ export const appRouter = router({
         await emailHistoryService.detectAnomaliesWithAI(input.projectId);
         return { success: true };
       }),
+    getTrendChartData: protectedProcedure
+      .input(z.object({ projectId: z.number(), days: z.number().default(30) }))
+      .query(async ({ input }) => {
+        const emailHistoryService = await import('./emailHistoryService');
+        return await emailHistoryService.getTrendChartData(input.projectId, input.days);
+      }),
+    getDomainComparison: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const emailHistoryService = await import('./emailHistoryService');
+        return await emailHistoryService.getDomainComparisonData(input.projectId);
+      }),
+    getEventTypeComparison: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const emailHistoryService = await import('./emailHistoryService');
+        return await emailHistoryService.getEventTypeComparisonData(input.projectId);
+      }),
+    getTrendSummary: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const emailHistoryService = await import('./emailHistoryService');
+        return await emailHistoryService.getTrendSummary(input.projectId);
+      }),
   }),
 });
 

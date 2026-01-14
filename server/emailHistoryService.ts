@@ -439,3 +439,161 @@ export async function getAIInsights(projectId: number): Promise<any> {
     },
   };
 }
+
+
+/**
+ * Obter dados de tendências para gráficos
+ */
+export async function getTrendChartData(
+  projectId: number,
+  days: number = 30
+): Promise<any[]> {
+  const db = getDb();
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - days);
+
+  const analytics = await db
+    .select()
+    .from(emailAnalytics)
+    .where(
+      and(
+        eq(emailAnalytics.projectId, projectId),
+        gte(emailAnalytics.date, startDate)
+      )
+    )
+    .orderBy(emailAnalytics.date);
+
+  return analytics.map(a => ({
+    date: new Date(a.date).toLocaleDateString('pt-PT', { month: 'short', day: 'numeric' }),
+    fullDate: a.date,
+    deliveryRate: parseFloat(a.deliveryRate.toString()),
+    bounceRate: parseFloat(a.bounceRate.toString()),
+    openRate: parseFloat(a.openRate.toString()),
+    clickRate: parseFloat(a.clickRate.toString()),
+    totalSent: a.totalSent,
+    totalDelivered: a.totalDelivered,
+    totalBounced: a.totalBounced,
+    totalFailed: a.totalFailed,
+    totalOpened: a.totalOpened,
+    totalClicked: a.totalClicked,
+  }));
+}
+
+/**
+ * Obter dados de comparação por domínio
+ */
+export async function getDomainComparisonData(projectId: number): Promise<any[]> {
+  const db = getDb();
+
+  // Agrupar emails por domínio
+  const emailsByDomain = await db
+    .select({
+      domain: sql`SUBSTRING_INDEX(${emailHistory.recipientEmail}, '@', -1)`,
+      totalSent: count(),
+      totalDelivered: count(sql`CASE WHEN ${emailHistory.status} = 'delivered' THEN 1 END`),
+      totalBounced: count(sql`CASE WHEN ${emailHistory.status} = 'bounced' THEN 1 END`),
+      totalFailed: count(sql`CASE WHEN ${emailHistory.status} = 'failed' THEN 1 END`),
+    })
+    .from(emailHistory)
+    .where(eq(emailHistory.projectId, projectId))
+    .groupBy(sql`SUBSTRING_INDEX(${emailHistory.recipientEmail}, '@', -1)`)
+    .orderBy(desc(count()));
+
+  return emailsByDomain.map((d: any) => ({
+    domain: d.domain || 'unknown',
+    sent: d.totalSent,
+    delivered: d.totalDelivered,
+    bounced: d.totalBounced,
+    failed: d.totalFailed,
+    deliveryRate: d.totalSent > 0 ? ((d.totalDelivered / d.totalSent) * 100).toFixed(1) : 0,
+    bounceRate: d.totalSent > 0 ? ((d.totalBounced / d.totalSent) * 100).toFixed(1) : 0,
+  }));
+}
+
+/**
+ * Obter dados de comparação por tipo de evento
+ */
+export async function getEventTypeComparisonData(projectId: number): Promise<any[]> {
+  const db = getDb();
+
+  const emailsByType = await db
+    .select({
+      eventType: emailHistory.eventType,
+      totalSent: count(),
+      totalDelivered: count(sql`CASE WHEN ${emailHistory.status} = 'delivered' THEN 1 END`),
+      totalBounced: count(sql`CASE WHEN ${emailHistory.status} = 'bounced' THEN 1 END`),
+      totalFailed: count(sql`CASE WHEN ${emailHistory.status} = 'failed' THEN 1 END`),
+      totalOpened: count(sql`CASE WHEN ${emailHistory.openedAt} IS NOT NULL THEN 1 END`),
+    })
+    .from(emailHistory)
+    .where(eq(emailHistory.projectId, projectId))
+    .groupBy(emailHistory.eventType);
+
+  return emailsByType.map((e: any) => ({
+    type: e.eventType || 'other',
+    sent: e.totalSent,
+    delivered: e.totalDelivered,
+    bounced: e.totalBounced,
+    failed: e.totalFailed,
+    opened: e.totalOpened,
+    deliveryRate: e.totalSent > 0 ? ((e.totalDelivered / e.totalSent) * 100).toFixed(1) : 0,
+    openRate: e.totalDelivered > 0 ? ((e.totalOpened / e.totalDelivered) * 100).toFixed(1) : 0,
+  }));
+}
+
+/**
+ * Obter resumo de tendências
+ */
+export async function getTrendSummary(projectId: number): Promise<any> {
+  const db = getDb();
+  const today = new Date();
+  const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const lastMonth = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  // Dados da última semana
+  const weekData = await db
+    .select({
+      avgDeliveryRate: sql`AVG(${emailAnalytics.deliveryRate})`,
+      avgBounceRate: sql`AVG(${emailAnalytics.bounceRate})`,
+      avgOpenRate: sql`AVG(${emailAnalytics.openRate})`,
+      totalSent: sql`SUM(${emailAnalytics.totalSent})`,
+    })
+    .from(emailAnalytics)
+    .where(
+      and(
+        eq(emailAnalytics.projectId, projectId),
+        gte(emailAnalytics.date, lastWeek)
+      )
+    );
+
+  // Dados do último mês
+  const monthData = await db
+    .select({
+      avgDeliveryRate: sql`AVG(${emailAnalytics.deliveryRate})`,
+      avgBounceRate: sql`AVG(${emailAnalytics.bounceRate})`,
+      avgOpenRate: sql`AVG(${emailAnalytics.openRate})`,
+      totalSent: sql`SUM(${emailAnalytics.totalSent})`,
+    })
+    .from(emailAnalytics)
+    .where(
+      and(
+        eq(emailAnalytics.projectId, projectId),
+        gte(emailAnalytics.date, lastMonth)
+      )
+    );
+
+  return {
+    week: {
+      avgDeliveryRate: parseFloat(weekData[0]?.avgDeliveryRate?.toString() || '0'),
+      avgBounceRate: parseFloat(weekData[0]?.avgBounceRate?.toString() || '0'),
+      avgOpenRate: parseFloat(weekData[0]?.avgOpenRate?.toString() || '0'),
+      totalSent: weekData[0]?.totalSent || 0,
+    },
+    month: {
+      avgDeliveryRate: parseFloat(monthData[0]?.avgDeliveryRate?.toString() || '0'),
+      avgBounceRate: parseFloat(monthData[0]?.avgBounceRate?.toString() || '0'),
+      avgOpenRate: parseFloat(monthData[0]?.avgOpenRate?.toString() || '0'),
+      totalSent: monthData[0]?.totalSent || 0,
+    },
+  };
+}

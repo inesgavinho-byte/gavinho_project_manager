@@ -1,11 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, Mail, CheckCircle, XCircle, Clock, TrendingUp } from 'lucide-react';
+import { AlertCircle, Mail, CheckCircle, XCircle, Clock, TrendingUp, BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
+import { EmailTrendCharts } from '@/components/EmailTrendCharts';
 
 interface EmailHistoryProps {
   projectId?: number;
@@ -37,6 +38,22 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
     projectId,
   });
 
+  const { data: trendData = [], isLoading: trendLoading } = trpc.emailHistory.getTrendChartData.useQuery({
+    projectId,
+    days: 30,
+  });
+
+  const { data: domainData = [], isLoading: domainLoading } = trpc.emailHistory.getDomainComparison.useQuery({
+    projectId,
+  });
+
+  const { data: eventTypeData = [], isLoading: eventTypeLoading } = trpc.emailHistory.getEventTypeComparison.useQuery({
+    projectId,
+  });
+
+  const { data: trendSummary = {}, isLoading: summaryLoading } = trpc.emailHistory.getTrendSummary.useQuery({
+    projectId,
+  });
   // Mutations
   const markAlertAsReadMutation = trpc.emailHistory.markAlertAsRead.useMutation({
     onSuccess: () => {
@@ -306,6 +323,25 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
           </table>
         )}
       </Card>
+
+      {/* Dashboard de Tendências */}
+      <div className="mt-8">
+        <div className="flex items-center gap-2 mb-6">
+          <BarChart3 className="w-6 h-6 text-blue-600" />
+          <h2 className="text-2xl font-bold text-gray-900">Dashboard de Tendências</h2>
+        </div>
+        {trendLoading || domainLoading || eventTypeLoading || summaryLoading ? (
+          <div className="text-center py-12 text-gray-500">Carregando gráficos...</div>
+        ) : (
+          <EmailTrendCharts
+            projectId={projectId}
+            trendData={trendData}
+            domainData={domainData}
+            eventTypeData={eventTypeData}
+            trendSummary={trendSummary}
+          />
+        )}
+      </div>
     </div>
   );
 }
