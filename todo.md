@@ -3359,3 +3359,20 @@
 - [ ] Criar página de Histórico de Emails integrada
 - [x] Corrigir erro de WebSocket (import useAuth + tratamento de erro)
 - [ ] Testar painel completo
+
+
+## Painel de Histórico de Emails - Fase 1
+- [x] Criar tabela emailAlerts para armazenar alertas automáticos
+- [x] Criar tabela emailAnalytics para métricas silenciosas (taxa de entrega, rejeição, etc)
+- [x] Criar tabela emailAnomalies para detecção de anomalias por IA
+- [x] Implementar analisador de histórico de emails
+- [x] Implementar detector de anomalias (padrões de rejeição, falhas recorrentes)
+- [x] Implementar gerador de alertas automáticos
+- [x] Implementar sistema de aprendizado de IA (tendências, previsões)
+- [x] Criar endpoints tRPC para histórico, alertas e insights
+- [x] Criar componente EmailHistoryDashboard com tabela e alertas
+- [x] Implementar filtros contextuais (projeto, período, status)
+- [x] Implementar painel de insights de IA
+- [x] Adicionar rota /email-history ao App.tsx
+- [x] Integrar ao menu de navegação
+- [ ] Testar funcionalidade completa

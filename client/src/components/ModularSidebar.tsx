@@ -31,6 +31,7 @@ import {
   AlertCircle,
   Settings,
   History,
+  Mail,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -269,6 +270,18 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           label: "Compras",
           icon: ShoppingCart,
           path: "/purchases",
+        },
+      ],
+    },
+    {
+      id: "comunicacao",
+      title: "COMUNICAÇÃO",
+      items: [
+        {
+          id: "email-history",
+          label: "Histórico de Emails",
+          icon: Mail,
+          path: "/email-history",
         },
       ],
     },

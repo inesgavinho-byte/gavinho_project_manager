@@ -1996,3 +1996,121 @@ export const emailHistory = mysqlTable("emailHistory", {
 
 export type EmailHistory = typeof emailHistory.$inferSelect;
 export type InsertEmailHistory = typeof emailHistory.$inferInsert;
+
+
+// ============================================
+// Email Alerts Table
+// ============================================
+
+export const emailAlerts = mysqlTable("emailAlerts", {
+	id: int().autoincrement().notNull().primaryKey(),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	emailHistoryId: int().references(() => emailHistory.id, { onDelete: "cascade" }),
+	alertType: mysqlEnum(['delivery_failure', 'high_bounce_rate', 'delayed_delivery', 'suspicious_pattern', 'anomaly_detected']).notNull(),
+	severity: mysqlEnum(['low', 'medium', 'high', 'critical']).default('medium').notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	description: text(),
+	recipientEmail: varchar({ length: 320 }),
+	isRead: tinyint().default(0).notNull(),
+	isResolved: tinyint().default(0).notNull(),
+	resolvedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+	index("projectId_idx").on(table.projectId),
+	index("alertType_idx").on(table.alertType),
+	index("severity_idx").on(table.severity),
+	index("isRead_idx").on(table.isRead),
+	index("createdAt_idx").on(table.createdAt),
+]);
+
+export type EmailAlert = typeof emailAlerts.$inferSelect;
+export type InsertEmailAlert = typeof emailAlerts.$inferInsert;
+
+// ============================================
+// Email Analytics Table (Métricas Silenciosas)
+// ============================================
+
+export const emailAnalytics = mysqlTable("emailAnalytics", {
+	id: int().autoincrement().notNull().primaryKey(),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	date: date().notNull(),
+	totalSent: int().default(0).notNull(),
+	totalDelivered: int().default(0).notNull(),
+	totalBounced: int().default(0).notNull(),
+	totalFailed: int().default(0).notNull(),
+	totalOpened: int().default(0).notNull(),
+	totalClicked: int().default(0).notNull(),
+	deliveryRate: decimal({ precision: 5, scale: 2 }).default('0.00').notNull(),
+	bounceRate: decimal({ precision: 5, scale: 2 }).default('0.00').notNull(),
+	openRate: decimal({ precision: 5, scale: 2 }).default('0.00').notNull(),
+	clickRate: decimal({ precision: 5, scale: 2 }).default('0.00').notNull(),
+	avgDeliveryTime: int(), // em minutos
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+	index("projectId_idx").on(table.projectId),
+	index("date_idx").on(table.date),
+]);
+
+export type EmailAnalytic = typeof emailAnalytics.$inferSelect;
+export type InsertEmailAnalytic = typeof emailAnalytics.$inferInsert;
+
+// ============================================
+// Email Anomalies Table (Detecção de IA)
+// ============================================
+
+export const emailAnomalies = mysqlTable("emailAnomalies", {
+	id: int().autoincrement().notNull().primaryKey(),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	anomalyType: mysqlEnum(['high_bounce_rate', 'low_delivery_rate', 'unusual_pattern', 'recipient_issue', 'domain_issue', 'content_issue']).notNull(),
+	severity: mysqlEnum(['low', 'medium', 'high', 'critical']).default('medium').notNull(),
+	description: text().notNull(),
+	affectedRecipients: int().default(0).notNull(),
+	affectedEmails: int().default(0).notNull(),
+	detectionDate: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	startDate: timestamp({ mode: 'string' }),
+	endDate: timestamp({ mode: 'string' }),
+	isActive: tinyint().default(1).notNull(),
+	recommendation: text(),
+	confidence: decimal({ precision: 3, scale: 2 }).default('0.00').notNull(), // 0.00 a 1.00
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+	index("projectId_idx").on(table.projectId),
+	index("anomalyType_idx").on(table.anomalyType),
+	index("severity_idx").on(table.severity),
+	index("isActive_idx").on(table.isActive),
+	index("detectionDate_idx").on(table.detectionDate),
+]);
+
+export type EmailAnomaly = typeof emailAnomalies.$inferSelect;
+export type InsertEmailAnomaly = typeof emailAnomalies.$inferInsert;
+
+// ============================================
+// Email Trends Table (Tendências para IA)
+// ============================================
+
+export const emailTrends = mysqlTable("emailTrends", {
+	id: int().autoincrement().notNull().primaryKey(),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	recipientDomain: varchar({ length: 255 }),
+	eventType: mysqlEnum(['delivery', 'adjudication', 'payment', 'reminder', 'other']),
+	trendType: mysqlEnum(['bounce_increase', 'delivery_decrease', 'engagement_increase', 'engagement_decrease', 'seasonal_pattern']).notNull(),
+	startDate: date().notNull(),
+	endDate: date().notNull(),
+	baselineValue: decimal({ precision: 5, scale: 2 }).notNull(),
+	currentValue: decimal({ precision: 5, scale: 2 }).notNull(),
+	percentageChange: decimal({ precision: 5, scale: 2 }).notNull(),
+	dataPoints: int().default(0).notNull(),
+	confidence: decimal({ precision: 3, scale: 2 }).default('0.00').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+	index("projectId_idx").on(table.projectId),
+	index("trendType_idx").on(table.trendType),
+	index("startDate_idx").on(table.startDate),
+]);
+
+export type EmailTrend = typeof emailTrends.$inferSelect;
+export type InsertEmailTrend = typeof emailTrends.$inferInsert;

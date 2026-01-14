@@ -1437,6 +1437,52 @@ export const appRouter = router({
         return await contractAnalytics.getFilteredContracts(input);
       }),
   }),
+  emailHistory: router({
+    getHistory: protectedProcedure
+      .input(
+        z.object({
+          projectId: z.number(),
+          status: z.string().optional(),
+          eventType: z.string().optional(),
+          startDate: z.date().optional(),
+          endDate: z.date().optional(),
+          recipientEmail: z.string().optional(),
+          limit: z.number().default(50),
+          offset: z.number().default(0),
+        })
+      )
+      .query(async ({ input }) => {
+        const emailHistoryService = await import('./emailHistoryService');
+        return await emailHistoryService.getEmailHistory(input.projectId, input);
+      }),
+    getAlerts: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const emailHistoryService = await import('./emailHistoryService');
+        return await emailHistoryService.getUnreadAlerts(input.projectId);
+      }),
+    markAlertAsRead: protectedProcedure
+      .input(z.object({ alertId: z.number() }))
+      .mutation(async ({ input }) => {
+        const emailHistoryService = await import('./emailHistoryService');
+        await emailHistoryService.markAlertAsRead(input.alertId);
+        return { success: true };
+      }),
+    getInsights: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const emailHistoryService = await import('./emailHistoryService');
+        return await emailHistoryService.getAIInsights(input.projectId);
+      }),
+    analyzeProject: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        const emailHistoryService = await import('./emailHistoryService');
+        await emailHistoryService.analyzeEmailHistory(input.projectId);
+        await emailHistoryService.detectAnomaliesWithAI(input.projectId);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

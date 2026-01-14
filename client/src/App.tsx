@@ -15,6 +15,7 @@ import Tasks from "./pages/Tasks";
 import Budgets from "./pages/Budgets";
 import Reports from "./pages/Reports";
 import Emails from "./pages/Emails";
+import EmailHistory from "./pages/EmailHistory";
 import AISuggestions from "./pages/AISuggestions";
 import Notifications from "./pages/Notifications";
 import NotificationSettings from "./pages/NotificationSettings";
@@ -273,6 +274,12 @@ function Router() {
       <Route path="/emails">
         <DashboardLayout>
           <Emails />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/email-history">
+        <DashboardLayout>
+          <EmailHistory />
         </DashboardLayout>
       </Route>
       
