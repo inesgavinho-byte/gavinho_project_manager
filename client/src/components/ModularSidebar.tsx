@@ -307,6 +307,24 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           icon: Sparkles,
           path: "/recommended-actions",
         },
+        {
+          id: "calendar-integration",
+          label: "Integração com Calendário",
+          icon: Calendar,
+          path: "/calendar-integration",
+        },
+        {
+          id: "performance",
+          label: "Dashboard de Performance",
+          icon: TrendingUp,
+          path: "/performance",
+        },
+        {
+          id: "email-automation",
+          label: "Automação de Emails",
+          icon: Mail,
+          path: "/email-automation",
+        },
       ],
     },
     {

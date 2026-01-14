@@ -20,6 +20,9 @@ import { CRMDashboard } from "./components/CRMDashboard";
 import { SentimentAnalysisDashboard } from "./components/SentimentAnalysisDashboard";
 import { ScheduledReportsDashboard } from "./components/ScheduledReportsDashboard";
 import { RecommendedActionsDashboard } from "./components/RecommendedActionsDashboard";
+import { CalendarIntegration } from "./components/CalendarIntegration";
+import { PerformanceDashboard } from "./components/PerformanceDashboard";
+import { EmailAutomation } from "./components/EmailAutomation";
 import AISuggestions from "./pages/AISuggestions";
 import Notifications from "./pages/Notifications";
 import NotificationSettings from "./pages/NotificationSettings";
@@ -308,6 +311,24 @@ function Router() {
       <Route path="/recommended-actions">
         <DashboardLayout>
           <RecommendedActionsDashboard projectId={1} />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/calendar-integration">
+        <DashboardLayout>
+          <CalendarIntegration projectId={1} />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/performance">
+        <DashboardLayout>
+          <PerformanceDashboard projectId={1} />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/email-automation">
+        <DashboardLayout>
+          <EmailAutomation projectId={1} />
         </DashboardLayout>
       </Route>
       
