@@ -7,6 +7,7 @@ import { AlertCircle, Mail, CheckCircle, XCircle, Clock, TrendingUp, BarChart3 }
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { EmailTrendCharts } from '@/components/EmailTrendCharts';
+import { EmailBulkActions } from '@/components/EmailBulkActions';
 
 interface EmailHistoryProps {
   projectId?: number;
@@ -21,6 +22,8 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
   });
 
   const [selectedAlert, setSelectedAlert] = useState<number | null>(null);
+  const [selectedEmails, setSelectedEmails] = useState<number[]>([]);
+  const [selectAll, setSelectAll] = useState(false);
 
   // Queries
   const { data: emailHistory = [], isLoading: historyLoading } = trpc.emailHistory.getHistory.useQuery({
@@ -123,6 +126,28 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
     }
   };
 
+  // Funções de seleção múltipla
+  const handleSelectEmail = (emailId: number) => {
+    setSelectedEmails((prev) =>
+      prev.includes(emailId) ? prev.filter((id) => id !== emailId) : [...prev, emailId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedEmails([]);
+      setSelectAll(false);
+    } else {
+      const allIds = emailHistory.map((e: any) => e.id);
+      setSelectedEmails(allIds);
+      setSelectAll(true);
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedEmails([]);
+    setSelectAll(false);
+  };
   return (
     <div className="space-y-6 p-6">
       {/* Header */}
@@ -139,6 +164,16 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
           {analyzeProjectMutation.isPending ? 'Analisando...' : 'Analisar Agora'}
         </Button>
       </div>
+
+      {/* Barra de Ações em Massa */}
+      <EmailBulkActions
+        selectedEmails={selectedEmails}
+        onClearSelection={handleClearSelection}
+        onRefresh={() => {
+          // Trigger refresh of email history
+        }}
+        projectName="Projeto"
+      />
 
       {/* Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -285,6 +320,14 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200">
+                <th className="text-left py-3 px-4 font-semibold text-gray-900">
+                  <input
+                    type="checkbox"
+                    checked={selectAll}
+                    onChange={handleSelectAll}
+                    className="w-4 h-4 cursor-pointer"
+                  />
+                </th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-900">Data/Hora</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-900">Destinatário</th>
                 <th className="text-left py-3 px-4 font-semibold text-gray-900">Assunto</th>
@@ -296,6 +339,14 @@ export default function EmailHistory({ projectId = 1 }: EmailHistoryProps) {
             <tbody>
               {emailHistory.map((email: any) => (
                 <tr key={email.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="py-3 px-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedEmails.includes(email.id)}
+                      onChange={() => handleSelectEmail(email.id)}
+                      className="w-4 h-4 cursor-pointer"
+                    />
+                  </td>
                   <td className="py-3 px-4 text-gray-600">
                     {email.sentAt ? format(new Date(email.sentAt), 'dd MMM yyyy HH:mm', { locale: pt }) : '-'}
                   </td>

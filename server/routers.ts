@@ -1507,6 +1507,57 @@ export const appRouter = router({
         return await emailHistoryService.getTrendSummary(input.projectId);
       }),
   }),
+    syncOutlookEmails: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        const emailSyncService = await import('./emailSyncService');
+        const syncedCount = await emailSyncService.syncOutlookEmails(input.projectId);
+        await emailSyncService.updateEmailAnalytics(input.projectId);
+        return { syncedCount, success: true };
+      }),
+    syncSendGridEvents: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        const emailSyncService = await import('./emailSyncService');
+        const syncedCount = await emailSyncService.syncSendGridEvents(input.projectId);
+        await emailSyncService.updateEmailAnalytics(input.projectId);
+        return { syncedCount, success: true };
+      }),
+    markAsRead: protectedProcedure
+      .input(z.object({ emailIds: z.array(z.number()) }))
+      .mutation(async ({ input }) => {
+        const bulkService = await import('./emailBulkActionsService');
+        const updated = await bulkService.markEmailsAsRead(input.emailIds);
+        return { updated, success: true };
+      }),
+    resendBulk: protectedProcedure
+      .input(z.object({ emailIds: z.array(z.number()) }))
+      .mutation(async ({ input }) => {
+        const bulkService = await import('./emailBulkActionsService');
+        const result = await bulkService.resendEmails(input.emailIds);
+        return { ...result, success: true };
+      }),
+    deleteBulk: protectedProcedure
+      .input(z.object({ emailIds: z.array(z.number()) }))
+      .mutation(async ({ input }) => {
+        const bulkService = await import('./emailBulkActionsService');
+        const deleted = await bulkService.deleteEmails(input.emailIds);
+        return { deleted, success: true };
+      }),
+    exportBulkPDF: protectedProcedure
+      .input(z.object({ emailIds: z.array(z.number()), projectName: z.string() }))
+      .mutation(async ({ input }) => {
+        const bulkService = await import('./emailBulkActionsService');
+        const result = await bulkService.exportEmailsAsPDF(input.emailIds, input.projectName);
+        return { ...result, success: !!result };
+      }),
+    tagBulk: protectedProcedure
+      .input(z.object({ emailIds: z.array(z.number()), tag: z.string() }))
+      .mutation(async ({ input }) => {
+        const bulkService = await import('./emailBulkActionsService');
+        const updated = await bulkService.tagEmails(input.emailIds, input.tag);
+        return { updated, success: true };
+      }),
 });
 
 export type AppRouter = typeof appRouter;

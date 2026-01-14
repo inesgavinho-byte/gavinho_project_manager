@@ -3384,3 +3384,18 @@
 - [x] Integrar dashboard de tendências ao painel de histórico
 - [x] Adicionar filtros de período e projeto
 - [ ] Testar funcionalidade de gráficos
+
+
+## Integração com Dados Reais - Fase 3
+- [x] Criar serviço de sincronização com Outlook/SendGrid
+- [x] Implementar endpoints tRPC para sincronização
+- [x] Adicionar job de sincronização automática
+- [ ] Testar integração com dados reais
+
+## Ações em Massa - Fase 4
+- [x] Criar funcionalidade de seleção múltipla de emails
+- [x] Implementar ação de reenvio em lote
+- [x] Implementar ação de marcar como lido
+- [x] Implementar exportação de relatório em PDF
+- [x] Integrar ao componente EmailHistory
+- [ ] Testar ações em massa
