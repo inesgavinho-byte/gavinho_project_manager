@@ -3,7 +3,7 @@ import type { InferSelectModel } from "drizzle-orm";
 import { projects } from "../drizzle/schema";
 
 type Project = InferSelectModel<typeof projects>;
-// Note: Using 'Project' type which is the inferred type from 'projects' table
+// Note: Using 'Project' type inferred from projects table
 
 export interface ScenarioParameters {
   budgetAdjustment?: number; // absolute amount

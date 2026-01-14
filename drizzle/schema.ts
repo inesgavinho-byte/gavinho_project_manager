@@ -2116,14 +2116,9 @@ export type EmailTrend = typeof emailTrends.$inferSelect;
 export type InsertEmailTrend = typeof emailTrends.$inferInsert;
 
 
-// ============================================
-// Project Phases Table (Fases Configuráveis)
-// ============================================
-
-
-// ============================================
-// Project Phases Extended Table (Fases Configuráveis)
-// ============================================
+	// ============================================
+	// Project Phases Extended Tables (Fases Configuráveis)
+	// ============================================
 export const phaseMilestones = mysqlTable("phaseMilestones", {
 	id: int().autoincrement().notNull().primaryKey(),
 	phaseId: int().notNull().references(() => projectPhases.id, { onDelete: "cascade" }),

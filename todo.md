@@ -3496,3 +3496,23 @@
 - [x] Adicionar alertas para comunicações negativas
 - [ ] Implementar dashboard de análise de sentimento
 - [ ] Testar análise de sentimento
+
+
+## Dashboard CRM - Fase 15
+- [x] Criar endpoints tRPC para dados de contato e histórico
+- [x] Implementar componente ContactDetailsPanel com abas
+- [x] Criar componente CommunicationTimeline com emails
+- [x] Implementar gráficos de análise de sentimento
+- [x] Criar componente ContactSentimentChart com tendências
+- [ ] Integrar ao painel de histórico de emails
+- [ ] Testar funcionalidade do Dashboard CRM
+
+
+## Sistema de Alertas de Sentimento Negativo - Fase 16
+- [ ] Criar serviço de detecção de sentimento negativo persistente
+- [ ] Implementar endpoints tRPC para alertas de sentimento
+- [ ] Criar componente de configuração de limiares de alerta
+- [ ] Implementar notificações em tempo real
+- [ ] Criar painel de alertas de sentimento
+- [ ] Adicionar ações recomendadas para resolver problemas
+- [ ] Testar funcionalidade de alertas
