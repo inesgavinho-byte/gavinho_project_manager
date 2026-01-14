@@ -3477,3 +3477,22 @@
 - [ ] Implementar editor de fases (criar, editar, deletar)
 - [ ] Adicionar visualização de progresso (timeline, Gantt)
 - [ ] Integrar ao menu de navegação
+
+
+## Relatórios Agendados - Fase 12
+- [x] Criar schema para relatórios agendados e configurações
+- [x] Implementar serviço de geração de relatórios com gráficos
+- [ ] Criar job scheduler para envio automático de relatórios
+- [ ] Testar envio de relatórios agendados
+
+## Integração com CRM - Fase 13
+- [x] Implementar integração com clientes/fornecedores
+- [x] Adicionar contexto de comunicação ao histórico
+- [ ] Criar visualização de histórico por contato
+- [ ] Testar integração com CRM
+
+## Análise de Sentimento - Fase 14
+- [x] Criar serviço de análise de sentimento com IA
+- [x] Adicionar alertas para comunicações negativas
+- [ ] Implementar dashboard de análise de sentimento
+- [ ] Testar análise de sentimento

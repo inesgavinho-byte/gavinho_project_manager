@@ -2194,3 +2194,156 @@ export const phaseTemplates = mysqlTable("phaseTemplates", {
 
 export type PhaseTemplate = typeof phaseTemplates.$inferSelect;
 export type InsertPhaseTemplate = typeof phaseTemplates.$inferInsert;
+
+
+// ============================================
+// Scheduled Email Reports Table
+// ============================================
+export const scheduledEmailReports = mysqlTable("scheduledEmailReports", {
+	id: int().autoincrement().notNull().primaryKey(),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	frequency: mysqlEnum(['daily', 'weekly', 'monthly', 'custom']).default('weekly').notNull(),
+	dayOfWeek: int(), // 0-6 (Sunday-Saturday) para weekly
+	dayOfMonth: int(), // 1-31 para monthly
+	time: varchar({ length: 5 }), // HH:MM formato
+	recipients: text().notNull(), // JSON array de emails
+	includeMetrics: tinyint().default(1).notNull(),
+	includeTrends: tinyint().default(1).notNull(),
+	includeAlerts: tinyint().default(1).notNull(),
+	includeInsights: tinyint().default(1).notNull(),
+	dateRange: mysqlEnum(['last_7_days', 'last_30_days', 'last_90_days', 'custom']).default('last_30_days').notNull(),
+	customStartDate: date(),
+	customEndDate: date(),
+	isActive: tinyint().default(1).notNull(),
+	lastSentAt: timestamp({ mode: 'string' }),
+	nextSendAt: timestamp({ mode: 'string' }),
+	createdBy: int().notNull().references(() => users.id, { onDelete: "set null" }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+	index("projectId_idx").on(table.projectId),
+	index("frequency_idx").on(table.frequency),
+	index("isActive_idx").on(table.isActive),
+	index("nextSendAt_idx").on(table.nextSendAt),
+]);
+
+export type ScheduledEmailReport = typeof scheduledEmailReports.$inferSelect;
+export type InsertScheduledEmailReport = typeof scheduledEmailReports.$inferInsert;
+
+// ============================================
+// Email Report Logs Table
+// ============================================
+export const emailReportLogs = mysqlTable("emailReportLogs", {
+	id: int().autoincrement().notNull().primaryKey(),
+	reportId: int().notNull().references(() => scheduledEmailReports.id, { onDelete: "cascade" }),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	sentAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	recipients: text().notNull(), // JSON array de emails que receberam
+	status: mysqlEnum(['success', 'failed', 'partial']).default('success').notNull(),
+	errorMessage: text(),
+	reportData: text(), // JSON com dados do relatório
+	emailsSent: int().default(0).notNull(),
+	emailsFailed: int().default(0).notNull(),
+}, (table) => [
+	index("reportId_idx").on(table.reportId),
+	index("projectId_idx").on(table.projectId),
+	index("sentAt_idx").on(table.sentAt),
+	index("status_idx").on(table.status),
+]);
+
+export type EmailReportLog = typeof emailReportLogs.$inferSelect;
+export type InsertEmailReportLog = typeof emailReportLogs.$inferInsert;
+
+// ============================================
+// CRM Contacts Integration Table
+// ============================================
+export const crmContacts = mysqlTable("crmContacts", {
+	id: int().autoincrement().notNull().primaryKey(),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	type: mysqlEnum(['client', 'supplier', 'partner', 'other']).notNull(),
+	name: varchar({ length: 255 }).notNull(),
+	email: varchar({ length: 255 }).notNull(),
+	phone: varchar({ length: 20 }),
+	company: varchar({ length: 255 }),
+	role: varchar({ length: 100 }),
+	address: text(),
+	notes: text(),
+	tags: text(), // JSON array
+	emailCount: int().default(0).notNull(),
+	lastEmailDate: date(),
+	sentimentScore: decimal({ precision: 3, scale: 2 }).default('0.00'), // -1.00 a 1.00
+	communicationStatus: mysqlEnum(['active', 'inactive', 'archived']).default('active').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+	index("projectId_idx").on(table.projectId),
+	index("type_idx").on(table.type),
+	index("email_idx").on(table.email),
+	index("sentimentScore_idx").on(table.sentimentScore),
+	index("communicationStatus_idx").on(table.communicationStatus),
+]);
+
+export type CRMContact = typeof crmContacts.$inferSelect;
+export type InsertCRMContact = typeof crmContacts.$inferInsert;
+
+// ============================================
+// Email Sentiment Analysis Table
+// ============================================
+export const emailSentimentAnalysis = mysqlTable("emailSentimentAnalysis", {
+	id: int().autoincrement().notNull().primaryKey(),
+	emailId: int().notNull().references(() => emailTracking.id, { onDelete: "cascade" }),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	contactId: int().references(() => crmContacts.id, { onDelete: "set null" }),
+	sentiment: mysqlEnum(['very_negative', 'negative', 'neutral', 'positive', 'very_positive']).notNull(),
+	sentimentScore: decimal({ precision: 3, scale: 2 }).notNull(), // -1.00 a 1.00
+	confidence: decimal({ precision: 3, scale: 2 }).notNull(), // 0.00 a 1.00
+	keywords: text(), // JSON array de palavras-chave detectadas
+	emotions: text(), // JSON array de emoções detectadas
+	urgency: mysqlEnum(['low', 'medium', 'high', 'critical']).default('medium').notNull(),
+	requiresAction: tinyint().default(0).notNull(),
+	actionTaken: text(),
+	analyzedAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+}, (table) => [
+	index("emailId_idx").on(table.emailId),
+	index("projectId_idx").on(table.projectId),
+	index("contactId_idx").on(table.contactId),
+	index("sentiment_idx").on(table.sentiment),
+	index("urgency_idx").on(table.urgency),
+	index("requiresAction_idx").on(table.requiresAction),
+]);
+
+export type EmailSentimentAnalysis = typeof emailSentimentAnalysis.$inferSelect;
+export type InsertEmailSentimentAnalysis = typeof emailSentimentAnalysis.$inferInsert;
+
+// ============================================
+// Sentiment Alerts Table
+// ============================================
+export const sentimentAlerts = mysqlTable("sentimentAlerts", {
+	id: int().autoincrement().notNull().primaryKey(),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	contactId: int().references(() => crmContacts.id, { onDelete: "cascade" }),
+	sentimentAnalysisId: int().notNull().references(() => emailSentimentAnalysis.id, { onDelete: "cascade" }),
+	alertType: mysqlEnum(['negative_sentiment', 'urgent_issue', 'sentiment_trend', 'communication_gap']).notNull(),
+	severity: mysqlEnum(['low', 'medium', 'high', 'critical']).notNull(),
+	title: varchar({ length: 255 }).notNull(),
+	description: text().notNull(),
+	recommendedAction: text(),
+	isRead: tinyint().default(0).notNull(),
+	isResolved: tinyint().default(0).notNull(),
+	resolvedAt: timestamp({ mode: 'string' }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+	index("projectId_idx").on(table.projectId),
+	index("contactId_idx").on(table.contactId),
+	index("alertType_idx").on(table.alertType),
+	index("severity_idx").on(table.severity),
+	index("isRead_idx").on(table.isRead),
+	index("isResolved_idx").on(table.isResolved),
+]);
+
+export type SentimentAlert = typeof sentimentAlerts.$inferSelect;
+export type InsertSentimentAlert = typeof sentimentAlerts.$inferInsert;
