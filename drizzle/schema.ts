@@ -2114,3 +2114,83 @@ export const emailTrends = mysqlTable("emailTrends", {
 
 export type EmailTrend = typeof emailTrends.$inferSelect;
 export type InsertEmailTrend = typeof emailTrends.$inferInsert;
+
+
+// ============================================
+// Project Phases Table (Fases Configuráveis)
+// ============================================
+
+
+// ============================================
+// Project Phases Extended Table (Fases Configuráveis)
+// ============================================
+export const phaseMilestones = mysqlTable("phaseMilestones", {
+	id: int().autoincrement().notNull().primaryKey(),
+	phaseId: int().notNull().references(() => projectPhases.id, { onDelete: "cascade" }),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	dueDate: date().notNull(),
+	completionDate: date(),
+	status: mysqlEnum(['pending', 'in_progress', 'completed', 'overdue', 'cancelled']).default('pending').notNull(),
+	priority: mysqlEnum(['low', 'medium', 'high', 'critical']).default('medium').notNull(),
+	assignedTo: int().references(() => users.id, { onDelete: "set null" }),
+	deliverables: text(), // JSON array
+	notes: text(),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+	index("phaseId_idx").on(table.phaseId),
+	index("projectId_idx").on(table.projectId),
+	index("status_idx").on(table.status),
+	index("dueDate_idx").on(table.dueDate),
+	index("assignedTo_idx").on(table.assignedTo),
+]);
+
+export type PhaseMilestone = typeof phaseMilestones.$inferSelect;
+export type InsertPhaseMilestone = typeof phaseMilestones.$inferInsert;
+
+// ============================================
+// Phase Activity Log Table
+// ============================================
+export const phaseActivityLog = mysqlTable("phaseActivityLog", {
+	id: int().autoincrement().notNull().primaryKey(),
+	phaseId: int().notNull().references(() => projectPhases.id, { onDelete: "cascade" }),
+	projectId: int().notNull().references(() => projects.id, { onDelete: "cascade" }),
+	activityType: mysqlEnum(['status_change', 'progress_update', 'budget_update', 'milestone_completed', 'risk_identified', 'note_added', 'assignment_changed']).notNull(),
+	description: text().notNull(),
+	previousValue: text(),
+	newValue: text(),
+	changedBy: int().notNull().references(() => users.id, { onDelete: "set null" }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+}, (table) => [
+	index("phaseId_idx").on(table.phaseId),
+	index("projectId_idx").on(table.projectId),
+	index("activityType_idx").on(table.activityType),
+	index("createdAt_idx").on(table.createdAt),
+]);
+
+export type PhaseActivityLog = typeof phaseActivityLog.$inferSelect;
+export type InsertPhaseActivityLog = typeof phaseActivityLog.$inferInsert;
+
+// ============================================
+// Phase Template Table (Para reutilização)
+// ============================================
+export const phaseTemplates = mysqlTable("phaseTemplates", {
+	id: int().autoincrement().notNull().primaryKey(),
+	name: varchar({ length: 255 }).notNull(),
+	description: text(),
+	industryType: varchar({ length: 255 }), // Ex: "construction", "design", "renovation"
+	phases: text().notNull(), // JSON array de fases padrão
+	isPublic: tinyint().default(0).notNull(),
+	createdBy: int().notNull().references(() => users.id, { onDelete: "set null" }),
+	createdAt: timestamp({ mode: 'string' }).default('CURRENT_TIMESTAMP').notNull(),
+	updatedAt: timestamp({ mode: 'string' }).defaultNow().onUpdateNow().notNull(),
+}, (table) => [
+	index("industryType_idx").on(table.industryType),
+	index("isPublic_idx").on(table.isPublic),
+	index("createdBy_idx").on(table.createdBy),
+]);
+
+export type PhaseTemplate = typeof phaseTemplates.$inferSelect;
+export type InsertPhaseTemplate = typeof phaseTemplates.$inferInsert;
