@@ -1506,7 +1506,7 @@ export const appRouter = router({
         const emailHistoryService = await import('./emailHistoryService');
         return await emailHistoryService.getTrendSummary(input.projectId);
       }),
-  }),
+
     syncOutlookEmails: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .mutation(async ({ input }) => {
@@ -1515,6 +1515,7 @@ export const appRouter = router({
         await emailSyncService.updateEmailAnalytics(input.projectId);
         return { syncedCount, success: true };
       }),
+
     syncSendGridEvents: protectedProcedure
       .input(z.object({ projectId: z.number() }))
       .mutation(async ({ input }) => {
@@ -1708,6 +1709,176 @@ export const appRouter = router({
         const { markAlertAsResolved } = await import('./intelligentAlertsService');
         return markAlertAsResolved(input.alertId);
       }),
+  }),
+
+  // CRM Integration Endpoints
+  crmContacts: router({
+    getAllContacts: protectedProcedure
+      .input(z.object({ projectId: z.number(), limit: z.number().optional(), offset: z.number().optional() }))
+      .query(async ({ input }) => {
+        const { getAllContacts } = await import('./crmIntegrationService');
+        return getAllContacts(input.projectId, input.limit, input.offset);
+      }),
+
+    getContactById: protectedProcedure
+      .input(z.object({ contactId: z.number() }))
+      .query(async ({ input }) => {
+        const { getContactById } = await import('./crmIntegrationService');
+        return getContactById(input.contactId);
+      }),
+
+    getContactCommunicationHistory: protectedProcedure
+      .input(z.object({ contactId: z.number(), limit: z.number().optional() }))
+      .query(async ({ input }) => {
+        const { getContactCommunicationHistory } = await import('./crmIntegrationService');
+        return getContactCommunicationHistory(input.contactId, input.limit);
+      }),
+
+    createContact: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        name: z.string(),
+        email: z.string(),
+        type: z.enum(['client', 'supplier', 'partner']),
+        company: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { createContact } = await import('./crmIntegrationService');
+        return createContact(input);
+      }),
+
+    updateContact: protectedProcedure
+      .input(z.object({
+        contactId: z.number(),
+        name: z.string().optional(),
+        email: z.string().optional(),
+        company: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { updateContact } = await import('./crmIntegrationService');
+        return updateContact(input.contactId, input);
+      }),
+  }),
+
+  // Sentiment Analysis Endpoints
+  sentimentAnalysis: router({
+    analyzeSentiment: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        const { analyzeSentimentForProject } = await import('./sentimentAnalysisService');
+        return analyzeSentimentForProject(input.projectId);
+      }),
+
+    getContactSentiment: protectedProcedure
+      .input(z.object({ contactId: z.number() }))
+      .query(async ({ input }) => {
+        const { getContactSentimentAnalysis } = await import('./sentimentAnalysisService');
+        return getContactSentimentAnalysis(input.contactId);
+      }),
+
+    getSentimentTrends: protectedProcedure
+      .input(z.object({ projectId: z.number(), days: z.number().optional() }))
+      .query(async ({ input }) => {
+        const { getSentimentTrends } = await import('./sentimentAnalysisService');
+        return getSentimentTrends(input.projectId, input.days);
+      }),
+
+    getNegativeSentimentAlerts: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const { getNegativeSentimentAlerts } = await import('./negativeSentimentAlertService');
+        return getNegativeSentimentAlerts(input.projectId);
+      }),
+
+    checkNegativeSentimentPatterns: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        const { checkAndCreateNegativeSentimentAlerts } = await import('./negativeSentimentAlertService');
+        return checkAndCreateNegativeSentimentAlerts(input.projectId);
+      }),
+
+    markSentimentAlertAsResolved: protectedProcedure
+      .input(z.object({ alertId: z.number() }))
+      .mutation(async ({ input }) => {
+        const { markAlertAsResolved } = await import('./negativeSentimentAlertService');
+        return markAlertAsResolved(input.alertId);
+      }),
+  }),
+
+  // Scheduled Reports Endpoints
+  recommendedActions: router({
+    generateActions: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .mutation(async ({ input }) => {
+        const { generateRecommendedActions } = await import('./recommendedActionsService');
+        return generateRecommendedActions(input.projectId);
+      }),
+
+    getActionsForContact: protectedProcedure
+      .input(z.object({ contactId: z.number() }))
+      .query(async ({ input }) => {
+        const { getRecommendedActionsForContact } = await import('./recommendedActionsService');
+        return getRecommendedActionsForContact(input.contactId);
+      }),
+
+    getActionsByPriority: protectedProcedure
+      .input(z.object({ projectId: z.number(), priority: z.enum(['high', 'medium', 'low']) }))
+      .query(async ({ input }) => {
+        const { getActionsByPriority } = await import('./recommendedActionsService');
+        return getActionsByPriority(input.projectId, input.priority);
+      }),
+
+    getActionsByCategory: protectedProcedure
+      .input(z.object({ projectId: z.number(), category: z.string() }))
+      .query(async ({ input }) => {
+        const { getActionsByCategory } = await import('./recommendedActionsService');
+        return getActionsByCategory(input.projectId, input.category);
+      }),
+  }),
+
+  emailReports: router({
+    getScheduledReports: protectedProcedure
+      .input(z.object({ projectId: z.number() }))
+      .query(async ({ input }) => {
+        const { getScheduledReports } = await import('./emailReportService');
+        return getScheduledReports(input.projectId);
+      }),
+
+    createScheduledReport: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        name: z.string(),
+        frequency: z.enum(['daily', 'weekly', 'monthly']),
+        recipientEmail: z.string(),
+        includeCharts: z.boolean().optional(),
+        includeAIInsights: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { createScheduledReport } = await import('./emailReportService');
+        return createScheduledReport(input);
+      }),
+
+    generateReport: protectedProcedure
+      .input(z.object({ projectId: z.number(), days: z.number().optional() }))
+      .mutation(async ({ input }) => {
+        const { generateEmailReport } = await import('./emailReportService');
+        return generateEmailReport(input.projectId, input.days);
+      }),
+
+    getReportLogs: protectedProcedure
+      .input(z.object({ projectId: z.number(), limit: z.number().optional() }))
+      .query(async ({ input }) => {
+        const { getReportLogs } = await import('./emailReportService');
+        return getReportLogs(input.projectId, input.limit);
+      }),
+
+    deleteScheduledReport: protectedProcedure
+      .input(z.object({ reportId: z.number() }))
+      .mutation(async ({ input }) => {
+        const { deleteScheduledReport } = await import('./emailReportService');
+        return deleteScheduledReport(input.reportId);
+      }),
+  }),
 
 });
 

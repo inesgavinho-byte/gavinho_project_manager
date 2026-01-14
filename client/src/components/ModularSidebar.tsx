@@ -283,6 +283,30 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           icon: Mail,
           path: "/email-history",
         },
+        {
+          id: "crm",
+          label: "Gestão de Contatos (CRM)",
+          icon: Users,
+          path: "/crm",
+        },
+        {
+          id: "sentiment-analysis",
+          label: "Análise de Sentimento",
+          icon: AlertCircle,
+          path: "/sentiment-analysis",
+        },
+        {
+          id: "scheduled-reports",
+          label: "Relatórios Agendados",
+          icon: FileText,
+          path: "/scheduled-reports",
+        },
+        {
+          id: "recommended-actions",
+          label: "Ações Recomendadas",
+          icon: Sparkles,
+          path: "/recommended-actions",
+        },
       ],
     },
     {
