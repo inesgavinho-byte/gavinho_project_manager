@@ -1,3 +1,5 @@
+import { sendTestEmail as sendViaGrid, sendEmail } from "./sendgridService";
+
 export interface TestEmailConfig {
   recipients: string[];
   emailType: "daily" | "weekly" | "monthly";
@@ -67,6 +69,17 @@ export async function generateTestEmailContent(
  */
 export async function sendTestEmail(config: TestEmailConfig): Promise<TestEmailResult> {
   try {
+    // Validar configurações primeiro
+    const validation = await validateEmailConfig(config);
+    if (!validation.isValid) {
+      return {
+        success: false,
+        message: `Configuração inválida: ${validation.errors.join(", ")}`,
+        sentTo: [],
+        timestamp: new Date(),
+      };
+    }
+
     // Gerar conteúdo do email
     const emailContent = await generateTestEmailContent(
       config.emailType,
@@ -75,21 +88,27 @@ export async function sendTestEmail(config: TestEmailConfig): Promise<TestEmailR
       config.includeSentiment
     );
 
-    // Simular envio de email (em produção, usar SendGrid/Mailgun/etc)
-    console.log(`[TEST EMAIL] Enviando para: ${config.recipients.join(", ")}`);
-    console.log(`[TEST EMAIL] Tipo: ${config.emailType}`);
-    console.log(`[TEST EMAIL] Conteúdo preview: ${emailContent.substring(0, 100)}...`);
+    // Enviar via SendGrid
+    const result = await sendViaGrid(config.recipients, config.emailType);
 
-    // Aqui você integraria com o serviço de email real
-    // const result = await sendEmailViaProvider(config.recipients, emailContent);
-
-    return {
-      success: true,
-      message: `Email de teste enviado com sucesso para ${config.recipients.length} destinatário(s)`,
-      sentTo: config.recipients,
-      timestamp: new Date(),
-      previewContent: emailContent.substring(0, 500),
-    };
+    if (result.success) {
+      console.log(`[TEST EMAIL] Enviado com sucesso para: ${config.recipients.join(", ")}`);
+      return {
+        success: true,
+        message: `Email de teste enviado com sucesso para ${config.recipients.length} destinatário(s)`,
+        sentTo: config.recipients,
+        timestamp: new Date(),
+        previewContent: emailContent.substring(0, 500),
+      };
+    } else {
+      console.error(`[TEST EMAIL] Erro ao enviar:`, result.error);
+      return {
+        success: false,
+        message: `Erro ao enviar email: ${result.error}`,
+        sentTo: [],
+        timestamp: new Date(),
+      };
+    }
   } catch (error) {
     console.error("Erro ao enviar email de teste:", error);
     return {
