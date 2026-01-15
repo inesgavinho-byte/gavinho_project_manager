@@ -52,11 +52,10 @@ import { EditProjectDialog } from "@/components/EditProjectDialog";
 import { ContractUpload } from "@/components/ContractUpload";
 import { ProjectPhasesSection } from "@/components/ProjectPhasesSection";
 import { ProjectLibraryTab } from "@/components/ProjectLibraryTab";
-import { ProjectBriefing } from "@/components/ProjectBriefing";
-import { ProjectPhases } from "@/components/ProjectPhases";
-import { useAuth } from "@/_core/hooks/useAuth";
-
-export default function ProjectDetails() {
+import { ProjectGanttTimeline } from "@/components/ProjectGanttTimeline";
+import { ProjectMilestones } from "@/components/ProjectMilestones";
+import { ProjectTeamAssignment } from "@/components/ProjectTeamAssignment";
+import { useAuth } from "@/_core/hooks/useAuth";export default function ProjectDetails() {
   const [, params] = useRoute("/projects/:id");
   const projectId = params?.id ? parseInt(params.id) : 0;
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -554,158 +553,136 @@ export default function ProjectDetails() {
                 <h3 className="font-serif text-2xl text-[#5F5C59] mb-6">Timeline Visual do Projeto</h3>
                 <ProjectGanttChart projectId={projectId} />
               </Card>
+              {phases && phases.length > 0 && (
+                <ProjectGanttTimeline
+                  phases={phases.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    status: p.status as 'planning' | 'in_progress' | 'completed' | 'on_hold',
+                    startDate: p.startDate,
+                    endDate: p.endDate,
+                    progress: p.progress || 0,
+                  }))}
+                  projectStartDate={project?.startDate}
+                  projectEndDate={project?.endDate}
+                />
+              )}
             </TabsContent>
 
             {/* Sub-tab: Fases */}
             <TabsContent value="phases" className="space-y-6">
               <ProjectPhasesSection projectId={projectId} />
+              {phases && (
+                <ProjectMilestones
+                  projectId={projectId}
+                  milestones={milestones}
+                  onAddMilestone={(milestone) => {
+                    // Handler para adicionar marco
+                  }}
+                  onDeleteMilestone={(id) => {
+                    // Handler para deletar marco
+                  }}
+                />
+              )}
+              {phases && teamMembers && (
+                <ProjectTeamAssignment
+                  projectId={projectId}
+                  phases={phases}
+                  teamMembers={teamMembers}
+                  assignments={[]}
+                  onAddAssignment={(assignment) => {
+                    // Handler para adicionar atribuição
+                  }}
+                  onDeleteAssignment={(id) => {
+                    // Handler para deletar atribuição
+                  }}
+                />
+              )}
+            </TabsContent>
 
-              {/* Milestones */}
-          <Card className="p-6 border-[#C3BAAF]/20 bg-white">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-serif text-2xl text-[#5F5C59]">Marcos Importantes</h3>
-              <Button className="bg-[#C9A882] hover:bg-[#C9A882]/90 text-white">
-                Adicionar Marco
-              </Button>
-            </div>
+            {/* Sub-tab: Responsabilidades */}
+            <TabsContent value="responsibilities" className="space-y-6">
+              <Card className="p-6 border-[#C3BAAF]/20 bg-white">
+                <h3 className="font-serif text-2xl text-[#5F5C59] mb-6">Responsabilidades por Fase</h3>
+                <div className="space-y-6">
+                  {phases?.map((phase) => {
+                    const membersByRole = teamMembers?.reduce((acc, member) => {
+                      if (!acc[member.role]) {
+                        acc[member.role] = [];
+                      }
+                      acc[member.role].push(member);
+                      return acc;
+                    }, {} as Record<string, typeof teamMembers>) || {};
 
-            {milestones && milestones.length > 0 ? (
-              <div className="space-y-3">
-                {milestones.map((milestone) => (
-                  <div key={milestone.id} className="flex items-center justify-between p-4 rounded-lg border border-[#C3BAAF]/20 hover:border-[#C9A882]/40 transition-colors">
-                    <div className="flex items-center gap-3">
-                      {milestone.status === "completed" ? (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                      ) : milestone.status === "overdue" ? (
-                        <AlertCircle className="w-5 h-5 text-red-600" />
-                      ) : (
-                        <Circle className="w-5 h-5 text-[#5F5C59]/20" />
-                      )}
-                      <div>
-                        <h4 className="font-medium text-[#5F5C59]">{milestone.name}</h4>
-                        {milestone.description && (
-                          <p className="text-sm text-[#5F5C59]/60">{milestone.description}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <p className="text-sm text-[#5F5C59]/60">Data Prevista</p>
-                        <p className="text-sm font-medium text-[#5F5C59]">
-                          {new Date(milestone.dueDate).toLocaleDateString('pt-PT')}
-                        </p>
-                      </div>
-                      <Badge className={`${getStatusColor(milestone.status)} border`}>
-                        {getStatusLabel(milestone.status)}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 text-[#5F5C59]/60">
-                Nenhum marco criado ainda
-              </div>
-            )}
-          </Card>
-
-          {/* Responsibilities by Phase */}
-          {phases && phases.length > 0 && teamMembers && teamMembers.length > 0 && (
-            <Card className="p-6 border-[#C3BAAF]/20 bg-white">
-              <h3 className="font-serif text-2xl text-[#5F5C59] mb-6">Responsabilidades por Fase</h3>
-              <div className="space-y-6">
-                {phases.map((phase) => {
-                  // Group team members by role for this phase
-                  const membersByRole = teamMembers.reduce((acc, member) => {
-                    if (!acc[member.role]) {
-                      acc[member.role] = [];
-                    }
-                    acc[member.role].push(member);
-                    return acc;
-                  }, {} as Record<string, typeof teamMembers>);
-
-                  const getRoleLabel = (role: string) => {
-                    const labels: Record<string, string> = {
-                      architect: "Arquitetos",
-                      engineer: "Engenheiros",
-                      project_manager: "Gestores de Projeto",
-                      contractor: "Empreiteiros",
-                      designer: "Designers",
-                      consultant: "Consultores",
+                    const getRoleLabel = (role: string) => {
+                      const labels: Record<string, string> = {
+                        architect: "Arquitetos",
+                        engineer: "Engenheiros",
+                        project_manager: "Gestores de Projeto",
+                        contractor: "Empreiteiros",
+                        designer: "Designers",
+                        consultant: "Consultores",
+                      };
+                      return labels[role] || role;
                     };
-                    return labels[role] || role;
-                  };
 
-                  const getRoleColor = (role: string) => {
-                    const colors: Record<string, string> = {
-                      architect: "bg-purple-50 text-purple-700 border-purple-200",
-                      engineer: "bg-blue-50 text-blue-700 border-blue-200",
-                      project_manager: "bg-[#C9A882]/10 text-[#C9A882] border-[#C9A882]/20",
-                      contractor: "bg-orange-50 text-orange-700 border-orange-200",
-                      designer: "bg-pink-50 text-pink-700 border-pink-200",
-                      consultant: "bg-emerald-50 text-emerald-700 border-emerald-200",
-                    };
-                    return colors[role] || "bg-gray-50 text-gray-700 border-gray-200";
-                  };
-
-                  return (
-                    <div key={phase.id} className="border border-[#C3BAAF]/20 rounded-lg p-5">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h4 className="font-medium text-lg text-[#5F5C59] mb-1">{phase.name}</h4>
-                          <div className="flex items-center gap-4 text-sm text-[#5F5C59]/60">
-                            {phase.startDate && (
-                              <span>Início: {new Date(phase.startDate).toLocaleDateString('pt-PT')}</span>
-                            )}
-                            {phase.endDate && (
-                              <span>Fim: {new Date(phase.endDate).toLocaleDateString('pt-PT')}</span>
-                            )}
-                            <Badge className={`${getStatusColor(phase.status)} border`}>
-                              {getStatusLabel(phase.status)}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-[#5F5C59]/60 mb-1">Progresso</p>
-                          <p className="text-2xl font-serif text-[#5F5C59]">{phase.progress}%</p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-                        {Object.entries(membersByRole).map(([role, members]) => (
-                          <div key={role} className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <Briefcase className="w-4 h-4 text-[#C9A882]" />
-                              <span className="text-sm font-medium text-[#5F5C59]">
-                                {getRoleLabel(role)}
-                              </span>
-                            </div>
-                            <div className="space-y-1">
-                              {members.map((member) => (
-                                <div
-                                  key={member.id}
-                                  className="flex items-center gap-2 p-2 rounded border border-[#C3BAAF]/10 bg-[#EEEAE5]/30"
-                                >
-                                  <div className="w-8 h-8 rounded-full bg-[#C9A882]/20 flex items-center justify-center">
-                                    <span className="text-xs font-medium text-[#C9A882]">
-                                      {member.userName ? member.userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '??'}
-                                    </span>
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-[#5F5C59] truncate">{member.userName || 'Nome não disponível'}</p>
-                                  </div>
-                                </div>
-                              ))}
+                    return (
+                      <div key={phase.id} className="border border-[#C3BAAF]/20 rounded-lg p-5">
+                        <div className="flex items-center justify-between mb-4">
+                          <div>
+                            <h4 className="font-medium text-lg text-[#5F5C59] mb-1">{phase.name}</h4>
+                            <div className="flex items-center gap-4 text-sm text-[#5F5C59]/60">
+                              {phase.startDate && (
+                                <span>Início: {new Date(phase.startDate).toLocaleDateString('pt-PT')}</span>
+                              )}
+                              {phase.endDate && (
+                                <span>Fim: {new Date(phase.endDate).toLocaleDateString('pt-PT')}</span>
+                              )}
+                              <Badge className={`${getStatusColor(phase.status)} border`}>
+                                {getStatusLabel(phase.status)}
+                              </Badge>
                             </div>
                           </div>
-                        ))}
+                          <div className="text-right">
+                            <p className="text-sm text-[#5F5C59]/60 mb-1">Progresso</p>
+                            <p className="text-2xl font-serif text-[#5F5C59]">{phase.progress}%</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                          {Object.entries(membersByRole).map(([role, members]) => (
+                            <div key={role} className="space-y-2">
+                              <div className="flex items-center gap-2">
+                                <Briefcase className="w-4 h-4 text-[#C9A882]" />
+                                <span className="text-sm font-medium text-[#5F5C59]">
+                                  {getRoleLabel(role)}
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                {members.map((member) => (
+                                  <div
+                                    key={member.id}
+                                    className="flex items-center gap-2 p-2 rounded border border-[#C3BAAF]/10 bg-[#EEEAE5]/30"
+                                  >
+                                    <div className="w-8 h-8 rounded-full bg-[#C9A882]/20 flex items-center justify-center">
+                                      <span className="text-xs font-medium text-[#C9A882]">
+                                        {member.userName ? member.userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '??'}
+                                      </span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm text-[#5F5C59] truncate">{member.userName || 'Nome não disponível'}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </Card>
-          )}
+                    );
+                  })}
+                </div>
+              </Card>
             </TabsContent>
 
             {/* Sub-tab: Entregáveis */}
