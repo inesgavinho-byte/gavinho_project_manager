@@ -1,0 +1,15 @@
+{
+  "query": "SELECT COUNT(*) as total, SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as inProgress, SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed FROM projects;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute SELECT COUNT(*) as total, SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as inProgress, SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed FROM projects;",
+  "rows": [
+    {
+      "total": "96",
+      "inProgress": "69",
+      "completed": "4"
+    }
+  ],
+  "messages": [],
+  "stdout": "total\tinProgress\tcompleted\n96\t69\t4\n",
+  "stderr": "",
+  "execution_time_ms": 101
+}

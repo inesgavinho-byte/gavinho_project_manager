@@ -1880,6 +1880,73 @@ export const appRouter = router({
       }),
   }),
 
+
+  // Chat Colaborativo com IA
+  chat: router({
+    getTopics: protectedProcedure
+      .input(z.object({ projectId: z.string() }))
+      .query(async ({ input }) => {
+        const { getChatTopics } = await import('./chatDbService');
+        return getChatTopics(input.projectId);
+      }),
+
+    createTopic: protectedProcedure
+      .input(z.object({
+        projectId: z.string(),
+        name: z.string(),
+        description: z.string().optional(),
+        category: z.string().default('general'),
+        createdBy: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { createChatTopic } = await import('./chatDbService');
+        return createChatTopic(input);
+      }),
+
+    getMessages: protectedProcedure
+      .input(z.object({ topicId: z.string(), limit: z.number().optional() }))
+      .query(async ({ input }) => {
+        const { getChatMessages } = await import('./chatDbService');
+        return getChatMessages(input.topicId, input.limit);
+      }),
+
+    createMessage: protectedProcedure
+      .input(z.object({
+        topicId: z.string(),
+        projectId: z.string(),
+        userId: z.string(),
+        userName: z.string(),
+        content: z.string(),
+        parentMessageId: z.string().optional(),
+        mentionedUsers: z.array(z.string()).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { createChatMessage } = await import('./chatDbService');
+        return createChatMessage(input);
+      }),
+
+    getSuggestions: protectedProcedure
+      .input(z.object({ projectId: z.string(), status: z.string().optional() }))
+      .query(async ({ input }) => {
+        const { getAISuggestions } = await import('./chatDbService');
+        return getAISuggestions(input.projectId, input.status);
+      }),
+
+    approveSuggestion: protectedProcedure
+      .input(z.object({ suggestionId: z.string(), approvedBy: z.string() }))
+      .mutation(async ({ input }) => {
+        const { approveSuggestion } = await import('./chatDbService');
+        return approveSuggestion(input.suggestionId, input.approvedBy);
+      }),
+
+    rejectSuggestion: protectedProcedure
+      .input(z.object({ suggestionId: z.string() }))
+      .mutation(async ({ input }) => {
+        const { rejectSuggestion } = await import('./chatDbService');
+        return rejectSuggestion(input.suggestionId);
+      }),
+  }),
+
 });
 
 export type AppRouter = typeof appRouter;

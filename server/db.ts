@@ -300,17 +300,49 @@ export async function markNotificationAsRead(id: number) {
 // Dashboard Stats
 export async function getDashboardStats() {
   const db = await getDb();
-  if (!db) return null;
+  if (!db) return {
+    total: 0,
+    planning: 0,
+    inProgress: 0,
+    completed: 0,
+    onHold: 0,
+  };
   
-  const [projectStats] = await db.select({
-    total: sql<number>`count(*)`,
-    planning: sql<number>`sum(case when status = 'planning' then 1 else 0 end)`,
-    inProgress: sql<number>`sum(case when status = 'in_progress' then 1 else 0 end)`,
-    completed: sql<number>`sum(case when status = 'completed' then 1 else 0 end)`,
-    onHold: sql<number>`sum(case when status = 'on_hold' then 1 else 0 end)`,
-  }).from(projects);
-  
-  return projectStats;
+  try {
+    const result = await db.select({
+      total: sql<number>`COUNT(*)`,
+      planning: sql<number>`SUM(CASE WHEN status = 'planning' THEN 1 ELSE 0 END)`,
+      inProgress: sql<number>`SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END)`,
+      completed: sql<number>`SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END)`,
+      onHold: sql<number>`SUM(CASE WHEN status = 'on_hold' THEN 1 ELSE 0 END)`,
+    }).from(projects);
+    
+    const projectStats = result[0] || {
+      total: 0,
+      planning: 0,
+      inProgress: 0,
+      completed: 0,
+      onHold: 0,
+    };
+    
+    // Garantir que os valores são números (não NULL)
+    return {
+      total: Number(projectStats.total) || 0,
+      planning: Number(projectStats.planning) || 0,
+      inProgress: Number(projectStats.inProgress) || 0,
+      completed: Number(projectStats.completed) || 0,
+      onHold: Number(projectStats.onHold) || 0,
+    };
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas do dashboard:', error);
+    return {
+      total: 0,
+      planning: 0,
+      inProgress: 0,
+      completed: 0,
+      onHold: 0,
+    };
+  }
 }
 
 // Emails

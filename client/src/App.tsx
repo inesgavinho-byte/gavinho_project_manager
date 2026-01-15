@@ -48,6 +48,7 @@ import Trash from "./pages/Trash";
 import TeamAccess from "./pages/TeamAccess";
 import UserProfile from "./pages/UserProfile";
 import HumanResources from "./pages/HumanResources";
+import CollaborativeChatPage from './pages/CollaborativeChat';
 import Timesheets from "./pages/Timesheets";
 import HRReports from "./pages/HRReports";
 import SiteMobile from "./pages/SiteMobile";
@@ -155,6 +156,11 @@ function Router() {
       <Route path="/projects/:id">
         <DashboardLayout>
           <ProjectDetails />
+        </DashboardLayout>
+      </Route>
+      <Route path="/projects/:projectId/chat">
+        <DashboardLayout>
+          <CollaborativeChatPage />
         </DashboardLayout>
       </Route>
       

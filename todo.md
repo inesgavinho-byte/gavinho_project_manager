@@ -3622,3 +3622,36 @@
 - [ ] Versionamento de plantas e desenhos com controle de versão
 - [ ] Comentários e anotações em imagens/PDFs com drawing tools
 - [ ] Link para obra associada com sincronização de dados
+
+
+## Chat Colaborativo com IA - Fase 1
+
+- [ ] Criar schema de banco de dados para chat (topics, messages, suggestions, approvals)
+- [ ] Implementar endpoints tRPC para CRUD de tópicos e mensagens
+- [ ] Criar componente de Chat com interface de tópicos
+- [ ] Implementar integração com IA para análise de contexto
+- [ ] Criar sistema de sugestões automáticas pela IA
+- [ ] Implementar sistema de aprovação de sugestões (GP/Admin)
+- [ ] Criar Knowledge Base do projeto baseado em conversas
+- [ ] Adicionar página de Chat ao menu lateral
+- [ ] Testar funcionalidade completa
+
+
+## Correção - Dashboard com Dados Reais
+
+- [ ] Verificar queries de contagem de projetos (total, em andamento, concluídos)
+- [ ] Corrigir exibição de dados fictícios no dashboard
+- [ ] Validar alertas e notificações
+- [ ] Testar dados em tempo real do banco de dados
+
+
+## Chat Colaborativo com IA
+
+- [ ] Criar schema de banco de dados para chat (topics, messages, suggestions)
+- [ ] Implementar endpoints tRPC para CRUD de tópicos e mensagens
+- [ ] Criar componente de Chat com interface de tópicos
+- [ ] Integrar IA para análise de contexto e geração de sugestões
+- [ ] Implementar sistema de aprovação de sugestões (GP/Admin)
+- [ ] Criar Knowledge Base do projeto baseado em conversas
+- [ ] Adicionar página de Chat ao menu lateral
+- [ ] Testar funcionalidade completa
