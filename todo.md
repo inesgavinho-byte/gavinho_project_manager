@@ -3689,3 +3689,12 @@
 - [x] Criar componente React para visualizar métricas de email tracking (EmailTrackingDashboard.tsx)
 - [x] Testar webhooks com eventos de teste do SendGrid
 - [x] Validar rastreamento de eventos em tempo real
+
+
+## Segmentação por Destinatário (Análise de Engajamento)
+- [x] Criar tabelas de grupos de clientes e segmentação (recipientSegmentationService.ts)
+- [x] Implementar serviço de segmentação com cálculo de métricas por grupo
+- [x] Criar endpoints tRPC para análise de engajamento por segmento (recipientSegmentation.ts router)
+- [x] Implementar dashboard React com visualizações por grupo de clientes (RecipientSegmentationDashboard.tsx)
+- [x] Adicionar filtros e comparações entre segmentos
+- [x] Testar segmentação e validar análises
