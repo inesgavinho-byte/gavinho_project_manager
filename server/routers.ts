@@ -1947,6 +1947,72 @@ export const appRouter = router({
       }),
   }),
 
+
+  // BIA - Assistente de Gestão de Projetos
+  bia: router({
+    generateMessage: protectedProcedure
+      .input(z.object({
+        projectName: z.string(),
+        teamMember: z.string(),
+        messageType: z.enum(['greeting', 'check-in', 'blocker-alert', 'celebration', 'support']),
+        context: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { generateBiaMessage } = await import('./biaPersonalityService');
+        return generateBiaMessage(
+          {
+            projectName: input.projectName,
+            teamMember: input.teamMember,
+            recentActivity: input.context,
+          },
+          input.messageType
+        );
+      }),
+
+    analyzeContext: protectedProcedure
+      .input(z.object({
+        conversationText: z.string(),
+        projectContext: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { analyzeBiaContext } = await import('./biaPersonalityService');
+        return analyzeBiaContext(input.conversationText, input.projectContext);
+      }),
+
+    generateDailyReport: protectedProcedure
+      .input(z.object({
+        blockers: z.array(z.object({
+          project: z.string(),
+          blocker: z.string(),
+          impact: z.string(),
+          responsible: z.string(),
+        })),
+        warnings: z.array(z.string()),
+        wins: z.array(z.string()),
+      }))
+      .mutation(async ({ input }) => {
+        const { generateDailyReport } = await import('./biaPersonalityService');
+        return generateDailyReport(input.blockers, input.warnings, input.wins, new Date());
+      }),
+
+    generateProactiveSuggestion: protectedProcedure
+      .input(z.object({
+        teamMemberName: z.string(),
+        projectName: z.string(),
+        inactivityDays: z.number(),
+        lastActivity: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { generateProactiveSuggestion } = await import('./biaPersonalityService');
+        return generateProactiveSuggestion(
+          input.teamMemberName,
+          input.projectName,
+          input.inactivityDays,
+          input.lastActivity
+        );
+      }),
+  }),
+
 });
 
 export type AppRouter = typeof appRouter;
