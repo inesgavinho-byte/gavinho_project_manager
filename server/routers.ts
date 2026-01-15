@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { desc } from "drizzle-orm";
 import { eq } from "drizzle-orm";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
@@ -46,6 +47,7 @@ import * as approvalNotificationsService from "./approvalNotificationsService";
 import * as automaticNotificationsService from "./automaticNotificationsService";
 import * as supplierTrendService from "./supplierTrendService";
 import * as userNotificationPreferencesDb from "./userNotificationPreferencesDb";
+import { reportSchedulerRouter } from "./routers/reportScheduler";
 
 export const appRouter = router({
   system: systemRouter,
@@ -2084,6 +2086,9 @@ export const appRouter = router({
       const { validateEmailConfig } = await import('./emailTestService');
       return validateEmailConfig(input);
     }),
+
+  // Report Scheduler
+  reportScheduler: reportSchedulerRouter,
 });
 
 export type AppRouter = typeof appRouter;

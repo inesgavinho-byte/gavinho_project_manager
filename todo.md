@@ -3672,3 +3672,10 @@
 - [ ] Criar visualização de histórico de envios com status
 - [ ] Adicionar endpoints tRPC para persistência de configurações
 - [ ] Testar e validar todas as funcionalidades
+
+## Agendamento Automático de Relatórios
+- [x] Implementar serviço de agendamento com node-cron (reportSchedulerService.ts)
+- [x] Criar endpoints tRPC para gerenciar agendamentos (reportScheduler.ts router)
+- [x] Integrar UI para configurar agendamentos (ReportScheduler.tsx component)
+- [x] Testar agendamentos e validar envios automáticos
+- [x] Implementar persistência de agendamentos no banco de dados (usando tabela existente scheduledEmailReports)

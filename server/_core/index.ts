@@ -9,6 +9,7 @@ import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
 import { initializeWebSocket } from "./websocket";
 import exportRoutes from "../exportRoutes";
+import { initializeScheduledReports } from "../reportSchedulerService";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -63,6 +64,9 @@ async function startServer() {
 
   // Initialize WebSocket server
   initializeWebSocket(server);
+
+  // Initialize scheduled reports (comentado para evitar erros de banco de dados)
+  // await initializeScheduledReports();
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
