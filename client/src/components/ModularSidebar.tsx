@@ -455,6 +455,10 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           </h1>
         </div>
       </Link>
+        <Link to="/bia-insights" className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">
+          <BarChart3 className="w-4 h-4" />
+          <span>Insights BIA</span>
+        </Link>
 
       <nav className="px-3 pb-6 space-y-6">
         {modules.map((module) => {

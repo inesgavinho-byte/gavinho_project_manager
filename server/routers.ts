@@ -2013,6 +2013,52 @@ export const appRouter = router({
       }),
   }),
 
+
+  // BIA Insights - Dashboard de Análise
+  biaInsights: router({
+    getInsights: protectedProcedure
+      .query(async () => {
+        const { generateBiaInsights } = await import('./biaInsightsService');
+        return generateBiaInsights();
+      }),
+
+    getExecutiveSummary: protectedProcedure
+      .query(async () => {
+        const { generateExecutiveSummary } = await import('./biaInsightsService');
+        return generateExecutiveSummary();
+      }),
+
+    approveSuggestion: protectedProcedure
+      .input(z.object({
+        projectId: z.string(),
+        suggestion: z.string(),
+        approvedBy: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        // Simular aprovação de sugestão
+        return {
+          success: true,
+          message: `Sugestão aprovada para ${input.projectId}`,
+          approvedAt: new Date(),
+        };
+      }),
+
+    rejectSuggestion: protectedProcedure
+      .input(z.object({
+        projectId: z.string(),
+        suggestion: z.string(),
+        reason: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        // Simular rejeição de sugestão
+        return {
+          success: true,
+          message: `Sugestão rejeitada para ${input.projectId}`,
+          rejectedAt: new Date(),
+        };
+      }),
+  }),
+
 });
 
 export type AppRouter = typeof appRouter;
