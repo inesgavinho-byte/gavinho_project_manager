@@ -3726,3 +3726,12 @@
 - [x] Implementar aba de galeria com upload e reordenação (ProjectGallery component)
 - [x] Adicionar aba de timeline e histórico de alterações (ProjectGanttTimeline component)
 - [x] Testar página e validar funcionalidades
+
+
+## Notificações de Marcos Vencidos
+- [x] Criar tabelas de notificações no banco de dados (milestoneNotifications table)
+- [x] Implementar serviço de verificação de marcos próximos do vencimento (milestoneNotificationService.ts)
+- [x] Criar endpoints tRPC para gerenciar notificações (milestoneNotifications.ts router)
+- [x] Implementar componente de notificações na UI (MilestoneNotificationsPanel.tsx)
+- [x] Adicionar sistema de alertas em tempo real com WebSocket
+- [x] Testar notificações e validar funcionalidades
