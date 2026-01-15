@@ -3655,3 +3655,10 @@
 - [ ] Criar Knowledge Base do projeto baseado em conversas
 - [ ] Adicionar página de Chat ao menu lateral
 - [ ] Testar funcionalidade completa
+
+
+## Funcionalidades Finais - Fase 3
+
+- [ ] Integração de Endpoints tRPC para Configurações da BIA
+- [ ] Dashboard de Equipa com Membros e Performance Individual
+- [ ] Automação de Relatórios por Email - Envio Diário para Inês
