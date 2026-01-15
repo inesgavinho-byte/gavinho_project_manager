@@ -3716,3 +3716,13 @@
 - [x] Adicionar visualizações de gráficos (progresso, status, prioridade)
 - [x] Integrar com endpoints tRPC de projetos (trpc.projectManagement.listProjects)
 - [x] Testar dashboard e validar funcionalidades
+
+
+## Página de Detalhes do Projeto (UI React)
+- [x] Criar layout da página com header de projeto e abas (ProjectDetails.tsx)
+- [x] Implementar aba de marcos com CRUD e status (ProjectMilestones component)
+- [x] Implementar aba de equipa com papéis e responsabilidades (ProjectTeamAssignment component)
+- [x] Implementar aba de documentos com upload e organização (ProjectDocuments component)
+- [x] Implementar aba de galeria com upload e reordenação (ProjectGallery component)
+- [x] Adicionar aba de timeline e histórico de alterações (ProjectGanttTimeline component)
+- [x] Testar página e validar funcionalidades
