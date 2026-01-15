@@ -3679,3 +3679,13 @@
 - [x] Integrar UI para configurar agendamentos (ReportScheduler.tsx component)
 - [x] Testar agendamentos e validar envios automáticos
 - [x] Implementar persistência de agendamentos no banco de dados (usando tabela existente scheduledEmailReports)
+
+
+## Webhooks de Email Tracking (SendGrid)
+- [x] Criar tabelas de rastreamento de eventos de email (emailTrackingService.ts)
+- [x] Implementar endpoint de webhook para receber eventos do SendGrid (sendgridWebhook.ts)
+- [x] Criar serviço de processamento de eventos (processEmailEvent, updateEmailMetrics)
+- [x] Implementar endpoints tRPC para consultar dados de rastreamento (emailTracking.ts router)
+- [x] Criar componente React para visualizar métricas de email tracking (EmailTrackingDashboard.tsx)
+- [x] Testar webhooks com eventos de teste do SendGrid
+- [x] Validar rastreamento de eventos em tempo real
