@@ -3708,3 +3708,11 @@
 - [ ] Criar UI para gestão de projetos com dashboard e detalhes
 - [ ] Implementar anotações em imagens/PDFs e histórico de alterações
 - [ ] Testar sistema completo e validar funcionalidades
+
+
+## Dashboard de Projetos (UI React)
+- [x] Criar componente ProjectCard com status, progresso e ações (ProjectCard.tsx)
+- [x] Implementar listagem de projetos com filtros (ProjectsDashboard.tsx)
+- [x] Adicionar visualizações de gráficos (progresso, status, prioridade)
+- [x] Integrar com endpoints tRPC de projetos (trpc.projectManagement.listProjects)
+- [x] Testar dashboard e validar funcionalidades
