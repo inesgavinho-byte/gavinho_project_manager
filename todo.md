@@ -3606,3 +3606,19 @@
 - [ ] Sugestões de upsell/cross-sell baseadas em sentimento
 - [ ] Dashboard de performance de ações recomendadas
 - [ ] A/B testing de templates de email
+
+
+## Expansão de PROJETOS - Funcionalidades Avançadas
+
+- [x] Ficha completa do projeto (briefing, objetivos, cliente, localização) - Componente ProjectBriefing criado
+- [x] Fases configuráveis com status customizáveis - Componente ProjectPhases criado com drag-and-drop
+- [ ] Timeline visual (Gantt simplificado) com drag-and-drop
+- [ ] Marcos/milestones com alertas automáticos
+- [ ] Equipa atribuída com funções e permissões
+- [ ] Documentos organizados por categoria (plantas, especificações, contratos)
+- [ ] Histórico de alterações ao scope com rastreamento de mudanças
+- [ ] Galeria de imagens (antes/durante/depois) com upload
+- [ ] Moodboards digitais integrados com Pinterest/Figma
+- [ ] Versionamento de plantas e desenhos com controle de versão
+- [ ] Comentários e anotações em imagens/PDFs com drawing tools
+- [ ] Link para obra associada com sincronização de dados

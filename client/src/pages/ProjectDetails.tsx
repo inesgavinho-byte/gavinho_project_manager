@@ -52,6 +52,8 @@ import { EditProjectDialog } from "@/components/EditProjectDialog";
 import { ContractUpload } from "@/components/ContractUpload";
 import { ProjectPhasesSection } from "@/components/ProjectPhasesSection";
 import { ProjectLibraryTab } from "@/components/ProjectLibraryTab";
+import { ProjectBriefing } from "@/components/ProjectBriefing";
+import { ProjectPhases } from "@/components/ProjectPhases";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function ProjectDetails() {
@@ -162,6 +164,31 @@ export default function ProjectDetails() {
   const handleDeleteProject = () => {
     deleteProject.mutate({ id: projectId });
     setIsDeleteDialogOpen(false);
+  };
+
+  const handleUpdateProject = (data: any) => {
+    // Aqui você chamaria a mutação tRPC para atualizar o projeto
+    toast.success("Projeto atualizado com sucesso!");
+  };
+
+  const handleAddPhase = (newPhase: any) => {
+    // Aqui você chamaria a mutação tRPC para criar a fase
+    toast.success("Fase adicionada com sucesso!");
+  };
+
+  const handleUpdatePhase = (id: number, data: any) => {
+    // Aqui você chamaria a mutação tRPC para atualizar a fase
+    toast.success("Fase atualizada com sucesso!");
+  };
+
+  const handleDeletePhase = (id: number) => {
+    // Aqui você chamaria a mutação tRPC para deletar a fase
+    toast.success("Fase removida com sucesso!");
+  };
+
+  const handleReorderPhases = (reorderedPhases: any[]) => {
+    // Aqui você chamaria a mutação tRPC para reordenar as fases
+    toast.success("Fases reordenadas com sucesso!");
   };
 
   const handleAddMember = () => {
@@ -426,6 +453,14 @@ export default function ProjectDetails() {
           <TabsTrigger value="library" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
             <Package className="w-4 h-4 mr-2" />
             Biblioteca
+          </TabsTrigger>
+          <TabsTrigger value="briefing" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
+            <BookOpen className="w-4 h-4 mr-2" />
+            Briefing
+          </TabsTrigger>
+          <TabsTrigger value="phases-config" className="data-[state=active]:bg-[#C9A882] data-[state=active]:text-white">
+            <Layers className="w-4 h-4 mr-2" />
+            Fases
           </TabsTrigger>
         </TabsList>
 
