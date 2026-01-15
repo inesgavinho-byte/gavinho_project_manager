@@ -4,7 +4,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Plus, Trash2, Edit2, Clock, BarChart3, Send } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Mail, Plus, Trash2, Edit2, Clock, BarChart3, Send, CheckCircle, AlertCircle } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+
 
 export default function EmailAdminPanel() {
   const [recipients, setRecipients] = useState([
@@ -46,6 +49,16 @@ export default function EmailAdminPanel() {
   ]);
 
   const [newRecipient, setNewRecipient] = useState({ email: "", name: "", role: "" });
+  const [testEmailConfig, setTestEmailConfig] = useState({
+    emailType: "daily" as "daily" | "weekly" | "monthly",
+    includeBlockers: true,
+    includeWins: true,
+    includeSentiment: true,
+  });
+  const [testEmailLoading, setTestEmailLoading] = useState(false);
+  const [testEmailResult, setTestEmailResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  const sendTestEmailMutation = trpc.emailTest.useMutation();
 
   const addRecipient = () => {
     if (newRecipient.email && newRecipient.name) {
@@ -329,6 +342,125 @@ export default function EmailAdminPanel() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* TESTE DE EMAIL */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Teste de Email</CardTitle>
+          <CardDescription>Valide suas configurações enviando um email de teste</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium">Tipo de Relatório</label>
+              <select
+                value={testEmailConfig.emailType}
+                onChange={(e) =>
+                  setTestEmailConfig({
+                    ...testEmailConfig,
+                    emailType: e.target.value as "daily" | "weekly" | "monthly",
+                  })
+                }
+                className="w-full mt-1 p-2 border rounded-lg"
+              >
+                <option value="daily">Diário</option>
+                <option value="weekly">Semanal</option>
+                <option value="monthly">Mensal</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium">Enviar para</label>
+              <select className="w-full mt-1 p-2 border rounded-lg">
+                <option>Todos os destinatários ativos</option>
+                {recipients
+                  .filter((r) => r.active)
+                  .map((r) => (
+                    <option key={r.id} value={r.email}>
+                      {r.name} ({r.email})
+                    </option>
+                  ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-3 p-4 bg-muted rounded-lg">
+            <h4 className="font-medium">Conteúdo do Email</h4>
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={testEmailConfig.includeBlockers}
+                onCheckedChange={(checked) =>
+                  setTestEmailConfig({ ...testEmailConfig, includeBlockers: checked as boolean })
+                }
+              />
+              <label className="text-sm">Incluir Bloqueios Identificados</label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={testEmailConfig.includeWins}
+                onCheckedChange={(checked) =>
+                  setTestEmailConfig({ ...testEmailConfig, includeWins: checked as boolean })
+                }
+              />
+              <label className="text-sm">Incluir Wins da Equipa</label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={testEmailConfig.includeSentiment}
+                onCheckedChange={(checked) =>
+                  setTestEmailConfig({ ...testEmailConfig, includeSentiment: checked as boolean })
+                }
+              />
+              <label className="text-sm">Incluir Análise de Sentimento</label>
+            </div>
+          </div>
+
+          {testEmailResult && (
+            <div
+              className={`p-4 rounded-lg flex items-start gap-3 ${
+                testEmailResult.success ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"
+              }`}
+            >
+              {testEmailResult.success ? (
+                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              )}
+              <p className={testEmailResult.success ? "text-green-800" : "text-red-800"}>{testEmailResult.message}</p>
+            </div>
+          )}
+
+          <Button
+            onClick={() => {
+              setTestEmailLoading(true);
+              sendTestEmailMutation.mutate(
+                {
+                  recipients: recipients.filter((r) => r.active).map((r) => r.email),
+                  ...testEmailConfig,
+                },
+                {
+                  onSuccess: (result) => {
+                    setTestEmailResult(result);
+                    setTestEmailLoading(false);
+                  },
+                  onError: (error) => {
+                    setTestEmailResult({
+                      success: false,
+                      message: `Erro: ${error.message}`,
+                    });
+                    setTestEmailLoading(false);
+                  },
+                }
+              );
+            }}
+            disabled={testEmailLoading || recipients.filter((r) => r.active).length === 0}
+            className="w-full"
+          >
+            <Send className="w-4 h-4 mr-2" />
+            {testEmailLoading ? "Enviando..." : "Enviar Email de Teste"}
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* AÇÕES RÁPIDAS */}
       <Card>

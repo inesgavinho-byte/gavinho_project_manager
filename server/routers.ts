@@ -2059,6 +2059,31 @@ export const appRouter = router({
       }),
   }),
 
+
+
+  // Email Test Endpoints
+  emailTest: publicProcedure
+    .input(z.object({
+      recipients: z.array(z.string().email()),
+      emailType: z.enum(['daily', 'weekly', 'monthly']),
+      includeBlockers: z.boolean().default(true),
+      includeWins: z.boolean().default(true),
+      includeSentiment: z.boolean().default(true),
+    }))
+    .mutation(async ({ input }) => {
+      const { sendTestEmail } = await import('./emailTestService');
+      return sendTestEmail(input);
+    }),
+
+  validateEmailConfig: publicProcedure
+    .input(z.object({
+      recipients: z.array(z.string().email()),
+      emailType: z.enum(['daily', 'weekly', 'monthly']),
+    }))
+    .query(async ({ input }) => {
+      const { validateEmailConfig } = await import('./emailTestService');
+      return validateEmailConfig(input);
+    }),
 });
 
 export type AppRouter = typeof appRouter;
