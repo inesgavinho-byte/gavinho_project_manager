@@ -3662,3 +3662,13 @@
 - [ ] Integração de Endpoints tRPC para Configurações da BIA
 - [ ] Dashboard de Equipa com Membros e Performance Individual
 - [ ] Automação de Relatórios por Email - Envio Diário para Inês
+
+
+## Painel de Administração de Email
+
+- [ ] Criar componente EmailAdminPanel com gestão de configurações
+- [ ] Implementar gestão de destinatários (adicionar/remover/editar)
+- [ ] Implementar gestão de frequência e agendamento de envios
+- [ ] Criar visualização de histórico de envios com status
+- [ ] Adicionar endpoints tRPC para persistência de configurações
+- [ ] Testar e validar todas as funcionalidades
