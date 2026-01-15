@@ -3698,3 +3698,13 @@
 - [x] Implementar dashboard React com visualizações por grupo de clientes (RecipientSegmentationDashboard.tsx)
 - [x] Adicionar filtros e comparações entre segmentos
 - [x] Testar segmentação e validar análises
+
+
+## Gestão de Projetos (Marcos, Equipa, Documentos)
+- [x] Criar tabelas de banco de dados (projects, projectMilestones, projectTeam, projectDocuments, projectGallery)
+- [x] Implementar serviços de gestão de projetos, marcos e equipa (projectManagementService.ts)
+- [x] Criar endpoints tRPC para CRUD de projetos e marcos (projectManagement.ts router)
+- [ ] Implementar sistema de galeria, moodboards e versionamento
+- [ ] Criar UI para gestão de projetos com dashboard e detalhes
+- [ ] Implementar anotações em imagens/PDFs e histórico de alterações
+- [ ] Testar sistema completo e validar funcionalidades
