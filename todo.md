@@ -3755,3 +3755,14 @@
 - [x] Integrar escalonamento com sistema de automação existente
 - [x] Criar UI para gerenciar regras de escalonamento (EscalationRulesManager.tsx)
 - [x] Testar escalonamento e validar notificações
+
+
+## Dashboard de Conformidade (Análise de Prazos)
+- [x] Implementar serviço de cálculo de métricas de conformidade (complianceService.ts)
+- [x] Criar endpoints tRPC para obter dados de conformidade por projeto (compliance.ts router)
+- [x] Implementar visualizações de gráficos (taxa de cumprimento, tendências, distribuição)
+- [x] Criar componente React para dashboard de conformidade (ComplianceDashboard.tsx)
+- [x] Adicionar filtros por período, projeto, status
+- [x] Implementar comparações entre períodos e projetos
+- [x] Adicionar exportação de relatórios em CSV
+- [x] Testar dashboard e validar métricas
