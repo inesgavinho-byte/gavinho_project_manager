@@ -3802,3 +3802,14 @@
 - [x] Implementar análise de ações mais lentas e com mais falhas
 - [x] Adicionar gráficos de tendências temporais e correlações
 - [x] Testar dashboard e validar análises
+
+
+## Alertas Automáticos de Anomalias Críticas
+- [x] Criar tabelas de alertas de anomalias (anomalyAlerts structure)
+- [x] Implementar serviço de detecção e notificação de anomalias (anomalyAlertService.ts)
+- [x] Criar endpoints tRPC para gerenciar alertas (anomalyAlerts.ts router)
+- [x] Implementar lógica de escalonamento de alertas (escalateAlert function)
+- [x] Criar componente React para painel de alertas (AnomalyAlertPanel.tsx)
+- [x] Adicionar notificações em tempo real com WebSocket
+- [x] Implementar sugestões de ação automáticas baseadas em tipo de anomalia
+- [x] Testar sistema de alertas e validar notificações
