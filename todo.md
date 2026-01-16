@@ -3813,3 +3813,14 @@
 - [x] Adicionar notificações em tempo real com WebSocket
 - [x] Implementar sugestões de ação automáticas baseadas em tipo de anomalia
 - [x] Testar sistema de alertas e validar notificações
+
+
+## Painel de Controlo de Gestão (Configuração de Anomalias)
+- [x] Implementar serviço de configuração de regras de deteção (anomalyRuleConfigService.ts)
+- [x] Criar endpoints tRPC para CRUD de regras de deteção (anomalyRuleConfig.ts router)
+- [x] Implementar validação e teste de regras em tempo real (validateAnomalyRule, testAnomalyRule)
+- [x] Criar componente React para painel de controlo (AnomalyRuleControlPanel.tsx)
+- [x] Adicionar templates pré-configurados para tipos de anomalias comuns (RULE_TEMPLATES)
+- [x] Implementar editor visual de regras com preview
+- [x] Adicionar histórico de alterações e auditoria de configurações
+- [x] Testar painel de controlo e validar funcionalidades
