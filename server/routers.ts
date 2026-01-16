@@ -49,6 +49,7 @@ import * as supplierTrendService from "./supplierTrendService";
 import * as userNotificationPreferencesDb from "./userNotificationPreferencesDb";
 import { reportSchedulerRouter } from "./routers/reportScheduler";
 import { projectManagementRouter } from "./routers/projectManagement";
+import { executiveDashboardRouter } from "./routers/executiveDashboard";
 
 export const appRouter = router({
   system: systemRouter,
@@ -2093,6 +2094,9 @@ export const appRouter = router({
 
   // Project Management
   projectManagement: projectManagementRouter,
+
+  // Executive Dashboard
+  executiveDashboard: executiveDashboardRouter,
 });
 
 export type AppRouter = typeof appRouter;

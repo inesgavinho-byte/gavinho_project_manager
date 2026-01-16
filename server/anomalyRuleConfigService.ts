@@ -1,5 +1,5 @@
 import { db } from './db';
-import { anomalyRules } from '@/drizzle/schema';
+import { anomalyRules } from '../drizzle/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
 export interface AnomalyRuleConfig {

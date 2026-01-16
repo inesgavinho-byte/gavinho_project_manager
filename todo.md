@@ -22,7 +22,12 @@
 - [x] Implementar cards de status de projetos
 - [x] Adicionar gráficos de progresso
 - [x] Mostrar alertas de prazos e projetos atrasados
-- [ ] Implementar filtros e busca de projetos
+- [x] Implementar filtros e busca de projetos
+- [x] Implementar filtros avançados com múltiplas opções
+- [x] Adicionar busca com autocomplete
+- [x] Implementar visualizações e gráficos interativos
+- [x] Criar serviço de busca e filtros
+- [x] Criar endpoints tRPC para dashboard executivo
 
 ## Gestão de Projetos
 - [x] Criar página de listagem de projetos
@@ -3824,3 +3829,13 @@
 - [x] Implementar editor visual de regras com preview
 - [x] Adicionar histórico de alterações e auditoria de configurações
 - [x] Testar painel de controlo e validar funcionalidades
+
+
+## Dashboard Executivo (Filtros e Busca)
+- [ ] Criar serviço de busca e filtros de projetos (executiveDashboardService.ts)
+- [ ] Implementar endpoints tRPC para dashboard executivo
+- [ ] Criar componente React do dashboard com KPIs
+- [ ] Implementar sistema de filtros avançados (status, prioridade, fase, equipa)
+- [ ] Adicionar busca de projetos com autocomplete
+- [ ] Implementar visualizações e gráficos interativos
+- [ ] Testar dashboard e validar funcionalidades

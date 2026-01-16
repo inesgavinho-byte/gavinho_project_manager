@@ -1,5 +1,5 @@
 import { getDb } from './db';
-import { projects, projectMilestones, projectTeam, projectDocuments, projectGallery, projectPhases } from '@/drizzle/schema';
+import { projects, projectMilestones, projectTeam, projectDocuments, projectGallery, projectPhases } from '../drizzle/schema';
 import { eq, and, desc, gte, lte } from 'drizzle-orm';
 
 let db: any = null;

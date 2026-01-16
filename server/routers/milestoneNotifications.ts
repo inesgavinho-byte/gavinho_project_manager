@@ -1,4 +1,4 @@
-import { router, protectedProcedure } from '@/server/_core/trpc';
+import { router, protectedProcedure } from '../_core/trpc';
 import { z } from 'zod';
 import {
   checkUpcomingMilestones,
@@ -7,7 +7,7 @@ import {
   dismissNotification,
   dismissAllNotifications,
   getNotificationStats,
-} from '@/server/milestoneNotificationService';
+} from '../milestoneNotificationService';
 
 export const milestoneNotificationsRouter = router({
   /**

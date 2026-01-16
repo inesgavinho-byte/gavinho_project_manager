@@ -1,5 +1,5 @@
 import { initDb } from './db';
-import { projectMilestones, milestoneNotifications } from '@/drizzle/schema';
+import { projectMilestones, milestoneNotifications } from '../drizzle/schema';
 import { eq, and, lt, gt, isNull } from 'drizzle-orm';
 
 export interface MilestoneAlert {
