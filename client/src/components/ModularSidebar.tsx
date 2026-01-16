@@ -71,6 +71,12 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           path: "/",
         },
         {
+          id: "executive-dashboard",
+          label: "Dashboard Executivo",
+          icon: BarChart3,
+          path: "/executive-dashboard",
+        },
+        {
           id: "projetos",
           label: "Projetos",
           icon: FolderKanban,

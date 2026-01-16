@@ -87,6 +87,7 @@ import Login from "./pages/Login";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import { RealtimeNotifications } from "./components/RealtimeNotifications";
+import { ExecutiveDashboard } from "./components/ExecutiveDashboard";
 
 function Router() {
   return (
@@ -102,6 +103,12 @@ function Router() {
       <Route path="/">
         <DashboardLayout>
           <Dashboard />
+        </DashboardLayout>
+      </Route>
+      
+      <Route path="/executive-dashboard">
+        <DashboardLayout>
+          <ExecutiveDashboard />
         </DashboardLayout>
       </Route>
       

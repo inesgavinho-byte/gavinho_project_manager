@@ -28,6 +28,8 @@
 - [x] Implementar visualizações e gráficos interativos
 - [x] Criar serviço de busca e filtros
 - [x] Criar endpoints tRPC para dashboard executivo
+- [x] Integrar rota no App.tsx
+- [x] Adicionar link no menu de navegação
 
 ## Gestão de Projetos
 - [x] Criar página de listagem de projetos
