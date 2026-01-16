@@ -32,6 +32,7 @@ import {
   Settings,
   History,
   Mail,
+  Grid3x3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -124,6 +125,12 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           label: "Sugestões IA",
           icon: Sparkles,
           path: "/sugestoes-ia",
+        },
+        {
+          id: "mqa",
+          label: "Mapas de Quantidades",
+          icon: Grid3x3,
+          path: "/mqa",
         },
       ],
     },

@@ -311,11 +311,11 @@
 - [x] Criar serviço de importação MQT
 - [x] Implementar sistema de alertas de variância
 - [x] Criar endpoints tRPC para MQT
-- [ ] Desenvolver componente de upload
-- [ ] Criar tabela de visualização de MQT
-- [ ] Implementar gráficos de comparação (planejado vs executado)
-- [ ] Criar painel de alertas
-- [ ] Adicionar página MQT ao menu
+- [x] Desenvolver componente de upload
+- [x] Criar tabela de visualização de MQT
+- [x] Implementar gráficos de comparação (planejado vs executado)
+- [x] Criar painel de alertas
+- [x] Adicionar página MQT ao menu
 - [ ] Implementar exportação de dados
 - [ ] Criar testes unitários para MQT
 - [ ] Testar fluxo completo de importação
