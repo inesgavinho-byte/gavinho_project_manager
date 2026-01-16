@@ -3735,3 +3735,13 @@
 - [x] Implementar componente de notificações na UI (MilestoneNotificationsPanel.tsx)
 - [x] Adicionar sistema de alertas em tempo real com WebSocket
 - [x] Testar notificações e validar funcionalidades
+
+
+## Regras de Automação de Marcos
+- [x] Criar tabelas de regras de automação (automationRules, automationLogs)
+- [x] Implementar serviço de execução de regras de automação (automationService.ts)
+- [x] Criar endpoints tRPC para gerenciar regras (automationRules.ts router)
+- [x] Implementar ações de automação (notificar equipa, atualizar estado, gerar alertas, enviar email)
+- [x] Integrar automações com sistema de notificações de marcos
+- [x] Criar UI para gerenciar regras de automação (AutomationRulesManager.tsx)
+- [x] Testar regras de automação e validar execução
