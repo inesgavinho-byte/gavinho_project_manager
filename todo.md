@@ -3766,3 +3766,17 @@
 - [x] Implementar comparações entre períodos e projetos
 - [x] Adicionar exportação de relatórios em CSV
 - [x] Testar dashboard e validar métricas
+
+
+## Ações Automáticas Avançadas (Escalonamento)
+- [x] Criar tabelas de ações avançadas (advancedActions, actionExecutionLogs)
+- [x] Implementar serviço de execução de ações avançadas (advancedActionsService.ts)
+- [x] Criar endpoints tRPC para gerenciar ações customizáveis (advancedActions.ts router)
+- [x] Implementar ação: Pausar projeto
+- [x] Implementar ação: Gerar ticket de suporte
+- [x] Implementar ação: Criar reunião de revisão
+- [x] Implementar ação: Enviar email customizado
+- [x] Implementar ação: Atualizar status de projeto
+- [x] Integrar ações com sistema de escalonamento
+- [x] Criar UI para configurar ações avançadas (AdvancedActionsManager.tsx)
+- [x] Testar ações avançadas e validar execução
