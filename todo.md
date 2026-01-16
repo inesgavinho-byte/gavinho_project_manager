@@ -3745,3 +3745,13 @@
 - [x] Integrar automações com sistema de notificações de marcos
 - [x] Criar UI para gerenciar regras de automação (AutomationRulesManager.tsx)
 - [x] Testar regras de automação e validar execução
+
+
+## Escalonamento de Marcos Vencidos
+- [x] Criar tabelas de escalonamento (escalationRules, escalationHistory)
+- [x] Implementar serviço de escalonamento com lógica de notificação em cascata (escalationService.ts)
+- [x] Criar endpoints tRPC para gerenciar regras de escalonamento (escalationRules.ts router)
+- [x] Implementar notificações progressivas por nível (gestor 3 dias, diretor 7 dias, admin 10 dias)
+- [x] Integrar escalonamento com sistema de automação existente
+- [x] Criar UI para gerenciar regras de escalonamento (EscalationRulesManager.tsx)
+- [x] Testar escalonamento e validar notificações
