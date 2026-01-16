@@ -3780,3 +3780,14 @@
 - [x] Integrar ações com sistema de escalonamento
 - [x] Criar UI para configurar ações avançadas (AdvancedActionsManager.tsx)
 - [x] Testar ações avançadas e validar execução
+
+
+## Dashboard de Auditoria de Ações
+- [x] Implementar serviço de rastreamento e auditoria de ações (auditService.ts)
+- [x] Criar endpoints tRPC para consultar histórico de ações (audit.ts router)
+- [x] Implementar visualizações de gráficos (ações por hora, taxa de sucesso, distribuição)
+- [x] Criar componente React para dashboard de auditoria (ActionAuditDashboard.tsx)
+- [x] Adicionar filtros por tipo de ação, status, data, projeto
+- [x] Implementar busca e ordenação de ações
+- [x] Adicionar exportação de dados em CSV
+- [x] Testar dashboard de auditoria e validar funcionalidades
