@@ -3897,3 +3897,15 @@
 - [ ] Ativar logs de acesso e auditoria
 - [ ] Verificar e documentar dados expostos publicamente
 - [ ] Testar acesso com utilizador não autenticado
+
+
+## Painel de Administração de Utilizadores
+- [x] Criar serviço de gestão de utilizadores e papéis
+- [x] Criar endpoints tRPC para administração
+- [x] Desenvolver componente de tabela de utilizadores
+- [x] Implementar página de painel de administração
+- [x] Adicionar filtros e busca de utilizadores
+- [x] Integrar ao menu de navegação
+- [ ] Criar diálogo de edição de papéis e permissões (próximo)
+- [ ] Criar sistema de auditoria de alterações (próximo)
+- [ ] Escrever testes unitários para painel admin (próximo)

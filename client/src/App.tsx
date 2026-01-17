@@ -89,6 +89,7 @@ import { Loader2 } from "lucide-react";
 import { RealtimeNotifications } from "./components/RealtimeNotifications";
 import { ExecutiveDashboard } from "./components/ExecutiveDashboard";
 import { MQTAnalysis } from "./pages/MQTAnalysis";
+import AdminPanel from "./pages/AdminPanel";
 
 function Router() {
   return (
@@ -116,6 +117,12 @@ function Router() {
       <Route path="/mqa/:projectId">
         <DashboardLayout>
           <MQTAnalysis />
+        </DashboardLayout>
+      </Route>
+
+      <Route path="/admin">
+        <DashboardLayout>
+          <AdminPanel />
         </DashboardLayout>
       </Route>
       

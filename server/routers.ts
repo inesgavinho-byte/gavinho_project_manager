@@ -51,9 +51,11 @@ import { reportSchedulerRouter } from "./routers/reportScheduler";
 import { projectManagementRouter } from "./routers/projectManagement";
 import { executiveDashboardRouter } from "./routers/executiveDashboard";
 import { mqtAutomationRouter } from "./routers/mqtAutomation";
+import { adminRouter } from "./routers/admin";
 
 export const appRouter = router({
   system: systemRouter,
+  admin: adminRouter,
   
   // Approval Notifications
   approvalNotifications: router({
