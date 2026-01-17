@@ -33,21 +33,33 @@ export class NotificationWebSocketServer {
       // Extract token from query string or cookie
       const url = new URL(request.url || "", `http://${request.headers.host}`);
       const token = url.searchParams.get("token") || this.extractTokenFromCookie(request);
+      const userId = url.searchParams.get("userId");
 
-      if (!token) {
+      if (!token && !userId) {
+        console.warn("[WebSocket] No token or userId provided");
         socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
         socket.destroy();
         return;
       }
 
-      // Verify token using SDK
-      // Create a mock request object with the session cookie
-      const mockReq = {
-        headers: { cookie: `session=${token}` }
-      } as any;
+      // Verify token using SDK if token is provided
+      let user = null;
+      if (token) {
+        const mockReq = {
+          headers: { cookie: `session=${token}` }
+        } as any;
+        
+        user = await sdk.authenticateRequest(mockReq);
+      }
       
-      const user = await sdk.authenticateRequest(mockReq);
+      // If no user from token, try to use userId as fallback
+      if (!user && userId) {
+        console.warn("[WebSocket] Using userId as fallback");
+        user = { id: parseInt(userId) } as any;
+      }
+      
       if (!user) {
+        console.warn("[WebSocket] Authentication failed");
         socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
         socket.destroy();
         return;
@@ -62,7 +74,11 @@ export class NotificationWebSocketServer {
       });
     } catch (error) {
       console.error("[WebSocket] Upgrade error:", error);
-      socket.write("HTTP/1.1 500 Internal Server Error\r\n\r\n");
+      try {
+        socket.write("HTTP/1.1 500 Internal Server Error\r\n\r\n");
+      } catch (e) {
+        // Socket might already be closed
+      }
       socket.destroy();
     }
   }

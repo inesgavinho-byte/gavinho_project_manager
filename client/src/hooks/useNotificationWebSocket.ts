@@ -51,36 +51,25 @@ export function useNotificationWebSocket(options: UseNotificationWebSocketOption
 
     try {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const url = `${protocol}//${window.location.host}/ws/notifications?userId=${user.id}${
-        projectId ? `&projectId=${projectId}` : ''
-      }`;
+      const token = getSessionToken();
+      
+      // Construir URL com token na query string
+      const params = new URLSearchParams();
+      params.append('userId', String(user.id));
+      if (token) {
+        params.append('token', token);
+      }
+      if (projectId) {
+        params.append('projectId', projectId);
+      }
+      
+      const url = `${protocol}//${window.location.host}/ws/notifications?${params.toString()}`;
 
       const ws = new WebSocket(url);
 
       ws.onopen = () => {
         console.log('[WebSocket] Conectado ao servidor de notificações');
         setIsConnected(true);
-
-        // Enviar token de autenticação
-        const token = getSessionToken();
-        if (token) {
-          ws.send(
-            JSON.stringify({
-              type: 'auth',
-              token: token,
-            })
-          );
-        }
-
-        // Enviar subscribe se houver projectId
-        if (projectId) {
-          ws.send(
-            JSON.stringify({
-              type: 'subscribe',
-              projectId,
-            })
-          );
-        }
 
         // Limpar timeout de reconexão
         if (reconnectTimeoutRef.current) {
@@ -107,7 +96,7 @@ export function useNotificationWebSocket(options: UseNotificationWebSocketOption
 
       ws.onerror = (error) => {
         const errorMessage = error instanceof Event ? 'WebSocket connection failed' : String(error);
-        console.error('[WebSocket] Erro:', errorMessage);
+        console.error('[WebSocket] Erro:', errorMessage, error);
         setIsConnected(false);
       };
 
@@ -128,7 +117,7 @@ export function useNotificationWebSocket(options: UseNotificationWebSocketOption
       console.error('[WebSocket] Erro ao conectar:', error);
       setIsConnected(false);
     }
-  }, [user?.id, projectId, autoReconnect, reconnectDelay, onAlert, onNotification, getSessionToken]);
+  }, [user?.id, projectId, autoReconnect, reconnectDelay, onAlert, onNotification, getSessionToken, user]);
 
   /**
    * Desconectar do servidor WebSocket
