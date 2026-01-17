@@ -3874,3 +3874,14 @@
 - [ ] Criar painel de configuração de calendários
 - [ ] Escrever testes unitários para integração de calendários
 - [ ] Testar fluxo completo de criação de eventos
+
+
+## Notificações Personalizadas no Site
+- [x] Criar componente de painel de notificações personalizadas
+- [x] Implementar preferências de notificação por usuário
+- [x] Criar sistema de templates de notificações
+- [x] Implementar múltiplos canais (push, email, SMS, in-app)
+- [x] Criar painel de configuração de notificações
+- [x] Adicionar histórico e arquivamento de notificações
+- [x] Escrever testes unitários para notificações (15 testes, todos passando)
+- [x] Testar fluxo completo de notificações personalizadas
