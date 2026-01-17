@@ -562,9 +562,4 @@ function App() {
   );
 }
 
-export default App;      <Route path="/bia-insights">
-        <DashboardLayout>
-          <BiaInsightsDashboard />
-        </DashboardLayout>
-      </Route>
-
+export default App;
