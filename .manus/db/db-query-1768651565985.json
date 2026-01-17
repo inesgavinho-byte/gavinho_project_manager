@@ -1,0 +1,25 @@
+{
+  "query": "SELECT COUNT(*) as total_projects FROM projects; SELECT COUNT(*) as total_tasks FROM tasks; SELECT COUNT(*) as total_users FROM users;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2v15PjphCS6k4yi.a0fb40a33af2 --database jpou84ZRnGWoiZm2uo5tdU --execute SELECT COUNT(*) as total_projects FROM projects; SELECT COUNT(*) as total_tasks FROM tasks; SELECT COUNT(*) as total_users FROM users;",
+  "rows": [
+    {
+      "total_projects": "64"
+    },
+    {
+      "total_projects": "total_tasks"
+    },
+    {
+      "total_projects": "3"
+    },
+    {
+      "total_projects": "total_users"
+    },
+    {
+      "total_projects": "41"
+    }
+  ],
+  "messages": [],
+  "stdout": "total_projects\n64\ntotal_tasks\n3\ntotal_users\n41\n",
+  "stderr": "",
+  "execution_time_ms": 65
+}
