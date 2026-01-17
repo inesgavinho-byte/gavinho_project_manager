@@ -3841,3 +3841,15 @@
 - [ ] Adicionar busca de projetos com autocomplete
 - [ ] Implementar visualizações e gráficos interativos
 - [ ] Testar dashboard e validar funcionalidades
+
+
+## Automação de Tarefas para Discrepâncias MQT
+- [x] Criar serviço de automação de tarefas MQT
+- [x] Implementar triggers de discrepâncias (crítico, aviso, normal)
+- [x] Criar endpoints tRPC para automação
+- [x] Integrar automação ao componente de alertas
+- [x] Criar painel de configuração de regras
+- [x] Implementar atribuição automática de tarefas
+- [x] Criar notificações de tarefas geradas
+- [x] Escrever testes unitários para automação
+- [x] Testar fluxo completo de geração de tarefas

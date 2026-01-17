@@ -66,6 +66,24 @@ export function MQTAnalysis() {
     },
   });
 
+  const generateTasksMutation = trpc.mqtAutomation.processAllUnresolvedAlerts.useMutation({
+    onSuccess: () => {
+      setRefreshKey((k) => k + 1);
+    },
+  });
+
+  const handleGenerateTasks = async () => {
+    try {
+      await generateTasksMutation.mutateAsync({
+        projectId: projectIdNum,
+        taskPriority: "high",
+        taskDueOffsetDays: 3,
+      });
+    } catch (error) {
+      console.error("Erro ao gerar tarefas:", error);
+    }
+  };
+
   // Prepare chart data
   const chartData = React.useMemo(() => {
     if (!mqtData || mqtData.length === 0) return [];

@@ -50,6 +50,7 @@ import * as userNotificationPreferencesDb from "./userNotificationPreferencesDb"
 import { reportSchedulerRouter } from "./routers/reportScheduler";
 import { projectManagementRouter } from "./routers/projectManagement";
 import { executiveDashboardRouter } from "./routers/executiveDashboard";
+import { mqtAutomationRouter } from "./routers/mqtAutomation";
 
 export const appRouter = router({
   system: systemRouter,
@@ -269,6 +270,7 @@ export const appRouter = router({
 
   // MQT - Mapa de Quantidades
   mqt: mqtRouter,
+  mqtAutomation: mqtAutomationRouter,
     
 
   // Dashboard
