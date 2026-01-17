@@ -3853,3 +3853,14 @@
 - [x] Criar notificações de tarefas geradas
 - [x] Escrever testes unitários para automação
 - [x] Testar fluxo completo de geração de tarefas
+
+
+## Notificações em Tempo Real para Tarefas MQT
+- [x] Verificar sistema de notificações existente
+- [x] Criar serviço de notificações MQT
+- [x] Integrar notificações ao serviço de automação
+- [x] Criar componente de painel de notificações
+- [x] Implementar WebSocket para notificações em tempo real
+- [x] Adicionar preferências de notificação por usuário
+- [x] Escrever testes unitários para notificações
+- [x] Testar fluxo completo de notificações

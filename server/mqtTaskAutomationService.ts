@@ -1,6 +1,7 @@
 import { getDb } from "./db";
 import { tasks, mqtAlerts, mqtLines, users, projects } from "../drizzle/schema";
 import { eq, and, isNull } from "drizzle-orm";
+import { notifyMQTTaskGenerated, notifyProjectTeamMQTTask, notifyOwnerMQTTask, notifyBulkMQTTasksGenerated, notifyMQTProcessingStatus } from "./mqtNotificationService";
 
 export interface MQTTaskAutomationConfig {
   projectId: number;
@@ -114,14 +115,43 @@ ${alert.message ? `**Mensagem:** ${alert.message}` : ""}
       updatedAt: new Date().toISOString(),
     });
 
-    return {
-      taskId: (result as any)[0].insertId as number,
+    const taskId = (result as any)[0].insertId as number;
+    const taskInfo = {
+      taskId,
       title: taskTitle,
       description: taskDescription,
       priority,
       assignedToId: config.autoAssignToUserId,
       dueDate: dueDate.toISOString(),
     };
+
+    try {
+      const notificationPayload = {
+        taskId,
+        title: taskTitle,
+        description: taskDescription,
+        priority,
+        severity: alert.severity as any,
+        itemCode: line.itemCode,
+        variance: variance,
+        variancePercentage: variancePercentage,
+        plannedQuantity: planned,
+        executedQuantity: executed,
+        projectId: config.projectId,
+        assignedToId: config.autoAssignToUserId,
+        dueDate: dueDate.toISOString(),
+      };
+
+      if (config.autoAssignToUserId) {
+        await notifyMQTTaskGenerated(config.autoAssignToUserId, notificationPayload);
+      }
+      await notifyProjectTeamMQTTask(config.projectId, notificationPayload);
+      await notifyOwnerMQTTask(notificationPayload);
+    } catch (notificationError) {
+      console.error("Erro ao enviar notificacoes de tarefa MQT:", notificationError);
+    }
+
+    return taskInfo;
   } catch (error) {
     console.error("Erro ao gerar tarefa a partir de alerta MQT:", error);
     throw error;
@@ -151,6 +181,8 @@ export async function processUnresolvedMQTAlerts(
         )
       );
 
+    await notifyMQTProcessingStatus(projectId, "started");
+
     const generatedTasks: GeneratedTaskInfo[] = [];
 
     for (const alert of unresolvedAlerts) {
@@ -161,9 +193,13 @@ export async function processUnresolvedMQTAlerts(
         }
       } catch (error) {
         console.error(`Erro ao processar alerta ${alert.id}:`, error);
-        // Continuar com o próximo alerta
       }
     }
+
+    await notifyMQTProcessingStatus(projectId, "completed", {
+      tasksGenerated: generatedTasks.length,
+      timestamp: new Date().toISOString(),
+    });
 
     return generatedTasks;
   } catch (error) {
