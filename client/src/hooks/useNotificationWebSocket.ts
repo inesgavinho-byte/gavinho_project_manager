@@ -35,6 +35,15 @@ export function useNotificationWebSocket(options: UseNotificationWebSocketOption
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   /**
+   * Extrair token de sessão dos cookies
+   */
+  const getSessionToken = useCallback((): string | null => {
+    const cookies = document.cookie.split('; ');
+    const sessionCookie = cookies.find(row => row.startsWith('session='));
+    return sessionCookie ? sessionCookie.split('=')[1] : null;
+  }, []);
+
+  /**
    * Conectar ao servidor WebSocket
    */
   const connect = useCallback(() => {
@@ -51,6 +60,17 @@ export function useNotificationWebSocket(options: UseNotificationWebSocketOption
       ws.onopen = () => {
         console.log('[WebSocket] Conectado ao servidor de notificações');
         setIsConnected(true);
+
+        // Enviar token de autenticação
+        const token = getSessionToken();
+        if (token) {
+          ws.send(
+            JSON.stringify({
+              type: 'auth',
+              token: token,
+            })
+          );
+        }
 
         // Enviar subscribe se houver projectId
         if (projectId) {
@@ -88,6 +108,7 @@ export function useNotificationWebSocket(options: UseNotificationWebSocketOption
       ws.onerror = (error) => {
         const errorMessage = error instanceof Event ? 'WebSocket connection failed' : String(error);
         console.error('[WebSocket] Erro:', errorMessage);
+        setIsConnected(false);
       };
 
       ws.onclose = () => {
@@ -105,8 +126,9 @@ export function useNotificationWebSocket(options: UseNotificationWebSocketOption
       wsRef.current = ws;
     } catch (error) {
       console.error('[WebSocket] Erro ao conectar:', error);
+      setIsConnected(false);
     }
-  }, [user?.id, projectId, autoReconnect, reconnectDelay, onAlert, onNotification]);
+  }, [user?.id, projectId, autoReconnect, reconnectDelay, onAlert, onNotification, getSessionToken]);
 
   /**
    * Desconectar do servidor WebSocket
