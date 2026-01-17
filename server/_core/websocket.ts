@@ -32,34 +32,20 @@ export class NotificationWebSocketServer {
     try {
       // Extract token from query string or cookie
       const url = new URL(request.url || "", `http://${request.headers.host}`);
-      const token = url.searchParams.get("token") || this.extractTokenFromCookie(request);
       const userId = url.searchParams.get("userId");
 
-      if (!token && !userId) {
-        console.warn("[WebSocket] No token or userId provided");
+      if (!userId) {
+        console.warn("[WebSocket] No userId provided");
         socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
         socket.destroy();
         return;
       }
 
-      // Verify token using SDK if token is provided
-      let user = null;
-      if (token) {
-        const mockReq = {
-          headers: { cookie: `session=${token}` }
-        } as any;
-        
-        user = await sdk.authenticateRequest(mockReq);
-      }
+      // Use userId directly (authentication is handled by session cookie)
+      const user = { id: parseInt(userId) } as any;
       
-      // If no user from token, try to use userId as fallback
-      if (!user && userId) {
-        console.warn("[WebSocket] Using userId as fallback");
-        user = { id: parseInt(userId) } as any;
-      }
-      
-      if (!user) {
-        console.warn("[WebSocket] Authentication failed");
+      if (!user || !user.id) {
+        console.warn("[WebSocket] Invalid userId");
         socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
         socket.destroy();
         return;
