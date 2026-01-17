@@ -35,7 +35,6 @@ import {
   Grid3x3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/_core/hooks/useAuth";
 
 interface ModularSidebarProps {
   onNavigate?: () => void;
@@ -363,18 +362,6 @@ export function ModularSidebar({ onNavigate }: ModularSidebarProps) {
           label: "Preferências de Notificações",
           icon: Settings,
           path: "/notification-preferences",
-        },
-      ],
-    },
-    {
-      id: "administracao",
-      title: "ADMINISTRAÇÃO",
-      items: [
-        {
-          id: "admin-panel",
-          label: "Painel de Administração",
-          icon: Shield,
-          path: "/admin",
         },
       ],
     },
