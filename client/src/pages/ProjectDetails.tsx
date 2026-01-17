@@ -57,6 +57,7 @@ import { ProjectLibraryTab } from "@/components/ProjectLibraryTab";
 import { ProjectGanttTimeline } from "@/components/ProjectGanttTimeline";
 import { ProjectMilestones } from "@/components/ProjectMilestones";
 import { ProjectTeamAssignment } from "@/components/ProjectTeamAssignment";
+import { ProjectBriefingForm } from "@/components/ProjectBriefingForm";
 import { useAuth } from "@/_core/hooks/useAuth";export default function ProjectDetails() {
   const [, params] = useRoute("/projects/:id");
   const projectId = params?.id ? parseInt(params.id) : 0;
@@ -1258,6 +1259,19 @@ import { useAuth } from "@/_core/hooks/useAuth";export default function ProjectD
         {/* Library Tab */}
         <TabsContent value="library">
           <ProjectLibraryTab projectId={projectId} />
+        </TabsContent>
+
+        {/* Briefing Tab */}
+        <TabsContent value="briefing" className="space-y-6">
+          <ProjectBriefingForm projectId={projectId} isEditable={true} />
+        </TabsContent>
+
+        {/* Phases Configuration Tab */}
+        <TabsContent value="phases-config" className="space-y-6">
+          <Card className="p-6 border-[#C3BAAF]/20 bg-white">
+            <h3 className="font-serif text-2xl text-[#5F5C59] mb-6">Configuração de Fases</h3>
+            <p className="text-[#5F5C59]/70">Funcionalidade em desenvolvimento...</p>
+          </Card>
         </TabsContent>
       </Tabs>
 
