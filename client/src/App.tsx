@@ -126,7 +126,6 @@ function Router() {
       </Route>
 
       <Route path="/import-contracts">
-import BiaInsightsDashboard from './components/BiaInsightsDashboard';
         <DashboardLayout>
           <ImportContracts />
         </DashboardLayout>

@@ -3864,3 +3864,13 @@
 - [x] Adicionar preferências de notificação por usuário
 - [x] Escrever testes unitários para notificações
 - [x] Testar fluxo completo de notificações
+
+
+## Integração com Calendários Outlook e Google
+- [ ] Criar serviço de integração com Outlook Calendar
+- [ ] Criar serviço de integração com Google Calendar
+- [ ] Criar endpoints tRPC para gerenciar eventos de calendário
+- [ ] Integrar criação de eventos ao serviço de automação MQT
+- [ ] Criar painel de configuração de calendários
+- [ ] Escrever testes unitários para integração de calendários
+- [ ] Testar fluxo completo de criação de eventos
