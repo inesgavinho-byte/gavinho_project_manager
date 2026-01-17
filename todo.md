@@ -3885,3 +3885,15 @@
 - [x] Adicionar histórico e arquivamento de notificações
 - [x] Escrever testes unitários para notificações (15 testes, todos passando)
 - [x] Testar fluxo completo de notificações personalizadas
+
+
+## 🚨 ALERTA CRÍTICO - Segurança do Site
+
+- [x] Mudar site de Público para Privado com autenticação obrigatória
+- [x] Configurar Manus Auth como sistema de autenticação
+- [x] Configurar permissões por papel (Admin, Gestor, Utilizador)
+- [x] Criar middleware de autorização por papel
+- [x] Criar componente RoleProtectedRoute para proteção de rotas
+- [ ] Ativar logs de acesso e auditoria
+- [ ] Verificar e documentar dados expostos publicamente
+- [ ] Testar acesso com utilizador não autenticado
